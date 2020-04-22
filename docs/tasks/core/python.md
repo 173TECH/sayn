@@ -27,11 +27,12 @@ It has a task name (`task_python` here), and then defines the following mandator
 
 `python` tasks are used in the following way:
 
-- import the `PythonTask` class from `sayn`.
-- define the class you will want the task to run. The task should inherit from `PythonTask`.
-- the class you define should have a `setup` and a `run` method. Those methods need to follow a specific signature and **you should only pass `self` as argument**.
-- `setup` should return `self.failed()` if an error has occurred otherwise `self.ready()`.
-- `run` should return `self.failed()` if an error has occurred otherwise `self.finished()`.
+* import the `PythonTask` class from `sayn`.
+* define the class you will want the task to run. The task should inherit from `PythonTask`.
+* the class you define can overwrite the following methods (those methods need to follow a specific signature and **you should only pass `self` as argument**):
+    * `setup`: runs when setting up the task. It should return `self.failed()` if an error has occurred otherwise `self.ready()`.
+    * `compile`: runs when compiling the task. It should return `self.failed()` if an error has occurred otherwise `self.finished()`.
+    * `run`: runs when executing the task. It should return `self.failed()` if an error has occurred otherwise `self.finished()`.
 
 **Important:** for `python` tasks you need to make sure the `python` folder in which you store your Python tasks' code contains an `__init__.py` file.
 
@@ -64,7 +65,8 @@ class TaskPython(PythonTask):
 
 In order, to make your `python` tasks dynamic based on project settings and profiles, you can use the SAYN API. A lot of useful information is stored on the task in the `sayn_config` attribute:
 
-- `self.sayn_config.parameters`: accesses the parameters available for the task. Those include the project parameters (`models.yaml`, `settings.yaml`) and additional parameters that might be set at the task's level. For more details on `parameters`, see the parameters section.
+- `self.sayn_config.parameters`: accesses project config parameters (`models.yaml`, `settings.yaml`). For more details on `parameters`, see the parameters section.
+- `self.parameters`: accesses the task's parameters.
 - `self.sayn_config.credentials`: accesses the credentials available for the profile used at run time. For more information on `credentials` please see the settings section.
 - `self.default_db`: accesses the `default_db` specified in the `models.yaml`.
 

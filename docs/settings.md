@@ -11,15 +11,15 @@ The `settings.yaml` file is used for individual settings to run the SAYN project
 **`settings.yaml`**
 
 ``` yaml
-default_profile: test
+default_profile: dev
 
 profiles:
-  test:
+  dev:
     credentials:
-      warehouse: snowflake-tu
+      warehouse: snowflake-songoku
 
     parameters:
-      table_prefix: tu_
+      table_prefix: songoku_
       schema_logs: analytics_logs
       schema_staging: analytics_adhoc
       schema_models: analytics_adhoc
@@ -28,14 +28,10 @@ profiles:
     credentials:
       warehouse: snowflake-prod
 
-    parameters:
-      table_prefix: ''
-      schema_logs: analytics_logs
-      schema_staging: analytics_staging
-      schema_models: analytics_models
+    # no need for prod parameters as those are read from models.yaml
 
 credentials:
-  snowflake-tu:
+  snowflake-songoku:
     type: snowflake
     account: [snowflake-account]
     user: [user-name]
@@ -56,7 +52,7 @@ credentials:
     role: [role]
 ```
 
-The `settings.yaml` has the following parameters defined, which are all mandatory:
+All parameters in `settings.yaml` are mandatory except `default_profile` which is mandatory only if two or more profiles are defined. Please see below details on the parameters:
 
 - `default_profile`: the profile that will be used by default when running SAYN. The profile specified needs to be defined in the `profiles`.
 - `profiles`: the list of profiles with detail about which credential and parameter they should use.

@@ -5,7 +5,9 @@
 A usual SAYN project structure will be as follows:
 
       project-name    # The name you chose.
+        compile/      # The folder where compiled SQL queries are stored.
         logs/         # The folder where SAYN logs are stored.
+        models/       # The folder where additional models can be added.
         python/       # The folder where Python tasks modules should be stored.
         sql/          # The folder where SQL tasks queries should be stored.
         models.yaml   # The backbone of a SAYN project enabling to define and orchestrate tasks.

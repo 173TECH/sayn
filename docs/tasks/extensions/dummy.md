@@ -23,7 +23,7 @@ This task does not require any other setting than its `type`.
 #your models code
 
 tasks:
-  #some tasks
+  #definition of task_1, task_2, task_3, task_4 ...
 
   task_mlt_parents_1:
     #task definition

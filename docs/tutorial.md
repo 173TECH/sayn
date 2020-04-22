@@ -81,7 +81,7 @@ The `models.yaml` has the following parameters defined, which are all mandatory:
 - `groups`: groups enable to define some attributes which will be used by all tasks referring to the group.
 - `tasks`: the list of tasks and their definitions. Those will be used by SAYN to create and run the DAG.
 
-*Note: SAYN has a range of tasks that can be used to implement and automate data processes. This tutorial will only cover the `sql`, `autosql` and `python` tasks but more task types are available. For more information about tasks please see the [Tasks](tasks.md) section of the documentation.*
+*Note: SAYN has a range of tasks that can be used to implement and automate data processes. This tutorial will only cover the `sql`, `autosql` and `python` tasks but more task types are available. For more information about tasks please see the Tasks section of the documentation.*
 
 **`settings.yaml`**
 
@@ -167,7 +167,7 @@ credentials:
     database: chinook.db
 ```
 
-*Note: different databases require different connection parameters. For specific detail regarding connecting to different databases please see the [Database](database.md) section of the documentation.*
+*Note: different databases require different connection parameters. For specific detail regarding connecting to different databases please see the [Databases](databases.md) section of the documentation.*
 
 This is it for `settings.yaml`, the SAYN project will now know which profile, parameters and credentials to use at run time.
 
@@ -334,7 +334,7 @@ track_details_autosql:
     table: '{{table_prefix}}{{task.name}}'
 ```
 
-`autosql` tasks enable you to simply write a `SELECT` statement and SAYN will automatically create the table or view for you. See the [Tasks](tasks.md) section of the documentation for more information on this task type. `autosql` only requires you to define the `materialisation` type and the process parameters: `staging_schema` (for the temporary table created in the process), `schema` (the destination schema where the object will be created), `table_name` (the name of the object created). In addition, you can see the attributes of the `track_details_autosql` task refer to our `parameters` and also the `task.name` which is  `track_details_autosql`. For example, if you had a `prod` profile with `schema_models` `analytics_models` and a `test` profile with `schema_models` `analytics_adhoc`, then this task would create the table in the `analytics_models` schema when using the `prod` profile and it would write it  in the `analytics_adhoc` schema  when using the `test` profile.
+`autosql` tasks enable you to simply write a `SELECT` statement and SAYN will automatically create the table or view for you. See the Tasks section of the documentation for more information on this task type. `autosql` only requires you to define the `materialisation` type and the process parameters: `staging_schema` (for the temporary table created in the process), `schema` (the destination schema where the object will be created), `table_name` (the name of the object created). In addition, you can see the attributes of the `track_details_autosql` task refer to our `parameters` and also the `task.name` which is  `track_details_autosql`. For example, if you had a `prod` profile with `schema_models` `analytics_models` and a `test` profile with `schema_models` `analytics_adhoc`, then this task would create the table in the `analytics_models` schema when using the `prod` profile and it would write it  in the `analytics_adhoc` schema  when using the `test` profile.
 
 Here is the SQL query referred by the `track_details_autosql` task. As you can observe, this query now does not have the `DROP` and `CREATE` statements. It only has the `SELECT` statement, everything is handled for you by SAYN.
 
@@ -526,7 +526,7 @@ A few things to note regarding `python` tasks:
 - `self.default_db` contains the default database.
 - `self.debault_db.select()` effectively runs a select query on the default database.
 
-For more details on the `python` tasks, please refer to the [Tasks](task.md) documentation.
+For more details on the `python` tasks, please refer to the [Tasks](tasks/overview.md) documentation.
 
 This it, we now have set all our tasks and our project is ready to be ran :)
 

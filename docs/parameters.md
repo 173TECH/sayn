@@ -56,7 +56,7 @@ profiles:
 
 ### In `tasks`
 
-You can access parameters when defining `tasks` with the following syntax: `{{parameter-name}}`. This example uses an `autosql` task:
+Task attributes are interpreted as Jinja parameters. Therefore, you can make the tasks' definition dynamic. This example uses an `autosql` task:
 
 ```yaml
 task_autosql_param:
@@ -69,7 +69,7 @@ task_autosql_param:
     table: {{table_prefix}}{{task.name}}
 ```
 
-*Note: the `table` setting uses `{{task.name}}`. This is because you can access the task name dynamically as well. In this case, `{{task.name}}` is `task_autosql_param`.*
+*Note: the `table` setting uses `{{task.name}}`. This is because the task object is in the Jinja environment and you can therefore access any task attribute. In this case, `{{task.name}}` is `task_autosql_param`.*
 
 When running `sayn run -t task_autosql_param`, this would be interpreted as (SAYN uses the `default_profile` by default):
 

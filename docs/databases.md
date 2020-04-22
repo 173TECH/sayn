@@ -8,7 +8,7 @@ SAYN uses `sqlalchemy` in order to manage database connections. It currently sup
 * Redshift
 * PostgreSQL
 * MySQL
-* SQLite (for testing only, do not use on production environments)
+* SQLite
 
 ## Usage
 
