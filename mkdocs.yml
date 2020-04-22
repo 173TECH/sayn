@@ -2,7 +2,14 @@ site_name: SAYN
 
 theme:
   name: material
+  palette:
+    primary: teal
+    accent: teal
   #logo: images/sayn_logo.png
+
+#google_analytics:
+#  - UA-XXXXXXXX-X
+#  - auto
 
 markdown_extensions:
   - attr_list
