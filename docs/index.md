@@ -1,6 +1,6 @@
 # SAYN
 
-**SAYN is data modelling and processing framework which enables analytics teams to build a robust, scalable and efficient data modelling & processing infrastructure.** It provides an easy way to orchestrate tasks (including SQL and Python) and to build data processes in minutes.
+**SAYN is data modelling and processing framework which enables analytics teams to build a robust, scalable and efficient data modelling and processing infrastructure.** It provides an easy way to orchestrate tasks, including SQL and Python, and to build data processes in minutes.
 
 Made with :heart: by [173tech](https://www.173tech.com){target="\_blank"}.
 
