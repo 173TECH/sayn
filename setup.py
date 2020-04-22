@@ -29,7 +29,7 @@ setup(
         description ='SAYN test.',
         long_description = long_description,
         long_description_content_type ="text/markdown",
-        license ='173',
+        license ='Apache 2.0',
         packages = find_packages(),
         package_data=sayn_package_data,
         include_package_data=True,
@@ -38,10 +38,10 @@ setup(
         },
         classifiers =(
             "Programming Language :: Python :: 3",
-            "License :: OSI Approved :: 173 License",
+            "License :: OSI Approved :: Apache 2.0",
             "Operating System :: OS Independent",
         ),
-        keywords ='python SAYN',
+        keywords ='data modelling and processing framework',
         install_requires = requirements,
         zip_safe = False
 )
