@@ -1,12 +1,10 @@
-# About SAYN
+# SAYN
 
-## Introduction
-
-**SAYN is a command line tool that enables analytics teams to build a robust, scalable and efficient data modelling & processing infrastructure.** It enables data analysts and engineers to create and orchestrate tasks (including SQL and Python) and to build data processes in minutes.
-
- The current stable version is `0.1`. SAYN is being developed actively, so please ensure you check version updates for compatibility before upgrading (you can obviously always revert back).
+**SAYN is data modelling and processing framework which enables analytics teams to build a robust, scalable and efficient data modelling & processing infrastructure.** It provides an easy way to orchestrate tasks (including SQL and Python) and to build data processes in minutes.
 
 Made with :heart: by [173tech](https://www.173tech.com){target="\_blank"}.
+
+ *Note: SAYN is currently being developed actively.*
 
 ## Use Cases
 
