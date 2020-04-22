@@ -4,8 +4,8 @@ with open('requirements.txt') as f:
     requirements = f.readlines()
 
 long_description = '''
-    SAYN is data modelling and processing framework which enables analytics teams to build a robust,
-    scalable and efficient data modelling and processing infrastructure.
+    SAYN is data modelling and processing framework which enables analytics teams to build robust,
+    scalable and efficient data infrastructures.
     It provides an easy way to orchestrate tasks, including SQL and Python, and to build data processes in minutes.
 '''
 
