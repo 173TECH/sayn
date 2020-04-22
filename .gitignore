@@ -1,0 +1,13 @@
+#ignore files
+.DS_Store
+__pycache__
+*.pyc
+dist/
+SAYN.egg-info/
+build/
+settings.yaml
+.ipynb_checkpoints/
+
+#documentation
+site/
+docs/site/
