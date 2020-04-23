@@ -16,12 +16,12 @@ SAYN can be used for multiple purposes across the analytics workflow:
 
 SAYN has the following key features:
 
-* [SQL SELECT statements](tasks/core/autosql.md): turn your queries into managed tables and views automatically.
-* [Jinja parameters](parameters.md): switch easily between development and product environment and other tricks with Jinja templating.
-* [Python tasks](tasks/core/python.md): use Python scripts to complement your extraction and loading layer and build data science models.
+* [SQL SELECT statements](https://173tech.github.io/sayn/tasks/core/autosql/): turn your queries into managed tables and views automatically.
+* [Jinja parameters](https://173tech.github.io/sayn/parameters/): switch easily between development and product environment and other tricks with Jinja templating.
+* [Python tasks](https://173tech.github.io/sayn/tasks/core/python/): use Python scripts to complement your extraction and loading layer and build data science models.
 * Create a Direct Acyclic Graph by simply declaring task dependencies.
-* Multiple [databases](databases.md) supported.
-* and much more...
+* Multiple [databases](https://173tech.github.io/sayn/databases/) supported.
+* and much more... See the [Documentation](https://173tech.github.io/sayn/).
 
 ## Design Principles
 
@@ -34,13 +34,13 @@ SAYN is designed around three core principles:
 ## Quick Start
 
 ```bash
-$ pip install https://github.com/173TECH/sayn.git
+$ pip install git+https://github.com/173TECH/sayn.git
 $ sayn init test_sayn
 $ cd test_sayn
 $ sayn run
 ```
 
-This is it! You completed your first SAYN run on the example project. Continue with the SAYN [Tutorial](tutorial.md) which will give you a good overview of SAYN's true power!
+This is it! You completed your first SAYN run on the example project. Continue with the SAYN [Tutorial](https://173tech.github.io/sayn/tutorial/) which will give you a good overview of SAYN's true power!
 
 ## Support
 
