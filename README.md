@@ -35,11 +35,8 @@ SAYN is designed around three core principles:
 
 ```bash
 $ pip install https://github.com/173TECH/sayn.git
-
 $ sayn init test_sayn
-
 $ cd test_sayn
-
 $ sayn run
 ```
 
