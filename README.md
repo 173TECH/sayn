@@ -2,6 +2,8 @@
 
 SAYN is a data-modelling and processing framework for automating Python and SQL tasks. It enables analytics teams to build robust data infrastructures in minutes.
 
+ *Status: SAYN is under active development so some changes can be expected.*
+
 ## Use Cases
 
 SAYN can be used for multiple purposes across the analytics workflow:
@@ -21,7 +23,7 @@ SAYN has the following key features:
 * Multiple [databases](databases.md) supported.
 * and much more...
 
-## Philosophy
+## Design Principles
 
 SAYN is designed around three core principles:
 
@@ -32,22 +34,16 @@ SAYN is designed around three core principles:
 ## Quick Start
 
 ```bash
-pip install https://github.com/173TECH/sayn.git
+$ pip install https://github.com/173TECH/sayn.git
 
-cd #to the directory where you want to create your SAYN project
+$ sayn init test_sayn
 
-sayn init [project_name]
+$ cd test_sayn
 
-cd [project_name]
-
-sayn run
+$ sayn run
 ```
 
-This is it! You completed your first SAYN run on the example project!
-
-## Next Steps
-
-Continue with the SAYN [Tutorial](tutorial.md) which will give you a good overview of SAYN's true power!
+This is it! You completed your first SAYN run on the example project. Continue with the SAYN [Tutorial](tutorial.md) which will give you a good overview of SAYN's true power!
 
 ## Support
 
@@ -60,5 +56,3 @@ SAYN is open source under the [Apache 2.0](https://www.apache.org/licenses/LICEN
 ---
 
 Made with :heart: by [173tech](https://www.173tech.com).
-
- *Status: SAYN is under active development so some changes can be expected.*
