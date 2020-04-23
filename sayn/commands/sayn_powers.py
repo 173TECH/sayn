@@ -116,13 +116,13 @@ def dag_image(debug, task, model):
 def run_command(command, debug, task, model, profile, full_load, start_dt, end_dt):
     if debug:
         Logger().set_debug()
+
     try:
         Config(
             profile=profile,
             full_load=full_load,
             start_dt=start_dt,
             end_dt=end_dt,
-            debug=debug,
         )
     except SaynConfigError as e:
         logging.error(e)
