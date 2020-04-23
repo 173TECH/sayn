@@ -2,7 +2,7 @@
 
 ## Installing SAYN
 
-SAYN can be installed through Python's `pip` command. In order to install SAYN, please run `pip install sayn`.
+In order to install SAYN, please run `pip install https://github.com/173TECH/sayn.git`.
 
 ## Creating your first project
 

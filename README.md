@@ -1,39 +1,53 @@
 # SAYN
 
-**SAYN is data modelling and processing framework which enables analytics teams to build robust, scalable and efficient data infrastructures.** It provides an easy way to orchestrate tasks, including SQL and Python, and to build data processes in minutes.
-
-Made with :heart: by [173tech](https://www.173tech.com){target="\_blank"}.
-
- *Note: SAYN is currently being developed actively.*
+SAYN is a data-modelling and processing framework for automating Python and SQL tasks. It enables analytics teams to build robust data infrastructures in minutes.
 
 ## Use Cases
 
 SAYN can be used for multiple purposes across the analytics workflow:
 
-- data extraction: SAYN can be used in traditional ETL models to extract the data. For ELT models, SAYN can complement tools such as Stitch or Fivetran to orchestrate extraction of missing or suboptimal data extractors.
-- data modelling: SAYN can be used for transforming data in your warehouse.
-- data science: SAYN can be used to orchestrate the run of your data science algorithms.
+* Data extraction: complement tools such as Stitch or Fivetran with customised extraction processes.
+* Date modelling: transform raw data in your data warehouse.
+* Date science: integrate and execute data science models.
 
-Through its key features, SAYN allows the following:
+Key Features
 
-- ability to use both Python and sql
-- creation of a DAG with task dependency
-- separation of development and production environments
-- automation of data processes
+* [SQL SELECT statements](tasks/core/autosql.md): turn your queries into managed tables and views automatically.
+* [Jinja parameters](parameters.md): switch easily between development and product environment and other tricks with Jinja templating.
+* [Python tasks](tasks/core/python.md): use Python scripts to complement your extraction and loading layer and build data science models.
+* Create a Direct Acyclic Graph by simply declaring task dependencies.
+* Multiple [databases](databases.md) supported.
 
 ## Philosophy
 
-**SAYN is your perfect army knife for data modelling and processing.** It has been built to provide data analysts and engineers with a solution that enables quick and efficient implementation of data processes, whilst ensuring long term scalability. **SAYN is designed around four core principles:**
+SAYN is designed around three core principles:
 
-- **simplicity:** analytics infrastructures should be simple to orchestrate and maintain. With SAYN, data analysts and engineers simply define tasks and SAYN orchestrates everything in the background.
-- **automation:** data analysts and engineers should focus on writing data transformation, not on writing processes. SAYN automates the heavy lifting through its many tasks. For example, the `autosql` task enables to write SQL `SELECT` statements, SAYN takes care of take table / view creation and maintenance in the background.
-- **flexibity:** data is versatile. Data analysts and engineers should have the flexibility to use the right approach for the right process. SAYN currently supports both SQL and Python.
-- **centralisation:** analytics infrastructures should be centralised (no need for many tools!). Because SAYN supports SQL and Python, it can be used to orchestrate the whole analytics workflow: covering data extraction (where necessary), data modelling and data science models.
+* **Simplicity**: data models and processes should be easy to create, scale and maintain. So your team can focus on data transformation instead of writing processes. SAYN orchestrates all your tasks systematically and provides a lot of automation features.
+* **Flexibility**: data can sometimes be muddy. Analysts need to be able to use the most optimal solution for each process. SAYN currently supports both SQL and Python.
+* **Centralisation**: all analytics code should live in one place, making your life easier and allowing dependencies throughout the whole analytics process.
 
-## Community
+## Quick Start
 
-For SAYN users to have the best experience, we maintain a [public Slack channel](link_to_be_added). Anyone use this channel in order to ask questions to the core developers and maintainers of SAYN (or to other fellow SAYNs!).
+You can start running SAYN in minutes:
 
-## Getting started
+1. `pip install https://github.com/173TECH/sayn.git`
+2. `cd` to the directory where you want to create your SAYN project
+3. `sayn init [project_name]`
+4. `cd [project_name]`
+5. `sayn run`
 
-If you have been looking for a simple tool that can enable you to orchestrate and automate data modelling and processes then SAYN is for you! Continue with the [Getting Started](getting_started.md) section and get your data modelling and processes up and running in a few minutes.
+This is it, you made your first SAYN run based on the example project!
+
+## Next Steps
+
+Continue with the SAYN [Tutorial](tutorial.md) which will give you a good overview of SAYN's true power!
+
+## Support
+
+If you need any help with SAYN, or simply want to know more, please contact the team at <sayn@173tech.com>.
+
+---
+
+Made with :heart: by [173tech](https://www.173tech.com).
+
+ *Status: SAYN is under active development so some changes can be expected.*
