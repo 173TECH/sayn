@@ -2,7 +2,7 @@
 
 ## Installing SAYN
 
-In order to install SAYN, please run `pip install https://github.com/173TECH/sayn.git`.
+In order to install SAYN, please run `pip install git+https://github.com/173TECH/sayn.git`.
 
 ## Creating your first project
 
