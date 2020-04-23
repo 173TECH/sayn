@@ -12,13 +12,14 @@ SAYN can be used for multiple purposes across the analytics workflow:
 
 ## Key Features
 
-test
+SAYN has the following key features:
 
 * [SQL SELECT statements](tasks/core/autosql.md): turn your queries into managed tables and views automatically.
 * [Jinja parameters](parameters.md): switch easily between development and product environment and other tricks with Jinja templating.
 * [Python tasks](tasks/core/python.md): use Python scripts to complement your extraction and loading layer and build data science models.
 * Create a Direct Acyclic Graph by simply declaring task dependencies.
 * Multiple [databases](databases.md) supported.
+* and much more...
 
 ## Philosophy
 
@@ -54,7 +55,7 @@ If you need any help with SAYN, or simply want to know more, please contact the 
 
 ## License
 
-SAYN is open sourced under the [Apached 2.0](https://www.apache.org/licenses/LICENSE-2.0) license.
+SAYN is open source under the [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) license.
 
 ---
 
