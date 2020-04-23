@@ -26,10 +26,10 @@ sayn_package_data = {
 
 setup(
         name ='SAYN',
-        version ='1.0.0',
+        version ='0.1.0',
         author = ['Robin Watteaux', 'Adrian Macias'],
         author_email = ['robin@173tech.com', 'adrian@173tech.com'],
-        url = '',
+        url = 'https://173TECH.github.io/sayn',
         description = 'Data modelling and processing framework.',
         long_description = long_description,
         long_description_content_type ="text/markdown",
