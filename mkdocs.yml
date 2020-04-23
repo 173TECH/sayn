@@ -1,0 +1,39 @@
+site_name: SAYN
+
+theme:
+  name: material
+  palette:
+    primary: teal
+    accent: teal
+  #logo: images/sayn_logo.png
+
+#google_analytics:
+#  - UA-149287493-2
+#  - auto
+
+markdown_extensions:
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+nav:
+  - Home: index.md
+  - Getting Started: getting_started.md
+  - Tutorial: tutorial.md
+  - Project Structure: project_structure.md
+  - Settings: settings.md
+  - Models: models.md
+  - Commands: commands.md
+  - Tasks:
+    - Overview: tasks/overview.md
+    - Core Tasks:
+      - autosql: tasks/core/autosql.md
+      - python: tasks/core/python.md
+    - Extension Tasks:
+      - copy: tasks/extensions/copy.md
+      - dummy: tasks/extensions/dummy.md
+      - sql: tasks/extensions/sql.md
+  - Groups: groups.md
+  - Parameters: parameters.md
+  - Databases: databases.md
