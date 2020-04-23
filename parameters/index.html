@@ -1,0 +1,838 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1, mkdocs-material-5.1.0">
+    
+    
+      
+        <title>Parameters - SAYN</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.89dc9fe3.min.css">
+      
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ecd4686e.min.css">
+      
+      
+        
+        
+        <meta name="theme-color" content="#009688">
+      
+    
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    <body dir="ltr" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#parameters" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href=".." title="SAYN" class="md-header-nav__button md-logo" aria-label="SAYN">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,8A3,3 0 0,0 15,5A3,3 0 0,0 12,2A3,3 0 0,0 9,5A3,3 0 0,0 12,8M12,11.54C9.64,9.35 6.5,8 3,8V19C6.5,19 9.64,20.35 12,22.54C14.36,20.35 17.5,19 21,19V8C17.5,8 14.36,9.35 12,11.54Z" /></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            SAYN
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            
+              Parameters
+            
+          </span>
+        </div>
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" /></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" /></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" /></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+        
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAYN" class="md-nav__button md-logo" aria-label="SAYN">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,8A3,3 0 0,0 15,5A3,3 0 0,0 12,2A3,3 0 0,0 9,5A3,3 0 0,0 12,8M12,11.54C9.64,9.35 6.5,8 3,8V19C6.5,19 9.64,20.35 12,22.54C14.36,20.35 17.5,19 21,19V8C17.5,8 14.36,9.35 12,11.54Z" /></svg>
+
+    </a>
+    SAYN
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../getting_started/" title="Getting Started" class="md-nav__link">
+      Getting Started
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../tutorial/" title="Tutorial" class="md-nav__link">
+      Tutorial
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../project_structure/" title="Project Structure" class="md-nav__link">
+      Project Structure
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../settings/" title="Settings" class="md-nav__link">
+      Settings
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../models/" title="Models" class="md-nav__link">
+      Models
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../commands/" title="Commands" class="md-nav__link">
+      Commands
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8">
+    
+    <label class="md-nav__link" for="nav-8">
+      Tasks
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+      </span>
+    </label>
+    <nav class="md-nav" aria-label="Tasks" data-md-level="1">
+      <label class="md-nav__title" for="nav-8">
+        <span class="md-nav__icon md-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
+        </span>
+        Tasks
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../tasks/overview/" title="Overview" class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-8-2" type="checkbox" id="nav-8-2">
+    
+    <label class="md-nav__link" for="nav-8-2">
+      Core Tasks
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+      </span>
+    </label>
+    <nav class="md-nav" aria-label="Core Tasks" data-md-level="2">
+      <label class="md-nav__title" for="nav-8-2">
+        <span class="md-nav__icon md-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
+        </span>
+        Core Tasks
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../tasks/core/autosql/" title="autosql" class="md-nav__link">
+      autosql
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../tasks/core/python/" title="python" class="md-nav__link">
+      python
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-8-3" type="checkbox" id="nav-8-3">
+    
+    <label class="md-nav__link" for="nav-8-3">
+      Extension Tasks
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+      </span>
+    </label>
+    <nav class="md-nav" aria-label="Extension Tasks" data-md-level="2">
+      <label class="md-nav__title" for="nav-8-3">
+        <span class="md-nav__icon md-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
+        </span>
+        Extension Tasks
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../tasks/extensions/copy/" title="copy" class="md-nav__link">
+      copy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../tasks/extensions/dummy/" title="dummy" class="md-nav__link">
+      dummy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../tasks/extensions/sql/" title="sql" class="md-nav__link">
+      sql
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../groups/" title="Groups" class="md-nav__link">
+      Groups
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Parameters
+        <span class="md-nav__icon md-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3,9H17V7H3V9M3,13H17V11H3V13M3,17H17V15H3V17M19,17H21V15H19V17M19,7V9H21V7H19M19,13H21V11H19V13Z" /></svg>
+        </span>
+      </label>
+    
+    <a href="./" title="Parameters" class="md-nav__link md-nav__link--active">
+      Parameters
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
+      </span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#about" class="md-nav__link">
+    About
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-parameters" class="md-nav__link">
+    Defining Parameters
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#accessing-parameters" class="md-nav__link">
+    Accessing Parameters
+  </a>
+  
+    <nav class="md-nav" aria-label="Accessing Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#in-tasks" class="md-nav__link">
+    In tasks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#in-groups" class="md-nav__link">
+    In groups
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#in-sql-queries" class="md-nav__link">
+    In SQL Queries
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#in-python-tasks" class="md-nav__link">
+    In Python Tasks
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../databases/" title="Databases" class="md-nav__link">
+      Databases
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
+      </span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#about" class="md-nav__link">
+    About
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-parameters" class="md-nav__link">
+    Defining Parameters
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#accessing-parameters" class="md-nav__link">
+    Accessing Parameters
+  </a>
+  
+    <nav class="md-nav" aria-label="Accessing Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#in-tasks" class="md-nav__link">
+    In tasks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#in-groups" class="md-nav__link">
+    In groups
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#in-sql-queries" class="md-nav__link">
+    In SQL Queries
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#in-python-tasks" class="md-nav__link">
+    In Python Tasks
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                  
+                
+                
+                <h1 id="parameters">Parameters</h1>
+<h2 id="about">About</h2>
+<p><code>parameters</code> are a really powerful tool. They enable you to make your code dynamic and easily switch between profiles. For example, <code>parameters</code> are key to differentiation between development production environments. Under the hood, SAYN uses Jinja templating for both the SQL queries and the <code>models.yaml</code> file. <code>parameters</code> can also be accessed in <code>python</code> tasks.</p>
+<h2 id="defining-parameters">Defining Parameters</h2>
+<p><code>parameters</code> are defined at three levels:</p>
+<ul>
+<li><code>models.yaml</code> file: defines the project's default parameters and their values.</li>
+<li><code>settings.yaml</code> file: defines profiles and their parameters. The parameter values of a profile will override the project's default parameters from <code>models.yaml</code>.</li>
+<li><code>tasks</code>: each task can set its own parameters with the <code>parameters</code> attribute.</li>
+</ul>
+<h2 id="accessing-parameters">Accessing Parameters</h2>
+<p>For the below section, we consider a project with the following setup:</p>
+<p><strong>models.yaml</strong></p>
+<pre><code class="yaml"># ...
+
+parameters:
+  table_prefix: ''
+  schema_logs: analytics_logs
+  schema_staging: analytics_staging
+  schema_models: analytics_models
+
+# ...
+</code></pre>
+
+<p><strong>settings.yaml</strong></p>
+<pre><code class="yaml"># ...
+
+default_profile: dev
+
+profiles:
+  dev:
+    # ...
+    parameters:
+      table_prefix: 'songoku_'
+      schema_logs: analytics_logs
+      schema_staging: analytics_adhoc
+      schema_models: analytics_adhoc
+  prod:
+    # ...
+    parameters:
+      table_prefix: ''
+      schema_logs: analytics_logs
+      schema_staging: analytics_staging
+      schema_models: analytics_models
+</code></pre>
+
+<h3 id="in-tasks">In <code>tasks</code></h3>
+<p>Task attributes are interpreted as Jinja parameters. Therefore, you can make the tasks' definition dynamic. This example uses an <code>autosql</code> task:</p>
+<pre><code class="yaml">task_autosql_param:
+  file_name: task_autosql_param.sql
+  type: autosql
+  materialisation: table
+  to:
+    staging_schema: {{schema_staging}}
+    schema: {{schema_models}}
+    table: {{table_prefix}}{{task.name}}
+</code></pre>
+
+<p><em>Note: the <code>table</code> setting uses <code>{{task.name}}</code>. This is because the task object is in the Jinja environment and you can therefore access any task attribute. In this case, <code>{{task.name}}</code> is <code>task_autosql_param</code>.</em></p>
+<p>When running <code>sayn run -t task_autosql_param</code>, this would be interpreted as (SAYN uses the <code>default_profile</code> by default):</p>
+<pre><code class="yaml">task_autosql_param:
+  file_name: task_autosql_param.sql
+  type: autosql
+  materialisation: table
+  to:
+    staging_schema: analytics_adhoc
+    schema: analytics_adhoc
+    table: songoku_task_autosql_param
+</code></pre>
+
+<p>If the user desires to run with production parameters, this can be done by leveraging the profile flag: <code>sayn run -t task_autosql_param -p prod</code>. This would therefore use the <code>prod</code> profile parameters and interpret the above block as follows:</p>
+<pre><code class="yaml">task_autosql_param:
+  file_name: task_autosql_param.sql
+  type: autosql
+  materialisation: table
+  to:
+    staging_schema: analytics_staging
+    schema: analytics_models
+    table: task_autosql_param
+</code></pre>
+
+<h3 id="in-groups">In <code>groups</code></h3>
+<p><code>parameters</code> can be accessed in <code>groups</code> in the same way than they are accessed in <code>tasks</code>. For example, you could have the following <code>modelling</code> group definition:</p>
+<pre><code class="yaml">groups:
+  modelling:
+    type: autosql
+    materialisation: table
+    to:
+      staging_schema: {{schema_staging}}
+      schema: {{schema_models}}
+      table: {{table_prefix}}{{task.name}}
+</code></pre>
+
+<p>The interpretation of this group will work as in the above section, using <code>parameters</code> from the relevant profile at execution time.</p>
+<h3 id="in-sql-queries">In SQL Queries</h3>
+<p>For SQL related tasks (<code>autosql</code>, <code>sql</code>), <code>parameters</code> can be accessed in SQL queries with the following syntax: <code>{{parameter-name}}</code>. For example, <code>task_autosql_param</code> defined above could refer to the following query:</p>
+<p><strong>sql/task_autosql_param.sql</strong></p>
+<pre><code class="sql">SELECT mt.*
+
+FROM {{schema_models}}.{{table_prefix}}my_table AS mt
+</code></pre>
+
+<p>This SQL query would then be compiled with the relevant <code>paramaters</code> based on the profile of the execution. If using the <code>dev</code> profile, this would therefore be compiled as:</p>
+<pre><code class="sql">SELECT mt.*
+
+FROM analytics_adhoc.songoku_my_table AS mt
+</code></pre>
+
+<h3 id="in-python-tasks">In Python Tasks</h3>
+<p><code>parameters</code> can be accessed in <code>python</code> tasks via the SAYN API. The <code>parameters</code> are stored on <code>sayn_config</code> attribute of the <code>Task</code> object and therefore be accesses with <code>self.sayn_config.parameters</code>. For example, you could have the following <code>python</code> task code to access parameters:</p>
+<pre><code class="python">from sayn import PythonTask
+
+class TaskPython(PythonTask):
+    def setup(self):
+        #code doing setup
+        err = False
+        if err:
+            return self.failed()
+        else:
+            return self.ready()
+
+    def run(self):
+        err = False
+
+        sayn_params = self.sayn_config.parameters
+        #code you want to run
+
+        if err:
+          return self.failed()
+        else:
+          return self.finished()
+</code></pre>
+
+<p>In this code, the <code>sayn_params</code> variable will contain a dictionary with all <code>parameters</code> from both the project and the task itself.</p>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../groups/" title="Groups" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Groups
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../databases/" title="Databases" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Databases
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z" /></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.36cbf620.min.js"></script>
+      <script src="../assets/javascripts/bundle.00c583dd.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.7f7c8775.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>
