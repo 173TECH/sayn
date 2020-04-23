@@ -30,9 +30,13 @@ SAYN is designed around three core principles:
 
 ```bash
 pip install https://github.com/173TECH/sayn.git
+
 cd #to the directory where you want to create your SAYN project
+
 sayn init [project_name]
+
 cd [project_name]
+
 sayn run
 ```
 
@@ -45,6 +49,10 @@ Continue with the SAYN [Tutorial](tutorial.md) which will give you a good overvi
 ## Support
 
 If you need any help with SAYN, or simply want to know more, please contact the team at <sayn@173tech.com>.
+
+## License
+
+SAYN is open sourced under the [Apached 2.0](https://www.apache.org/licenses/LICENSE-2.0) license.
 
 ---
 
