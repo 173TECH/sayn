@@ -9,9 +9,9 @@ from ..utils import yaml
 
 
 class Database:
-    def __init__(self, name, name_in_yaml, connection_details):
+    def __init__(self, name, name_in_settings, connection_details):
         self.name = name
-        self.name_in_yaml = name_in_yaml
+        self.name_in_settings = name_in_settings
         self.engine = create_engine(f"{self.dialect}://", **connection_details)
         self.create_metadata()
 

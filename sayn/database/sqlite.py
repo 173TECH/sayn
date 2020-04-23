@@ -4,11 +4,11 @@ from .database import Database
 
 
 class Sqlite(Database):
-    def __init__(self, name, name_in_yaml, yaml):
+    def __init__(self, name, name_in_settings, settings):
         self.name = name
-        self.name_in_yaml = name_in_yaml
+        self.name_in_settings = name_in_settings
         self.dialect = "sqlite"
-        self.engine = create_engine(f'sqlite:///{yaml["database"]}')
+        self.engine = create_engine(f'sqlite:///{settings["database"]}')
         self.create_metadata()
 
     #Sqlite has a different syntax for create table as which does not use ()
