@@ -1,18 +1,18 @@
 import logging
 
-from sqlalchemy import create_engine, Table
+from sqlalchemy import create_engine
 
 from .database import Database
 
 
 class Snowflake(Database):
-    def __init__(self, name, name_in_yaml, yaml):
+    def __init__(self, name, name_in_settings, settings):
         self.dialect = "snowflake"
-        connection_details = yaml
+        connection_details = settings
         connection_details.pop("type")
 
         self.name = name
-        self.name_in_yaml = name_in_yaml
+        self.name_in_settings = name_in_settings
 
         from snowflake.sqlalchemy import URL
         

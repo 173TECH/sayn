@@ -1,5 +1,6 @@
 from datetime import datetime, date, timedelta
 import importlib
+import json
 import logging
 import os
 from pathlib import Path
@@ -10,7 +11,6 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 from .utils import yaml
 from .utils.singleton import singleton
-from .utils.logger import Logger
 from . import database
 
 
@@ -18,21 +18,14 @@ class SaynConfigError(Exception):
     pass
 
 
-# TODO remove this
-# default_log_file = Path("logs/sayn.log")
-
-
 @singleton
 class Config:
-    logs_path = Path("logs")  # Default log folder
-
     def __init__(
         self,
         profile=None,
         full_load=False,
         start_dt=None,
         end_dt=None,
-        debug=False,
         **cmd_parameters,
     ):
         # Process basic command parameters
@@ -57,7 +50,6 @@ class Config:
             "full_load": full_load,
             "start_dt": start_dt,
             "end_dt": end_dt,
-            "debug": debug,
         }
 
         # Read the config
@@ -72,9 +64,7 @@ class Config:
 
         self.setup_parameters(config["parameters"], cmd_parameters)
 
-        self.setup_credentials(
-            config["default_db"], config["db_credentials"], config["api_credentials"]
-        )
+        self.setup_credentials(config["default_db"], config["credentials"])
 
         self.setup_tasks(config["tasks"], config["groups"], config["additional_models"])
         if self._task_definitions is None:
@@ -97,20 +87,11 @@ class Config:
         parameters = models["parameters"]
         parameters.update(settings["parameters"])
 
-        # Validate the default_db against db credentials
-        if models["default_db"] not in settings["db_credentials"]:
-            default_cred = settings["api_credentials"][models["default_db"]]
-            logging.error(
-                f"Credential {default_cred['name_in_yaml']} is not a database"
-            )
-            return
-
         return {
             "selected_profile": settings["selected_profile"],
             "parameters": parameters,
             "default_db": models["default_db"],
-            "db_credentials": settings["db_credentials"],
-            "api_credentials": settings["api_credentials"],
+            "credentials": settings["credentials"],
             "groups": models["groups"],
             "tasks": models["tasks"],
             "additional_models": models["additional_models"],
@@ -126,13 +107,6 @@ class Config:
             {
                 "sayn_project_name": yaml.NotEmptyStr(),
                 yaml.Optional("models"): yaml.UniqueSeq(yaml.NotEmptyStr()),
-                # TODO remove this
-                # yaml.Optional("folders"): yaml.Map(
-                #     {
-                #         yaml.Optional(p): yaml.NotEmptyStr()
-                #         for p in ("sql", "python", "logs", "compile", "models")
-                #     }
-                # ),
                 yaml.Optional("parameters"): yaml.MapPattern(
                     yaml.NotEmptyStr(), yaml.Any()
                 ),
@@ -150,17 +124,10 @@ class Config:
         try:
             parsed.revalidate(schema)
         except yaml.ValidationError as e:
-            # Setup file logger with default log file
-            # TODO remove this
-            # Logger().set_file_logger(default_log_file)
             logging.error(f"Error reading {path.name}")
             logging.error(e)
             return
 
-        # TODO remove this
-        # At this point we have the paths, so setup the file logger
-        # self.setup_paths(**parsed.data.get("folders", dict()))
-        # Logger().set_file_logger(log_file=Path(self.logs_path, "sayn.log"))
         self.setup_paths()
 
         # Read additional models
@@ -227,9 +194,6 @@ class Config:
         try:
             parsed.revalidate(schema)
         except yaml.ValidationError as e:
-            # Setup file logger with default log file
-            # TODO remove this
-            # Logger().set_file_logger(default_log_file)
             logging.error(f'Error reading additional model "{path.name}"')
             logging.error(e)
             return
@@ -237,6 +201,76 @@ class Config:
         return parsed
 
     def read_settings(self, profile, required_credentials, allowed_parameters):
+        env_vars = {k: v for k, v in os.environ.items() if k.startswith("SAYN_")}
+        if len(env_vars) > 0:
+            print("Reading settings from environment variables")
+            return self.read_settings_environment(
+                env_vars, required_credentials, allowed_parameters
+            )
+        else:
+            print('Reading settings from "settings.yaml"')
+            return self.read_settings_file(
+                profile, required_credentials, allowed_parameters
+            )
+
+    def read_settings_environment(
+        self, env_vars, required_credentials, allowed_parameters
+    ):
+        parameters = dict()
+        credentials = dict()
+
+        for key, value in env_vars.items():
+            if key.startswith("SAYN_PARAMETER_"):
+                parameter_key = key[len("SAYN_PARAMETER_") :]
+                if parameter_key not in allowed_parameters:
+                    logging.error(
+                        f'Parameter "{parameter_key}" not defined in models.yaml. '
+                    )
+                    logging.error(
+                        f"Allowed parameters are {', '.join(allowed_parameters)}"
+                    )
+                    return
+                try:
+                    # Try to interpret it as a json
+                    parameters[key] = json.loads(value)
+                except:
+                    # Treat it as a string
+                    parameters[parameter_key] = value
+
+            elif key.startswith("SAYN_CREDENTIAL_"):
+                credential_key = key[len("SAYN_CREDENTIAL_") :]
+                if credential_key not in required_credentials:
+                    continue
+                try:
+                    # Needs to be a json as the base structure for credentials is a map
+                    credentials[credential_key] = {
+                        "name_in_settings": None,
+                        "settings": json.loads(value),
+                    }
+                except Exception as e:
+                    logging.error(
+                        f'Error trying to parse environment variable "{key}" as json'
+                    )
+                    logging.error(e)
+                    return
+
+            else:
+                logging.error(f'Environment variable "{key}" is not recognised')
+                return
+
+            # Ensure all credentials are specified
+            for credential in required_credentials:
+                if credential not in credentials:
+                    logging.error(f'Missing credential "{credential}"')
+                    return
+
+        return {
+            "selected_profile": None,
+            "parameters": parameters,
+            "credentials": credentials,
+        }
+
+    def read_settings_file(self, profile, required_credentials, allowed_parameters):
         path = Path("settings.yaml")
         parsed = yaml.load(path)
         if parsed is None:
@@ -288,28 +322,22 @@ class Config:
 
         # Keeping only the credentials specified in the profile
         credentials = {
-            n: {"name_in_yaml": n, "yaml": c}
+            n: {"name_in_settings": n, "settings": c}
             for n, c in parsed.data["credentials"].items()
         }
-        no_type = [n for n, c in credentials.items() if "type" not in c["yaml"]]
+        no_type = [n for n, c in credentials.items() if "type" not in c["settings"]]
         if len(no_type) > 0:
             logging.error(f"Some credentials have no type: {', '.join(no_type)}")
             return
         credentials = {
-            n: credentials[yn] for n, yn in profile.data["credentials"].items()
+            name: credentials[name_in_settings]
+            for name, name_in_settings in profile.data["credentials"].items()
         }
 
         return {
             "selected_profile": selected_profile,
             "parameters": profile.data.get("parameters", dict()),
-            "db_credentials": {
-                n: c for n, c in credentials.items() if c["yaml"]["type"] != "api"
-            },
-            "api_credentials": {
-                n: {k: v for k, v in c["yaml"].items() if k != "type"}
-                for n, c in credentials.items()
-                if c["yaml"]["type"] == "api"
-            },
+            "credentials": credentials,
         }
 
     #
@@ -326,9 +354,6 @@ class Config:
                 shutil.rmtree(self.compile_path.absolute())
             else:
                 self.compile_path.unlink()
-
-        # self.logs_path = Path(paths.get("logs", "logs"))
-        # self.logs_path.mkdir(parents=True, exist_ok=True)
 
     def setup_parameters(self, from_config, from_cmd):
         self.parameters = from_config
@@ -355,10 +380,25 @@ class Config:
         )
         self.jinja_env.globals.update(**self.parameters)
 
-    def setup_credentials(self, default_db, db_credentials, api_credentials):
+    def setup_credentials(self, default_db, credentials):
+        db_credentials = {
+            n: c for n, c in credentials.items() if c["settings"]["type"] != "api"
+        }
+
+        # Validate the default_db against db credentials
+        if default_db not in db_credentials:
+            logging.error(
+                f"Credential {credentials[default_db]['name_in_settings']} is not a database"
+            )
+            return
+
         self.dbs = database.create_all(db_credentials)
         self.default_db = self.dbs[default_db]
-        self.api_credentials = api_credentials
+        self.api_credentials = {
+            n: {k: v for k, v in c["settings"].items() if k != "type"}
+            for n, c in credentials.items()
+            if c["settings"]["type"] == "api"
+        }
 
     def setup_python_tasks_module(self):
         path = Path(self.python_path, "__init__.py")
