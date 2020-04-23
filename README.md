@@ -10,7 +10,7 @@ SAYN can be used for multiple purposes across the analytics workflow:
 * Date modelling: transform raw data in your data warehouse.
 * Date science: integrate and execute data science models.
 
-Key Features
+## Key Features
 
 * [SQL SELECT statements](tasks/core/autosql.md): turn your queries into managed tables and views automatically.
 * [Jinja parameters](parameters.md): switch easily between development and product environment and other tricks with Jinja templating.
@@ -23,20 +23,20 @@ Key Features
 SAYN is designed around three core principles:
 
 * **Simplicity**: data models and processes should be easy to create, scale and maintain. So your team can focus on data transformation instead of writing processes. SAYN orchestrates all your tasks systematically and provides a lot of automation features.
-* **Flexibility**: data can sometimes be muddy. Analysts need to be able to use the most optimal solution for each process. SAYN currently supports both SQL and Python.
+* **Flexibility**: the power of data is unlimited and so should your tooling. SAYN currently supports both SQL and Python so your analysts can choose the most optimal solution for each process.
 * **Centralisation**: all analytics code should live in one place, making your life easier and allowing dependencies throughout the whole analytics process.
 
 ## Quick Start
 
-You can start running SAYN in minutes:
+```bash
+pip install https://github.com/173TECH/sayn.git
+cd #to the directory where you want to create your SAYN project
+sayn init [project_name]
+cd [project_name]
+sayn run
+```
 
-1. `pip install https://github.com/173TECH/sayn.git`
-2. `cd` to the directory where you want to create your SAYN project
-3. `sayn init [project_name]`
-4. `cd [project_name]`
-5. `sayn run`
-
-This is it, you made your first SAYN run based on the example project!
+This is it! You completed your first SAYN run on the example project!
 
 ## Next Steps
 
