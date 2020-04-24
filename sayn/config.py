@@ -381,8 +381,16 @@ class Config:
         self.jinja_env.globals.update(**self.parameters)
 
     def setup_credentials(self, default_db, credentials):
+        print()
+        print([c['settings'].keys() for _,c in credentials.items()])
+        print()
         db_credentials = {
             n: c for n, c in credentials.items() if c["settings"]["type"] != "api"
+        }
+        self.api_credentials = {
+            n: {k: v for k, v in c["settings"].items() if k != "type"}
+            for n, c in credentials.items()
+            if c["settings"]["type"] == "api"
         }
 
         # Validate the default_db against db credentials
@@ -394,11 +402,6 @@ class Config:
 
         self.dbs = database.create_all(db_credentials)
         self.default_db = self.dbs[default_db]
-        self.api_credentials = {
-            n: {k: v for k, v in c["settings"].items() if k != "type"}
-            for n, c in credentials.items()
-            if c["settings"]["type"] == "api"
-        }
 
     def setup_python_tasks_module(self):
         path = Path(self.python_path, "__init__.py")
