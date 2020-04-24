@@ -381,9 +381,6 @@ class Config:
         self.jinja_env.globals.update(**self.parameters)
 
     def setup_credentials(self, default_db, credentials):
-        print()
-        print([c['settings'].keys() for _,c in credentials.items()])
-        print()
         db_credentials = {
             n: c for n, c in credentials.items() if c["settings"]["type"] != "api"
         }
