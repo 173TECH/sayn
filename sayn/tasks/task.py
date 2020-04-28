@@ -53,7 +53,7 @@ class Task(object):
 
         self.type = _task_def.pop("type")
         self.group = _task_def.pop("group", None)
-        self.tags = _task_def.pop("group", list())
+        self.tags = _task_def.pop("tags", list())
         self.parents = _task_def.pop("parents", list())
 
         self.parameters = _task_def.pop("parameters", dict())

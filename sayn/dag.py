@@ -22,13 +22,7 @@ class Dag:
     graph = OrderedDict()
     tasks = dict()
 
-    def __init__(self, task=None, model=None):
-        if task is not None and model is not None:
-            logging.error(
-                "Model and tasks parameters should not be specified together."
-            )
-            sys.exit(1)
-
+    def __init__(self, include=None, exclude=None):
         Logger().set_config(stage="DAG")
         logging.info("----------")
         logging.info(f"Setting up. Run ID: {Config().run_id}")
@@ -50,7 +44,7 @@ class Dag:
         )
 
         # setup tasks details
-        tasks_to_process = self.get_tasks_to_process(task_definitions, task, model)
+        tasks_to_process = self.get_tasks_to_process(task_definitions, include, exclude)
         self.tasks = {
             name: create_task(
                 name,
@@ -79,29 +73,81 @@ class Dag:
 
     # API
 
-    def get_tasks_to_process(self, task_definitions, task=None, model=None):
+    def get_tasks_to_process(self, task_definitions, include, exclude):
         """Returns the list of task names from the query"""
 
-        if task is None and model is None:
+        tags = {
+            m: [i[1] for i in g]
+            for m, g in groupby(
+                [
+                    (tag, n)
+                    for n, t in task_definitions.items()
+                    for tag in set(
+                        [tt for tt in t["group"].data.get("tags", list())]
+                        + [tt for tt in t["task"].data.get("tags", list())]
+                    )
+                ],
+                lambda x: x[0],
+            )
+        }
+
+        models = {
+            m: [i[1] for i in g]
+            for m, g in groupby(
+                [(t["model"], n) for n, t in task_definitions.items()], lambda x: x[0]
+            )
+        }
+
+        if include is None:
             task_list = self.topological_sort()
-        elif task is not None:
+        elif include is not None:
             # if task is defined, we used the DAG structure to get the relevant tasks based on dependencies
-            if task[0] == "+":
-                task = task[1:]
+            if include[0] == "+":
+                task = include[1:]
                 task_list = self.all_upstreams(task) + [task]
-            elif task[-1] == "+":
-                task = task[:-1]
+            elif include[-1] == "+":
+                task = include[:-1]
                 task_list = [task] + self.all_downstreams(task)
+            elif include[:4] == "tag:":
+                tag = include[4:]
+                if tag not in tags:
+                    raise KeyError(f'Tag "{tag}" not in dag')
+
+                task_list = [
+                    task_name
+                    for task_name in self.topological_sort()
+                    if task_name in tags[tag]
+                ]
+            elif include[:6] == "model:":
+                model = include[6:]
+                if model not in models:
+                    raise KeyError(f'Model "{model}" not in dag')
+
+                task_list = [
+                    task_name
+                    for task_name in self.topological_sort()
+                    if task_name in models[model]
+                ]
             elif task in self.graph:
                 task_list = [task]
             else:
-                raise KeyError('task "{}" not in dag'.format(task))
-        else:
-            # if models is defined, we simply select all tasks from the specific model
+                raise KeyError(f'task "{task}" not in dag')
+
+        if exclude is not None and exclude[:4] == "tag:":
+            tag = exclude[4:]
+            if tag not in tags:
+                raise KeyError(f'Tag "{tag}" not in dag')
+
             task_list = [
-                task_name
-                for task_name in self.topological_sort()
-                if task_definitions[task_name]["model"] == model
+                task_name for task_name in task_list if task_name not in tags[tag]
+            ]
+        elif exclude is not None and exclude[:6] == "model:":
+            model = exclude[4:]
+            if model not in models:
+                raise KeyError(f'Tag "{model}" not in dag')
+
+            task_list = [
+                task_name for task_name in task_list if task_name not in models[model]
             ]
 
         return task_list
