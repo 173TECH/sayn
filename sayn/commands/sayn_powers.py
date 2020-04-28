@@ -15,8 +15,8 @@ click_debug = click.option(
 
 
 def click_filter(func):
-    func = click.option("--include", "-i", multiple=False, help="Include query",)(func)
-    func = click.option("--exclude", "-x", multiple=False, help="Exclude query",)(func)
+    func = click.option("--include", "-i", multiple=True, help="Include query",)(func)
+    func = click.option("--exclude", "-x", multiple=True, help="Exclude query",)(func)
     return func
 
 
