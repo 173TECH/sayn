@@ -79,14 +79,17 @@ class Dag:
         tags = {
             m: [i[1] for i in g]
             for m, g in groupby(
-                [
-                    (tag, n)
-                    for n, t in task_definitions.items()
-                    for tag in set(
-                        [tt for tt in t["group"].data.get("tags", list())]
-                        + [tt for tt in t["task"].data.get("tags", list())]
-                    )
-                ],
+                sorted(
+                    [
+                        (tag, n)
+                        for n, t in task_definitions.items()
+                        for tag in set(
+                            [tt for tt in t["group"].data.get("tags", list())]
+                            + [tt for tt in t["task"].data.get("tags", list())]
+                        )
+                    ],
+                    key=lambda x: x[0],
+                ),
                 lambda x: x[0],
             )
         }
@@ -94,7 +97,11 @@ class Dag:
         models = {
             m: [i[1] for i in g]
             for m, g in groupby(
-                [(t["model"], n) for n, t in task_definitions.items()], lambda x: x[0]
+                sorted(
+                    [(t["model"], n) for n, t in task_definitions.items()],
+                    key=lambda x: x[0],
+                ),
+                lambda x: x[0],
             )
         }
 
@@ -142,7 +149,6 @@ class Dag:
                 task_name for task_name in task_list if task_name not in tags[tag]
             ]
         elif exclude is not None and exclude[:6] == "model:":
-            model = exclude[4:]
             if model not in models:
                 raise KeyError(f'Tag "{model}" not in dag')
 
