@@ -30,7 +30,7 @@ class Dag:
 
         task_definitions = Config()._task_definitions
 
-        # Setup DAG
+        # Setup DAG structure using just names and parents
         self._from_dict_reversed(
             {
                 k: list(
@@ -43,9 +43,12 @@ class Dag:
             }
         )
 
-        # Calculate list of tasks
+        # Calculate list of tasks in the correct order of execution based on parentage
         self.tasks = {name: None for name in self.topological_sort()}
 
+        # Get the list of tasks that need to run in this execution
+
+        # 1. Get a dict of tags > list of tasks with that tag (used by _task_query to get the list of relevant tasks)
         tags = {
             m: [i[1] for i in g]
             for m, g in groupby(
@@ -64,6 +67,7 @@ class Dag:
             )
         }
 
+        # 2. Get a dict of models > list of tasks with that model (used by _task_query to get the list of relevant tasks)
         models = {
             m: [i[1] for i in g]
             for m, g in groupby(
@@ -75,12 +79,17 @@ class Dag:
             )
         }
 
+        # 3. We generate tasks_to_process containing all tasks to be run
         if len(tasks_query) == 0:
+            # If there no task filter, we'll run all tasks
             tasks_to_process = set(self.tasks.keys())
         else:
+            # Otherwise we get the list of tasks corresponding to what's specified in --tasks
             tasks_to_process = set(
                 t for q in tasks_query for t in self._task_query(tags, models, q)
             )
+
+        # We always apply the exclude filter query
         tasks_to_process = tasks_to_process - set(
             t for q in exclude_query for t in self._task_query(tags, models, q)
         )
@@ -115,35 +124,42 @@ class Dag:
     # API
 
     def _task_query(self, tags, models, query):
-        # if task is defined, we used the DAG structure to get the relevant tasks based on dependencies
+        """Returns a list of tasks from the dag matching the query"""
+
         if query[0] == "+":
+            # A "+" before a task name means the specified task and all its parents
             task = query[1:]
             if task not in self.tasks:
                 raise KeyError(f'Tag "{task}" not in dag')
             return [task] + self.all_upstreams(task)
 
         elif query[-1] == "+":
+            # A "+" after a task name means the specified task and all its children
             task = query[:-1]
             if task not in self.tasks:
                 raise KeyError(f'Task "{task}" not in dag')
             return [task] + self.all_downstreams(task)
 
         elif query[:4] == "tag:":
+            # A tag name will be specified as `tag:tag_name`
             tag = query[4:]
             if tag not in tags:
                 raise KeyError(f'Tag "{tag}" not in dag')
             return tags[tag]
 
         elif query[:6] == "model:":
+            # A model name will be specified as `model:model_name`
             model = query[6:]
             if model not in models:
                 raise KeyError(f'Model "{model}" not in dag')
             return models[model]
 
         elif query in self.tasks:
+            # Otherwise it should be a single task name
             return [query]
 
         else:
+            # ... or the task doesn't exists in the dag
             raise KeyError(f'Task "{query}" not in dag')
 
     def _run_command(self, command):
