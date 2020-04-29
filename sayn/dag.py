@@ -22,13 +22,7 @@ class Dag:
     graph = OrderedDict()
     tasks = dict()
 
-    def __init__(self, task=None, model=None):
-        if task is not None and model is not None:
-            logging.error(
-                "Model and tasks parameters should not be specified together."
-            )
-            sys.exit(1)
-
+    def __init__(self, tasks_query=(), exclude_query=()):
         Logger().set_config(stage="DAG")
         logging.info("----------")
         logging.info(f"Setting up. Run ID: {Config().run_id}")
@@ -36,7 +30,7 @@ class Dag:
 
         task_definitions = Config()._task_definitions
 
-        # setup DAG
+        # Setup DAG structure using just names and parents
         self._from_dict_reversed(
             {
                 k: list(
@@ -49,8 +43,62 @@ class Dag:
             }
         )
 
-        # setup tasks details
-        tasks_to_process = self.get_tasks_to_process(task_definitions, task, model)
+        # Calculate list of tasks in the correct order of execution based on parentage
+        self.tasks = {name: None for name in self.topological_sort()}
+
+        # Get the list of tasks that need to run in this execution
+
+        # 1. Get a dict of tags > list of tasks with that tag (used by _task_query to get the list of relevant tasks)
+        tags = {
+            m: [i[1] for i in g]
+            for m, g in groupby(
+                sorted(
+                    [
+                        (tag, n)
+                        for n, t in task_definitions.items()
+                        for tag in set(
+                            [tt for tt in t["group"].data.get("tags", list())]
+                            + [tt for tt in t["task"].data.get("tags", list())]
+                        )
+                    ],
+                    key=lambda x: x[0],
+                ),
+                lambda x: x[0],
+            )
+        }
+
+        # 2. Get a dict of models > list of tasks with that model (used by _task_query to get the list of relevant tasks)
+        models = {
+            m: [i[1] for i in g]
+            for m, g in groupby(
+                sorted(
+                    [
+                        (t["model"], n)
+                        for n, t in task_definitions.items()
+                        if t["model"] is not None
+                    ],
+                    key=lambda x: x[0],
+                ),
+                lambda x: x[0],
+            )
+        }
+
+        # 3. We generate tasks_to_process containing all tasks to be run
+        if len(tasks_query) == 0:
+            # If there no task filter, we'll run all tasks
+            tasks_to_process = set(self.tasks.keys())
+        else:
+            # Otherwise we get the list of tasks corresponding to what's specified in --tasks
+            tasks_to_process = set(
+                t for q in tasks_query for t in self._task_query(tags, models, q)
+            )
+
+        # We always apply the exclude filter query
+        tasks_to_process = tasks_to_process - set(
+            t for q in exclude_query for t in self._task_query(tags, models, q)
+        )
+
+        # Create task objects and set them up
         self.tasks = {
             name: create_task(
                 name,
@@ -60,7 +108,7 @@ class Dag:
                 task_definitions[name]["model"],
                 name not in tasks_to_process,
             )
-            for name in self.topological_sort()
+            for name in self.tasks.keys()
         }
 
         for _, task in self.tasks.items():
@@ -79,32 +127,44 @@ class Dag:
 
     # API
 
-    def get_tasks_to_process(self, task_definitions, task=None, model=None):
-        """Returns the list of task names from the query"""
+    def _task_query(self, tags, models, query):
+        """Returns a list of tasks from the dag matching the query"""
 
-        if task is None and model is None:
-            task_list = self.topological_sort()
-        elif task is not None:
-            # if task is defined, we used the DAG structure to get the relevant tasks based on dependencies
-            if task[0] == "+":
-                task = task[1:]
-                task_list = self.all_upstreams(task) + [task]
-            elif task[-1] == "+":
-                task = task[:-1]
-                task_list = [task] + self.all_downstreams(task)
-            elif task in self.graph:
-                task_list = [task]
-            else:
-                raise KeyError('task "{}" not in dag'.format(task))
+        if query[0] == "+":
+            # A "+" before a task name means the specified task and all its parents
+            task = query[1:]
+            if task not in self.tasks:
+                raise KeyError(f'Tag "{task}" not in dag')
+            return [task] + self.all_upstreams(task)
+
+        elif query[-1] == "+":
+            # A "+" after a task name means the specified task and all its children
+            task = query[:-1]
+            if task not in self.tasks:
+                raise KeyError(f'Task "{task}" not in dag')
+            return [task] + self.all_downstreams(task)
+
+        elif query[:4] == "tag:":
+            # A tag name will be specified as `tag:tag_name`
+            tag = query[4:]
+            if tag not in tags:
+                raise KeyError(f'Tag "{tag}" not in dag')
+            return tags[tag]
+
+        elif query[:6] == "model:":
+            # A model name will be specified as `model:model_name`
+            model = query[6:]
+            if model not in models:
+                raise KeyError(f'Model "{model}" not in dag')
+            return models[model]
+
+        elif query in self.tasks:
+            # Otherwise it should be a single task name
+            return [query]
+
         else:
-            # if models is defined, we simply select all tasks from the specific model
-            task_list = [
-                task_name
-                for task_name in self.topological_sort()
-                if task_definitions[task_name]["model"] == model
-            ]
-
-        return task_list
+            # ... or the task doesn't exists in the dag
+            raise KeyError(f'Task "{query}" not in dag')
 
     def _run_command(self, command):
         Logger().set_config(stage="Run", task=None, progress="0")
