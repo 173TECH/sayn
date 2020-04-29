@@ -72,7 +72,11 @@ class Dag:
             m: [i[1] for i in g]
             for m, g in groupby(
                 sorted(
-                    [(t["model"], n) for n, t in task_definitions.items()],
+                    [
+                        (t["model"], n)
+                        for n, t in task_definitions.items()
+                        if t["model"] is not None
+                    ],
                     key=lambda x: x[0],
                 ),
                 lambda x: x[0],
