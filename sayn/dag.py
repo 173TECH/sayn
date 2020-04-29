@@ -22,7 +22,7 @@ class Dag:
     graph = OrderedDict()
     tasks = dict()
 
-    def __init__(self, include=(), exclude=()):
+    def __init__(self, tasks_query=(), exclude_query=()):
         Logger().set_config(stage="DAG")
         logging.info("----------")
         logging.info(f"Setting up. Run ID: {Config().run_id}")
@@ -75,14 +75,14 @@ class Dag:
             )
         }
 
-        if len(include) == 0:
+        if len(tasks_query) == 0:
             tasks_to_process = set(self.tasks.keys())
         else:
             tasks_to_process = set(
-                t for q in include for t in self._task_query(tags, models, q)
+                t for q in tasks_query for t in self._task_query(tags, models, q)
             )
         tasks_to_process = tasks_to_process - set(
-            t for q in exclude for t in self._task_query(tags, models, q)
+            t for q in exclude_query for t in self._task_query(tags, models, q)
         )
 
         # Create task objects and set them up
@@ -141,7 +141,7 @@ class Dag:
             return models[model]
 
         elif query in self.tasks:
-            return [task]
+            return [query]
 
         else:
             raise KeyError(f'Task "{query}" not in dag')

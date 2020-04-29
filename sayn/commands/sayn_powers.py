@@ -15,8 +15,18 @@ click_debug = click.option(
 
 
 def click_filter(func):
-    func = click.option("--include", "-i", multiple=True, help="Include query",)(func)
-    func = click.option("--exclude", "-x", multiple=True, help="Exclude query",)(func)
+    func = click.option(
+        "--tasks",
+        "-t",
+        multiple=True,
+        help="Task query to INCLUDE in the execution: [+]task_name[+], model:model_name, tag:tag_name",
+    )(func)
+    func = click.option(
+        "--exclude",
+        "-x",
+        multiple=True,
+        help="Task query to EXCLUDE in the execution: [+]task_name[+], model:model_name, tag:tag_name",
+    )(func)
     return func
 
 
@@ -65,19 +75,19 @@ def init(sayn_project_name):
 
 @cli.command(help="Compile sql tasks.")
 @click_run_options
-def compile(debug, include, exclude, profile, full_load, start_dt, end_dt):
+def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
     run_command(
-        "compile", debug, include, exclude, profile, full_load, start_dt, end_dt
+        "compile", debug, tasks, exclude, profile, full_load, start_dt, end_dt
     )
 
 
 @cli.command(help="Run SAYN tasks.")
 @click_run_options
-def run(debug, include, exclude, profile, full_load, start_dt, end_dt):
-    run_command("run", debug, include, exclude, profile, full_load, start_dt, end_dt)
+def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
+    run_command("run", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
 
 
-def run_command(command, debug, include, exclude, profile, full_load, start_dt, end_dt):
+def run_command(command, debug, tasks, exclude, profile, full_load, start_dt, end_dt):
     run_start_ts = datetime.now()
     run_id = (run_start_ts - datetime(1970, 1, 1)).total_seconds()
 
@@ -91,7 +101,7 @@ def run_command(command, debug, include, exclude, profile, full_load, start_dt, 
         logging.error(e)
         sys.exit(1)
 
-    dag = Dag(include=include, exclude=exclude)
+    dag = Dag(tasks_query=tasks, exclude_query=exclude)
 
     if command == "run":
         dag.run()
@@ -106,7 +116,7 @@ def run_command(command, debug, include, exclude, profile, full_load, start_dt, 
 @cli.command(help="Generate DAG image")
 @click_debug
 @click_filter
-def dag_image(debug, include, exclude):
+def dag_image(debug, tasks, exclude):
     run_start_ts = datetime.now()
     run_id = (run_start_ts - datetime(1970, 1, 1)).total_seconds()
 
@@ -118,5 +128,5 @@ def dag_image(debug, include, exclude):
         logging.error(e)
         sys.exit(1)
 
-    dag = Dag(include=include, exclude=exclude)
+    dag = Dag(tasks_query=tasks, exclude_query=exclude)
     dag.plot(folder="images", file_name="dag")
