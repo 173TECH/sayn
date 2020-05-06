@@ -16,7 +16,7 @@ class Postgresql(Database):
 
         q = ""
         if replace:
-            q += f"DROP {table_or_view} IF EXISTS {table};\n"
+            q += f"DROP {table_or_view} IF EXISTS {table} CASCADE;\n"
         q += f"CREATE {table_or_view} {table} AS (\n{select}\n);"
 
         return q
@@ -50,7 +50,7 @@ class Postgresql(Database):
 
         q = ""
         if replace:
-            q += f"DROP TABLE IF EXISTS {table};\n"
+            q += f"DROP TABLE IF EXISTS {table} CASCADE;\n"
         q += f"CREATE TABLE {table} (\n      {columns}\n);\n"
         q += "\n".join(
             [
@@ -60,3 +60,24 @@ class Postgresql(Database):
         )
 
         return q
+
+    def drop_table(self, table, schema, view=False):
+        table = f"{schema+'.' if schema else ''}{table}"
+        table_or_view = "VIEW" if view else "TABLE"
+        return f"DROP {table_or_view} IF EXISTS {table} CASCADE;"
+
+    def move_table(self, src_table, src_schema, dst_table, dst_schema, ddl):
+        drop = (
+            f"DROP TABLE IF EXISTS {dst_schema+'.' if dst_schema else ''}{dst_table} CASCADE;"
+        )
+        rename = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{src_table} RENAME TO {dst_table};"
+        if dst_schema is not None:
+            change_schema = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{dst_table} SET SCHEMA {dst_schema};"
+        else:
+            change_schema = ""
+        pkey_alter = ""
+        if ddl is not None and 'columns' in ddl:
+            if len([c for c in ddl["columns"] if c.get("primary", False)]):
+                pkey_alter = f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_pkey RENAME TO {dst_table}_pkey;"
+
+        return "\n".join((drop, rename, change_schema, pkey_alter))
