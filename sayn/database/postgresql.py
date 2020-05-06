@@ -22,7 +22,8 @@ class Postgresql(Database):
         return q
 
     def create_table_ddl(self, table, schema, ddl, replace=False):
-        table = f"{schema+'.' if schema else ''}{table}"
+        table_name = table
+        table = f"{schema+'.' if schema else ''}{table_name}"
         columns = "\n    , ".join(
             [
                 (
@@ -54,7 +55,7 @@ class Postgresql(Database):
         q += f"CREATE TABLE {table} (\n      {columns}\n);\n"
         q += "\n".join(
             [
-                f"CREATE INDEX {name} ON {table}({', '.join(cols)});"
+                f"CREATE INDEX {table_name}_{name} ON {table}({', '.join(cols)});"
                 for name, cols in indexes.items()
             ]
         )
@@ -67,17 +68,27 @@ class Postgresql(Database):
         return f"DROP {table_or_view} IF EXISTS {table} CASCADE;"
 
     def move_table(self, src_table, src_schema, dst_table, dst_schema, ddl):
-        drop = (
-            f"DROP TABLE IF EXISTS {dst_schema+'.' if dst_schema else ''}{dst_table} CASCADE;"
-        )
+        drop = f"DROP TABLE IF EXISTS {dst_schema+'.' if dst_schema else ''}{dst_table} CASCADE;"
         rename = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{src_table} RENAME TO {dst_table};"
         if dst_schema is not None:
             change_schema = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{dst_table} SET SCHEMA {dst_schema};"
         else:
             change_schema = ""
-        pkey_alter = ""
-        if ddl is not None and 'columns' in ddl:
-            if len([c for c in ddl["columns"] if c.get("primary", False)]):
-                pkey_alter = f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_pkey RENAME TO {dst_table}_pkey;"
 
-        return "\n".join((drop, rename, change_schema, pkey_alter))
+        idx_alter = []
+        if ddl is not None and "columns" in ddl:
+            # Change primary key name
+            if len([c for c in ddl["columns"] if c.get("primary", False)]):
+                idx_alter.append(
+                    f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_pkey RENAME TO {dst_table}_pkey;"
+                )
+
+            # Change index names
+            for idx in [
+                idx for c in ddl["columns"] for idx in c.get("indexes", list())
+            ]:
+                idx_alter.append(
+                    f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx} RENAME TO {dst_table}_{idx};"
+                )
+
+        return "\n".join([drop, rename, change_schema] + idx_alter)
