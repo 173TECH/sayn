@@ -263,7 +263,7 @@ class Dag:
     def compile(self):
         self._run_command("compile")
 
-    def plot_dag(self, folder=None, file_name=None):
+    def plot(self, folder=None, file_name=None):
         """Uses graphviz to plot the dag
         It requires the graphviz python package (pip install graphviz) and an installation of graphviz
         (eg: brew install graphviz)

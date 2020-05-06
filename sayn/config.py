@@ -258,11 +258,11 @@ class Config:
                 logging.error(f'Environment variable "{key}" is not recognised')
                 return
 
-            # Ensure all credentials are specified
-            for credential in required_credentials:
-                if credential not in credentials:
-                    logging.error(f'Missing credential "{credential}"')
-                    return
+        # Ensure all credentials are specified
+        for credential in required_credentials:
+            if credential not in credentials:
+                logging.error(f'Missing credential "{credential}"')
+                return
 
         return {
             "selected_profile": None,

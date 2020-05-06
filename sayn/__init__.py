@@ -2,7 +2,7 @@ __doc__ = """
 # SAYN
 """
 
+from .config import Config, SaynConfigError
+from .dag import Dag, DagValidationError
 from .tasks import PythonTask
-from .dag import Dag
-from .config import Config
 from .utils.logger import Logger
