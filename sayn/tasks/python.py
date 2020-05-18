@@ -14,8 +14,8 @@ class PythonTask(Task):
 
     def compile(self):
         logging.debug("PythonTask compiling")
-        return self.finished()
+        return self.success()
 
     def run(self):
         logging.debug("PythonTask running.")
-        return self.finished()
+        return self.success()

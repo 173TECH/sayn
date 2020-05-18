@@ -10,8 +10,8 @@ class DummyTask(Task):
 
     def compile(self):
         logging.debug("DummyTask compiling")
-        return self.finished()
+        return self.success()
 
     def run(self):
         logging.debug("DummyTask running.")
-        return self.finished()
+        return self.success()

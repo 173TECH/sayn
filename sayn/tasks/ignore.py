@@ -13,8 +13,8 @@ class IgnoreTask(Task):
 
     def compile(self):
         logging.debug("IgnoreTask compiling")
-        return self.finished()
+        return self.success()
 
     def run(self):
         logging.debug("IgnoreTask running.")
-        return self.finished()
+        return self.success()

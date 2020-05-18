@@ -438,10 +438,11 @@ class Config:
                             }
                         )
 
-                    if "parents" in referenced_preset:
-                        if "parents" not in preset:
-                            preset["parents"] = list()
-                        preset["parents"].extend(referenced_preset.pop("parents"))
+                    for property in ("parents", "tags"):
+                        if property in referenced_preset:
+                            if property not in preset:
+                                preset[property] = list()
+                            preset[property].extend(referenced_preset.pop(property))
 
                     # Add the rest of the global preset to the preset
                     preset["preset"] = referenced_preset
@@ -462,6 +463,9 @@ class Config:
     def _get_group_tasks(self, tasks, group_name, presets, all_tasks):
         tasks = copy.deepcopy(tasks)
         for name, task in tasks.items():
+            # Add the group name
+            task["group"] = group_name
+
             # Check for duplicates
             if name in all_tasks:
                 logging.error(
@@ -475,7 +479,7 @@ class Config:
             # Embed the preset in the task definition
             if "preset" in task:
                 if task["preset"] in presets:
-                    task["preset"] = presets[task["preset"]]
+                    task["preset"] = copy.deepcopy(presets[task["preset"]])
                 else:
                     logging.error(
                         "Preset {} referenced in task {} not found".format(
@@ -488,19 +492,40 @@ class Config:
             if "type" not in task:
                 if "type" in task.get("preset", dict()):
                     # Try to take it from the preset
-                    task["type"] = task["preset"]["type"]
+                    task["type"] = task["preset"].pop("type")
+                    if "preset" in task.get("preset", dict()):
+                        # Cleanup the type from the nested preset if present as well
+                        task["preset"]["preset"].pop("type")
                 elif "preset" in task.get("preset", dict()):
                     # Nested preset
-                    task["type"] = task["preset"]["preset"]["type"]
+                    task["type"] = task["preset"]["preset"].pop("type")
                 else:
                     logging.error(f"Missing type in task {name} in group {group_name}")
                     return
 
-            # Consolidate the parent list
-            if "parents" not in task and "parents" in task.get("preset", dict()):
-                task['parents'] = list()
-                task["parents"].extend(task["preset"]["parents"])
-                task["parents"] = list(set(task["parents"]))
+            # Consolidate the parents and tags list
+            for property in ("parents", "tags"):
+                if property not in task:
+                    task[property] = list()
+
+                task[property].extend(
+                    [
+                        v
+                        for v in task.get("preset", dict()).pop(property, list())
+                        if v not in task[property]
+                    ]
+                )
+
+            # Consolidate the parameters from the preset
+            if "parameters" not in task:
+                task["parameters"] = dict()
+
+            if "parameters" in task.get("preset", dict()):
+                # We give priority to the values defined in the task, so we start
+                # from the preset and update the dict with the task parameters
+                parameters = task["preset"].pop("parameters", dict())
+                parameters.update(task["parameters"])
+                task["parameters"] = parameters
 
         return tasks
 
@@ -519,7 +544,6 @@ class Config:
                 group["tasks"], group_name, presets, list(tasks.keys())
             )
             if group_tasks is None:
-                #import IPython;IPython.embed()
                 return
             tasks.update(group_tasks)
 

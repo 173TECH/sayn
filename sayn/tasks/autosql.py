@@ -1,5 +1,3 @@
-import logging
-
 from .sql import SqlTask
 from .task import TaskStatus
 
@@ -8,7 +6,19 @@ class AutoSqlTask(SqlTask):
     def setup(self):
         self.db = self.sayn_config.default_db
 
-        status = self._setup_task_def()
+        status = self._setup_file_name()
+        if status != TaskStatus.READY:
+            return self.failed()
+
+        self.template = self._get_query_template()
+        if self.template is None:
+            return self.failed()
+
+        status = self._setup_materialisation()
+        if status != TaskStatus.READY:
+            return status
+
+        status = self._setup_destination()
         if status != TaskStatus.READY:
             return status
 
@@ -20,53 +30,33 @@ class AutoSqlTask(SqlTask):
         if status != TaskStatus.READY:
             return status
 
-        return self.ready()
+        return self._check_extra_fields()
 
-    def _setup_task_def(self):
-        # Process autosql config
-        self.materialisation = self._task_def.get("materialisation", "table")
-        if self.materialisation not in ("view", "table", "incremental"):
+    # Task property methods
+
+    def _setup_materialisation(self):
+        # Type of materialisation
+        self.materialisation = self._pop_property("materialisation")
+        if self.materialisation is None:
             return self.failed(
-                (
-                    f'"{self.materialisation}" is not a correct materialisation.'
-                    ' Valid values are: "table", "incremental" or "view"'
-                )
+                '"materialisation" is a required field (values: table, incremental, view)'
             )
-
-        if self.materialisation == "incremental":
-            if "delete_key" not in self._task_def:
-                return self.failed(
-                    '"delete_key" is required for incremental autosql tasks'
-                )
-            else:
-                self.delete_key = self._task_def["delete_key"]
-
-        if "to" not in self._task_def:
-            return self.failed('Missing "to" field')
-
-        self.staging_schema = self._task_def["to"].get("staging_schema")
-        if self.staging_schema is not None:
-            self.staging_schema = self.compile_property(self.staging_schema)
-
-        self.schema = self._task_def["to"].get("schema")
-        if self.schema is not None:
-            self.schema = self.compile_property(self.schema)
-
-        if "table" not in self._task_def["to"]:
-            return self.failed('Missing "table" field in "to"')
-        else:
-            self.table = self.compile_property(self._task_def["to"]["table"])
-            self.staging_table = "sayn_tmp_" + self.table
+        elif not isinstance(self.materialisation, str) or self.materialisation not in (
+            "table",
+            "incremental",
+            "view",
+        ):
+            return self.failed(
+                'Accepted "materialisation" values: table, incremental, view)'
+            )
+        elif self.materialisation == "incremental":
+            self.delete_key = self._pop_property("delete_key")
+            if self.delete_key is None:
+                return self.failed("Incremental materialisation requires delete_key")
 
         return TaskStatus.READY
 
     def _setup_sql(self):
-        # Get the base query
-        self.template = self.get_query()
-
-        if self.template is None:
-            return self.failed()
-
         try:
             query = self.template.render(**self.parameters)
         except Exception as e:
@@ -90,14 +80,14 @@ class AutoSqlTask(SqlTask):
             return self.ready()
 
         # Some common statements
-        staging_table = self.db.create_table_select(
-            self.staging_table, self.staging_schema, query, replace=True,
+        tmp_table = self.db.create_table_select(
+            self.tmp_table, self.tmp_schema, query, replace=True,
         )
 
         move = (
             self.db.move_table(
-                self.staging_table,
-                self.staging_schema,
+                self.tmp_table,
+                self.tmp_schema,
                 self.table,
                 self.schema,
                 self.ddl,
@@ -145,17 +135,17 @@ class AutoSqlTask(SqlTask):
             and "columns" in self.ddl
         ):
             # ... when it's a TABLE materialisation: create, load and replace table with temporary
-            create_staging_ddl = self.db.create_table_ddl(
-                self.staging_table, self.staging_schema, self.ddl, replace=True,
+            create_tmp_ddl = self.db.create_table_ddl(
+                self.tmp_table, self.tmp_schema, self.ddl, replace=True,
             )
-            insert_staging = self.db.insert(
-                self.staging_table, self.staging_schema, query
+            insert_tmp = self.db.insert(
+                self.tmp_table, self.tmp_schema, query
             )
             self.compiled = (
                 f"-- Create temporary table\n"
-                f"{create_staging_ddl}\n\n"
+                f"{create_tmp_ddl}\n\n"
                 f"-- Load data\n"
-                f"{insert_staging}\n\n"
+                f"{insert_tmp}\n\n"
                 f"-- Move data to final table\n"
                 f"{move}"
             )
@@ -166,7 +156,7 @@ class AutoSqlTask(SqlTask):
             # ... when it exists and it's a TABLE materialisation, create in temp and move
             self.compiled = (
                 f"-- Create temporary table\n"
-                f"{staging_table}\n\n"
+                f"{tmp_table}\n\n"
                 f"-- Move data to final table\n"
                 f"{move}"
             )
@@ -175,15 +165,15 @@ class AutoSqlTask(SqlTask):
             # ... whether there's DDL or not, ...
             # ... when it's a INCREMENTAL materialisation: MERGE instead of load
             merge = self.db.merge_tables(
-                self.staging_table,
-                self.staging_schema,
+                self.tmp_table,
+                self.tmp_schema,
                 self.table,
                 self.schema,
                 self.delete_key,
             )
             self.compiled = (
                 f"-- Create temporary table\n"
-                f"{staging_table}\n\n"
+                f"{tmp_table}\n\n"
                 f"-- Move data to final table\n"
                 f"{merge}\n\n"
             )

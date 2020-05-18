@@ -11,15 +11,19 @@ from .autosql import AutoSqlTask
 from .copy import CopyTask
 
 
-def create_python(name, task, group, model):
-    def fail_creation(name, task, group, model):
-        task_object = PythonTask(name, task, group, model)
+def create_python(name, task):
+    def fail_creation(name, task):
+        task_object = PythonTask(name, task)
         task_object.failed()
         return task_object
 
+    return fail_creation(name, task)
+
     module = task.data.get("module")
     if module is None:
-        if group is not None:
+        if 'preset' in task:
+            if 'module' in task.preset:
+                pass
             module = group.get("module")
         if module is None:
             logging.error(f'Missing module for task "{name}"')
@@ -57,7 +61,7 @@ def create_python(name, task, group, model):
     return task_object
 
 
-def create_task(name, type, task, group, model, ignore):
+def create_task(name, type, task, ignore):
     Logger().set_config(task=name)
 
     creators = {
@@ -66,13 +70,14 @@ def create_task(name, type, task, group, model, ignore):
         "sql": SqlTask,
         "autosql": AutoSqlTask,
         "copy": CopyTask,
-        "python": create_python,
+        # TODO fixes to python tasks
+        "python": IgnoreTask, #create_python,
     }
 
     if ignore:
-        return creators["ignore"](name, task, group, model)
+        return creators["ignore"](name, task)
     else:
         if type not in creators:
             logging.error(f'"{type}" is not a valid task type')
-            return Task(name, task, group, model)
-        return creators[type](name, task, group, model)
+            return Task(name, task)
+        return creators[type](name, task)

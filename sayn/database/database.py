@@ -76,7 +76,7 @@ class Database:
 
     # ETL steps
 
-    def get_table(self, table, schema, columns=None):
+    def get_table(self, table, schema, columns=None, required_existing=False):
         """Create a SQLAlchemy Table object. If columns is not None, fills up columns or checks the columns are present"""
         table_def = Table(table, self.metadata, schema=schema, extend_existing=True)
 
@@ -97,7 +97,8 @@ class Database:
                 if len(cols_in_table - cols_requested) > 0:
                     for column in cols_in_table - cols_requested:
                         table_def._columns.remove(table_def.columns[column])
-
+        elif required_existing:
+            return
         elif columns is not None:
             for column in columns:
                 table_def.append_column(column.copy())
