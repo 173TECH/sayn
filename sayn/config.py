@@ -401,9 +401,9 @@ class Config:
             raise SaynConfigError(f"Missing file: {path.fullname}")
 
         loader = importlib.machinery.SourceFileLoader(
-            "python_tasks", str(Path(self.python_path, "__init__.py"))
+            "sayn_python_tasks", str(Path(self.python_path, "__init__.py"))
         )
-        spec = importlib.util.spec_from_loader("python_tasks", loader)
+        spec = importlib.util.spec_from_loader("sayn_python_tasks", loader)
         m = None
         m = importlib.util.module_from_spec(spec)
 
