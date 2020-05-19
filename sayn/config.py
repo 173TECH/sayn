@@ -116,7 +116,7 @@ class Config:
                 "required_credentials": yaml.UniqueSeq(yaml.NotEmptyStr()),
                 yaml.Optional("default_db"): yaml.NotEmptyStr(),
                 yaml.Optional("presets"): yaml.MapPattern(
-                    yaml.NotEmptyStr(), yaml.MapPattern(yaml.NotEmptyStr(), yaml.Any()),
+                    yaml.Identifier(), yaml.MapPattern(yaml.NotEmptyStr(), yaml.Any()),
                 ),
                 yaml.Optional("groups"): yaml.UniqueSeq(yaml.Enum(groups.keys())),
             }
@@ -170,10 +170,10 @@ class Config:
         schema = yaml.Map(
             {
                 yaml.Optional("presets"): yaml.MapPattern(
-                    yaml.NotEmptyStr(), yaml.MapPattern(yaml.NotEmptyStr(), yaml.Any()),
+                    yaml.Identifier(), yaml.MapPattern(yaml.NotEmptyStr(), yaml.Any()),
                 ),
                 "tasks": yaml.MapPattern(
-                    yaml.NotEmptyStr(), yaml.MapPattern(yaml.NotEmptyStr(), yaml.Any()),
+                    yaml.Identifier(), yaml.MapPattern(yaml.NotEmptyStr(), yaml.Any()),
                 ),
             }
         )

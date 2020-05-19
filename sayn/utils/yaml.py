@@ -1,6 +1,4 @@
-import sys
 import logging
-from pathlib import Path
 
 from strictyaml import (
     Bool,
@@ -18,6 +16,12 @@ from strictyaml import (
     EmptyDict,
 )
 from strictyaml import YAMLValidationError as ValidationError
+
+
+class Identifier(Regex):
+    def __init__(self):
+        self._regex = r"^[a-zA-Z0-9][-_a-zA-Z0-9]+$"
+        self._matching_message = "when expecting a valid identifier string"
 
 
 class NotEmptyStr(Regex):
