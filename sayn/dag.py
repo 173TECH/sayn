@@ -56,7 +56,7 @@ class Dag:
             )
         }
 
-        # 2. Get a dict of models > list of tasks with that model (used by _task_query to get the list of relevant tasks)
+        # 2. Get a dict of groups > task list with that model (used by _task_query to get the list of relevant tasks)
         groups = {
             group: [i[1] for i in group_tasks]
             for group, group_tasks in groupby(
@@ -138,7 +138,7 @@ class Dag:
             return tags[tag]
 
         elif query[:6] == "group:":
-            # A group name will be specified as `group:model_name`
+            # A group name will be specified as `group:group_name`
             group = query[6:]
             if group not in groups:
                 raise KeyError(f'Group "{group}" not in dag')

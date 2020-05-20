@@ -78,26 +78,26 @@ class Config:
     ###############################
 
     def _read_config(self, profile):
-        models = self._read_project()
-        if models is None:
+        project = self._read_project()
+        if project is None:
             return
 
         settings = self._read_settings(
-            profile, models["required_credentials"], list(models["parameters"].keys()),
+            profile, project["required_credentials"], list(project["parameters"].keys()),
         )
         if settings is None:
             return
 
-        parameters = models["parameters"]
+        parameters = project["parameters"]
         parameters.update(settings["parameters"])
 
         return {
             "selected_profile": settings["selected_profile"],
             "parameters": parameters,
-            "default_db": models["default_db"],
+            "default_db": project["default_db"],
             "credentials": settings["credentials"],
-            "presets": models["presets"],
-            "groups": models["groups"],
+            "presets": project["presets"],
+            "groups": project["groups"],
         }
 
     def _read_project(self):
