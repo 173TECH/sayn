@@ -2,7 +2,6 @@ import logging
 
 from .task import TaskStatus
 from .sql import SqlTask
-from ..utils import yaml
 
 
 class CopyTask(SqlTask):
@@ -127,10 +126,9 @@ class CopyTask(SqlTask):
             "source", default={"schema": None}
         )
 
-        if source["schema"] is None:
-            self.source_schema = None
-        elif isinstance(source["schema"], str):
-            self.source_schema = self.compile_property(source.pop("schema"))
+        self.schema = source.pop('schema', None)
+        if self.schema is not None and isinstance(self.schema, str):
+            self.schema = self.compile_property(self.schema)
         else:
             return self.failed('Optional property "schema" must be a string')
 
