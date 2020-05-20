@@ -137,9 +137,9 @@ class Dag:
                 raise KeyError(f'Tag "{tag}" not in dag')
             return tags[tag]
 
-        elif query[:6] == "dag:":
+        elif query[:4] == "dag:":
             # A dag name will be specified as `dag:dag_name`
-            dag = query[6:]
+            dag = query[4:]
             if dag not in dags:
                 raise KeyError(f'DAG "{dag}" does not exists')
             return dags[dag]
