@@ -69,7 +69,7 @@ class Config:
 
         self._setup_credentials(config["default_db"], config["credentials"])
 
-        self._setup_tasks(config["presets"], config["groups"])
+        self._setup_tasks(config["presets"], config["dags"])
         if self._task_definitions is None:
             raise SaynConfigError(f"Error reading tasks")
 
@@ -97,7 +97,7 @@ class Config:
             "default_db": project["default_db"],
             "credentials": settings["credentials"],
             "presets": project["presets"],
-            "groups": project["groups"],
+            "dags": project["dags"],
         }
 
     def _read_project(self):
@@ -106,7 +106,7 @@ class Config:
         if parsed is None:
             return
 
-        groups = {g.name[: -len(g.suffix)]: None for g in Path("groups").glob("*.yaml")}
+        dags = {g.name[: -len(g.suffix)]: None for g in Path("dags").glob("*.yaml")}
 
         schema = yaml.Map(
             {
@@ -118,7 +118,7 @@ class Config:
                 yaml.Optional("presets"): yaml.MapPattern(
                     yaml.Identifier(), yaml.MapPattern(yaml.NotEmptyStr(), yaml.Any()),
                 ),
-                yaml.Optional("groups"): yaml.UniqueSeq(yaml.Enum(groups.keys())),
+                "dags": yaml.UniqueSeq(yaml.Enum(dags.keys())),
             }
         )
 
@@ -131,10 +131,10 @@ class Config:
 
         self._setup_paths()
 
-        # Read groups
-        groups = {name: self._read_group(name) for name in groups.keys()}
-        if len([v for v in groups.values() if v is None]) > 0:
-            # If any errors reading groups, fail the reading
+        # Read dags
+        dags = {name: self._read_dag(name) for name in dags.keys()}
+        if len([v for v in dags.values() if v is None]) > 0:
+            # If any errors reading dags, fail the reading
             return
 
         # Determine default_db
@@ -158,11 +158,11 @@ class Config:
             "required_credentials": parsed.data["required_credentials"],
             "default_db": default_db,
             "presets": parsed.data.get("presets", dict()),
-            "groups": groups,
+            "dags": dags,
         }
 
-    def _read_group(self, group_name):
-        path = Path(self.groups_path, f"{group_name}.yaml")
+    def _read_dag(self, dag_name):
+        path = Path(self.dags_path, f"{dag_name}.yaml")
         parsed = yaml.load(path)
         if parsed is None:
             return
@@ -181,7 +181,7 @@ class Config:
         try:
             parsed.revalidate(schema)
         except yaml.ValidationError as e:
-            logging.error(f'Error reading group "{path.name}"')
+            logging.error(f'Error reading dag "{path.name}"')
             logging.error(e)
             return
 
@@ -335,7 +335,7 @@ class Config:
     ###############################
 
     def _setup_paths(self, **paths):
-        self.groups_path = Path(paths.get("groups", "groups"))
+        self.dags_path = Path(paths.get("dags", "dags"))
         self.sql_path = Path(paths.get("sql", "sql"))
         self.python_path = Path(paths.get("python", "python"))
 
@@ -418,8 +418,8 @@ class Config:
                 f"Error importing python folder {self.python_path.absolute}"
             )
 
-    def _get_group_presets(self, group_presets, group_name, global_presets):
-        presets = copy.deepcopy(group_presets)
+    def _get_dag_presets(self, dag_presets, dag_name, global_presets):
+        presets = copy.deepcopy(dag_presets)
         for preset_name, preset in presets.items():
             if preset.get("preset") is not None:
                 # If the preset references a preset, embed it
@@ -450,8 +450,8 @@ class Config:
                 else:
                     # Global preset not defined
                     logging.error(
-                        "Referenced preset {} in group {} not defined in project.yaml".format(
-                            preset.get("preset"), group_name
+                        "Referenced preset {} in dag {} not defined in project.yaml".format(
+                            preset.get("preset"), dag_name
                         )
                     )
                     return
@@ -460,17 +460,17 @@ class Config:
         out_presets.update(presets)
         return out_presets
 
-    def _get_group_tasks(self, tasks, group_name, presets, all_tasks):
+    def _get_dag_tasks(self, tasks, dag_name, presets, all_tasks):
         tasks = copy.deepcopy(tasks)
         for name, task in tasks.items():
-            # Add the group name
-            task["group"] = group_name
+            # Add the dag name
+            task["dag"] = dag_name
 
             # Check for duplicates
             if name in all_tasks:
                 logging.error(
-                    "Duplicate tasks in group {}: {}".format(
-                        group_name,
+                    "Duplicate tasks in dag {}: {}".format(
+                        dag_name,
                         ", ".join(set(tasks.keys().intersection(set(all_tasks)))),
                     )
                 )
@@ -500,7 +500,7 @@ class Config:
                     # Nested preset
                     task["type"] = task["preset"]["preset"].pop("type")
                 else:
-                    logging.error(f"Missing type in task {name} in group {group_name}")
+                    logging.error(f"Missing type in task {name} in dag {dag_name}")
                     return
 
             # Consolidate the parents and tags list
@@ -529,23 +529,23 @@ class Config:
 
         return tasks
 
-    def _setup_tasks(self, global_presets, groups):
+    def _setup_tasks(self, global_presets, dags):
         tasks = dict()
 
-        for group_name, group in groups.items():
-            presets = self._get_group_presets(
-                group["presets"], group_name, global_presets
+        for dag_name, dag in dags.items():
+            presets = self._get_dag_presets(
+                dag["presets"], dag_name, global_presets
             )
 
             # Now process the tasks
 
             # Add tasks to the output list
-            group_tasks = self._get_group_tasks(
-                group["tasks"], group_name, presets, list(tasks.keys())
+            dag_tasks = self._get_dag_tasks(
+                dag["tasks"], dag_name, presets, list(tasks.keys())
             )
-            if group_tasks is None:
+            if dag_tasks is None:
                 return
-            tasks.update(group_tasks)
+            tasks.update(dag_tasks)
 
         # Now that we have all tasks, check parents referenced in each task exists in the list of all tasks
         # and check if we need to load the python module

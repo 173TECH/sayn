@@ -56,13 +56,13 @@ class Dag:
             )
         }
 
-        # 2. Get a dict of groups > task list with that model (used by _task_query to get the list of relevant tasks)
-        groups = {
-            group: [i[1] for i in group_tasks]
-            for group, group_tasks in groupby(
+        # 2. Get a dict of dags > task list with that model (used by _task_query to get the list of relevant tasks)
+        dags = {
+            dag: [i[1] for i in dag_tasks]
+            for dag, dag_tasks in groupby(
                 sorted(
                     [
-                        (task_def["group"], task_name)
+                        (task_def["dag"], task_name)
                         for task_name, task_def in task_definitions.items()
                     ],
                     key=lambda x: x[0],
@@ -78,12 +78,12 @@ class Dag:
         else:
             # Otherwise we get the list of tasks corresponding to what's specified in --tasks
             tasks_to_process = set(
-                t for q in tasks_query for t in self._task_query(tags, groups, q)
+                t for q in tasks_query for t in self._task_query(tags, dags, q)
             )
 
         # We always apply the exclude filter query
         tasks_to_process = tasks_to_process - set(
-            t for q in exclude_query for t in self._task_query(tags, groups, q)
+            t for q in exclude_query for t in self._task_query(tags, dags, q)
         )
 
         # Create task objects and set them up
@@ -113,7 +113,7 @@ class Dag:
         Logger().set_config(task=None)
         logging.info("DAG Setup: done.")
 
-    def _task_query(self, tags, groups, query):
+    def _task_query(self, tags, dags, query):
         """Returns a list of tasks from the dag matching the query"""
 
         if query[0] == "+":
@@ -137,12 +137,12 @@ class Dag:
                 raise KeyError(f'Tag "{tag}" not in dag')
             return tags[tag]
 
-        elif query[:6] == "group:":
-            # A group name will be specified as `group:group_name`
-            group = query[6:]
-            if group not in groups:
-                raise KeyError(f'Group "{group}" not in dag')
-            return groups[group]
+        elif query[:6] == "dag:":
+            # A dag name will be specified as `dag:dag_name`
+            dag = query[6:]
+            if dag not in dags:
+                raise KeyError(f'DAG "{dag}" does not exists')
+            return dags[dag]
 
         elif query in self.tasks:
             # Otherwise it should be a single task name

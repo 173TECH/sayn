@@ -124,7 +124,7 @@ class SqlTask(Task):
     def _write_query(self, query, suffix=None):
         path = Path(
             self.sayn_config.compile_path,
-            self.group,
+            self.dag,
             Path(f"{self.name}{'_'+suffix if suffix is not None else ''}.sql"),
         )
 

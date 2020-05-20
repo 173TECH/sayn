@@ -22,7 +22,7 @@ class Task(object):
 
         self.name = name
         self.type = task.pop("type")
-        self.group = task.pop("group")
+        self.dag = task.pop("dag")
         self.tags = task.pop("tags", list())
         self.parents = task.pop("parents", list())
 
