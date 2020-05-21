@@ -40,10 +40,10 @@ class Snowflake(Database):
             self.engine.execute(f"USE {schema.split('.')[0]}")
         self.metadata.reflect(only=only, schema=schema, extend_existing=True)
 
-    def get_table(self, table, schema, columns=None):
+    def get_table(self, table, schema, columns=None, required_existing=False):
         """Create a SQLAlchemy Table object. If columns is not None, fills up columns or checks the columns are present"""
         schema = self._get_schema(schema)
-        return super(Snowflake, self).get_table(table, schema, columns)
+        return super(Snowflake, self).get_table(table, schema, columns, required_existing=required_existing)
 
     def move_table(self, src_table, src_schema, dst_table, dst_schema, ddl):
         drop = (

@@ -9,7 +9,7 @@ class TaskStatus(Enum):
     SETTING_UP = 0
     READY = 1
     EXECUTING = 2
-    FINISHED = 3
+    SUCCESS = 3
     FAILED = 4
     SKIPPED = 5
     IGNORED = 6
@@ -17,50 +17,20 @@ class TaskStatus(Enum):
 
 class Task(object):
     # Init functions
-    def __init__(self, name, task, group, model):
+    def __init__(self, name, task):
         self.sayn_config = Config()
 
         self.name = name
-        self.model = model
+        self.type = task.pop("type")
+        self.dag = task.pop("dag")
+        self.tags = task.pop("tags", list())
+        self.parents = task.pop("parents", list())
 
-        self._task_def_start_line = task.start_line
-        self._task_def_end_line = task.end_line
-        if group is not None:
-            self._group_def_start_line = group.start_line
-            self._group_def_end_line = group.end_line
-        else:
-            self._group_def_start_line = None
-
-        _task_def = task.data
-        if group is not None:
-            # Merge group into task definition
-            for prop, val in group.data.items():
-                if prop not in _task_def:
-                    _task_def[prop] = val
-                elif prop == "parameters":
-                    for name, param in val.items():
-                        if name not in _task_def["parameters"]:
-                            _task_def["parameters"][name] = val[name]
-                elif prop == "parents":
-                    if not isinstance(val, list):
-                        self.failed(
-                            f"Parents need to be a list in group {_task_def['group']}"
-                        )
-                        return
-                    _task_def["parents"] = list(
-                        set(_task_def.get("parents", list()) + val)
-                    )
-
-        self.type = _task_def.pop("type")
-        self.group = _task_def.pop("group", None)
-        self.tags = _task_def.pop("tags", list())
-        self.parents = _task_def.pop("parents", list())
-
-        self.parameters = _task_def.pop("parameters", dict())
+        self.parameters = task.pop("parameters", dict())
         for name, value in self.parameters.items():
             self.parameters[name] = self.compile_property(self.parameters[name])
 
-        self._task_def = _task_def
+        self._task_def = task
 
         self.setting_up()
 
@@ -68,7 +38,69 @@ class Task(object):
         """Replaces the parents list with the task objects"""
         self.parents = [tasks[p] for p in self.parents]
 
-    # Utility functions
+    # Properties methods
+
+    def _check_extra_fields(self):
+        # Cleanup preset
+        if 'preset' in self._task_def:
+            if 'preset' in self._task_def['preset']:
+                if len(self._task_def['preset']['preset']) == 0:
+                    # Clean nested preset if possible
+                    del self._task_def['preset']['preset']
+
+            if len(self._task_def['preset']) == 0:
+                # If the nested preset is empty, clean the outer one if possible
+                del self._task_def['preset']
+
+        if len(self._task_def) > 0:
+            return self.failed(
+                "Invalid properties for {}: {}".format(
+                    self.type, ", ".join(self._task_def.keys())
+                )
+            )
+        else:
+            return self.ready()
+
+    def _pop_property(self, property, default=None):
+        """Navigates the task definition and finds the first occurrence of the named property.
+           First it checks in the task, then the preset and finally the nested preset of the preset
+           (the project.yaml preset).
+           Returns None if not found anywhere"""
+
+        def merge_value(value, new_value):
+            if value is None:
+                return new_value
+            elif not isinstance(new_value, type(value)):
+                raise ValueError(type(new_value))
+            elif isinstance(value, dict):
+                value.update(new_value)
+            elif isinstance(value, list):
+                value.extend([v for v in new_value if v not in value])
+            else:
+                value = new_value
+
+            return value
+
+        value = default
+
+        # Extract the value from the deepest level of nesting first and go outwards
+        # We always remove it from the _task_def 
+        if 'preset' in self._task_def:
+            if 'preset' in self._task_def['preset']:
+                if property in self._task_def['preset']['preset']:
+                    new_value = self._task_def['preset']['preset'].pop(property)
+                    value = merge_value(value, new_value)
+
+            if property in self._task_def['preset']:
+                new_value = self._task_def['preset'].pop(property)
+                value = merge_value(value, new_value)
+
+        if property in self._task_def:
+            new_value = self._task_def.pop(property)
+            value = merge_value(value, new_value)
+
+        return value
+
     def compile_property(self, value):
         if value is None:
             return
@@ -96,7 +128,7 @@ class Task(object):
         if self.status != TaskStatus.READY:
             return False
         for p in self.parents:
-            if p.status not in (TaskStatus.IGNORED, TaskStatus.FINISHED):
+            if p.status not in (TaskStatus.IGNORED, TaskStatus.SUCCESS):
                 return False
         return True
 
@@ -125,8 +157,8 @@ class Task(object):
         self.status = TaskStatus.EXECUTING
         return self.status
 
-    def finished(self):
-        self.status = TaskStatus.FINISHED
+    def success(self):
+        self.status = TaskStatus.SUCCESS
         return self.status
 
     def failed(self, messages=None):

@@ -76,7 +76,7 @@ class Database:
 
     # ETL steps
 
-    def get_table(self, table, schema, columns=None):
+    def get_table(self, table, schema, columns=None, required_existing=False):
         """Create a SQLAlchemy Table object. If columns is not None, fills up columns or checks the columns are present"""
         table_def = Table(table, self.metadata, schema=schema, extend_existing=True)
 
@@ -97,7 +97,8 @@ class Database:
                 if len(cols_in_table - cols_requested) > 0:
                     for column in cols_in_table - cols_requested:
                         table_def._columns.remove(table_def.columns[column])
-
+        elif required_existing:
+            return
         elif columns is not None:
             for column in columns:
                 table_def.append_column(column.copy())
@@ -123,7 +124,8 @@ class Database:
         return q
 
     def create_table_ddl(self, table, schema, ddl, replace=False):
-        table = f"{schema+'.' if schema else ''}{table}"
+        table_name = table
+        table = f"{schema+'.' if schema else ''}{table_name}"
         columns = "\n    , ".join(
             [
                 (
@@ -155,7 +157,7 @@ class Database:
         q += f"CREATE TABLE IF NOT EXISTS {table} (\n      {columns}\n);\n"
         q += "\n".join(
             [
-                f"CREATE INDEX IF NOT EXISTS {name} ON {table}({', '.join(cols)});"
+                f"CREATE INDEX IF NOT EXISTS {table_name}_{name} ON {table}({', '.join(cols)});"
                 for name, cols in indexes.items()
             ]
         )
@@ -188,12 +190,24 @@ class Database:
             change_schema = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{dst_table} SET SCHEMA {dst_schema};"
         else:
             change_schema = ""
-        pkey_alter = ""
-        if ddl is not None and 'columns' in ddl:
-            if len([c for c in ddl["columns"] if c.get("primary", False)]):
-                pkey_alter = f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_pkey RENAME TO {dst_table}_pkey;"
 
-        return "\n".join((drop, rename, change_schema, pkey_alter))
+        idx_alter = []
+        if ddl is not None and "columns" in ddl:
+            # Change primary key name
+            if len([c for c in ddl["columns"] if c.get("primary", False)]):
+                idx_alter.append(
+                    f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_pkey RENAME TO {dst_table}_pkey;"
+                )
+
+            # Change index names
+            for idx in [
+                idx for c in ddl["columns"] for idx in c.get("indexes", list())
+            ]:
+                idx_alter.append(
+                    f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx} RENAME TO {dst_table}_{idx};"
+                )
+
+        return "\n".join([drop, rename, change_schema] + idx_alter)
 
     def merge_tables(self, src_table, src_schema, dst_table, dst_schema, delete_key):
         dst = f"{dst_schema+'.' if dst_schema else ''}{dst_table}"

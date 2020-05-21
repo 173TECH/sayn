@@ -32,15 +32,7 @@ class Dag:
 
         # Setup DAG structure using just names and parents
         self._from_dict_reversed(
-            {
-                k: list(
-                    set(
-                        v["task"].data.get("parents", list())
-                        + v["group"].data.get("parents", list())
-                    )
-                )
-                for k, v in task_definitions.items()
-            }
+            {k: v.get("parents", list()) for k, v in task_definitions.items()}
         )
 
         # Calculate list of tasks in the correct order of execution based on parentage
@@ -50,16 +42,13 @@ class Dag:
 
         # 1. Get a dict of tags > list of tasks with that tag (used by _task_query to get the list of relevant tasks)
         tags = {
-            m: [i[1] for i in g]
-            for m, g in groupby(
+            tag: [i[1] for i in tag_tasks]
+            for tag, tag_tasks in groupby(
                 sorted(
                     [
-                        (tag, n)
-                        for n, t in task_definitions.items()
-                        for tag in set(
-                            [tt for tt in t["group"].data.get("tags", list())]
-                            + [tt for tt in t["task"].data.get("tags", list())]
-                        )
+                        (tag, task_name)
+                        for task_name, task_def in task_definitions.items()
+                        for tag in task_def.get("tags", list())
                     ],
                     key=lambda x: x[0],
                 ),
@@ -67,15 +56,14 @@ class Dag:
             )
         }
 
-        # 2. Get a dict of models > list of tasks with that model (used by _task_query to get the list of relevant tasks)
-        models = {
-            m: [i[1] for i in g]
-            for m, g in groupby(
+        # 2. Get a dict of dags > task list with that model (used by _task_query to get the list of relevant tasks)
+        dags = {
+            dag: [i[1] for i in dag_tasks]
+            for dag, dag_tasks in groupby(
                 sorted(
                     [
-                        (t["model"], n)
-                        for n, t in task_definitions.items()
-                        if t["model"] is not None
+                        (task_def["dag"], task_name)
+                        for task_name, task_def in task_definitions.items()
                     ],
                     key=lambda x: x[0],
                 ),
@@ -90,30 +78,30 @@ class Dag:
         else:
             # Otherwise we get the list of tasks corresponding to what's specified in --tasks
             tasks_to_process = set(
-                t for q in tasks_query for t in self._task_query(tags, models, q)
+                t for q in tasks_query for t in self._task_query(tags, dags, q)
             )
 
         # We always apply the exclude filter query
         tasks_to_process = tasks_to_process - set(
-            t for q in exclude_query for t in self._task_query(tags, models, q)
+            t for q in exclude_query for t in self._task_query(tags, dags, q)
         )
 
         # Create task objects and set them up
         self.tasks = {
             name: create_task(
                 name,
-                task_definitions[name]["type"].data,
-                task_definitions[name]["task"],
-                task_definitions[name]["group"],
-                task_definitions[name]["model"],
+                task_definitions[name]["type"],
+                task_definitions[name],
                 name not in tasks_to_process,
             )
             for name in self.tasks.keys()
         }
 
+        # Once all objects are created, we can add references to those in each task
         for _, task in self.tasks.items():
             task.set_parents(self.tasks)
 
+        # Run the setup for each task
         for _, task in self.tasks.items():
             Logger().set_config(task=task.name)
             if task.status == TaskStatus.FAILED:
@@ -121,13 +109,11 @@ class Dag:
             task.setup()
 
         # delete the task_definitions attribute from the config so it we do not have tasks on both APIs
-        delattr(Config(), "_task_definitions")
+        # delattr(Config(), "_task_definitions")
         Logger().set_config(task=None)
         logging.info("DAG Setup: done.")
 
-    # API
-
-    def _task_query(self, tags, models, query):
+    def _task_query(self, tags, dags, query):
         """Returns a list of tasks from the dag matching the query"""
 
         if query[0] == "+":
@@ -151,12 +137,12 @@ class Dag:
                 raise KeyError(f'Tag "{tag}" not in dag')
             return tags[tag]
 
-        elif query[:6] == "model:":
-            # A model name will be specified as `model:model_name`
-            model = query[6:]
-            if model not in models:
-                raise KeyError(f'Model "{model}" not in dag')
-            return models[model]
+        elif query[:4] == "dag:":
+            # A dag name will be specified as `dag:dag_name`
+            dag = query[4:]
+            if dag not in dags:
+                raise KeyError(f'DAG "{dag}" does not exists')
+            return dags[dag]
 
         elif query in self.tasks:
             # Otherwise it should be a single task name
@@ -165,6 +151,43 @@ class Dag:
         else:
             # ... or the task doesn't exists in the dag
             raise KeyError(f'Task "{query}" not in dag')
+
+    def _run_task(self, command, task):
+        Logger().set_config(task=task.name)
+        task_start_ts = datetime.now()
+        if task.status != TaskStatus.READY:
+            task.failed("Task failed during setup. Skipping...")
+        elif not task.can_run():
+            logging.warn("SKIPPING")
+            task.skipped()
+        else:
+            logging.debug("Starting")
+            task.executing()
+            try:
+                if command == "compile":
+                    status = task.compile()
+                elif command == "run":
+                    status = task.run()
+                else:
+                    status = None
+            except Exception as e:
+                logging.exception(e)
+
+                status = None
+
+            if status is None:
+                task.status = TaskStatus.UNKNOWN
+                logging.error(
+                    f"Finished in an unknown state ({datetime.now() - task_start_ts})"
+                )
+            elif status != TaskStatus.SUCCESS:
+                logging.error(f"Failed status ({datetime.now() - task_start_ts})")
+            else:
+                logging.info(
+                    f"\u001b[32mSuccess ({datetime.now() - task_start_ts})\u001b[0m"
+                )
+
+        return task.status
 
     def _run_command(self, command):
         Logger().set_config(stage="Run", task=None, progress="0")
@@ -185,47 +208,16 @@ class Dag:
         for task in self.tasks.values():
             if not task.should_run():
                 # For IgnoreTasks
-                task.finished()
+                task.success()
                 continue
 
-            Logger().set_config(task=task.name)
-            task_start_ts = datetime.now()
-            if task.status != TaskStatus.READY:
-                task.failed("Task failed during setup. Skipping...")
-                failed.append(task.name)
-            elif not task.can_run():
-                logging.warn("SKIPPING")
+            status = self._run_task(command, task)
+            if status == TaskStatus.SKIPPED:
                 skipped.append(task.name)
-                task.skipped()
+            elif status in (TaskStatus.FAILED, TaskStatus.UNKNOWN) or status != TaskStatus.SUCCESS:
+                failed.append(task.name)
             else:
-                logging.debug("Starting")
-                task.executing()
-                try:
-                    if command == "compile":
-                        status = task.compile()
-                    elif command == "run":
-                        status = task.run()
-                    else:
-                        status = None
-                except Exception as e:
-                    logging.exception(e)
-
-                    status = None
-
-                if status is None:
-                    task.status = TaskStatus.UNKNOWN
-                    logging.error(
-                        f"Finished in an unknown state ({datetime.now() - task_start_ts})"
-                    )
-                    failed.append(task.name)
-                elif status != TaskStatus.FINISHED:
-                    logging.error(f"Failed status ({datetime.now() - task_start_ts})")
-                    failed.append(task.name)
-                else:
-                    logging.info(
-                        f"\u001b[32mSuccess ({datetime.now() - task_start_ts})\u001b[0m"
-                    )
-                    success.append(task.name)
+                success.append(task.name)
 
             tcounter += 1
             run_progress = str(round((tcounter) / ntasks * 100))
@@ -263,7 +255,7 @@ class Dag:
     def compile(self):
         self._run_command("compile")
 
-    def plot_dag(self, folder=None, file_name=None):
+    def plot(self, folder=None, file_name=None):
         """Uses graphviz to plot the dag
         It requires the graphviz python package (pip install graphviz) and an installation of graphviz
         (eg: brew install graphviz)

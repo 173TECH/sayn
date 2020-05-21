@@ -4,8 +4,10 @@ from .task import Task
 
 
 class PythonTask(Task):
-    def __init__(self, name, task, group, model):
-        super(PythonTask, self).__init__(name, task, group, model)
+    def __init__(self, name, task):
+        super(PythonTask, self).__init__(name, task)
+
+        # Add some convenient properties
         self.default_db = self.sayn_config.default_db
 
     def setup(self):
@@ -14,8 +16,8 @@ class PythonTask(Task):
 
     def compile(self):
         logging.debug("PythonTask compiling")
-        return self.finished()
+        return self.success()
 
     def run(self):
         logging.debug("PythonTask running.")
-        return self.finished()
+        return self.success()

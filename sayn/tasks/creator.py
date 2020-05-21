@@ -11,53 +11,59 @@ from .autosql import AutoSqlTask
 from .copy import CopyTask
 
 
-def create_python(name, task, group, model):
-    def fail_creation(name, task, group, model):
-        task_object = PythonTask(name, task, group, model)
+def create_python(name, task):
+    def fail_creation(name, task):
+        task_object = PythonTask(name, task)
         task_object.failed()
         return task_object
 
-    module = task.data.get("module")
-    if module is None:
-        if group is not None:
-            module = group.get("module")
-        if module is None:
-            logging.error(f'Missing module for task "{name}"')
-            return fail_creation(name, task, group, model)
-        else:
-            module = module.data
+    class_str = None
+    if "preset" in task:
+        if "preset" in task["preset"]:
+            if "class" in task["preset"]["preset"]:
+                class_str = task["preset"]["preset"].pop("class")
 
-    class_name = task.data.get("class")
-    if class_name is None:
-        if group is not None:
-            class_name = group.get("class")
-        if class_name is None:
-            logging.error(f'Missing class for task "{name}"')
-            return fail_creation(name, task, group, model)
-        else:
-            class_name = class_name.data
+        if "class" in task["preset"]:
+            class_str = task["preset"].pop("class")
+
+    if "class" in task:
+        class_str = task.pop("class")
+
+    if class_str is None:
+        logging.error('Missing required "class" field in python task')
+        return fail_creation(name, task)
+
+    module_str = ".".join(class_str.split(".")[:-1])
+    class_str = class_str.split(".")[-1]
+
+    if len(module_str) > 0:
+        try:
+            task_module = importlib.import_module(f"sayn_python_tasks.{module_str}")
+        except:
+            logging.error(f'Module "{module_str}" not found in python folder')
+            return fail_creation(name, task)
+    else:
+        task_module = importlib.import_module("sayn_python_tasks")
 
     try:
-        task_module = importlib.import_module(f'python_tasks.{module}')
+        klass = getattr(task_module, class_str)
     except:
-        logging.error(f'Module "{module}" not found in python folder')
-
-        return fail_creation(name, task, group, model)
-
-    try:
-        klass = getattr(task_module, class_name)
-    except:
+        module_file_name = (
+            module_str.replace(".", "/") if len(module_str) > 0 else "__init__"
+        )
         logging.error(
-            f'No task class "{class_name}" found in "python/{module.replace(".", "/")}.py"'
+            f'No task class "{class_str}" found in "python/{module_file_name}.py"'
         )
 
-        return fail_creation(name, task, group, model)
+        return fail_creation(name, task)
 
-    task_object = klass(name, task, group, model)
+    # Create object and ensure there's no extra properties
+    task_object = klass(name, task)
+    task_object._check_extra_fields()
     return task_object
 
 
-def create_task(name, type, task, group, model, ignore):
+def create_task(name, type, task, ignore):
     Logger().set_config(task=name)
 
     creators = {
@@ -70,9 +76,9 @@ def create_task(name, type, task, group, model, ignore):
     }
 
     if ignore:
-        return creators["ignore"](name, task, group, model)
+        return creators["ignore"](name, task)
     else:
         if type not in creators:
             logging.error(f'"{type}" is not a valid task type')
-            return Task(name, task, group, model)
-        return creators[type](name, task, group, model)
+            return Task(name, task)
+        return creators[type](name, task)

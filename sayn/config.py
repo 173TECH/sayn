@@ -1,3 +1,4 @@
+import copy
 from datetime import datetime, date, timedelta
 import importlib
 import json
@@ -20,6 +21,8 @@ class SaynConfigError(Exception):
 
 @singleton
 class Config:
+    _task_definitions = None
+
     def __init__(
         self,
         profile=None,
@@ -53,7 +56,7 @@ class Config:
         }
 
         # Read the config
-        config = self.read_config(profile)
+        config = self._read_config(profile)
         if config is None:
             raise SaynConfigError("Error detected in configuration")
 
@@ -62,62 +65,60 @@ class Config:
             {"selected_profile": config["selected_profile"],}
         )
 
-        self.setup_parameters(config["parameters"], cmd_parameters)
+        self._setup_parameters(config["parameters"], cmd_parameters)
 
-        self.setup_credentials(config["default_db"], config["credentials"])
+        self._setup_credentials(config["default_db"], config["credentials"])
 
-        self.setup_tasks(config["tasks"], config["groups"], config["additional_models"])
+        self._setup_tasks(config["presets"], config["dags"])
         if self._task_definitions is None:
             raise SaynConfigError(f"Error reading tasks")
 
-    #
-    # Read config files
-    #
-    def read_config(self, profile):
-        models = self.read_models()
-        if models is None:
+    ###############################
+    # Reader methods
+    ###############################
+
+    def _read_config(self, profile):
+        project = self._read_project()
+        if project is None:
             return
 
-        settings = self.read_settings(
-            profile, models["required_credentials"], list(models["parameters"].keys()),
+        settings = self._read_settings(
+            profile, project["required_credentials"], list(project["parameters"].keys()),
         )
         if settings is None:
             return
 
-        parameters = models["parameters"]
+        parameters = project["parameters"]
         parameters.update(settings["parameters"])
 
         return {
             "selected_profile": settings["selected_profile"],
             "parameters": parameters,
-            "default_db": models["default_db"],
+            "default_db": project["default_db"],
             "credentials": settings["credentials"],
-            "groups": models["groups"],
-            "tasks": models["tasks"],
-            "additional_models": models["additional_models"],
+            "presets": project["presets"],
+            "dags": project["dags"],
         }
 
-    def read_models(self):
-        path = Path("models.yaml")
+    def _read_project(self):
+        path = Path("project.yaml")
         parsed = yaml.load(path)
         if parsed is None:
             return
 
+        dags = {g.name[: -len(g.suffix)]: None for g in Path("dags").glob("*.yaml")}
+
         schema = yaml.Map(
             {
-                "sayn_project_name": yaml.NotEmptyStr(),
-                yaml.Optional("models"): yaml.UniqueSeq(yaml.NotEmptyStr()),
                 yaml.Optional("parameters"): yaml.MapPattern(
                     yaml.NotEmptyStr(), yaml.Any()
                 ),
-                yaml.Optional("default_db"): yaml.NotEmptyStr(),
                 "required_credentials": yaml.UniqueSeq(yaml.NotEmptyStr()),
-                yaml.Optional("groups"): yaml.MapPattern(
-                    yaml.NotEmptyStr(), yaml.MapPattern(yaml.NotEmptyStr(), yaml.Any()),
+                yaml.Optional("default_db"): yaml.NotEmptyStr(),
+                yaml.Optional("presets"): yaml.MapPattern(
+                    yaml.Identifier(), yaml.MapPattern(yaml.NotEmptyStr(), yaml.Any()),
                 ),
-                yaml.Optional("tasks"): yaml.MapPattern(
-                    yaml.NotEmptyStr(), yaml.MapPattern(yaml.NotEmptyStr(), yaml.Any()),
-                ),
+                "dags": yaml.UniqueSeq(yaml.Enum(dags.keys())),
             }
         )
 
@@ -128,24 +129,15 @@ class Config:
             logging.error(e)
             return
 
-        self.setup_paths()
+        self._setup_paths()
 
-        # Read additional models
-        additional_models = dict()
-        for model_name in parsed.data.get("models", []):
-            model = self.read_additional_model(model_name)
-            if model is None:
-                return
+        # Read dags
+        dags = {name: self._read_dag(name) for name in dags.keys()}
+        if len([v for v in dags.values() if v is None]) > 0:
+            # If any errors reading dags, fail the reading
+            return
 
-            additional_models[model_name] = {
-                "model_name": model_name,
-                "tasks": model["tasks"],
-                "groups": model.get(
-                    "groups", yaml.as_document(dict(), yaml.EmptyDict())
-                ),
-            }
-
-        # Figure out default_db
+        # Determine default_db
         default_db = parsed.data.get("default_db")
 
         if default_db is None and len(parsed["required_credentials"]) == 1:
@@ -163,30 +155,25 @@ class Config:
 
         return {
             "parameters": parsed.data.get("parameters", dict()),
-            "default_db": default_db,
             "required_credentials": parsed.data["required_credentials"],
-            "groups": parsed["groups"]
-            if "groups" in parsed
-            else yaml.as_document(dict(), yaml.EmptyDict()),
-            "tasks": parsed["tasks"]
-            if "tasks" in parsed
-            else yaml.as_document(dict(), yaml.EmptyDict()),
-            "additional_models": additional_models,
+            "default_db": default_db,
+            "presets": parsed.data.get("presets", dict()),
+            "dags": dags,
         }
 
-    def read_additional_model(self, model):
-        path = Path(self.models_path, f"{model}.yaml")
+    def _read_dag(self, dag_name):
+        path = Path(self.dags_path, f"{dag_name}.yaml")
         parsed = yaml.load(path)
         if parsed is None:
             return
 
         schema = yaml.Map(
             {
-                yaml.Optional("groups"): yaml.MapPattern(
-                    yaml.NotEmptyStr(), yaml.MapPattern(yaml.NotEmptyStr(), yaml.Any()),
+                yaml.Optional("presets"): yaml.MapPattern(
+                    yaml.Identifier(), yaml.MapPattern(yaml.NotEmptyStr(), yaml.Any()),
                 ),
                 "tasks": yaml.MapPattern(
-                    yaml.NotEmptyStr(), yaml.MapPattern(yaml.NotEmptyStr(), yaml.Any()),
+                    yaml.Identifier(), yaml.MapPattern(yaml.NotEmptyStr(), yaml.Any()),
                 ),
             }
         )
@@ -194,26 +181,29 @@ class Config:
         try:
             parsed.revalidate(schema)
         except yaml.ValidationError as e:
-            logging.error(f'Error reading additional model "{path.name}"')
+            logging.error(f'Error reading dag "{path.name}"')
             logging.error(e)
             return
 
-        return parsed
+        return {
+            "presets": parsed.data.get("presets", dict()),
+            "tasks": parsed.data.get("tasks", dict()),
+        }
 
-    def read_settings(self, profile, required_credentials, allowed_parameters):
+    def _read_settings(self, profile, required_credentials, allowed_parameters):
         env_vars = {k: v for k, v in os.environ.items() if k.startswith("SAYN_")}
         if len(env_vars) > 0:
             print("Reading settings from environment variables")
-            return self.read_settings_environment(
+            return self._read_settings_environment(
                 env_vars, required_credentials, allowed_parameters
             )
         else:
             print('Reading settings from "settings.yaml"')
-            return self.read_settings_file(
+            return self._read_settings_file(
                 profile, required_credentials, allowed_parameters
             )
 
-    def read_settings_environment(
+    def _read_settings_environment(
         self, env_vars, required_credentials, allowed_parameters
     ):
         parameters = dict()
@@ -258,11 +248,11 @@ class Config:
                 logging.error(f'Environment variable "{key}" is not recognised')
                 return
 
-            # Ensure all credentials are specified
-            for credential in required_credentials:
-                if credential not in credentials:
-                    logging.error(f'Missing credential "{credential}"')
-                    return
+        # Ensure all credentials are specified
+        for credential in required_credentials:
+            if credential not in credentials:
+                logging.error(f'Missing credential "{credential}"')
+                return
 
         return {
             "selected_profile": None,
@@ -270,7 +260,7 @@ class Config:
             "credentials": credentials,
         }
 
-    def read_settings_file(self, profile, required_credentials, allowed_parameters):
+    def _read_settings_file(self, profile, required_credentials, allowed_parameters):
         path = Path("settings.yaml")
         parsed = yaml.load(path)
         if parsed is None:
@@ -340,11 +330,12 @@ class Config:
             "credentials": credentials,
         }
 
-    #
-    # Setup
-    #
-    def setup_paths(self, **paths):
-        self.models_path = Path(paths.get("models", "models"))
+    ###############################
+    # Setup config object methods
+    ###############################
+
+    def _setup_paths(self, **paths):
+        self.dags_path = Path(paths.get("dags", "dags"))
         self.sql_path = Path(paths.get("sql", "sql"))
         self.python_path = Path(paths.get("python", "python"))
 
@@ -355,7 +346,7 @@ class Config:
             else:
                 self.compile_path.unlink()
 
-    def setup_parameters(self, from_config, from_cmd):
+    def _setup_parameters(self, from_config, from_cmd):
         self.parameters = from_config
         self.parameters.update(from_cmd)
 
@@ -380,7 +371,7 @@ class Config:
         )
         self.jinja_env.globals.update(**self.parameters)
 
-    def setup_credentials(self, default_db, credentials):
+    def _setup_credentials(self, default_db, credentials):
         db_credentials = {
             n: c for n, c in credentials.items() if c["settings"]["type"] != "api"
         }
@@ -400,15 +391,19 @@ class Config:
         self.dbs = database.create_all(db_credentials)
         self.default_db = self.dbs[default_db]
 
-    def setup_python_tasks_module(self):
+    ###############################
+    # Task processing methods
+    ###############################
+
+    def _setup_python_tasks_module(self):
         path = Path(self.python_path, "__init__.py")
         if not path.is_file():
             raise SaynConfigError(f"Missing file: {path.fullname}")
 
         loader = importlib.machinery.SourceFileLoader(
-            "python_tasks", str(Path(self.python_path, "__init__.py"))
+            "sayn_python_tasks", str(Path(self.python_path, "__init__.py"))
         )
-        spec = importlib.util.spec_from_loader("python_tasks", loader)
+        spec = importlib.util.spec_from_loader("sayn_python_tasks", loader)
         m = None
         m = importlib.util.module_from_spec(spec)
 
@@ -423,90 +418,157 @@ class Config:
                 f"Error importing python folder {self.python_path.absolute}"
             )
 
-    def setup_tasks(self, tasks, groups, additional_models):
-        def get_tasks(tasks, groups, all_models_tasks, model_name=None):
-            if len(tasks) == 0:
-                return dict()
+    def _get_dag_presets(self, dag_presets, dag_name, global_presets):
+        presets = copy.deepcopy(dag_presets)
+        for preset_name, preset in presets.items():
+            if preset.get("preset") is not None:
+                # If the preset references a preset, embed it
+                if preset["preset"] in global_presets:
+                    referenced_preset = copy.deepcopy(global_presets[preset["preset"]])
 
-            # Basic checks on tasks:
-            # 1. Parents are tasks existing in all_models_tasks
-            # 2. Groups also exists in the "tasks" map
-            all_groups = list(groups.data.keys())
+                    # Merge common fields to all task types the outer preset
+                    if "parameters" in referenced_preset:
+                        if "parameters" not in preset:
+                            preset["parameters"] = dict()
+                        preset["parameters"].update(
+                            {
+                                k: v
+                                for k, v in referenced_preset.pop("parameters").items()
+                                if k not in preset["parameters"]
+                            }
+                        )
 
-            def value_validator(k, v):
-                if k == "group":
-                    return yaml.Enum(all_groups)
-                elif k == "parents":
-                    return yaml.UniqueSeq(yaml.Enum(all_models_tasks))
+                    for property in ("parents", "tags"):
+                        if property in referenced_preset:
+                            if property not in preset:
+                                preset[property] = list()
+                            preset[property].extend(referenced_preset.pop(property))
+
+                    # Add the rest of the global preset to the preset
+                    preset["preset"] = referenced_preset
+
                 else:
-                    return yaml.Any()
-
-            for name, task in tasks.items():
-                try:
-                    schema = {k: value_validator(k, v) for k, v in task.data.items()}
-                    task.revalidate(yaml.Map(schema))
-                except yaml.ValidationError as e:
-                    logging.error(f'Error in task "{str(name)}"reading tasks')
-                    logging.error(e)
+                    # Global preset not defined
+                    logging.error(
+                        "Referenced preset {} in dag {} not defined in project.yaml".format(
+                            preset.get("preset"), dag_name
+                        )
+                    )
                     return
 
-            # Create the task definition dictionary
-            tasks = {
-                t: {
-                    "task": tasks[t],
-                    "group": groups[tasks[t]["group"]]
-                    if "group" in tasks[t]
-                    else yaml.as_document(dict(), yaml.EmptyDict()),
-                    "type": tasks[t].get("type"),
-                    "model": model_name,
-                }
-                for t in tasks.data.keys()
-            }
+        out_presets = copy.deepcopy(global_presets)
+        out_presets.update(presets)
+        return out_presets
 
-            # Consolidate the type
-            for task in tasks.values():
-                if task["type"] is None and task["group"] is not None:
-                    task["type"] = task["group"].get("type")
+    def _get_dag_tasks(self, tasks, dag_name, presets, all_tasks):
+        tasks = copy.deepcopy(tasks)
+        for name, task in tasks.items():
+            # Add the dag name
+            task["dag"] = dag_name
 
-            no_type = [n for n, t in tasks.items() if t["type"] is None]
-            if len(no_type) > 0:
-                logging.error(f"Some tasks have no type: {', '.join(no_type)}")
-                return
-
-            return tasks
-
-        # we set task_names_all_models object to validate parents and allow for cross-model parents
-        all_models_tasks = list(tasks.data.keys())
-        for _, model_params in additional_models.items():
-            all_models_tasks += model_params["tasks"].data.keys()
-
-        if len(all_models_tasks) == 0:
-            logging.error("No tasks defined")
-            self._task_definitions = None
-            return
-
-        tasks = get_tasks(tasks, groups, all_models_tasks)
-        if tasks is None:
-            self._task_definitions = None
-            return
-
-        for name, model in additional_models.items():
-            additional_tasks = get_tasks(
-                model["tasks"], model["groups"], all_models_tasks, name
-            )
-            if additional_tasks is None:
-                self._task_definitions = None
-                return
-            elif len(set(tasks.keys()).intersection(additional_tasks.keys())) > 0:
+            # Check for duplicates
+            if name in all_tasks:
                 logging.error(
-                    f"Some tasks are duplicated across models: {', '.join(set(tasks.keys()).intersection(additional_tasks.keys()))}"
+                    "Duplicate tasks in dag {}: {}".format(
+                        dag_name,
+                        ", ".join(set(tasks.keys().intersection(set(all_tasks)))),
+                    )
                 )
-                self._task_definitions = None
                 return
-            else:
-                tasks.update(additional_tasks)
 
-        if len([n for n, t in tasks.items() if t["type"] == "python"]) > 0:
-            self.setup_python_tasks_module()
+            # Embed the preset in the task definition
+            if "preset" in task:
+                if task["preset"] in presets:
+                    task["preset"] = copy.deepcopy(presets[task["preset"]])
+                else:
+                    logging.error(
+                        "Preset {} referenced in task {} not found".format(
+                            task["preset"], name
+                        )
+                    )
+                    return
+
+            # Consolidate the type of the task
+            if "type" not in task:
+                if "type" in task.get("preset", dict()):
+                    # Try to take it from the preset
+                    task["type"] = task["preset"].pop("type")
+                    if "preset" in task.get("preset", dict()):
+                        # Cleanup the type from the nested preset if present as well
+                        task["preset"]["preset"].pop("type")
+                elif "preset" in task.get("preset", dict()):
+                    # Nested preset
+                    task["type"] = task["preset"]["preset"].pop("type")
+                else:
+                    logging.error(f"Missing type in task {name} in dag {dag_name}")
+                    return
+
+            # Consolidate the parents and tags list
+            for property in ("parents", "tags"):
+                if property not in task:
+                    task[property] = list()
+
+                task[property].extend(
+                    [
+                        v
+                        for v in task.get("preset", dict()).pop(property, list())
+                        if v not in task[property]
+                    ]
+                )
+
+            # Consolidate the parameters from the preset
+            if "parameters" not in task:
+                task["parameters"] = dict()
+
+            if "parameters" in task.get("preset", dict()):
+                # We give priority to the values defined in the task, so we start
+                # from the preset and update the dict with the task parameters
+                parameters = task["preset"].pop("parameters", dict())
+                parameters.update(task["parameters"])
+                task["parameters"] = parameters
+
+        return tasks
+
+    def _setup_tasks(self, global_presets, dags):
+        tasks = dict()
+
+        for dag_name, dag in dags.items():
+            presets = self._get_dag_presets(
+                dag["presets"], dag_name, global_presets
+            )
+
+            # Now process the tasks
+
+            # Add tasks to the output list
+            dag_tasks = self._get_dag_tasks(
+                dag["tasks"], dag_name, presets, list(tasks.keys())
+            )
+            if dag_tasks is None:
+                return
+            tasks.update(dag_tasks)
+
+        # Now that we have all tasks, check parents referenced in each task exists in the list of all tasks
+        # and check if we need to load the python module
+        load_python = False
+        for name, task in tasks.items():
+            if "parents" in task:
+                missing_parents = [
+                    parent
+                    for parent in task.get("parents", list())
+                    if parent not in tasks
+                ]
+                if len(missing_parents) > 0:
+                    logging.error(
+                        "Missing parent tasks {} referenced in task {}".format(
+                            ", ".join(missing_parents), name
+                        )
+                    )
+                    return
+
+            if task["type"] == "python":
+                load_python = True
+
+        if load_python:
+            self._setup_python_tasks_module()
 
         self._task_definitions = tasks
