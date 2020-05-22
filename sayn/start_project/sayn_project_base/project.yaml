@@ -1,0 +1,44 @@
+#For more information on how to use SAYN, please visit our documentation:
+#https://173tech.github.io/sayn/
+
+##############
+#PROJECT OVERVIEW
+##############
+#this file contains the details of the SAYN project -it is shared across all project users
+#for more information about the project.yaml file, please see the specific documentation:
+#ADD LINK
+
+##############
+#DEFAULT DATABASE SECTION
+##############
+#specifies which database should be used as the default database when running SAYN
+#the specified database need to be part of the required_credentials section
+default_db: warehouse
+
+##############
+#REQUIRED CREDENTIALS SECTION
+##############
+#specifies the list of the required credentials to run the project
+#the details of those credentials are specified into the settings.yaml file
+required_credentials:
+  - warehouse
+
+##############
+#DAGs SECTION
+##############
+#specifies the DAGs that are run by the SAYN project
+#those DAGs are stored into the dags folder and contain the details of the SAYN tasks
+#refer to the dags without the .yaml extension
+dags:
+  - base
+
+##############
+#PARAMETERS SECTION
+##############
+#specifies the default values of each parameter used when running SAYN
+#those values can be overriden by using profiles in the settings.yaml file
+parameters:
+  table_prefix: ''
+  schema_logs: main #this is specific to SQLite (this should be the database name which is main)
+  schema_staging: main #this is specific to SQLite (this should be the database name which is main)
+  schema_models: main #this is specific to SQLite (this should be the database name which is main)

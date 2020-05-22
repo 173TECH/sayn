@@ -1,0 +1,1947 @@
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|DAG|INFO|----------
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|DAG|INFO|Setting up. Run ID: 1586880886.200659
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|DAG|INFO|----------
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|DAG|INFO|DAG Setup: done.
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|Run|0%|INFO|----------
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|Run|0%|INFO|Running. Run ID: 1586880886.200659
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|Run|0%|INFO|----------
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|Run|0%|INFO|tracks_per_album|[32mSuccess (0:00:00.013551)[0m
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|Run|20%|INFO|track_details_sql|[32mSuccess (0:00:00.013276)[0m
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|Run|40%|INFO|track_details_autosql|[32mSuccess (0:00:00.015951)[0m
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|Run|60%|INFO|tracks_per_album_ordered|[32mSuccess (0:00:00.006620)[0m
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|Run|80%|INFO|print_top_10_albums_by_tracks|[32mSuccess (0:00:00.002785)[0m
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|Summary|INFO|----------
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|Summary|INFO|Stats for Run ID: 1586880886.200659
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|Summary|INFO|----------
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|Summary|INFO|[32mProcess finished. Total tasks: 5. Success: 5. Failed 0. Skipped 0.[0m
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|Summary|INFO|[32mThe following tasks succeded: tracks_per_album, track_details_sql, track_details_autosql, tracks_per_album_ordered, print_top_10_albums_by_tracks[0m
+1586880886.199128|sayn_project_base|2020-04-14 16:14:46|Summary|INFO|Run took 0:00:00.266873
+1586882236.083931|sayn_project_base|2020-04-14 16:37:16|ERROR|Error reading models.yaml
+1586882236.083931|sayn_project_base|2020-04-14 16:37:16|ERROR|while parsing a mapping
+  in "<unicode string>", line 1, column 1:
+    #For more information on how to u ... 
+     ^ (line: 1)
+required key(s) 'sayn_project_name' not found
+  in "<unicode string>", line 119, column 1:
+        type: python
+    ^ (line: 119)
+1586882236.083931|sayn_project_base|2020-04-14 16:37:16|ERROR|Error detected in configuration
+1586882336.596822|sayn_project_base|2020-04-14 16:38:56|ERROR|Error reading models.yaml
+1586882336.596822|sayn_project_base|2020-04-14 16:38:56|ERROR|while parsing a mapping
+  in "<unicode string>", line 1, column 1:
+    #For more information on how to u ... 
+     ^ (line: 1)
+unexpected key not in schema 'project_name'
+  in "<unicode string>", line 27, column 1:
+    #specifies which database should ... 
+    ^ (line: 27)
+1586882336.596822|sayn_project_base|2020-04-14 16:38:57|ERROR|Error detected in configuration
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|DAG|INFO|----------
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|DAG|INFO|Setting up. Run ID: 1586882407.256994
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|DAG|INFO|----------
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|DAG|INFO|DAG Setup: done.
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|Run|0%|INFO|----------
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|Run|0%|INFO|Running. Run ID: 1586882407.256994
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|Run|0%|INFO|----------
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|Run|0%|INFO|tracks_per_album|[32mSuccess (0:00:00.016255)[0m
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|Run|20%|INFO|track_details_autosql|[32mSuccess (0:00:00.010561)[0m
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|Run|40%|INFO|track_details_sql|[32mSuccess (0:00:00.017042)[0m
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|Run|60%|INFO|tracks_per_album_ordered|[32mSuccess (0:00:00.006550)[0m
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|Run|80%|INFO|print_top_10_albums_by_tracks|[32mSuccess (0:00:00.003237)[0m
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|Summary|INFO|----------
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|Summary|INFO|Stats for Run ID: 1586882407.256994
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|Summary|INFO|----------
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|Summary|INFO|[32mProcess finished. Total tasks: 5. Success: 5. Failed 0. Skipped 0.[0m
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|Summary|INFO|[32mThe following tasks succeded: tracks_per_album, track_details_autosql, track_details_sql, tracks_per_album_ordered, print_top_10_albums_by_tracks[0m
+1586882407.253625|sayn_project_base|2020-04-14 16:40:07|Summary|INFO|Run took 0:00:00.448556
+1586955284.808324|sayn_project_base|2020-04-15 12:54:44|DAG|INFO|----------
+1586955284.808324|sayn_project_base|2020-04-15 12:54:44|DAG|INFO|Setting up. Run ID: 1586955284.810711
+1586955284.808324|sayn_project_base|2020-04-15 12:54:44|DAG|INFO|----------
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|DAG|INFO|DAG Setup: done.
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|Run|0%|INFO|----------
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|Run|0%|INFO|Running. Run ID: 1586955284.810711
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|Run|0%|INFO|----------
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|Run|0%|INFO|tracks_per_album|[32mSuccess (0:00:00.025649)[0m
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|Run|20%|INFO|track_details_autosql|[32mSuccess (0:00:00.039666)[0m
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|Run|40%|INFO|track_details_sql|[32mSuccess (0:00:00.026631)[0m
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|Run|60%|INFO|tracks_per_album_ordered|[32mSuccess (0:00:00.003207)[0m
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|Run|80%|ERROR|print_top_10_albums_by_tracks|name 'config' is not defined
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/repositories/173/SAYN_173/sayn/dag.py", line 137, in _run_command
+    status = task.run()
+  File "python/print_top_10_albums_by_tracks.py", line 37, in run
+    schema_models=config.parameters['schema_models'],
+NameError: name 'config' is not defined
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|Run|80%|ERROR|print_top_10_albums_by_tracks|Finished in an unknown state (0:00:00.002378)
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|Summary|INFO|----------
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|Summary|INFO|Stats for Run ID: 1586955284.810711
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|Summary|INFO|----------
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|Summary|ERROR|Process finished. Total tasks: 5. Success: 4. Failed 1. Skipped 0.
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|Summary|ERROR|The following tasks succeded: tracks_per_album, track_details_autosql, track_details_sql, tracks_per_album_ordered
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|Summary|ERROR|The following tasks failed: print_top_10_albums_by_tracks
+1586955284.808324|sayn_project_base|2020-04-15 12:54:45|Summary|INFO|Run took 0:00:00.410994
+1586955302.778878|sayn_project_base|2020-04-15 12:55:02|DAG|INFO|----------
+1586955302.778878|sayn_project_base|2020-04-15 12:55:02|DAG|INFO|Setting up. Run ID: 1586955302.780469
+1586955302.778878|sayn_project_base|2020-04-15 12:55:02|DAG|INFO|----------
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|DAG|INFO|DAG Setup: done.
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|Run|0%|INFO|----------
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|Run|0%|INFO|Running. Run ID: 1586955302.780469
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|Run|0%|INFO|----------
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|Run|0%|INFO|tracks_per_album|[32mSuccess (0:00:00.009259)[0m
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|Run|20%|INFO|track_details_sql|[32mSuccess (0:00:00.011394)[0m
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|Run|40%|INFO|track_details_autosql|[32mSuccess (0:00:00.026289)[0m
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|Run|60%|INFO|tracks_per_album_ordered|[32mSuccess (0:00:00.005547)[0m
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|Run|80%|ERROR|print_top_10_albums_by_tracks|'schema_models'
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/repositories/173/SAYN_173/sayn/dag.py", line 137, in _run_command
+    status = task.run()
+  File "python/print_top_10_albums_by_tracks.py", line 37, in run
+    schema_models=self.parameters['schema_models'],
+KeyError: 'schema_models'
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|Run|80%|ERROR|print_top_10_albums_by_tracks|Finished in an unknown state (0:00:00.000984)
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|Summary|INFO|----------
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|Summary|INFO|Stats for Run ID: 1586955302.780469
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|Summary|INFO|----------
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|Summary|ERROR|Process finished. Total tasks: 5. Success: 4. Failed 1. Skipped 0.
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|Summary|ERROR|The following tasks succeded: tracks_per_album, track_details_sql, track_details_autosql, tracks_per_album_ordered
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|Summary|ERROR|The following tasks failed: print_top_10_albums_by_tracks
+1586955302.778878|sayn_project_base|2020-04-15 12:55:03|Summary|INFO|Run took 0:00:00.285671
+1586955327.763885|sayn_project_base|2020-04-15 12:55:27|DAG|INFO|----------
+1586955327.763885|sayn_project_base|2020-04-15 12:55:27|DAG|INFO|Setting up. Run ID: 1586955327.765603
+1586955327.763885|sayn_project_base|2020-04-15 12:55:27|DAG|INFO|----------
+1586955327.763885|sayn_project_base|2020-04-15 12:55:27|DAG|INFO|DAG Setup: done.
+1586955327.763885|sayn_project_base|2020-04-15 12:55:27|Run|0%|INFO|----------
+1586955327.763885|sayn_project_base|2020-04-15 12:55:27|Run|0%|INFO|Running. Run ID: 1586955327.765603
+1586955327.763885|sayn_project_base|2020-04-15 12:55:27|Run|0%|INFO|----------
+1586955327.763885|sayn_project_base|2020-04-15 12:55:28|Run|0%|INFO|tracks_per_album|[32mSuccess (0:00:00.012806)[0m
+1586955327.763885|sayn_project_base|2020-04-15 12:55:28|Run|20%|INFO|track_details_sql|[32mSuccess (0:00:00.011257)[0m
+1586955327.763885|sayn_project_base|2020-04-15 12:55:28|Run|40%|INFO|track_details_autosql|[32mSuccess (0:00:00.013684)[0m
+1586955327.763885|sayn_project_base|2020-04-15 12:55:28|Run|60%|INFO|tracks_per_album_ordered|[32mSuccess (0:00:00.004131)[0m
+1586955327.763885|sayn_project_base|2020-04-15 12:55:28|Run|80%|ERROR|print_top_10_albums_by_tracks|'TopAlbumsPrinter' object has no attribute 'config'
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/repositories/173/SAYN_173/sayn/dag.py", line 137, in _run_command
+    status = task.run()
+  File "python/print_top_10_albums_by_tracks.py", line 27, in run
+    print(self.config.parameters)
+AttributeError: 'TopAlbumsPrinter' object has no attribute 'config'
+1586955327.763885|sayn_project_base|2020-04-15 12:55:28|Run|80%|ERROR|print_top_10_albums_by_tracks|Finished in an unknown state (0:00:00.001517)
+1586955327.763885|sayn_project_base|2020-04-15 12:55:28|Summary|INFO|----------
+1586955327.763885|sayn_project_base|2020-04-15 12:55:28|Summary|INFO|Stats for Run ID: 1586955327.765603
+1586955327.763885|sayn_project_base|2020-04-15 12:55:28|Summary|INFO|----------
+1586955327.763885|sayn_project_base|2020-04-15 12:55:28|Summary|ERROR|Process finished. Total tasks: 5. Success: 4. Failed 1. Skipped 0.
+1586955327.763885|sayn_project_base|2020-04-15 12:55:28|Summary|ERROR|The following tasks succeded: tracks_per_album, track_details_sql, track_details_autosql, tracks_per_album_ordered
+1586955327.763885|sayn_project_base|2020-04-15 12:55:28|Summary|ERROR|The following tasks failed: print_top_10_albums_by_tracks
+1586955327.763885|sayn_project_base|2020-04-15 12:55:28|Summary|INFO|Run took 0:00:00.283474
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|DAG|INFO|----------
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|DAG|INFO|Setting up. Run ID: 1586955394.479099
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|DAG|INFO|----------
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|DAG|INFO|DAG Setup: done.
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|Run|0%|INFO|----------
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|Run|0%|INFO|Running. Run ID: 1586955394.479099
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|Run|0%|INFO|----------
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|Run|0%|INFO|tracks_per_album|[32mSuccess (0:00:00.009621)[0m
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|Run|20%|INFO|track_details_autosql|[32mSuccess (0:00:00.012963)[0m
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|Run|40%|INFO|track_details_sql|[32mSuccess (0:00:00.012401)[0m
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|Run|60%|INFO|tracks_per_album_ordered|[32mSuccess (0:00:00.004831)[0m
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|Run|80%|ERROR|print_top_10_albums_by_tracks|'schema_models'
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/repositories/173/SAYN_173/sayn/dag.py", line 137, in _run_command
+    status = task.run()
+  File "python/print_top_10_albums_by_tracks.py", line 37, in run
+    schema_models=self.parameters['schema_models'],
+KeyError: 'schema_models'
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|Run|80%|ERROR|print_top_10_albums_by_tracks|Finished in an unknown state (0:00:00.001071)
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|Summary|INFO|----------
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|Summary|INFO|Stats for Run ID: 1586955394.479099
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|Summary|INFO|----------
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|Summary|ERROR|Process finished. Total tasks: 5. Success: 4. Failed 1. Skipped 0.
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|Summary|ERROR|The following tasks succeded: tracks_per_album, track_details_autosql, track_details_sql, tracks_per_album_ordered
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|Summary|ERROR|The following tasks failed: print_top_10_albums_by_tracks
+1586955394.477081|sayn_project_base|2020-04-15 12:56:34|Summary|INFO|Run took 0:00:00.280989
+1586955407.775876|sayn_project_base|2020-04-15 12:56:47|DAG|INFO|----------
+1586955407.775876|sayn_project_base|2020-04-15 12:56:47|DAG|INFO|Setting up. Run ID: 1586955407.777596
+1586955407.775876|sayn_project_base|2020-04-15 12:56:47|DAG|INFO|----------
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|DAG|INFO|DAG Setup: done.
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|Run|0%|INFO|----------
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|Run|0%|INFO|Running. Run ID: 1586955407.777596
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|Run|0%|INFO|----------
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|Run|0%|INFO|tracks_per_album|[32mSuccess (0:00:00.009249)[0m
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|Run|20%|INFO|track_details_sql|[32mSuccess (0:00:00.009544)[0m
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|Run|40%|INFO|track_details_autosql|[32mSuccess (0:00:00.009951)[0m
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|Run|60%|INFO|tracks_per_album_ordered|[32mSuccess (0:00:00.006482)[0m
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|Run|80%|ERROR|print_top_10_albums_by_tracks|'TopAlbumsPrinter' object has no attribute 'sayn_congig'
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/repositories/173/SAYN_173/sayn/dag.py", line 137, in _run_command
+    status = task.run()
+  File "python/print_top_10_albums_by_tracks.py", line 37, in run
+    schema_models=self.sayn_congig.parameters['schema_models'],
+AttributeError: 'TopAlbumsPrinter' object has no attribute 'sayn_congig'
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|Run|80%|ERROR|print_top_10_albums_by_tracks|Finished in an unknown state (0:00:00.001310)
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|Summary|INFO|----------
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|Summary|INFO|Stats for Run ID: 1586955407.777596
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|Summary|INFO|----------
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|Summary|ERROR|Process finished. Total tasks: 5. Success: 4. Failed 1. Skipped 0.
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|Summary|ERROR|The following tasks succeded: tracks_per_album, track_details_sql, track_details_autosql, tracks_per_album_ordered
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|Summary|ERROR|The following tasks failed: print_top_10_albums_by_tracks
+1586955407.775876|sayn_project_base|2020-04-15 12:56:48|Summary|INFO|Run took 0:00:00.271568
+1586957290.649036|sayn_project_base|2020-04-15 13:28:10|DAG|INFO|----------
+1586957290.649036|sayn_project_base|2020-04-15 13:28:10|DAG|INFO|Setting up. Run ID: 1586957290.652948
+1586957290.649036|sayn_project_base|2020-04-15 13:28:10|DAG|INFO|----------
+1586957290.649036|sayn_project_base|2020-04-15 13:28:10|DAG|INFO|DAG Setup: done.
+1586957290.649036|sayn_project_base|2020-04-15 13:28:10|Run|0%|INFO|----------
+1586957290.649036|sayn_project_base|2020-04-15 13:28:10|Run|0%|INFO|Running. Run ID: 1586957290.652948
+1586957290.649036|sayn_project_base|2020-04-15 13:28:10|Run|0%|INFO|----------
+1586957290.649036|sayn_project_base|2020-04-15 13:28:11|Run|0%|INFO|tracks_per_album|[32mSuccess (0:00:00.046182)[0m
+1586957290.649036|sayn_project_base|2020-04-15 13:28:11|Run|20%|INFO|track_details_sql|[32mSuccess (0:00:00.063618)[0m
+1586957290.649036|sayn_project_base|2020-04-15 13:28:11|Run|40%|INFO|track_details_autosql|[32mSuccess (0:00:00.038554)[0m
+1586957290.649036|sayn_project_base|2020-04-15 13:28:11|Run|60%|INFO|tracks_per_album_ordered|[32mSuccess (0:00:00.004181)[0m
+1586957290.649036|sayn_project_base|2020-04-15 13:28:11|Run|80%|INFO|print_top_10_albums_by_tracks|[32mSuccess (0:00:00.001045)[0m
+1586957290.649036|sayn_project_base|2020-04-15 13:28:11|Summary|INFO|----------
+1586957290.649036|sayn_project_base|2020-04-15 13:28:11|Summary|INFO|Stats for Run ID: 1586957290.652948
+1586957290.649036|sayn_project_base|2020-04-15 13:28:11|Summary|INFO|----------
+1586957290.649036|sayn_project_base|2020-04-15 13:28:11|Summary|INFO|[32mProcess finished. Total tasks: 5. Success: 5. Failed 0. Skipped 0.[0m
+1586957290.649036|sayn_project_base|2020-04-15 13:28:11|Summary|INFO|[32mThe following tasks succeded: tracks_per_album, track_details_sql, track_details_autosql, tracks_per_album_ordered, print_top_10_albums_by_tracks[0m
+1586957290.649036|sayn_project_base|2020-04-15 13:28:11|Summary|INFO|Run took 0:00:00.474608
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|DAG|INFO|----------
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|DAG|INFO|Setting up. Run ID: 1587073679.258764
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|DAG|INFO|----------
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|DAG|INFO|DAG Setup: done.
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|Run|0%|INFO|----------
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|Run|0%|INFO|Running. Run ID: 1587073679.258764
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|Run|0%|INFO|----------
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|Run|0%|INFO|tracks_per_album|[32mSuccess (0:00:00.049707)[0m
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|Run|20%|INFO|track_details_sql|[32mSuccess (0:00:00.062962)[0m
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|Run|40%|INFO|track_details_autosql|[32mSuccess (0:00:00.058062)[0m
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|Run|60%|INFO|tracks_per_album_ordered|[32mSuccess (0:00:00.003799)[0m
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|Run|80%|INFO|print_top_10_albums_by_tracks|[32mSuccess (0:00:00.002676)[0m
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|Summary|INFO|----------
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|Summary|INFO|Stats for Run ID: 1587073679.258764
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|Summary|INFO|----------
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|Summary|INFO|[32mProcess finished. Total tasks: 5. Success: 5. Failed 0. Skipped 0.[0m
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|Summary|INFO|[32mThe following tasks succeded: tracks_per_album, track_details_sql, track_details_autosql, tracks_per_album_ordered, print_top_10_albums_by_tracks[0m
+1587073679.256314|sayn_project_base|2020-04-16 21:47:59|Summary|INFO|Run took 0:00:00.643639
+1589392432.75473|sayn_project_base_bis|2020-05-13 17:53:52|DAG|INFO|----------
+1589392432.75473|sayn_project_base_bis|2020-05-13 17:53:52|DAG|INFO|Setting up. Run ID: 1589392432.75612
+1589392432.75473|sayn_project_base_bis|2020-05-13 17:53:52|DAG|INFO|----------
+1589392432.75473|sayn_project_base_bis|2020-05-13 17:53:52|DAG|ERROR|load_data|Module "load_data.py" not found in python folder
+1589392432.75473|sayn_project_base_bis|2020-05-13 17:53:53|DAG|INFO|DAG Setup: done.
+1589392432.75473|sayn_project_base_bis|2020-05-13 17:53:53|Run|0%|INFO|----------
+1589392432.75473|sayn_project_base_bis|2020-05-13 17:53:53|Run|0%|INFO|Running. Run ID: 1589392432.75612
+1589392432.75473|sayn_project_base_bis|2020-05-13 17:53:53|Run|0%|INFO|----------
+1589392432.75473|sayn_project_base_bis|2020-05-13 17:53:53|Run|0%|ERROR|load_data|Task failed during setup. Skipping...
+1589392432.75473|sayn_project_base_bis|2020-05-13 17:53:53|Summary|INFO|----------
+1589392432.75473|sayn_project_base_bis|2020-05-13 17:53:53|Summary|INFO|Stats for Run ID: 1589392432.75612
+1589392432.75473|sayn_project_base_bis|2020-05-13 17:53:53|Summary|INFO|----------
+1589392432.75473|sayn_project_base_bis|2020-05-13 17:53:53|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589392432.75473|sayn_project_base_bis|2020-05-13 17:53:53|Summary|ERROR|The following tasks failed: load_data
+1589392432.75473|sayn_project_base_bis|2020-05-13 17:53:53|Summary|INFO|Run took 0:00:00.308362
+1589392468.473525|sayn_project_base_bis|2020-05-13 17:54:28|DAG|INFO|----------
+1589392468.473525|sayn_project_base_bis|2020-05-13 17:54:28|DAG|INFO|Setting up. Run ID: 1589392468.475043
+1589392468.473525|sayn_project_base_bis|2020-05-13 17:54:28|DAG|INFO|----------
+1589392468.473525|sayn_project_base_bis|2020-05-13 17:54:28|DAG|ERROR|load_data|Module "load_data" not found in python folder
+1589392468.473525|sayn_project_base_bis|2020-05-13 17:54:28|DAG|INFO|DAG Setup: done.
+1589392468.473525|sayn_project_base_bis|2020-05-13 17:54:28|Run|0%|INFO|----------
+1589392468.473525|sayn_project_base_bis|2020-05-13 17:54:28|Run|0%|INFO|Running. Run ID: 1589392468.475043
+1589392468.473525|sayn_project_base_bis|2020-05-13 17:54:28|Run|0%|INFO|----------
+1589392468.473525|sayn_project_base_bis|2020-05-13 17:54:28|Run|0%|ERROR|load_data|Task failed during setup. Skipping...
+1589392468.473525|sayn_project_base_bis|2020-05-13 17:54:28|Summary|INFO|----------
+1589392468.473525|sayn_project_base_bis|2020-05-13 17:54:28|Summary|INFO|Stats for Run ID: 1589392468.475043
+1589392468.473525|sayn_project_base_bis|2020-05-13 17:54:28|Summary|INFO|----------
+1589392468.473525|sayn_project_base_bis|2020-05-13 17:54:28|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589392468.473525|sayn_project_base_bis|2020-05-13 17:54:28|Summary|ERROR|The following tasks failed: load_data
+1589392468.473525|sayn_project_base_bis|2020-05-13 17:54:28|Summary|INFO|Run took 0:00:00.240316
+1589392539.053314|sayn_project_base_bis|2020-05-13 17:55:39|DAG|INFO|----------
+1589392539.053314|sayn_project_base_bis|2020-05-13 17:55:39|DAG|INFO|Setting up. Run ID: 1589392539.05468
+1589392539.053314|sayn_project_base_bis|2020-05-13 17:55:39|DAG|INFO|----------
+1589392539.053314|sayn_project_base_bis|2020-05-13 17:55:39|DAG|ERROR|load_data|Module "load_data" not found in python folder
+1589392539.053314|sayn_project_base_bis|2020-05-13 17:55:39|DAG|INFO|DAG Setup: done.
+1589392539.053314|sayn_project_base_bis|2020-05-13 17:55:39|Run|0%|INFO|----------
+1589392539.053314|sayn_project_base_bis|2020-05-13 17:55:39|Run|0%|INFO|Running. Run ID: 1589392539.05468
+1589392539.053314|sayn_project_base_bis|2020-05-13 17:55:39|Run|0%|INFO|----------
+1589392539.053314|sayn_project_base_bis|2020-05-13 17:55:39|Run|0%|ERROR|load_data|Task failed during setup. Skipping...
+1589392539.053314|sayn_project_base_bis|2020-05-13 17:55:39|Summary|INFO|----------
+1589392539.053314|sayn_project_base_bis|2020-05-13 17:55:39|Summary|INFO|Stats for Run ID: 1589392539.05468
+1589392539.053314|sayn_project_base_bis|2020-05-13 17:55:39|Summary|INFO|----------
+1589392539.053314|sayn_project_base_bis|2020-05-13 17:55:39|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589392539.053314|sayn_project_base_bis|2020-05-13 17:55:39|Summary|ERROR|The following tasks failed: load_data
+1589392539.053314|sayn_project_base_bis|2020-05-13 17:55:39|Summary|INFO|Run took 0:00:00.221554
+1589392590.870695|sayn_project_base_bis|2020-05-13 17:56:30|DAG|INFO|----------
+1589392590.870695|sayn_project_base_bis|2020-05-13 17:56:30|DAG|INFO|Setting up. Run ID: 1589392590.871647
+1589392590.870695|sayn_project_base_bis|2020-05-13 17:56:30|DAG|INFO|----------
+1589392590.870695|sayn_project_base_bis|2020-05-13 17:56:31|DAG|ERROR|load_data|No task class "LoadData" found in "python/load_data.py"
+1589392590.870695|sayn_project_base_bis|2020-05-13 17:56:31|DAG|INFO|DAG Setup: done.
+1589392590.870695|sayn_project_base_bis|2020-05-13 17:56:31|Run|0%|INFO|----------
+1589392590.870695|sayn_project_base_bis|2020-05-13 17:56:31|Run|0%|INFO|Running. Run ID: 1589392590.871647
+1589392590.870695|sayn_project_base_bis|2020-05-13 17:56:31|Run|0%|INFO|----------
+1589392590.870695|sayn_project_base_bis|2020-05-13 17:56:31|Run|0%|ERROR|load_data|Task failed during setup. Skipping...
+1589392590.870695|sayn_project_base_bis|2020-05-13 17:56:31|Summary|INFO|----------
+1589392590.870695|sayn_project_base_bis|2020-05-13 17:56:31|Summary|INFO|Stats for Run ID: 1589392590.871647
+1589392590.870695|sayn_project_base_bis|2020-05-13 17:56:31|Summary|INFO|----------
+1589392590.870695|sayn_project_base_bis|2020-05-13 17:56:31|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589392590.870695|sayn_project_base_bis|2020-05-13 17:56:31|Summary|ERROR|The following tasks failed: load_data
+1589392590.870695|sayn_project_base_bis|2020-05-13 17:56:31|Summary|INFO|Run took 0:00:00.190922
+1589392602.559831|sayn_project_base_bis|2020-05-13 17:56:42|DAG|INFO|----------
+1589392602.559831|sayn_project_base_bis|2020-05-13 17:56:42|DAG|INFO|Setting up. Run ID: 1589392602.560725
+1589392602.559831|sayn_project_base_bis|2020-05-13 17:56:42|DAG|INFO|----------
+1589392602.559831|sayn_project_base_bis|2020-05-13 17:56:42|DAG|INFO|DAG Setup: done.
+1589392602.559831|sayn_project_base_bis|2020-05-13 17:56:42|Run|0%|INFO|----------
+1589392602.559831|sayn_project_base_bis|2020-05-13 17:56:42|Run|0%|INFO|Running. Run ID: 1589392602.560725
+1589392602.559831|sayn_project_base_bis|2020-05-13 17:56:42|Run|0%|INFO|----------
+1589392602.559831|sayn_project_base_bis|2020-05-13 17:56:42|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000047)[0m
+1589392602.559831|sayn_project_base_bis|2020-05-13 17:56:42|Summary|INFO|----------
+1589392602.559831|sayn_project_base_bis|2020-05-13 17:56:42|Summary|INFO|Stats for Run ID: 1589392602.560725
+1589392602.559831|sayn_project_base_bis|2020-05-13 17:56:42|Summary|INFO|----------
+1589392602.559831|sayn_project_base_bis|2020-05-13 17:56:42|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589392602.559831|sayn_project_base_bis|2020-05-13 17:56:42|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589392602.559831|sayn_project_base_bis|2020-05-13 17:56:42|Summary|INFO|Run took 0:00:00.329405
+1589392625.864834|sayn_project_base_bis|2020-05-13 17:57:05|DAG|INFO|----------
+1589392625.864834|sayn_project_base_bis|2020-05-13 17:57:05|DAG|INFO|Setting up. Run ID: 1589392625.866188
+1589392625.864834|sayn_project_base_bis|2020-05-13 17:57:05|DAG|INFO|----------
+1589392625.864834|sayn_project_base_bis|2020-05-13 17:57:06|DAG|INFO|DAG Setup: done.
+1589392625.864834|sayn_project_base_bis|2020-05-13 17:57:06|Run|0%|INFO|----------
+1589392625.864834|sayn_project_base_bis|2020-05-13 17:57:06|Run|0%|INFO|Running. Run ID: 1589392625.866188
+1589392625.864834|sayn_project_base_bis|2020-05-13 17:57:06|Run|0%|INFO|----------
+1589392625.864834|sayn_project_base_bis|2020-05-13 17:57:06|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000018)[0m
+1589392625.864834|sayn_project_base_bis|2020-05-13 17:57:06|Summary|INFO|----------
+1589392625.864834|sayn_project_base_bis|2020-05-13 17:57:06|Summary|INFO|Stats for Run ID: 1589392625.866188
+1589392625.864834|sayn_project_base_bis|2020-05-13 17:57:06|Summary|INFO|----------
+1589392625.864834|sayn_project_base_bis|2020-05-13 17:57:06|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589392625.864834|sayn_project_base_bis|2020-05-13 17:57:06|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589392625.864834|sayn_project_base_bis|2020-05-13 17:57:06|Summary|INFO|Run took 0:00:00.221982
+1589392643.852098|sayn_project_base_bis|2020-05-13 17:57:23|DAG|INFO|----------
+1589392643.852098|sayn_project_base_bis|2020-05-13 17:57:23|DAG|INFO|Setting up. Run ID: 1589392643.853505
+1589392643.852098|sayn_project_base_bis|2020-05-13 17:57:23|DAG|INFO|----------
+1589392643.852098|sayn_project_base_bis|2020-05-13 17:57:24|DAG|INFO|DAG Setup: done.
+1589392643.852098|sayn_project_base_bis|2020-05-13 17:57:24|Run|0%|INFO|----------
+1589392643.852098|sayn_project_base_bis|2020-05-13 17:57:24|Run|0%|INFO|Running. Run ID: 1589392643.853505
+1589392643.852098|sayn_project_base_bis|2020-05-13 17:57:24|Run|0%|INFO|----------
+1589392643.852098|sayn_project_base_bis|2020-05-13 17:57:24|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000013)[0m
+1589392643.852098|sayn_project_base_bis|2020-05-13 17:57:24|Summary|INFO|----------
+1589392643.852098|sayn_project_base_bis|2020-05-13 17:57:24|Summary|INFO|Stats for Run ID: 1589392643.853505
+1589392643.852098|sayn_project_base_bis|2020-05-13 17:57:24|Summary|INFO|----------
+1589392643.852098|sayn_project_base_bis|2020-05-13 17:57:24|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589392643.852098|sayn_project_base_bis|2020-05-13 17:57:24|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589392643.852098|sayn_project_base_bis|2020-05-13 17:57:24|Summary|INFO|Run took 0:00:00.229110
+1589392652.41452|sayn_project_base_bis|2020-05-13 17:57:32|DAG|INFO|----------
+1589392652.41452|sayn_project_base_bis|2020-05-13 17:57:32|DAG|INFO|Setting up. Run ID: 1589392652.415828
+1589392652.41452|sayn_project_base_bis|2020-05-13 17:57:32|DAG|INFO|----------
+1589392652.41452|sayn_project_base_bis|2020-05-13 17:57:32|DAG|INFO|DAG Setup: done.
+1589392652.41452|sayn_project_base_bis|2020-05-13 17:57:32|Run|0%|INFO|----------
+1589392652.41452|sayn_project_base_bis|2020-05-13 17:57:32|Run|0%|INFO|Running. Run ID: 1589392652.415828
+1589392652.41452|sayn_project_base_bis|2020-05-13 17:57:32|Run|0%|INFO|----------
+1589392652.41452|sayn_project_base_bis|2020-05-13 17:57:32|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000014)[0m
+1589392652.41452|sayn_project_base_bis|2020-05-13 17:57:32|Summary|INFO|----------
+1589392652.41452|sayn_project_base_bis|2020-05-13 17:57:32|Summary|INFO|Stats for Run ID: 1589392652.415828
+1589392652.41452|sayn_project_base_bis|2020-05-13 17:57:32|Summary|INFO|----------
+1589392652.41452|sayn_project_base_bis|2020-05-13 17:57:32|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589392652.41452|sayn_project_base_bis|2020-05-13 17:57:32|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589392652.41452|sayn_project_base_bis|2020-05-13 17:57:32|Summary|INFO|Run took 0:00:00.199756
+1589392662.336616|sayn_project_base_bis|2020-05-13 17:57:42|DAG|INFO|----------
+1589392662.336616|sayn_project_base_bis|2020-05-13 17:57:42|DAG|INFO|Setting up. Run ID: 1589392662.33859
+1589392662.336616|sayn_project_base_bis|2020-05-13 17:57:42|DAG|INFO|----------
+1589392662.336616|sayn_project_base_bis|2020-05-13 17:57:42|DAG|ERROR|load_data|Module "load_data" not found in python folder
+1589392662.336616|sayn_project_base_bis|2020-05-13 17:57:42|DAG|INFO|DAG Setup: done.
+1589392662.336616|sayn_project_base_bis|2020-05-13 17:57:42|Run|0%|INFO|----------
+1589392662.336616|sayn_project_base_bis|2020-05-13 17:57:42|Run|0%|INFO|Running. Run ID: 1589392662.33859
+1589392662.336616|sayn_project_base_bis|2020-05-13 17:57:42|Run|0%|INFO|----------
+1589392662.336616|sayn_project_base_bis|2020-05-13 17:57:42|Run|0%|ERROR|load_data|Task failed during setup. Skipping...
+1589392662.336616|sayn_project_base_bis|2020-05-13 17:57:42|Summary|INFO|----------
+1589392662.336616|sayn_project_base_bis|2020-05-13 17:57:42|Summary|INFO|Stats for Run ID: 1589392662.33859
+1589392662.336616|sayn_project_base_bis|2020-05-13 17:57:42|Summary|INFO|----------
+1589392662.336616|sayn_project_base_bis|2020-05-13 17:57:42|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589392662.336616|sayn_project_base_bis|2020-05-13 17:57:42|Summary|ERROR|The following tasks failed: load_data
+1589392662.336616|sayn_project_base_bis|2020-05-13 17:57:42|Summary|INFO|Run took 0:00:00.212063
+1589392672.324104|sayn_project_base_bis|2020-05-13 17:57:52|DAG|INFO|----------
+1589392672.324104|sayn_project_base_bis|2020-05-13 17:57:52|DAG|INFO|Setting up. Run ID: 1589392672.325521
+1589392672.324104|sayn_project_base_bis|2020-05-13 17:57:52|DAG|INFO|----------
+1589392672.324104|sayn_project_base_bis|2020-05-13 17:57:52|DAG|INFO|DAG Setup: done.
+1589392672.324104|sayn_project_base_bis|2020-05-13 17:57:52|Run|0%|INFO|----------
+1589392672.324104|sayn_project_base_bis|2020-05-13 17:57:52|Run|0%|INFO|Running. Run ID: 1589392672.325521
+1589392672.324104|sayn_project_base_bis|2020-05-13 17:57:52|Run|0%|INFO|----------
+1589392672.324104|sayn_project_base_bis|2020-05-13 17:57:52|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000021)[0m
+1589392672.324104|sayn_project_base_bis|2020-05-13 17:57:52|Summary|INFO|----------
+1589392672.324104|sayn_project_base_bis|2020-05-13 17:57:52|Summary|INFO|Stats for Run ID: 1589392672.325521
+1589392672.324104|sayn_project_base_bis|2020-05-13 17:57:52|Summary|INFO|----------
+1589392672.324104|sayn_project_base_bis|2020-05-13 17:57:52|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589392672.324104|sayn_project_base_bis|2020-05-13 17:57:52|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589392672.324104|sayn_project_base_bis|2020-05-13 17:57:52|Summary|INFO|Run took 0:00:00.215206
+1589392757.396854|sayn_project_base_bis|2020-05-13 17:59:17|DAG|INFO|----------
+1589392757.396854|sayn_project_base_bis|2020-05-13 17:59:17|DAG|INFO|Setting up. Run ID: 1589392757.398646
+1589392757.396854|sayn_project_base_bis|2020-05-13 17:59:17|DAG|INFO|----------
+1589392757.396854|sayn_project_base_bis|2020-05-13 17:59:17|DAG|INFO|DAG Setup: done.
+1589392757.396854|sayn_project_base_bis|2020-05-13 17:59:17|Run|0%|INFO|----------
+1589392757.396854|sayn_project_base_bis|2020-05-13 17:59:17|Run|0%|INFO|Running. Run ID: 1589392757.398646
+1589392757.396854|sayn_project_base_bis|2020-05-13 17:59:17|Run|0%|INFO|----------
+1589392757.396854|sayn_project_base_bis|2020-05-13 17:59:17|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000020)[0m
+1589392757.396854|sayn_project_base_bis|2020-05-13 17:59:17|Summary|INFO|----------
+1589392757.396854|sayn_project_base_bis|2020-05-13 17:59:17|Summary|INFO|Stats for Run ID: 1589392757.398646
+1589392757.396854|sayn_project_base_bis|2020-05-13 17:59:17|Summary|INFO|----------
+1589392757.396854|sayn_project_base_bis|2020-05-13 17:59:17|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589392757.396854|sayn_project_base_bis|2020-05-13 17:59:17|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589392757.396854|sayn_project_base_bis|2020-05-13 17:59:17|Summary|INFO|Run took 0:00:00.222804
+1589392767.598379|sayn_project_base_bis|2020-05-13 17:59:27|DAG|INFO|----------
+1589392767.598379|sayn_project_base_bis|2020-05-13 17:59:27|DAG|INFO|Setting up. Run ID: 1589392767.59971
+1589392767.598379|sayn_project_base_bis|2020-05-13 17:59:27|DAG|INFO|----------
+1589392767.598379|sayn_project_base_bis|2020-05-13 17:59:27|DAG|INFO|DAG Setup: done.
+1589392767.598379|sayn_project_base_bis|2020-05-13 17:59:27|Run|0%|INFO|----------
+1589392767.598379|sayn_project_base_bis|2020-05-13 17:59:27|Run|0%|INFO|Running. Run ID: 1589392767.59971
+1589392767.598379|sayn_project_base_bis|2020-05-13 17:59:27|Run|0%|INFO|----------
+1589392767.598379|sayn_project_base_bis|2020-05-13 17:59:27|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000012)[0m
+1589392767.598379|sayn_project_base_bis|2020-05-13 17:59:27|Summary|INFO|----------
+1589392767.598379|sayn_project_base_bis|2020-05-13 17:59:27|Summary|INFO|Stats for Run ID: 1589392767.59971
+1589392767.598379|sayn_project_base_bis|2020-05-13 17:59:27|Summary|INFO|----------
+1589392767.598379|sayn_project_base_bis|2020-05-13 17:59:27|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589392767.598379|sayn_project_base_bis|2020-05-13 17:59:27|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589392767.598379|sayn_project_base_bis|2020-05-13 17:59:27|Summary|INFO|Run took 0:00:00.291749
+1589392918.815633|sayn_project_base_bis|2020-05-13 18:01:58|DAG|INFO|----------
+1589392918.815633|sayn_project_base_bis|2020-05-13 18:01:58|DAG|INFO|Setting up. Run ID: 1589392918.819061
+1589392918.815633|sayn_project_base_bis|2020-05-13 18:01:58|DAG|INFO|----------
+1589392918.815633|sayn_project_base_bis|2020-05-13 18:01:59|DAG|INFO|DAG Setup: done.
+1589392918.815633|sayn_project_base_bis|2020-05-13 18:01:59|Run|0%|INFO|----------
+1589392918.815633|sayn_project_base_bis|2020-05-13 18:01:59|Run|0%|INFO|Running. Run ID: 1589392918.819061
+1589392918.815633|sayn_project_base_bis|2020-05-13 18:01:59|Run|0%|INFO|----------
+1589392918.815633|sayn_project_base_bis|2020-05-13 18:01:59|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000014)[0m
+1589392918.815633|sayn_project_base_bis|2020-05-13 18:01:59|Summary|INFO|----------
+1589392918.815633|sayn_project_base_bis|2020-05-13 18:01:59|Summary|INFO|Stats for Run ID: 1589392918.819061
+1589392918.815633|sayn_project_base_bis|2020-05-13 18:01:59|Summary|INFO|----------
+1589392918.815633|sayn_project_base_bis|2020-05-13 18:01:59|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589392918.815633|sayn_project_base_bis|2020-05-13 18:01:59|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589392918.815633|sayn_project_base_bis|2020-05-13 18:01:59|Summary|INFO|Run took 0:00:00.248284
+1589393138.259469|sayn_project_base_bis|2020-05-13 18:05:38|DAG|INFO|----------
+1589393138.259469|sayn_project_base_bis|2020-05-13 18:05:38|DAG|INFO|Setting up. Run ID: 1589393138.260848
+1589393138.259469|sayn_project_base_bis|2020-05-13 18:05:38|DAG|INFO|----------
+1589393138.259469|sayn_project_base_bis|2020-05-13 18:05:38|DAG|INFO|DAG Setup: done.
+1589393138.259469|sayn_project_base_bis|2020-05-13 18:05:38|Run|0%|INFO|----------
+1589393138.259469|sayn_project_base_bis|2020-05-13 18:05:38|Run|0%|INFO|Running. Run ID: 1589393138.260848
+1589393138.259469|sayn_project_base_bis|2020-05-13 18:05:38|Run|0%|INFO|----------
+1589393138.259469|sayn_project_base_bis|2020-05-13 18:05:38|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000016)[0m
+1589393138.259469|sayn_project_base_bis|2020-05-13 18:05:38|Summary|INFO|----------
+1589393138.259469|sayn_project_base_bis|2020-05-13 18:05:38|Summary|INFO|Stats for Run ID: 1589393138.260848
+1589393138.259469|sayn_project_base_bis|2020-05-13 18:05:38|Summary|INFO|----------
+1589393138.259469|sayn_project_base_bis|2020-05-13 18:05:38|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589393138.259469|sayn_project_base_bis|2020-05-13 18:05:38|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589393138.259469|sayn_project_base_bis|2020-05-13 18:05:38|Summary|INFO|Run took 0:00:00.218588
+1589393166.486792|sayn_project_base_bis|2020-05-13 18:06:06|DAG|INFO|----------
+1589393166.486792|sayn_project_base_bis|2020-05-13 18:06:06|DAG|INFO|Setting up. Run ID: 1589393166.489278
+1589393166.486792|sayn_project_base_bis|2020-05-13 18:06:06|DAG|INFO|----------
+1589393166.486792|sayn_project_base_bis|2020-05-13 18:06:06|DAG|INFO|DAG Setup: done.
+1589393166.486792|sayn_project_base_bis|2020-05-13 18:06:06|Run|0%|INFO|----------
+1589393166.486792|sayn_project_base_bis|2020-05-13 18:06:06|Run|0%|INFO|Running. Run ID: 1589393166.489278
+1589393166.486792|sayn_project_base_bis|2020-05-13 18:06:06|Run|0%|INFO|----------
+1589393166.486792|sayn_project_base_bis|2020-05-13 18:06:06|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000014)[0m
+1589393166.486792|sayn_project_base_bis|2020-05-13 18:06:06|Summary|INFO|----------
+1589393166.486792|sayn_project_base_bis|2020-05-13 18:06:06|Summary|INFO|Stats for Run ID: 1589393166.489278
+1589393166.486792|sayn_project_base_bis|2020-05-13 18:06:06|Summary|INFO|----------
+1589393166.486792|sayn_project_base_bis|2020-05-13 18:06:06|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589393166.486792|sayn_project_base_bis|2020-05-13 18:06:06|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589393166.486792|sayn_project_base_bis|2020-05-13 18:06:06|Summary|INFO|Run took 0:00:00.213730
+1589393254.609181|sayn_project_base_bis|2020-05-13 18:07:34|DAG|INFO|----------
+1589393254.609181|sayn_project_base_bis|2020-05-13 18:07:34|DAG|INFO|Setting up. Run ID: 1589393254.610547
+1589393254.609181|sayn_project_base_bis|2020-05-13 18:07:34|DAG|INFO|----------
+1589393254.609181|sayn_project_base_bis|2020-05-13 18:07:34|DAG|INFO|DAG Setup: done.
+1589393254.609181|sayn_project_base_bis|2020-05-13 18:07:34|Run|0%|INFO|----------
+1589393254.609181|sayn_project_base_bis|2020-05-13 18:07:34|Run|0%|INFO|Running. Run ID: 1589393254.610547
+1589393254.609181|sayn_project_base_bis|2020-05-13 18:07:34|Run|0%|INFO|----------
+1589393254.609181|sayn_project_base_bis|2020-05-13 18:07:34|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000013)[0m
+1589393254.609181|sayn_project_base_bis|2020-05-13 18:07:34|Summary|INFO|----------
+1589393254.609181|sayn_project_base_bis|2020-05-13 18:07:34|Summary|INFO|Stats for Run ID: 1589393254.610547
+1589393254.609181|sayn_project_base_bis|2020-05-13 18:07:34|Summary|INFO|----------
+1589393254.609181|sayn_project_base_bis|2020-05-13 18:07:34|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589393254.609181|sayn_project_base_bis|2020-05-13 18:07:34|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589393254.609181|sayn_project_base_bis|2020-05-13 18:07:34|Summary|INFO|Run took 0:00:00.234603
+1589393267.776601|sayn_project_base_bis|2020-05-13 18:07:47|DAG|INFO|----------
+1589393267.776601|sayn_project_base_bis|2020-05-13 18:07:47|DAG|INFO|Setting up. Run ID: 1589393267.777999
+1589393267.776601|sayn_project_base_bis|2020-05-13 18:07:47|DAG|INFO|----------
+1589393267.776601|sayn_project_base_bis|2020-05-13 18:07:47|DAG|INFO|DAG Setup: done.
+1589393267.776601|sayn_project_base_bis|2020-05-13 18:07:47|Run|0%|INFO|----------
+1589393267.776601|sayn_project_base_bis|2020-05-13 18:07:47|Run|0%|INFO|Running. Run ID: 1589393267.777999
+1589393267.776601|sayn_project_base_bis|2020-05-13 18:07:47|Run|0%|INFO|----------
+1589393267.776601|sayn_project_base_bis|2020-05-13 18:07:47|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000013)[0m
+1589393267.776601|sayn_project_base_bis|2020-05-13 18:07:47|Summary|INFO|----------
+1589393267.776601|sayn_project_base_bis|2020-05-13 18:07:47|Summary|INFO|Stats for Run ID: 1589393267.777999
+1589393267.776601|sayn_project_base_bis|2020-05-13 18:07:47|Summary|INFO|----------
+1589393267.776601|sayn_project_base_bis|2020-05-13 18:07:47|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589393267.776601|sayn_project_base_bis|2020-05-13 18:07:47|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589393267.776601|sayn_project_base_bis|2020-05-13 18:07:47|Summary|INFO|Run took 0:00:00.223376
+1589393510.336142|sayn_project_base_bis|2020-05-13 18:11:50|DAG|INFO|----------
+1589393510.336142|sayn_project_base_bis|2020-05-13 18:11:50|DAG|INFO|Setting up. Run ID: 1589393510.337641
+1589393510.336142|sayn_project_base_bis|2020-05-13 18:11:50|DAG|INFO|----------
+1589393510.336142|sayn_project_base_bis|2020-05-13 18:11:50|DAG|INFO|DAG Setup: done.
+1589393510.336142|sayn_project_base_bis|2020-05-13 18:11:50|Run|0%|INFO|----------
+1589393510.336142|sayn_project_base_bis|2020-05-13 18:11:50|Run|0%|INFO|Running. Run ID: 1589393510.337641
+1589393510.336142|sayn_project_base_bis|2020-05-13 18:11:50|Run|0%|INFO|----------
+1589393510.336142|sayn_project_base_bis|2020-05-13 18:11:50|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000012)[0m
+1589393510.336142|sayn_project_base_bis|2020-05-13 18:11:50|Summary|INFO|----------
+1589393510.336142|sayn_project_base_bis|2020-05-13 18:11:50|Summary|INFO|Stats for Run ID: 1589393510.337641
+1589393510.336142|sayn_project_base_bis|2020-05-13 18:11:50|Summary|INFO|----------
+1589393510.336142|sayn_project_base_bis|2020-05-13 18:11:50|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589393510.336142|sayn_project_base_bis|2020-05-13 18:11:50|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589393510.336142|sayn_project_base_bis|2020-05-13 18:11:50|Summary|INFO|Run took 0:00:00.224675
+1589393621.903498|sayn_project_base_bis|2020-05-13 18:13:42|DAG|INFO|----------
+1589393621.903498|sayn_project_base_bis|2020-05-13 18:13:42|DAG|INFO|Setting up. Run ID: 1589393621.904859
+1589393621.903498|sayn_project_base_bis|2020-05-13 18:13:42|DAG|INFO|----------
+1589393621.903498|sayn_project_base_bis|2020-05-13 18:13:42|DAG|INFO|DAG Setup: done.
+1589393621.903498|sayn_project_base_bis|2020-05-13 18:13:42|Run|0%|INFO|----------
+1589393621.903498|sayn_project_base_bis|2020-05-13 18:13:42|Run|0%|INFO|Running. Run ID: 1589393621.904859
+1589393621.903498|sayn_project_base_bis|2020-05-13 18:13:42|Run|0%|INFO|----------
+1589393621.903498|sayn_project_base_bis|2020-05-13 18:13:42|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000015)[0m
+1589393621.903498|sayn_project_base_bis|2020-05-13 18:13:42|Summary|INFO|----------
+1589393621.903498|sayn_project_base_bis|2020-05-13 18:13:42|Summary|INFO|Stats for Run ID: 1589393621.904859
+1589393621.903498|sayn_project_base_bis|2020-05-13 18:13:42|Summary|INFO|----------
+1589393621.903498|sayn_project_base_bis|2020-05-13 18:13:42|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589393621.903498|sayn_project_base_bis|2020-05-13 18:13:42|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589393621.903498|sayn_project_base_bis|2020-05-13 18:13:42|Summary|INFO|Run took 0:00:00.226492
+1589393675.309741|sayn_project_base_bis|2020-05-13 18:14:35|DAG|INFO|----------
+1589393675.309741|sayn_project_base_bis|2020-05-13 18:14:35|DAG|INFO|Setting up. Run ID: 1589393675.311096
+1589393675.309741|sayn_project_base_bis|2020-05-13 18:14:35|DAG|INFO|----------
+1589393675.309741|sayn_project_base_bis|2020-05-13 18:14:35|DAG|INFO|DAG Setup: done.
+1589393675.309741|sayn_project_base_bis|2020-05-13 18:14:35|Run|0%|INFO|----------
+1589393675.309741|sayn_project_base_bis|2020-05-13 18:14:35|Run|0%|INFO|Running. Run ID: 1589393675.311096
+1589393675.309741|sayn_project_base_bis|2020-05-13 18:14:35|Run|0%|INFO|----------
+1589393675.309741|sayn_project_base_bis|2020-05-13 18:14:35|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000013)[0m
+1589393675.309741|sayn_project_base_bis|2020-05-13 18:14:35|Summary|INFO|----------
+1589393675.309741|sayn_project_base_bis|2020-05-13 18:14:35|Summary|INFO|Stats for Run ID: 1589393675.311096
+1589393675.309741|sayn_project_base_bis|2020-05-13 18:14:35|Summary|INFO|----------
+1589393675.309741|sayn_project_base_bis|2020-05-13 18:14:35|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589393675.309741|sayn_project_base_bis|2020-05-13 18:14:35|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589393675.309741|sayn_project_base_bis|2020-05-13 18:14:35|Summary|INFO|Run took 0:00:00.234604
+1589393886.441897|sayn_project_base_bis|2020-05-13 18:18:06|DAG|INFO|----------
+1589393886.441897|sayn_project_base_bis|2020-05-13 18:18:06|DAG|INFO|Setting up. Run ID: 1589393886.443381
+1589393886.441897|sayn_project_base_bis|2020-05-13 18:18:06|DAG|INFO|----------
+1589393886.441897|sayn_project_base_bis|2020-05-13 18:18:06|DAG|INFO|DAG Setup: done.
+1589393886.441897|sayn_project_base_bis|2020-05-13 18:18:06|Run|0%|INFO|----------
+1589393886.441897|sayn_project_base_bis|2020-05-13 18:18:06|Run|0%|INFO|Running. Run ID: 1589393886.443381
+1589393886.441897|sayn_project_base_bis|2020-05-13 18:18:06|Run|0%|INFO|----------
+1589393886.441897|sayn_project_base_bis|2020-05-13 18:18:06|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000015)[0m
+1589393886.441897|sayn_project_base_bis|2020-05-13 18:18:06|Summary|INFO|----------
+1589393886.441897|sayn_project_base_bis|2020-05-13 18:18:06|Summary|INFO|Stats for Run ID: 1589393886.443381
+1589393886.441897|sayn_project_base_bis|2020-05-13 18:18:06|Summary|INFO|----------
+1589393886.441897|sayn_project_base_bis|2020-05-13 18:18:06|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589393886.441897|sayn_project_base_bis|2020-05-13 18:18:06|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589393886.441897|sayn_project_base_bis|2020-05-13 18:18:06|Summary|INFO|Run took 0:00:00.275299
+1589394164.989525|sayn_project_base_bis|2020-05-13 18:22:45|DAG|INFO|----------
+1589394164.989525|sayn_project_base_bis|2020-05-13 18:22:45|DAG|INFO|Setting up. Run ID: 1589394164.990968
+1589394164.989525|sayn_project_base_bis|2020-05-13 18:22:45|DAG|INFO|----------
+1589394164.989525|sayn_project_base_bis|2020-05-13 18:22:45|DAG|INFO|DAG Setup: done.
+1589394164.989525|sayn_project_base_bis|2020-05-13 18:22:45|Run|0%|INFO|----------
+1589394164.989525|sayn_project_base_bis|2020-05-13 18:22:45|Run|0%|INFO|Running. Run ID: 1589394164.990968
+1589394164.989525|sayn_project_base_bis|2020-05-13 18:22:45|Run|0%|INFO|----------
+1589394164.989525|sayn_project_base_bis|2020-05-13 18:22:45|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000016)[0m
+1589394164.989525|sayn_project_base_bis|2020-05-13 18:22:45|Summary|INFO|----------
+1589394164.989525|sayn_project_base_bis|2020-05-13 18:22:45|Summary|INFO|Stats for Run ID: 1589394164.990968
+1589394164.989525|sayn_project_base_bis|2020-05-13 18:22:45|Summary|INFO|----------
+1589394164.989525|sayn_project_base_bis|2020-05-13 18:22:45|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589394164.989525|sayn_project_base_bis|2020-05-13 18:22:45|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589394164.989525|sayn_project_base_bis|2020-05-13 18:22:45|Summary|INFO|Run took 0:00:00.274046
+1589394234.547006|sayn_project_base_bis|2020-05-13 18:23:54|DAG|INFO|----------
+1589394234.547006|sayn_project_base_bis|2020-05-13 18:23:54|DAG|INFO|Setting up. Run ID: 1589394234.548575
+1589394234.547006|sayn_project_base_bis|2020-05-13 18:23:54|DAG|INFO|----------
+1589394234.547006|sayn_project_base_bis|2020-05-13 18:23:54|DAG|INFO|DAG Setup: done.
+1589394234.547006|sayn_project_base_bis|2020-05-13 18:23:54|Run|0%|INFO|----------
+1589394234.547006|sayn_project_base_bis|2020-05-13 18:23:54|Run|0%|INFO|Running. Run ID: 1589394234.548575
+1589394234.547006|sayn_project_base_bis|2020-05-13 18:23:54|Run|0%|INFO|----------
+1589394234.547006|sayn_project_base_bis|2020-05-13 18:23:54|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000029)[0m
+1589394234.547006|sayn_project_base_bis|2020-05-13 18:23:54|Summary|INFO|----------
+1589394234.547006|sayn_project_base_bis|2020-05-13 18:23:54|Summary|INFO|Stats for Run ID: 1589394234.548575
+1589394234.547006|sayn_project_base_bis|2020-05-13 18:23:54|Summary|INFO|----------
+1589394234.547006|sayn_project_base_bis|2020-05-13 18:23:54|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589394234.547006|sayn_project_base_bis|2020-05-13 18:23:54|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589394234.547006|sayn_project_base_bis|2020-05-13 18:23:54|Summary|INFO|Run took 0:00:00.251415
+1589394258.179643|sayn_project_base_bis|2020-05-13 18:24:18|DAG|INFO|----------
+1589394258.179643|sayn_project_base_bis|2020-05-13 18:24:18|DAG|INFO|Setting up. Run ID: 1589394258.180993
+1589394258.179643|sayn_project_base_bis|2020-05-13 18:24:18|DAG|INFO|----------
+1589394258.179643|sayn_project_base_bis|2020-05-13 18:24:18|DAG|INFO|DAG Setup: done.
+1589394258.179643|sayn_project_base_bis|2020-05-13 18:24:18|Run|0%|INFO|----------
+1589394258.179643|sayn_project_base_bis|2020-05-13 18:24:18|Run|0%|INFO|Running. Run ID: 1589394258.180993
+1589394258.179643|sayn_project_base_bis|2020-05-13 18:24:18|Run|0%|INFO|----------
+1589394258.179643|sayn_project_base_bis|2020-05-13 18:24:18|Run|0%|INFO|load_data|[32mSuccess (0:00:00.000016)[0m
+1589394258.179643|sayn_project_base_bis|2020-05-13 18:24:18|Summary|INFO|----------
+1589394258.179643|sayn_project_base_bis|2020-05-13 18:24:18|Summary|INFO|Stats for Run ID: 1589394258.180993
+1589394258.179643|sayn_project_base_bis|2020-05-13 18:24:18|Summary|INFO|----------
+1589394258.179643|sayn_project_base_bis|2020-05-13 18:24:18|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589394258.179643|sayn_project_base_bis|2020-05-13 18:24:18|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589394258.179643|sayn_project_base_bis|2020-05-13 18:24:18|Summary|INFO|Run took 0:00:00.376565
+1589394445.053305|sayn_project_base_bis|2020-05-13 18:27:25|DAG|INFO|----------
+1589394445.053305|sayn_project_base_bis|2020-05-13 18:27:25|DAG|INFO|Setting up. Run ID: 1589394445.054652
+1589394445.053305|sayn_project_base_bis|2020-05-13 18:27:25|DAG|INFO|----------
+1589394445.053305|sayn_project_base_bis|2020-05-13 18:27:25|DAG|INFO|DAG Setup: done.
+1589394445.053305|sayn_project_base_bis|2020-05-13 18:27:25|Run|0%|INFO|----------
+1589394445.053305|sayn_project_base_bis|2020-05-13 18:27:25|Run|0%|INFO|Running. Run ID: 1589394445.054652
+1589394445.053305|sayn_project_base_bis|2020-05-13 18:27:25|Run|0%|INFO|----------
+1589394445.053305|sayn_project_base_bis|2020-05-13 18:27:25|Run|0%|ERROR|load_data|name 'conn' is not defined
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 32, in run
+    print(conn)
+NameError: name 'conn' is not defined
+1589394445.053305|sayn_project_base_bis|2020-05-13 18:27:25|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.002467)
+1589394445.053305|sayn_project_base_bis|2020-05-13 18:27:25|Summary|INFO|----------
+1589394445.053305|sayn_project_base_bis|2020-05-13 18:27:25|Summary|INFO|Stats for Run ID: 1589394445.054652
+1589394445.053305|sayn_project_base_bis|2020-05-13 18:27:25|Summary|INFO|----------
+1589394445.053305|sayn_project_base_bis|2020-05-13 18:27:25|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589394445.053305|sayn_project_base_bis|2020-05-13 18:27:25|Summary|ERROR|The following tasks failed: load_data
+1589394445.053305|sayn_project_base_bis|2020-05-13 18:27:25|Summary|INFO|Run took 0:00:00.237619
+1589394459.248896|sayn_project_base_bis|2020-05-13 18:27:39|DAG|INFO|----------
+1589394459.248896|sayn_project_base_bis|2020-05-13 18:27:39|DAG|INFO|Setting up. Run ID: 1589394459.250156
+1589394459.248896|sayn_project_base_bis|2020-05-13 18:27:39|DAG|INFO|----------
+1589394459.248896|sayn_project_base_bis|2020-05-13 18:27:39|DAG|INFO|DAG Setup: done.
+1589394459.248896|sayn_project_base_bis|2020-05-13 18:27:39|Run|0%|INFO|----------
+1589394459.248896|sayn_project_base_bis|2020-05-13 18:27:39|Run|0%|INFO|Running. Run ID: 1589394459.250156
+1589394459.248896|sayn_project_base_bis|2020-05-13 18:27:39|Run|0%|INFO|----------
+1589394459.248896|sayn_project_base_bis|2020-05-13 18:27:39|Run|0%|ERROR|load_data|'Connection' object has no attribute 'cursor'
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 34, in run
+    cur = conn.cursor()
+AttributeError: 'Connection' object has no attribute 'cursor'
+1589394459.248896|sayn_project_base_bis|2020-05-13 18:27:39|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.010501)
+1589394459.248896|sayn_project_base_bis|2020-05-13 18:27:39|Summary|INFO|----------
+1589394459.248896|sayn_project_base_bis|2020-05-13 18:27:39|Summary|INFO|Stats for Run ID: 1589394459.250156
+1589394459.248896|sayn_project_base_bis|2020-05-13 18:27:39|Summary|INFO|----------
+1589394459.248896|sayn_project_base_bis|2020-05-13 18:27:39|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589394459.248896|sayn_project_base_bis|2020-05-13 18:27:39|Summary|ERROR|The following tasks failed: load_data
+1589394459.248896|sayn_project_base_bis|2020-05-13 18:27:39|Summary|INFO|Run took 0:00:00.308722
+1589394534.511061|sayn_project_base_bis|2020-05-13 18:28:54|DAG|INFO|----------
+1589394534.511061|sayn_project_base_bis|2020-05-13 18:28:54|DAG|INFO|Setting up. Run ID: 1589394534.513108
+1589394534.511061|sayn_project_base_bis|2020-05-13 18:28:54|DAG|INFO|----------
+1589394534.511061|sayn_project_base_bis|2020-05-13 18:28:54|DAG|INFO|DAG Setup: done.
+1589394534.511061|sayn_project_base_bis|2020-05-13 18:28:54|Run|0%|INFO|----------
+1589394534.511061|sayn_project_base_bis|2020-05-13 18:28:54|Run|0%|INFO|Running. Run ID: 1589394534.513108
+1589394534.511061|sayn_project_base_bis|2020-05-13 18:28:54|Run|0%|INFO|----------
+1589394534.511061|sayn_project_base_bis|2020-05-13 18:28:54|Run|0%|INFO|load_data|[32mSuccess (0:00:00.011367)[0m
+1589394534.511061|sayn_project_base_bis|2020-05-13 18:28:54|Summary|INFO|----------
+1589394534.511061|sayn_project_base_bis|2020-05-13 18:28:54|Summary|INFO|Stats for Run ID: 1589394534.513108
+1589394534.511061|sayn_project_base_bis|2020-05-13 18:28:54|Summary|INFO|----------
+1589394534.511061|sayn_project_base_bis|2020-05-13 18:28:54|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589394534.511061|sayn_project_base_bis|2020-05-13 18:28:54|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589394534.511061|sayn_project_base_bis|2020-05-13 18:28:54|Summary|INFO|Run took 0:00:00.239810
+1589394549.375569|sayn_project_base_bis|2020-05-13 18:29:09|DAG|INFO|----------
+1589394549.375569|sayn_project_base_bis|2020-05-13 18:29:09|DAG|INFO|Setting up. Run ID: 1589394549.376956
+1589394549.375569|sayn_project_base_bis|2020-05-13 18:29:09|DAG|INFO|----------
+1589394549.375569|sayn_project_base_bis|2020-05-13 18:29:09|DAG|INFO|DAG Setup: done.
+1589394549.375569|sayn_project_base_bis|2020-05-13 18:29:09|Run|0%|INFO|----------
+1589394549.375569|sayn_project_base_bis|2020-05-13 18:29:09|Run|0%|INFO|Running. Run ID: 1589394549.376956
+1589394549.375569|sayn_project_base_bis|2020-05-13 18:29:09|Run|0%|INFO|----------
+1589394549.375569|sayn_project_base_bis|2020-05-13 18:29:14|Run|0%|ERROR|load_data|database is locked
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 27, in run
+    self.default_db.execute(q)
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/database/sqlite.py", line 41, in execute
+    connection.connection.executescript(script)
+sqlite3.OperationalError: database is locked
+1589394549.375569|sayn_project_base_bis|2020-05-13 18:29:14|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:05.149534)
+1589394549.375569|sayn_project_base_bis|2020-05-13 18:29:14|Summary|INFO|----------
+1589394549.375569|sayn_project_base_bis|2020-05-13 18:29:14|Summary|INFO|Stats for Run ID: 1589394549.376956
+1589394549.375569|sayn_project_base_bis|2020-05-13 18:29:14|Summary|INFO|----------
+1589394549.375569|sayn_project_base_bis|2020-05-13 18:29:14|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589394549.375569|sayn_project_base_bis|2020-05-13 18:29:14|Summary|ERROR|The following tasks failed: load_data
+1589394549.375569|sayn_project_base_bis|2020-05-13 18:29:14|Summary|INFO|Run took 0:00:05.366105
+1589394562.979558|sayn_project_base_bis|2020-05-13 18:29:23|DAG|INFO|----------
+1589394562.979558|sayn_project_base_bis|2020-05-13 18:29:23|DAG|INFO|Setting up. Run ID: 1589394562.981333
+1589394562.979558|sayn_project_base_bis|2020-05-13 18:29:23|DAG|INFO|----------
+1589394562.979558|sayn_project_base_bis|2020-05-13 18:29:23|DAG|INFO|DAG Setup: done.
+1589394562.979558|sayn_project_base_bis|2020-05-13 18:29:23|Run|0%|INFO|----------
+1589394562.979558|sayn_project_base_bis|2020-05-13 18:29:23|Run|0%|INFO|Running. Run ID: 1589394562.981333
+1589394562.979558|sayn_project_base_bis|2020-05-13 18:29:23|Run|0%|INFO|----------
+1589394562.979558|sayn_project_base_bis|2020-05-13 18:29:23|Run|0%|INFO|load_data|[32mSuccess (0:00:00.007490)[0m
+1589394562.979558|sayn_project_base_bis|2020-05-13 18:29:23|Summary|INFO|----------
+1589394562.979558|sayn_project_base_bis|2020-05-13 18:29:23|Summary|INFO|Stats for Run ID: 1589394562.981333
+1589394562.979558|sayn_project_base_bis|2020-05-13 18:29:23|Summary|INFO|----------
+1589394562.979558|sayn_project_base_bis|2020-05-13 18:29:23|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589394562.979558|sayn_project_base_bis|2020-05-13 18:29:23|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589394562.979558|sayn_project_base_bis|2020-05-13 18:29:23|Summary|INFO|Run took 0:00:00.231442
+1589394581.687154|sayn_project_base_bis|2020-05-13 18:29:41|DAG|INFO|----------
+1589394581.687154|sayn_project_base_bis|2020-05-13 18:29:41|DAG|INFO|Setting up. Run ID: 1589394581.688553
+1589394581.687154|sayn_project_base_bis|2020-05-13 18:29:41|DAG|INFO|----------
+1589394581.687154|sayn_project_base_bis|2020-05-13 18:29:41|DAG|INFO|DAG Setup: done.
+1589394581.687154|sayn_project_base_bis|2020-05-13 18:29:41|Run|0%|INFO|----------
+1589394581.687154|sayn_project_base_bis|2020-05-13 18:29:41|Run|0%|INFO|Running. Run ID: 1589394581.688553
+1589394581.687154|sayn_project_base_bis|2020-05-13 18:29:41|Run|0%|INFO|----------
+1589394581.687154|sayn_project_base_bis|2020-05-13 18:29:41|Run|0%|INFO|load_data|[32mSuccess (0:00:00.003359)[0m
+1589394581.687154|sayn_project_base_bis|2020-05-13 18:29:41|Summary|INFO|----------
+1589394581.687154|sayn_project_base_bis|2020-05-13 18:29:41|Summary|INFO|Stats for Run ID: 1589394581.688553
+1589394581.687154|sayn_project_base_bis|2020-05-13 18:29:41|Summary|INFO|----------
+1589394581.687154|sayn_project_base_bis|2020-05-13 18:29:41|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589394581.687154|sayn_project_base_bis|2020-05-13 18:29:41|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589394581.687154|sayn_project_base_bis|2020-05-13 18:29:41|Summary|INFO|Run took 0:00:00.220180
+1589394624.624464|sayn_project_base_bis|2020-05-13 18:30:24|DAG|INFO|----------
+1589394624.624464|sayn_project_base_bis|2020-05-13 18:30:24|DAG|INFO|Setting up. Run ID: 1589394624.626192
+1589394624.624464|sayn_project_base_bis|2020-05-13 18:30:24|DAG|INFO|----------
+1589394624.624464|sayn_project_base_bis|2020-05-13 18:30:24|DAG|INFO|DAG Setup: done.
+1589394624.624464|sayn_project_base_bis|2020-05-13 18:30:24|Run|0%|INFO|----------
+1589394624.624464|sayn_project_base_bis|2020-05-13 18:30:24|Run|0%|INFO|Running. Run ID: 1589394624.626192
+1589394624.624464|sayn_project_base_bis|2020-05-13 18:30:24|Run|0%|INFO|----------
+1589394624.624464|sayn_project_base_bis|2020-05-13 18:30:24|Run|0%|INFO|load_data|[32mSuccess (0:00:00.011082)[0m
+1589394624.624464|sayn_project_base_bis|2020-05-13 18:30:24|Summary|INFO|----------
+1589394624.624464|sayn_project_base_bis|2020-05-13 18:30:24|Summary|INFO|Stats for Run ID: 1589394624.626192
+1589394624.624464|sayn_project_base_bis|2020-05-13 18:30:24|Summary|INFO|----------
+1589394624.624464|sayn_project_base_bis|2020-05-13 18:30:24|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589394624.624464|sayn_project_base_bis|2020-05-13 18:30:24|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589394624.624464|sayn_project_base_bis|2020-05-13 18:30:24|Summary|INFO|Run took 0:00:00.305194
+1589395319.26875|sayn_project_base_bis|2020-05-13 18:41:59|DAG|INFO|----------
+1589395319.26875|sayn_project_base_bis|2020-05-13 18:41:59|DAG|INFO|Setting up. Run ID: 1589395319.270424
+1589395319.26875|sayn_project_base_bis|2020-05-13 18:41:59|DAG|INFO|----------
+1589395319.26875|sayn_project_base_bis|2020-05-13 18:41:59|DAG|INFO|DAG Setup: done.
+1589395319.26875|sayn_project_base_bis|2020-05-13 18:41:59|Run|0%|INFO|----------
+1589395319.26875|sayn_project_base_bis|2020-05-13 18:41:59|Run|0%|INFO|Running. Run ID: 1589395319.270424
+1589395319.26875|sayn_project_base_bis|2020-05-13 18:41:59|Run|0%|INFO|----------
+1589395319.26875|sayn_project_base_bis|2020-05-13 18:41:59|Run|0%|INFO|load_data|[32mSuccess (0:00:00.012138)[0m
+1589395319.26875|sayn_project_base_bis|2020-05-13 18:41:59|Summary|INFO|----------
+1589395319.26875|sayn_project_base_bis|2020-05-13 18:41:59|Summary|INFO|Stats for Run ID: 1589395319.270424
+1589395319.26875|sayn_project_base_bis|2020-05-13 18:41:59|Summary|INFO|----------
+1589395319.26875|sayn_project_base_bis|2020-05-13 18:41:59|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589395319.26875|sayn_project_base_bis|2020-05-13 18:41:59|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589395319.26875|sayn_project_base_bis|2020-05-13 18:41:59|Summary|INFO|Run took 0:00:00.261310
+1589395363.903977|sayn_project_base_bis|2020-05-13 18:42:44|DAG|INFO|----------
+1589395363.903977|sayn_project_base_bis|2020-05-13 18:42:44|DAG|INFO|Setting up. Run ID: 1589395363.905335
+1589395363.903977|sayn_project_base_bis|2020-05-13 18:42:44|DAG|INFO|----------
+1589395363.903977|sayn_project_base_bis|2020-05-13 18:42:44|DAG|INFO|DAG Setup: done.
+1589395363.903977|sayn_project_base_bis|2020-05-13 18:42:44|Run|0%|INFO|----------
+1589395363.903977|sayn_project_base_bis|2020-05-13 18:42:44|Run|0%|INFO|Running. Run ID: 1589395363.905335
+1589395363.903977|sayn_project_base_bis|2020-05-13 18:42:44|Run|0%|INFO|----------
+1589395363.903977|sayn_project_base_bis|2020-05-13 18:42:44|Run|0%|ERROR|load_data|unrecognized token: "{"
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 41, in run
+    self.default_db.execute(q_insert)
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/database/sqlite.py", line 41, in execute
+    connection.connection.executescript(script)
+sqlite3.OperationalError: unrecognized token: "{"
+1589395363.903977|sayn_project_base_bis|2020-05-13 18:42:44|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.016301)
+1589395363.903977|sayn_project_base_bis|2020-05-13 18:42:44|Summary|INFO|----------
+1589395363.903977|sayn_project_base_bis|2020-05-13 18:42:44|Summary|INFO|Stats for Run ID: 1589395363.905335
+1589395363.903977|sayn_project_base_bis|2020-05-13 18:42:44|Summary|INFO|----------
+1589395363.903977|sayn_project_base_bis|2020-05-13 18:42:44|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589395363.903977|sayn_project_base_bis|2020-05-13 18:42:44|Summary|ERROR|The following tasks failed: load_data
+1589395363.903977|sayn_project_base_bis|2020-05-13 18:42:44|Summary|INFO|Run took 0:00:00.260737
+1589395381.973482|sayn_project_base_bis|2020-05-13 18:43:02|DAG|INFO|----------
+1589395381.973482|sayn_project_base_bis|2020-05-13 18:43:02|DAG|INFO|Setting up. Run ID: 1589395381.974894
+1589395381.973482|sayn_project_base_bis|2020-05-13 18:43:02|DAG|INFO|----------
+1589395381.973482|sayn_project_base_bis|2020-05-13 18:43:02|DAG|INFO|DAG Setup: done.
+1589395381.973482|sayn_project_base_bis|2020-05-13 18:43:02|Run|0%|INFO|----------
+1589395381.973482|sayn_project_base_bis|2020-05-13 18:43:02|Run|0%|INFO|Running. Run ID: 1589395381.974894
+1589395381.973482|sayn_project_base_bis|2020-05-13 18:43:02|Run|0%|INFO|----------
+1589395381.973482|sayn_project_base_bis|2020-05-13 18:43:02|Run|0%|ERROR|load_data|near "contestant_id": syntax error
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 41, in run
+    self.default_db.execute(q_insert)
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/database/sqlite.py", line 41, in execute
+    connection.connection.executescript(script)
+sqlite3.OperationalError: near "contestant_id": syntax error
+1589395381.973482|sayn_project_base_bis|2020-05-13 18:43:02|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.023804)
+1589395381.973482|sayn_project_base_bis|2020-05-13 18:43:02|Summary|INFO|----------
+1589395381.973482|sayn_project_base_bis|2020-05-13 18:43:02|Summary|INFO|Stats for Run ID: 1589395381.974894
+1589395381.973482|sayn_project_base_bis|2020-05-13 18:43:02|Summary|INFO|----------
+1589395381.973482|sayn_project_base_bis|2020-05-13 18:43:02|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589395381.973482|sayn_project_base_bis|2020-05-13 18:43:02|Summary|ERROR|The following tasks failed: load_data
+1589395381.973482|sayn_project_base_bis|2020-05-13 18:43:02|Summary|INFO|Run took 0:00:00.277117
+1589395423.020867|sayn_project_base_bis|2020-05-13 18:43:43|DAG|INFO|----------
+1589395423.020867|sayn_project_base_bis|2020-05-13 18:43:43|DAG|INFO|Setting up. Run ID: 1589395423.022071
+1589395423.020867|sayn_project_base_bis|2020-05-13 18:43:43|DAG|INFO|----------
+1589395423.020867|sayn_project_base_bis|2020-05-13 18:43:43|DAG|INFO|DAG Setup: done.
+1589395423.020867|sayn_project_base_bis|2020-05-13 18:43:43|Run|0%|INFO|----------
+1589395423.020867|sayn_project_base_bis|2020-05-13 18:43:43|Run|0%|INFO|Running. Run ID: 1589395423.022071
+1589395423.020867|sayn_project_base_bis|2020-05-13 18:43:43|Run|0%|INFO|----------
+1589395423.020867|sayn_project_base_bis|2020-05-13 18:43:43|Run|0%|ERROR|load_data|near "contestant_id": syntax error
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 42, in run
+    self.default_db.execute(q_insert)
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/database/sqlite.py", line 41, in execute
+    connection.connection.executescript(script)
+sqlite3.OperationalError: near "contestant_id": syntax error
+1589395423.020867|sayn_project_base_bis|2020-05-13 18:43:43|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.043145)
+1589395423.020867|sayn_project_base_bis|2020-05-13 18:43:43|Summary|INFO|----------
+1589395423.020867|sayn_project_base_bis|2020-05-13 18:43:43|Summary|INFO|Stats for Run ID: 1589395423.022071
+1589395423.020867|sayn_project_base_bis|2020-05-13 18:43:43|Summary|INFO|----------
+1589395423.020867|sayn_project_base_bis|2020-05-13 18:43:43|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589395423.020867|sayn_project_base_bis|2020-05-13 18:43:43|Summary|ERROR|The following tasks failed: load_data
+1589395423.020867|sayn_project_base_bis|2020-05-13 18:43:43|Summary|INFO|Run took 0:00:00.331511
+1589395451.106537|sayn_project_base_bis|2020-05-13 18:44:11|DAG|INFO|----------
+1589395451.106537|sayn_project_base_bis|2020-05-13 18:44:11|DAG|INFO|Setting up. Run ID: 1589395451.107646
+1589395451.106537|sayn_project_base_bis|2020-05-13 18:44:11|DAG|INFO|----------
+1589395451.106537|sayn_project_base_bis|2020-05-13 18:44:11|DAG|INFO|DAG Setup: done.
+1589395451.106537|sayn_project_base_bis|2020-05-13 18:44:11|Run|0%|INFO|----------
+1589395451.106537|sayn_project_base_bis|2020-05-13 18:44:11|Run|0%|INFO|Running. Run ID: 1589395451.107646
+1589395451.106537|sayn_project_base_bis|2020-05-13 18:44:11|Run|0%|INFO|----------
+1589395451.106537|sayn_project_base_bis|2020-05-13 18:44:11|Run|0%|ERROR|load_data|near "contestant_id": syntax error
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 42, in run
+    self.default_db.execute(q_insert)
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/database/sqlite.py", line 41, in execute
+    connection.connection.executescript(script)
+sqlite3.OperationalError: near "contestant_id": syntax error
+1589395451.106537|sayn_project_base_bis|2020-05-13 18:44:11|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.021395)
+1589395451.106537|sayn_project_base_bis|2020-05-13 18:44:11|Summary|INFO|----------
+1589395451.106537|sayn_project_base_bis|2020-05-13 18:44:11|Summary|INFO|Stats for Run ID: 1589395451.107646
+1589395451.106537|sayn_project_base_bis|2020-05-13 18:44:11|Summary|INFO|----------
+1589395451.106537|sayn_project_base_bis|2020-05-13 18:44:11|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589395451.106537|sayn_project_base_bis|2020-05-13 18:44:11|Summary|ERROR|The following tasks failed: load_data
+1589395451.106537|sayn_project_base_bis|2020-05-13 18:44:11|Summary|INFO|Run took 0:00:00.251252
+1589395525.135599|sayn_project_base_bis|2020-05-13 18:45:25|DAG|INFO|----------
+1589395525.135599|sayn_project_base_bis|2020-05-13 18:45:25|DAG|INFO|Setting up. Run ID: 1589395525.137107
+1589395525.135599|sayn_project_base_bis|2020-05-13 18:45:25|DAG|INFO|----------
+1589395525.135599|sayn_project_base_bis|2020-05-13 18:45:25|DAG|INFO|DAG Setup: done.
+1589395525.135599|sayn_project_base_bis|2020-05-13 18:45:25|Run|0%|INFO|----------
+1589395525.135599|sayn_project_base_bis|2020-05-13 18:45:25|Run|0%|INFO|Running. Run ID: 1589395525.137107
+1589395525.135599|sayn_project_base_bis|2020-05-13 18:45:25|Run|0%|INFO|----------
+1589395525.135599|sayn_project_base_bis|2020-05-13 18:45:25|Run|0%|ERROR|load_data|'module' object is not callable
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 36, in run
+    print(json(c))
+TypeError: 'module' object is not callable
+1589395525.135599|sayn_project_base_bis|2020-05-13 18:45:25|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.025531)
+1589395525.135599|sayn_project_base_bis|2020-05-13 18:45:25|Summary|INFO|----------
+1589395525.135599|sayn_project_base_bis|2020-05-13 18:45:25|Summary|INFO|Stats for Run ID: 1589395525.137107
+1589395525.135599|sayn_project_base_bis|2020-05-13 18:45:25|Summary|INFO|----------
+1589395525.135599|sayn_project_base_bis|2020-05-13 18:45:25|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589395525.135599|sayn_project_base_bis|2020-05-13 18:45:25|Summary|ERROR|The following tasks failed: load_data
+1589395525.135599|sayn_project_base_bis|2020-05-13 18:45:25|Summary|INFO|Run took 0:00:00.276670
+1589395541.245957|sayn_project_base_bis|2020-05-13 18:45:41|DAG|INFO|----------
+1589395541.245957|sayn_project_base_bis|2020-05-13 18:45:41|DAG|INFO|Setting up. Run ID: 1589395541.247375
+1589395541.245957|sayn_project_base_bis|2020-05-13 18:45:41|DAG|INFO|----------
+1589395541.245957|sayn_project_base_bis|2020-05-13 18:45:41|DAG|INFO|DAG Setup: done.
+1589395541.245957|sayn_project_base_bis|2020-05-13 18:45:41|Run|0%|INFO|----------
+1589395541.245957|sayn_project_base_bis|2020-05-13 18:45:41|Run|0%|INFO|Running. Run ID: 1589395541.247375
+1589395541.245957|sayn_project_base_bis|2020-05-13 18:45:41|Run|0%|INFO|----------
+1589395541.245957|sayn_project_base_bis|2020-05-13 18:45:41|Run|0%|ERROR|load_data|'dict' object has no attribute 'read'
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 36, in run
+    print(json.load(c))
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/json/__init__.py", line 293, in load
+    return loads(fp.read(),
+AttributeError: 'dict' object has no attribute 'read'
+1589395541.245957|sayn_project_base_bis|2020-05-13 18:45:41|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.013541)
+1589395541.245957|sayn_project_base_bis|2020-05-13 18:45:41|Summary|INFO|----------
+1589395541.245957|sayn_project_base_bis|2020-05-13 18:45:41|Summary|INFO|Stats for Run ID: 1589395541.247375
+1589395541.245957|sayn_project_base_bis|2020-05-13 18:45:41|Summary|INFO|----------
+1589395541.245957|sayn_project_base_bis|2020-05-13 18:45:41|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589395541.245957|sayn_project_base_bis|2020-05-13 18:45:41|Summary|ERROR|The following tasks failed: load_data
+1589395541.245957|sayn_project_base_bis|2020-05-13 18:45:41|Summary|INFO|Run took 0:00:00.257338
+1589395571.634117|sayn_project_base_bis|2020-05-13 18:46:11|DAG|INFO|----------
+1589395571.634117|sayn_project_base_bis|2020-05-13 18:46:11|DAG|INFO|Setting up. Run ID: 1589395571.635661
+1589395571.634117|sayn_project_base_bis|2020-05-13 18:46:11|DAG|INFO|----------
+1589395571.634117|sayn_project_base_bis|2020-05-13 18:46:11|DAG|INFO|DAG Setup: done.
+1589395571.634117|sayn_project_base_bis|2020-05-13 18:46:11|Run|0%|INFO|----------
+1589395571.634117|sayn_project_base_bis|2020-05-13 18:46:11|Run|0%|INFO|Running. Run ID: 1589395571.635661
+1589395571.634117|sayn_project_base_bis|2020-05-13 18:46:11|Run|0%|INFO|----------
+1589395571.634117|sayn_project_base_bis|2020-05-13 18:46:11|Run|0%|ERROR|load_data|the JSON object must be str, bytes or bytearray, not dict
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 36, in run
+    print(json.loads(c))
+  File "/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/json/__init__.py", line 341, in loads
+    raise TypeError(f'the JSON object must be str, bytes or bytearray, '
+TypeError: the JSON object must be str, bytes or bytearray, not dict
+1589395571.634117|sayn_project_base_bis|2020-05-13 18:46:11|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.026405)
+1589395571.634117|sayn_project_base_bis|2020-05-13 18:46:11|Summary|INFO|----------
+1589395571.634117|sayn_project_base_bis|2020-05-13 18:46:11|Summary|INFO|Stats for Run ID: 1589395571.635661
+1589395571.634117|sayn_project_base_bis|2020-05-13 18:46:11|Summary|INFO|----------
+1589395571.634117|sayn_project_base_bis|2020-05-13 18:46:11|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589395571.634117|sayn_project_base_bis|2020-05-13 18:46:11|Summary|ERROR|The following tasks failed: load_data
+1589395571.634117|sayn_project_base_bis|2020-05-13 18:46:11|Summary|INFO|Run took 0:00:00.288403
+1589395628.220965|sayn_project_base_bis|2020-05-13 18:47:08|DAG|INFO|----------
+1589395628.220965|sayn_project_base_bis|2020-05-13 18:47:08|DAG|INFO|Setting up. Run ID: 1589395628.222545
+1589395628.220965|sayn_project_base_bis|2020-05-13 18:47:08|DAG|INFO|----------
+1589395628.220965|sayn_project_base_bis|2020-05-13 18:47:08|DAG|INFO|DAG Setup: done.
+1589395628.220965|sayn_project_base_bis|2020-05-13 18:47:08|Run|0%|INFO|----------
+1589395628.220965|sayn_project_base_bis|2020-05-13 18:47:08|Run|0%|INFO|Running. Run ID: 1589395628.222545
+1589395628.220965|sayn_project_base_bis|2020-05-13 18:47:08|Run|0%|INFO|----------
+1589395628.220965|sayn_project_base_bis|2020-05-13 18:47:08|Run|0%|INFO|load_data|[32mSuccess (0:00:00.019105)[0m
+1589395628.220965|sayn_project_base_bis|2020-05-13 18:47:08|Summary|INFO|----------
+1589395628.220965|sayn_project_base_bis|2020-05-13 18:47:08|Summary|INFO|Stats for Run ID: 1589395628.222545
+1589395628.220965|sayn_project_base_bis|2020-05-13 18:47:08|Summary|INFO|----------
+1589395628.220965|sayn_project_base_bis|2020-05-13 18:47:08|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589395628.220965|sayn_project_base_bis|2020-05-13 18:47:08|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589395628.220965|sayn_project_base_bis|2020-05-13 18:47:08|Summary|INFO|Run took 0:00:00.239694
+1589451569.49546|sayn_project_base_bis|2020-05-14 10:19:29|DAG|INFO|----------
+1589451569.49546|sayn_project_base_bis|2020-05-14 10:19:29|DAG|INFO|Setting up. Run ID: 1589451569.496701
+1589451569.49546|sayn_project_base_bis|2020-05-14 10:19:29|DAG|INFO|----------
+1589451569.49546|sayn_project_base_bis|2020-05-14 10:19:29|DAG|INFO|DAG Setup: done.
+1589451569.49546|sayn_project_base_bis|2020-05-14 10:19:29|Run|0%|INFO|----------
+1589451569.49546|sayn_project_base_bis|2020-05-14 10:19:29|Run|0%|INFO|Running. Run ID: 1589451569.496701
+1589451569.49546|sayn_project_base_bis|2020-05-14 10:19:29|Run|0%|INFO|----------
+1589451569.49546|sayn_project_base_bis|2020-05-14 10:19:29|Run|0%|INFO|load_data|[32mSuccess (0:00:00.040433)[0m
+1589451569.49546|sayn_project_base_bis|2020-05-14 10:19:29|Summary|INFO|----------
+1589451569.49546|sayn_project_base_bis|2020-05-14 10:19:29|Summary|INFO|Stats for Run ID: 1589451569.496701
+1589451569.49546|sayn_project_base_bis|2020-05-14 10:19:29|Summary|INFO|----------
+1589451569.49546|sayn_project_base_bis|2020-05-14 10:19:29|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589451569.49546|sayn_project_base_bis|2020-05-14 10:19:29|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589451569.49546|sayn_project_base_bis|2020-05-14 10:19:29|Summary|INFO|Run took 0:00:00.353102
+1589451749.166579|sayn_project_base_bis|2020-05-14 10:22:29|DAG|INFO|----------
+1589451749.166579|sayn_project_base_bis|2020-05-14 10:22:29|DAG|INFO|Setting up. Run ID: 1589451749.168317
+1589451749.166579|sayn_project_base_bis|2020-05-14 10:22:29|DAG|INFO|----------
+1589451749.166579|sayn_project_base_bis|2020-05-14 10:22:29|DAG|INFO|DAG Setup: done.
+1589451749.166579|sayn_project_base_bis|2020-05-14 10:22:29|Run|0%|INFO|----------
+1589451749.166579|sayn_project_base_bis|2020-05-14 10:22:29|Run|0%|INFO|Running. Run ID: 1589451749.168317
+1589451749.166579|sayn_project_base_bis|2020-05-14 10:22:29|Run|0%|INFO|----------
+1589451749.166579|sayn_project_base_bis|2020-05-14 10:22:29|Run|0%|INFO|load_data|[32mSuccess (0:00:00.064876)[0m
+1589451749.166579|sayn_project_base_bis|2020-05-14 10:22:29|Summary|INFO|----------
+1589451749.166579|sayn_project_base_bis|2020-05-14 10:22:29|Summary|INFO|Stats for Run ID: 1589451749.168317
+1589451749.166579|sayn_project_base_bis|2020-05-14 10:22:29|Summary|INFO|----------
+1589451749.166579|sayn_project_base_bis|2020-05-14 10:22:29|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589451749.166579|sayn_project_base_bis|2020-05-14 10:22:29|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589451749.166579|sayn_project_base_bis|2020-05-14 10:22:29|Summary|INFO|Run took 0:00:00.459168
+1589451920.683221|sayn_project_base_bis|2020-05-14 10:25:20|DAG|INFO|----------
+1589451920.683221|sayn_project_base_bis|2020-05-14 10:25:20|DAG|INFO|Setting up. Run ID: 1589451920.684439
+1589451920.683221|sayn_project_base_bis|2020-05-14 10:25:20|DAG|INFO|----------
+1589451920.683221|sayn_project_base_bis|2020-05-14 10:25:20|DAG|INFO|DAG Setup: done.
+1589451920.683221|sayn_project_base_bis|2020-05-14 10:25:20|Run|0%|INFO|----------
+1589451920.683221|sayn_project_base_bis|2020-05-14 10:25:20|Run|0%|INFO|Running. Run ID: 1589451920.684439
+1589451920.683221|sayn_project_base_bis|2020-05-14 10:25:20|Run|0%|INFO|----------
+1589451920.683221|sayn_project_base_bis|2020-05-14 10:25:20|Run|0%|ERROR|load_data|local variable 'lcount' referenced before assignment
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 63, in run
+    load_logs(contestants)
+  File "python/load_data.py", line 20, in load_logs
+    '''.format(lcount=lcount, payload=json.dumps(l))
+UnboundLocalError: local variable 'lcount' referenced before assignment
+1589451920.683221|sayn_project_base_bis|2020-05-14 10:25:20|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.017344)
+1589451920.683221|sayn_project_base_bis|2020-05-14 10:25:20|Summary|INFO|----------
+1589451920.683221|sayn_project_base_bis|2020-05-14 10:25:20|Summary|INFO|Stats for Run ID: 1589451920.684439
+1589451920.683221|sayn_project_base_bis|2020-05-14 10:25:20|Summary|INFO|----------
+1589451920.683221|sayn_project_base_bis|2020-05-14 10:25:20|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589451920.683221|sayn_project_base_bis|2020-05-14 10:25:20|Summary|ERROR|The following tasks failed: load_data
+1589451920.683221|sayn_project_base_bis|2020-05-14 10:25:20|Summary|INFO|Run took 0:00:00.261531
+1589451956.994176|sayn_project_base_bis|2020-05-14 10:25:57|DAG|INFO|----------
+1589451956.994176|sayn_project_base_bis|2020-05-14 10:25:57|DAG|INFO|Setting up. Run ID: 1589451956.995654
+1589451956.994176|sayn_project_base_bis|2020-05-14 10:25:57|DAG|INFO|----------
+1589451956.994176|sayn_project_base_bis|2020-05-14 10:25:57|DAG|INFO|DAG Setup: done.
+1589451956.994176|sayn_project_base_bis|2020-05-14 10:25:57|Run|0%|INFO|----------
+1589451956.994176|sayn_project_base_bis|2020-05-14 10:25:57|Run|0%|INFO|Running. Run ID: 1589451956.995654
+1589451956.994176|sayn_project_base_bis|2020-05-14 10:25:57|Run|0%|INFO|----------
+1589451956.994176|sayn_project_base_bis|2020-05-14 10:25:57|Run|0%|ERROR|load_data|local variable 'lcount' referenced before assignment
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 64, in run
+    load_logs(contestants)
+  File "python/load_data.py", line 24, in load_logs
+    '''.format(lcount=lcount, payload=json.dumps(l))
+UnboundLocalError: local variable 'lcount' referenced before assignment
+1589451956.994176|sayn_project_base_bis|2020-05-14 10:25:57|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.014027)
+1589451956.994176|sayn_project_base_bis|2020-05-14 10:25:57|Summary|INFO|----------
+1589451956.994176|sayn_project_base_bis|2020-05-14 10:25:57|Summary|INFO|Stats for Run ID: 1589451956.995654
+1589451956.994176|sayn_project_base_bis|2020-05-14 10:25:57|Summary|INFO|----------
+1589451956.994176|sayn_project_base_bis|2020-05-14 10:25:57|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589451956.994176|sayn_project_base_bis|2020-05-14 10:25:57|Summary|ERROR|The following tasks failed: load_data
+1589451956.994176|sayn_project_base_bis|2020-05-14 10:25:57|Summary|INFO|Run took 0:00:00.241989
+1589452010.396888|sayn_project_base_bis|2020-05-14 10:26:50|DAG|INFO|----------
+1589452010.396888|sayn_project_base_bis|2020-05-14 10:26:50|DAG|INFO|Setting up. Run ID: 1589452010.398274
+1589452010.396888|sayn_project_base_bis|2020-05-14 10:26:50|DAG|INFO|----------
+1589452010.396888|sayn_project_base_bis|2020-05-14 10:26:50|DAG|INFO|DAG Setup: done.
+1589452010.396888|sayn_project_base_bis|2020-05-14 10:26:50|Run|0%|INFO|----------
+1589452010.396888|sayn_project_base_bis|2020-05-14 10:26:50|Run|0%|INFO|Running. Run ID: 1589452010.398274
+1589452010.396888|sayn_project_base_bis|2020-05-14 10:26:50|Run|0%|INFO|----------
+1589452010.396888|sayn_project_base_bis|2020-05-14 10:26:50|Run|0%|INFO|load_data|[32mSuccess (0:00:00.069168)[0m
+1589452010.396888|sayn_project_base_bis|2020-05-14 10:26:50|Summary|INFO|----------
+1589452010.396888|sayn_project_base_bis|2020-05-14 10:26:50|Summary|INFO|Stats for Run ID: 1589452010.398274
+1589452010.396888|sayn_project_base_bis|2020-05-14 10:26:50|Summary|INFO|----------
+1589452010.396888|sayn_project_base_bis|2020-05-14 10:26:50|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589452010.396888|sayn_project_base_bis|2020-05-14 10:26:50|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589452010.396888|sayn_project_base_bis|2020-05-14 10:26:50|Summary|INFO|Run took 0:00:00.288231
+1589452018.260051|sayn_project_base_bis|2020-05-14 10:26:58|DAG|INFO|----------
+1589452018.260051|sayn_project_base_bis|2020-05-14 10:26:58|DAG|INFO|Setting up. Run ID: 1589452018.261137
+1589452018.260051|sayn_project_base_bis|2020-05-14 10:26:58|DAG|INFO|----------
+1589452018.260051|sayn_project_base_bis|2020-05-14 10:26:58|DAG|INFO|DAG Setup: done.
+1589452018.260051|sayn_project_base_bis|2020-05-14 10:26:58|Run|0%|INFO|----------
+1589452018.260051|sayn_project_base_bis|2020-05-14 10:26:58|Run|0%|INFO|Running. Run ID: 1589452018.261137
+1589452018.260051|sayn_project_base_bis|2020-05-14 10:26:58|Run|0%|INFO|----------
+1589452018.260051|sayn_project_base_bis|2020-05-14 10:26:58|Run|0%|INFO|load_data|[32mSuccess (0:00:00.034071)[0m
+1589452018.260051|sayn_project_base_bis|2020-05-14 10:26:58|Summary|INFO|----------
+1589452018.260051|sayn_project_base_bis|2020-05-14 10:26:58|Summary|INFO|Stats for Run ID: 1589452018.261137
+1589452018.260051|sayn_project_base_bis|2020-05-14 10:26:58|Summary|INFO|----------
+1589452018.260051|sayn_project_base_bis|2020-05-14 10:26:58|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589452018.260051|sayn_project_base_bis|2020-05-14 10:26:58|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589452018.260051|sayn_project_base_bis|2020-05-14 10:26:58|Summary|INFO|Run took 0:00:00.268297
+1589452197.164872|sayn_project_base_bis|2020-05-14 10:29:57|DAG|INFO|----------
+1589452197.164872|sayn_project_base_bis|2020-05-14 10:29:57|DAG|INFO|Setting up. Run ID: 1589452197.166699
+1589452197.164872|sayn_project_base_bis|2020-05-14 10:29:57|DAG|INFO|----------
+1589452197.164872|sayn_project_base_bis|2020-05-14 10:29:57|DAG|INFO|DAG Setup: done.
+1589452197.164872|sayn_project_base_bis|2020-05-14 10:29:57|Run|0%|INFO|----------
+1589452197.164872|sayn_project_base_bis|2020-05-14 10:29:57|Run|0%|INFO|Running. Run ID: 1589452197.166699
+1589452197.164872|sayn_project_base_bis|2020-05-14 10:29:57|Run|0%|INFO|----------
+1589452197.164872|sayn_project_base_bis|2020-05-14 10:29:57|Run|0%|ERROR|load_data|name 'lcount' is not defined
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 66, in run
+    load_logs(contestants)
+  File "python/load_data.py", line 26, in load_logs
+    '''.format(lcount=lcount, payload=json.dumps(l))
+NameError: name 'lcount' is not defined
+1589452197.164872|sayn_project_base_bis|2020-05-14 10:29:57|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.016061)
+1589452197.164872|sayn_project_base_bis|2020-05-14 10:29:57|Summary|INFO|----------
+1589452197.164872|sayn_project_base_bis|2020-05-14 10:29:57|Summary|INFO|Stats for Run ID: 1589452197.166699
+1589452197.164872|sayn_project_base_bis|2020-05-14 10:29:57|Summary|INFO|----------
+1589452197.164872|sayn_project_base_bis|2020-05-14 10:29:57|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589452197.164872|sayn_project_base_bis|2020-05-14 10:29:57|Summary|ERROR|The following tasks failed: load_data
+1589452197.164872|sayn_project_base_bis|2020-05-14 10:29:57|Summary|INFO|Run took 0:00:00.247603
+1589452253.201686|sayn_project_base_bis|2020-05-14 10:30:53|DAG|INFO|----------
+1589452253.201686|sayn_project_base_bis|2020-05-14 10:30:53|DAG|INFO|Setting up. Run ID: 1589452253.202656
+1589452253.201686|sayn_project_base_bis|2020-05-14 10:30:53|DAG|INFO|----------
+1589452253.201686|sayn_project_base_bis|2020-05-14 10:30:53|DAG|INFO|DAG Setup: done.
+1589452253.201686|sayn_project_base_bis|2020-05-14 10:30:53|Run|0%|INFO|----------
+1589452253.201686|sayn_project_base_bis|2020-05-14 10:30:53|Run|0%|INFO|Running. Run ID: 1589452253.202656
+1589452253.201686|sayn_project_base_bis|2020-05-14 10:30:53|Run|0%|INFO|----------
+1589452253.201686|sayn_project_base_bis|2020-05-14 10:30:53|Run|0%|ERROR|load_data|name 'lcount' is not defined
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 67, in run
+    load_logs(contestants)
+  File "python/load_data.py", line 22, in load_logs
+    lcount = lcount
+NameError: name 'lcount' is not defined
+1589452253.201686|sayn_project_base_bis|2020-05-14 10:30:53|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.006183)
+1589452253.201686|sayn_project_base_bis|2020-05-14 10:30:53|Summary|INFO|----------
+1589452253.201686|sayn_project_base_bis|2020-05-14 10:30:53|Summary|INFO|Stats for Run ID: 1589452253.202656
+1589452253.201686|sayn_project_base_bis|2020-05-14 10:30:53|Summary|INFO|----------
+1589452253.201686|sayn_project_base_bis|2020-05-14 10:30:53|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589452253.201686|sayn_project_base_bis|2020-05-14 10:30:53|Summary|ERROR|The following tasks failed: load_data
+1589452253.201686|sayn_project_base_bis|2020-05-14 10:30:53|Summary|INFO|Run took 0:00:00.198941
+1589452360.375265|sayn_project_base_bis|2020-05-14 10:32:40|DAG|INFO|----------
+1589452360.375265|sayn_project_base_bis|2020-05-14 10:32:40|DAG|INFO|Setting up. Run ID: 1589452360.376541
+1589452360.375265|sayn_project_base_bis|2020-05-14 10:32:40|DAG|INFO|----------
+1589452360.375265|sayn_project_base_bis|2020-05-14 10:32:40|DAG|INFO|DAG Setup: done.
+1589452360.375265|sayn_project_base_bis|2020-05-14 10:32:40|Run|0%|INFO|----------
+1589452360.375265|sayn_project_base_bis|2020-05-14 10:32:40|Run|0%|INFO|Running. Run ID: 1589452360.376541
+1589452360.375265|sayn_project_base_bis|2020-05-14 10:32:40|Run|0%|INFO|----------
+1589452360.375265|sayn_project_base_bis|2020-05-14 10:32:40|Run|0%|ERROR|load_data|local variable 'lcount' referenced before assignment
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 65, in run
+    load_logs(contestants)
+  File "python/load_data.py", line 25, in load_logs
+    '''.format(lcount=lcount, payload=json.dumps(l))
+UnboundLocalError: local variable 'lcount' referenced before assignment
+1589452360.375265|sayn_project_base_bis|2020-05-14 10:32:40|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.022701)
+1589452360.375265|sayn_project_base_bis|2020-05-14 10:32:40|Summary|INFO|----------
+1589452360.375265|sayn_project_base_bis|2020-05-14 10:32:40|Summary|INFO|Stats for Run ID: 1589452360.376541
+1589452360.375265|sayn_project_base_bis|2020-05-14 10:32:40|Summary|INFO|----------
+1589452360.375265|sayn_project_base_bis|2020-05-14 10:32:40|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589452360.375265|sayn_project_base_bis|2020-05-14 10:32:40|Summary|ERROR|The following tasks failed: load_data
+1589452360.375265|sayn_project_base_bis|2020-05-14 10:32:40|Summary|INFO|Run took 0:00:00.245471
+1589452418.704919|sayn_project_base_bis|2020-05-14 10:33:38|DAG|INFO|----------
+1589452418.704919|sayn_project_base_bis|2020-05-14 10:33:38|DAG|INFO|Setting up. Run ID: 1589452418.706367
+1589452418.704919|sayn_project_base_bis|2020-05-14 10:33:38|DAG|INFO|----------
+1589452418.704919|sayn_project_base_bis|2020-05-14 10:33:38|DAG|INFO|DAG Setup: done.
+1589452418.704919|sayn_project_base_bis|2020-05-14 10:33:38|Run|0%|INFO|----------
+1589452418.704919|sayn_project_base_bis|2020-05-14 10:33:38|Run|0%|INFO|Running. Run ID: 1589452418.706367
+1589452418.704919|sayn_project_base_bis|2020-05-14 10:33:38|Run|0%|INFO|----------
+1589452418.704919|sayn_project_base_bis|2020-05-14 10:33:38|Run|0%|ERROR|load_data|name 'lcount' is not defined
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 66, in run
+    load_logs(contestants)
+  File "python/load_data.py", line 26, in load_logs
+    '''.format(lcount=lcount, payload=json.dumps(l))
+NameError: name 'lcount' is not defined
+1589452418.704919|sayn_project_base_bis|2020-05-14 10:33:38|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.017617)
+1589452418.704919|sayn_project_base_bis|2020-05-14 10:33:38|Summary|INFO|----------
+1589452418.704919|sayn_project_base_bis|2020-05-14 10:33:38|Summary|INFO|Stats for Run ID: 1589452418.706367
+1589452418.704919|sayn_project_base_bis|2020-05-14 10:33:38|Summary|INFO|----------
+1589452418.704919|sayn_project_base_bis|2020-05-14 10:33:38|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589452418.704919|sayn_project_base_bis|2020-05-14 10:33:38|Summary|ERROR|The following tasks failed: load_data
+1589452418.704919|sayn_project_base_bis|2020-05-14 10:33:38|Summary|INFO|Run took 0:00:00.244900
+1589452533.726613|sayn_project_base_bis|2020-05-14 10:35:33|DAG|INFO|----------
+1589452533.726613|sayn_project_base_bis|2020-05-14 10:35:33|DAG|INFO|Setting up. Run ID: 1589452533.728007
+1589452533.726613|sayn_project_base_bis|2020-05-14 10:35:33|DAG|INFO|----------
+1589452533.726613|sayn_project_base_bis|2020-05-14 10:35:34|DAG|INFO|DAG Setup: done.
+1589452533.726613|sayn_project_base_bis|2020-05-14 10:35:34|Run|0%|INFO|----------
+1589452533.726613|sayn_project_base_bis|2020-05-14 10:35:34|Run|0%|INFO|Running. Run ID: 1589452533.728007
+1589452533.726613|sayn_project_base_bis|2020-05-14 10:35:34|Run|0%|INFO|----------
+1589452533.726613|sayn_project_base_bis|2020-05-14 10:35:34|Run|0%|INFO|load_data|[32mSuccess (0:00:00.070607)[0m
+1589452533.726613|sayn_project_base_bis|2020-05-14 10:35:34|Summary|INFO|----------
+1589452533.726613|sayn_project_base_bis|2020-05-14 10:35:34|Summary|INFO|Stats for Run ID: 1589452533.728007
+1589452533.726613|sayn_project_base_bis|2020-05-14 10:35:34|Summary|INFO|----------
+1589452533.726613|sayn_project_base_bis|2020-05-14 10:35:34|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589452533.726613|sayn_project_base_bis|2020-05-14 10:35:34|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589452533.726613|sayn_project_base_bis|2020-05-14 10:35:34|Summary|INFO|Run took 0:00:00.368773
+1589452552.387553|sayn_project_base_bis|2020-05-14 10:35:52|DAG|INFO|----------
+1589452552.387553|sayn_project_base_bis|2020-05-14 10:35:52|DAG|INFO|Setting up. Run ID: 1589452552.388453
+1589452552.387553|sayn_project_base_bis|2020-05-14 10:35:52|DAG|INFO|----------
+1589452552.387553|sayn_project_base_bis|2020-05-14 10:35:52|DAG|INFO|DAG Setup: done.
+1589452552.387553|sayn_project_base_bis|2020-05-14 10:35:52|Run|0%|INFO|----------
+1589452552.387553|sayn_project_base_bis|2020-05-14 10:35:52|Run|0%|INFO|Running. Run ID: 1589452552.388453
+1589452552.387553|sayn_project_base_bis|2020-05-14 10:35:52|Run|0%|INFO|----------
+1589452552.387553|sayn_project_base_bis|2020-05-14 10:35:52|Run|0%|ERROR|load_data|name 'lcount' is not defined
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 69, in run
+    load_logs(contestants)
+  File "python/load_data.py", line 29, in load_logs
+    '''.format(lcount=lcount, payload=json.dumps(l))
+NameError: name 'lcount' is not defined
+1589452552.387553|sayn_project_base_bis|2020-05-14 10:35:52|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.006589)
+1589452552.387553|sayn_project_base_bis|2020-05-14 10:35:52|Summary|INFO|----------
+1589452552.387553|sayn_project_base_bis|2020-05-14 10:35:52|Summary|INFO|Stats for Run ID: 1589452552.388453
+1589452552.387553|sayn_project_base_bis|2020-05-14 10:35:52|Summary|INFO|----------
+1589452552.387553|sayn_project_base_bis|2020-05-14 10:35:52|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589452552.387553|sayn_project_base_bis|2020-05-14 10:35:52|Summary|ERROR|The following tasks failed: load_data
+1589452552.387553|sayn_project_base_bis|2020-05-14 10:35:52|Summary|INFO|Run took 0:00:00.187296
+1589452580.759109|sayn_project_base_bis|2020-05-14 10:36:20|DAG|INFO|----------
+1589452580.759109|sayn_project_base_bis|2020-05-14 10:36:20|DAG|INFO|Setting up. Run ID: 1589452580.760516
+1589452580.759109|sayn_project_base_bis|2020-05-14 10:36:20|DAG|INFO|----------
+1589452580.759109|sayn_project_base_bis|2020-05-14 10:36:20|DAG|INFO|DAG Setup: done.
+1589452580.759109|sayn_project_base_bis|2020-05-14 10:36:20|Run|0%|INFO|----------
+1589452580.759109|sayn_project_base_bis|2020-05-14 10:36:20|Run|0%|INFO|Running. Run ID: 1589452580.760516
+1589452580.759109|sayn_project_base_bis|2020-05-14 10:36:20|Run|0%|INFO|----------
+1589452580.759109|sayn_project_base_bis|2020-05-14 10:36:21|Run|0%|INFO|load_data|[32mSuccess (0:00:00.043588)[0m
+1589452580.759109|sayn_project_base_bis|2020-05-14 10:36:21|Summary|INFO|----------
+1589452580.759109|sayn_project_base_bis|2020-05-14 10:36:21|Summary|INFO|Stats for Run ID: 1589452580.760516
+1589452580.759109|sayn_project_base_bis|2020-05-14 10:36:21|Summary|INFO|----------
+1589452580.759109|sayn_project_base_bis|2020-05-14 10:36:21|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589452580.759109|sayn_project_base_bis|2020-05-14 10:36:21|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589452580.759109|sayn_project_base_bis|2020-05-14 10:36:21|Summary|INFO|Run took 0:00:00.259875
+1589452594.132781|sayn_project_base_bis|2020-05-14 10:36:34|DAG|INFO|----------
+1589452594.132781|sayn_project_base_bis|2020-05-14 10:36:34|DAG|INFO|Setting up. Run ID: 1589452594.134069
+1589452594.132781|sayn_project_base_bis|2020-05-14 10:36:34|DAG|INFO|----------
+1589452594.132781|sayn_project_base_bis|2020-05-14 10:36:34|DAG|INFO|DAG Setup: done.
+1589452594.132781|sayn_project_base_bis|2020-05-14 10:36:34|Run|0%|INFO|----------
+1589452594.132781|sayn_project_base_bis|2020-05-14 10:36:34|Run|0%|INFO|Running. Run ID: 1589452594.134069
+1589452594.132781|sayn_project_base_bis|2020-05-14 10:36:34|Run|0%|INFO|----------
+1589452594.132781|sayn_project_base_bis|2020-05-14 10:36:34|Run|0%|INFO|load_data|[32mSuccess (0:00:00.045704)[0m
+1589452594.132781|sayn_project_base_bis|2020-05-14 10:36:34|Summary|INFO|----------
+1589452594.132781|sayn_project_base_bis|2020-05-14 10:36:34|Summary|INFO|Stats for Run ID: 1589452594.134069
+1589452594.132781|sayn_project_base_bis|2020-05-14 10:36:34|Summary|INFO|----------
+1589452594.132781|sayn_project_base_bis|2020-05-14 10:36:34|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589452594.132781|sayn_project_base_bis|2020-05-14 10:36:34|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589452594.132781|sayn_project_base_bis|2020-05-14 10:36:34|Summary|INFO|Run took 0:00:00.283591
+1589452781.57455|sayn_project_base_bis|2020-05-14 10:39:41|DAG|INFO|----------
+1589452781.57455|sayn_project_base_bis|2020-05-14 10:39:41|DAG|INFO|Setting up. Run ID: 1589452781.576046
+1589452781.57455|sayn_project_base_bis|2020-05-14 10:39:41|DAG|INFO|----------
+1589452781.57455|sayn_project_base_bis|2020-05-14 10:39:41|DAG|INFO|DAG Setup: done.
+1589452781.57455|sayn_project_base_bis|2020-05-14 10:39:41|Run|0%|INFO|----------
+1589452781.57455|sayn_project_base_bis|2020-05-14 10:39:41|Run|0%|INFO|Running. Run ID: 1589452781.576046
+1589452781.57455|sayn_project_base_bis|2020-05-14 10:39:41|Run|0%|INFO|----------
+1589452781.57455|sayn_project_base_bis|2020-05-14 10:39:41|Run|0%|ERROR|load_data|near "s": syntax error
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 79, in run
+    load_logs(arenas)
+  File "python/load_data.py", line 29, in load_logs
+    self.default_db.execute(q_insert)
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/database/sqlite.py", line 41, in execute
+    connection.connection.executescript(script)
+sqlite3.OperationalError: near "s": syntax error
+1589452781.57455|sayn_project_base_bis|2020-05-14 10:39:41|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.041514)
+1589452781.57455|sayn_project_base_bis|2020-05-14 10:39:41|Summary|INFO|----------
+1589452781.57455|sayn_project_base_bis|2020-05-14 10:39:41|Summary|INFO|Stats for Run ID: 1589452781.576046
+1589452781.57455|sayn_project_base_bis|2020-05-14 10:39:41|Summary|INFO|----------
+1589452781.57455|sayn_project_base_bis|2020-05-14 10:39:41|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589452781.57455|sayn_project_base_bis|2020-05-14 10:39:41|Summary|ERROR|The following tasks failed: load_data
+1589452781.57455|sayn_project_base_bis|2020-05-14 10:39:41|Summary|INFO|Run took 0:00:00.284086
+1589452883.823681|sayn_project_base_bis|2020-05-14 10:41:23|DAG|INFO|----------
+1589452883.823681|sayn_project_base_bis|2020-05-14 10:41:23|DAG|INFO|Setting up. Run ID: 1589452883.825087
+1589452883.823681|sayn_project_base_bis|2020-05-14 10:41:23|DAG|INFO|----------
+1589452883.823681|sayn_project_base_bis|2020-05-14 10:41:24|DAG|INFO|DAG Setup: done.
+1589452883.823681|sayn_project_base_bis|2020-05-14 10:41:24|Run|0%|INFO|----------
+1589452883.823681|sayn_project_base_bis|2020-05-14 10:41:24|Run|0%|INFO|Running. Run ID: 1589452883.825087
+1589452883.823681|sayn_project_base_bis|2020-05-14 10:41:24|Run|0%|INFO|----------
+1589452883.823681|sayn_project_base_bis|2020-05-14 10:41:24|Run|0%|ERROR|load_data|no such column: contestantCreation
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 71, in run
+    load_logs(contestants, "contestantCreation")
+  File "python/load_data.py", line 33, in load_logs
+    self.default_db.execute(q_insert)
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/database/sqlite.py", line 41, in execute
+    connection.connection.executescript(script)
+sqlite3.OperationalError: no such column: contestantCreation
+1589452883.823681|sayn_project_base_bis|2020-05-14 10:41:24|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.024674)
+1589452883.823681|sayn_project_base_bis|2020-05-14 10:41:24|Summary|INFO|----------
+1589452883.823681|sayn_project_base_bis|2020-05-14 10:41:24|Summary|INFO|Stats for Run ID: 1589452883.825087
+1589452883.823681|sayn_project_base_bis|2020-05-14 10:41:24|Summary|INFO|----------
+1589452883.823681|sayn_project_base_bis|2020-05-14 10:41:24|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589452883.823681|sayn_project_base_bis|2020-05-14 10:41:24|Summary|ERROR|The following tasks failed: load_data
+1589452883.823681|sayn_project_base_bis|2020-05-14 10:41:24|Summary|INFO|Run took 0:00:00.247109
+1589452984.071458|sayn_project_base_bis|2020-05-14 10:43:04|DAG|INFO|----------
+1589452984.071458|sayn_project_base_bis|2020-05-14 10:43:04|DAG|INFO|Setting up. Run ID: 1589452984.072732
+1589452984.071458|sayn_project_base_bis|2020-05-14 10:43:04|DAG|INFO|----------
+1589452984.071458|sayn_project_base_bis|2020-05-14 10:43:04|DAG|INFO|DAG Setup: done.
+1589452984.071458|sayn_project_base_bis|2020-05-14 10:43:04|Run|0%|INFO|----------
+1589452984.071458|sayn_project_base_bis|2020-05-14 10:43:04|Run|0%|INFO|Running. Run ID: 1589452984.072732
+1589452984.071458|sayn_project_base_bis|2020-05-14 10:43:04|Run|0%|INFO|----------
+1589452984.071458|sayn_project_base_bis|2020-05-14 10:43:04|Run|0%|ERROR|load_data|no such column: contestantCreation
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 73, in run
+    load_logs(contestants, "contestantCreation")
+  File "python/load_data.py", line 35, in load_logs
+    self.default_db.execute(q_insert)
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/database/sqlite.py", line 41, in execute
+    connection.connection.executescript(script)
+sqlite3.OperationalError: no such column: contestantCreation
+1589452984.071458|sayn_project_base_bis|2020-05-14 10:43:04|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.024343)
+1589452984.071458|sayn_project_base_bis|2020-05-14 10:43:04|Summary|INFO|----------
+1589452984.071458|sayn_project_base_bis|2020-05-14 10:43:04|Summary|INFO|Stats for Run ID: 1589452984.072732
+1589452984.071458|sayn_project_base_bis|2020-05-14 10:43:04|Summary|INFO|----------
+1589452984.071458|sayn_project_base_bis|2020-05-14 10:43:04|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589452984.071458|sayn_project_base_bis|2020-05-14 10:43:04|Summary|ERROR|The following tasks failed: load_data
+1589452984.071458|sayn_project_base_bis|2020-05-14 10:43:04|Summary|INFO|Run took 0:00:00.346470
+1589453006.629546|sayn_project_base_bis|2020-05-14 10:43:26|DAG|INFO|----------
+1589453006.629546|sayn_project_base_bis|2020-05-14 10:43:26|DAG|INFO|Setting up. Run ID: 1589453006.630728
+1589453006.629546|sayn_project_base_bis|2020-05-14 10:43:26|DAG|INFO|----------
+1589453006.629546|sayn_project_base_bis|2020-05-14 10:43:26|DAG|INFO|DAG Setup: done.
+1589453006.629546|sayn_project_base_bis|2020-05-14 10:43:26|Run|0%|INFO|----------
+1589453006.629546|sayn_project_base_bis|2020-05-14 10:43:26|Run|0%|INFO|Running. Run ID: 1589453006.630728
+1589453006.629546|sayn_project_base_bis|2020-05-14 10:43:26|Run|0%|INFO|----------
+1589453006.629546|sayn_project_base_bis|2020-05-14 10:43:26|Run|0%|ERROR|load_data|near "s": syntax error
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 85, in run
+    load_logs(arenas, "arenaCreation")
+  File "python/load_data.py", line 35, in load_logs
+    self.default_db.execute(q_insert)
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/database/sqlite.py", line 41, in execute
+    connection.connection.executescript(script)
+sqlite3.OperationalError: near "s": syntax error
+1589453006.629546|sayn_project_base_bis|2020-05-14 10:43:26|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.040431)
+1589453006.629546|sayn_project_base_bis|2020-05-14 10:43:26|Summary|INFO|----------
+1589453006.629546|sayn_project_base_bis|2020-05-14 10:43:26|Summary|INFO|Stats for Run ID: 1589453006.630728
+1589453006.629546|sayn_project_base_bis|2020-05-14 10:43:26|Summary|INFO|----------
+1589453006.629546|sayn_project_base_bis|2020-05-14 10:43:26|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589453006.629546|sayn_project_base_bis|2020-05-14 10:43:26|Summary|ERROR|The following tasks failed: load_data
+1589453006.629546|sayn_project_base_bis|2020-05-14 10:43:26|Summary|INFO|Run took 0:00:00.268706
+1589453084.456842|sayn_project_base_bis|2020-05-14 10:44:44|DAG|INFO|----------
+1589453084.456842|sayn_project_base_bis|2020-05-14 10:44:44|DAG|INFO|Setting up. Run ID: 1589453084.458605
+1589453084.456842|sayn_project_base_bis|2020-05-14 10:44:44|DAG|INFO|----------
+1589453084.456842|sayn_project_base_bis|2020-05-14 10:44:44|DAG|INFO|DAG Setup: done.
+1589453084.456842|sayn_project_base_bis|2020-05-14 10:44:44|Run|0%|INFO|----------
+1589453084.456842|sayn_project_base_bis|2020-05-14 10:44:44|Run|0%|INFO|Running. Run ID: 1589453084.458605
+1589453084.456842|sayn_project_base_bis|2020-05-14 10:44:44|Run|0%|INFO|----------
+1589453084.456842|sayn_project_base_bis|2020-05-14 10:44:44|Run|0%|INFO|load_data|[32mSuccess (0:00:00.061150)[0m
+1589453084.456842|sayn_project_base_bis|2020-05-14 10:44:44|Summary|INFO|----------
+1589453084.456842|sayn_project_base_bis|2020-05-14 10:44:44|Summary|INFO|Stats for Run ID: 1589453084.458605
+1589453084.456842|sayn_project_base_bis|2020-05-14 10:44:44|Summary|INFO|----------
+1589453084.456842|sayn_project_base_bis|2020-05-14 10:44:44|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589453084.456842|sayn_project_base_bis|2020-05-14 10:44:44|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589453084.456842|sayn_project_base_bis|2020-05-14 10:44:44|Summary|INFO|Run took 0:00:00.300237
+1589454020.865505|sayn_project_base_bis|2020-05-14 11:00:20|DAG|INFO|----------
+1589454020.865505|sayn_project_base_bis|2020-05-14 11:00:20|DAG|INFO|Setting up. Run ID: 1589454020.867024
+1589454020.865505|sayn_project_base_bis|2020-05-14 11:00:20|DAG|INFO|----------
+1589454020.865505|sayn_project_base_bis|2020-05-14 11:00:21|DAG|INFO|DAG Setup: done.
+1589454020.865505|sayn_project_base_bis|2020-05-14 11:00:21|Run|0%|INFO|----------
+1589454020.865505|sayn_project_base_bis|2020-05-14 11:00:21|Run|0%|INFO|Running. Run ID: 1589454020.867024
+1589454020.865505|sayn_project_base_bis|2020-05-14 11:00:21|Run|0%|INFO|----------
+1589454020.865505|sayn_project_base_bis|2020-05-14 11:00:21|Run|0%|ERROR|load_data|'str' object cannot be interpreted as an integer
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 207, in _run_command
+    status = task.run()
+  File "python/load_data.py", line 106, in run
+    for n in range(n_battles):
+TypeError: 'str' object cannot be interpreted as an integer
+1589454020.865505|sayn_project_base_bis|2020-05-14 11:00:21|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:00.108587)
+1589454020.865505|sayn_project_base_bis|2020-05-14 11:00:21|Summary|INFO|----------
+1589454020.865505|sayn_project_base_bis|2020-05-14 11:00:21|Summary|INFO|Stats for Run ID: 1589454020.867024
+1589454020.865505|sayn_project_base_bis|2020-05-14 11:00:21|Summary|INFO|----------
+1589454020.865505|sayn_project_base_bis|2020-05-14 11:00:21|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589454020.865505|sayn_project_base_bis|2020-05-14 11:00:21|Summary|ERROR|The following tasks failed: load_data
+1589454020.865505|sayn_project_base_bis|2020-05-14 11:00:21|Summary|INFO|Run took 0:00:00.349663
+1589454115.330386|sayn_project_base_bis|2020-05-14 11:01:55|DAG|INFO|----------
+1589454115.330386|sayn_project_base_bis|2020-05-14 11:01:55|DAG|INFO|Setting up. Run ID: 1589454115.331594
+1589454115.330386|sayn_project_base_bis|2020-05-14 11:01:55|DAG|INFO|----------
+1589454115.330386|sayn_project_base_bis|2020-05-14 11:01:55|DAG|INFO|DAG Setup: done.
+1589454115.330386|sayn_project_base_bis|2020-05-14 11:01:55|Run|0%|INFO|----------
+1589454115.330386|sayn_project_base_bis|2020-05-14 11:01:55|Run|0%|INFO|Running. Run ID: 1589454115.331594
+1589454115.330386|sayn_project_base_bis|2020-05-14 11:01:55|Run|0%|INFO|----------
+1589454115.330386|sayn_project_base_bis|2020-05-14 11:01:57|Run|0%|INFO|load_data|[32mSuccess (0:00:01.421317)[0m
+1589454115.330386|sayn_project_base_bis|2020-05-14 11:01:57|Summary|INFO|----------
+1589454115.330386|sayn_project_base_bis|2020-05-14 11:01:57|Summary|INFO|Stats for Run ID: 1589454115.331594
+1589454115.330386|sayn_project_base_bis|2020-05-14 11:01:57|Summary|INFO|----------
+1589454115.330386|sayn_project_base_bis|2020-05-14 11:01:57|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589454115.330386|sayn_project_base_bis|2020-05-14 11:01:57|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589454115.330386|sayn_project_base_bis|2020-05-14 11:01:57|Summary|INFO|Run took 0:00:01.671857
+1589454164.064808|sayn_project_base_bis|2020-05-14 11:02:44|DAG|INFO|----------
+1589454164.064808|sayn_project_base_bis|2020-05-14 11:02:44|DAG|INFO|Setting up. Run ID: 1589454164.066596
+1589454164.064808|sayn_project_base_bis|2020-05-14 11:02:44|DAG|INFO|----------
+1589454164.064808|sayn_project_base_bis|2020-05-14 11:02:44|DAG|INFO|DAG Setup: done.
+1589454164.064808|sayn_project_base_bis|2020-05-14 11:02:44|Run|0%|INFO|----------
+1589454164.064808|sayn_project_base_bis|2020-05-14 11:02:44|Run|0%|INFO|Running. Run ID: 1589454164.066596
+1589454164.064808|sayn_project_base_bis|2020-05-14 11:02:44|Run|0%|INFO|----------
+1589454164.064808|sayn_project_base_bis|2020-05-14 11:02:48|Run|0%|INFO|load_data|[32mSuccess (0:00:04.648570)[0m
+1589454164.064808|sayn_project_base_bis|2020-05-14 11:02:48|Summary|INFO|----------
+1589454164.064808|sayn_project_base_bis|2020-05-14 11:02:48|Summary|INFO|Stats for Run ID: 1589454164.066596
+1589454164.064808|sayn_project_base_bis|2020-05-14 11:02:48|Summary|INFO|----------
+1589454164.064808|sayn_project_base_bis|2020-05-14 11:02:48|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589454164.064808|sayn_project_base_bis|2020-05-14 11:02:48|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589454164.064808|sayn_project_base_bis|2020-05-14 11:02:48|Summary|INFO|Run took 0:00:04.877515
+1589454211.833822|sayn_project_base_bis|2020-05-14 11:03:31|DAG|INFO|----------
+1589454211.833822|sayn_project_base_bis|2020-05-14 11:03:31|DAG|INFO|Setting up. Run ID: 1589454211.835257
+1589454211.833822|sayn_project_base_bis|2020-05-14 11:03:31|DAG|INFO|----------
+1589454211.833822|sayn_project_base_bis|2020-05-14 11:03:32|DAG|INFO|DAG Setup: done.
+1589454211.833822|sayn_project_base_bis|2020-05-14 11:03:32|Run|0%|INFO|----------
+1589454211.833822|sayn_project_base_bis|2020-05-14 11:03:32|Run|0%|INFO|Running. Run ID: 1589454211.835257
+1589454211.833822|sayn_project_base_bis|2020-05-14 11:03:32|Run|0%|INFO|----------
+1589454211.833822|sayn_project_base_bis|2020-05-14 11:03:37|Run|0%|INFO|load_data|[32mSuccess (0:00:05.019695)[0m
+1589454211.833822|sayn_project_base_bis|2020-05-14 11:03:37|Summary|INFO|----------
+1589454211.833822|sayn_project_base_bis|2020-05-14 11:03:37|Summary|INFO|Stats for Run ID: 1589454211.835257
+1589454211.833822|sayn_project_base_bis|2020-05-14 11:03:37|Summary|INFO|----------
+1589454211.833822|sayn_project_base_bis|2020-05-14 11:03:37|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589454211.833822|sayn_project_base_bis|2020-05-14 11:03:37|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589454211.833822|sayn_project_base_bis|2020-05-14 11:03:37|Summary|INFO|Run took 0:00:05.254028
+1589454432.190066|sayn_project_base_bis|2020-05-14 11:07:12|DAG|INFO|----------
+1589454432.190066|sayn_project_base_bis|2020-05-14 11:07:12|DAG|INFO|Setting up. Run ID: 1589454432.191576
+1589454432.190066|sayn_project_base_bis|2020-05-14 11:07:12|DAG|INFO|----------
+1589454432.190066|sayn_project_base_bis|2020-05-14 11:07:12|DAG|INFO|DAG Setup: done.
+1589454432.190066|sayn_project_base_bis|2020-05-14 11:07:12|Run|0%|INFO|----------
+1589454432.190066|sayn_project_base_bis|2020-05-14 11:07:12|Run|0%|INFO|Running. Run ID: 1589454432.191576
+1589454432.190066|sayn_project_base_bis|2020-05-14 11:07:12|Run|0%|INFO|----------
+1589454432.190066|sayn_project_base_bis|2020-05-14 11:07:18|Run|0%|INFO|load_data|[32mSuccess (0:00:05.962394)[0m
+1589454432.190066|sayn_project_base_bis|2020-05-14 11:07:18|Summary|INFO|----------
+1589454432.190066|sayn_project_base_bis|2020-05-14 11:07:18|Summary|INFO|Stats for Run ID: 1589454432.191576
+1589454432.190066|sayn_project_base_bis|2020-05-14 11:07:18|Summary|INFO|----------
+1589454432.190066|sayn_project_base_bis|2020-05-14 11:07:18|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589454432.190066|sayn_project_base_bis|2020-05-14 11:07:18|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589454432.190066|sayn_project_base_bis|2020-05-14 11:07:18|Summary|INFO|Run took 0:00:06.306913
+1589454451.359258|sayn_project_base_bis|2020-05-14 11:07:31|DAG|INFO|----------
+1589454451.359258|sayn_project_base_bis|2020-05-14 11:07:31|DAG|INFO|Setting up. Run ID: 1589454451.36052
+1589454451.359258|sayn_project_base_bis|2020-05-14 11:07:31|DAG|INFO|----------
+1589454451.359258|sayn_project_base_bis|2020-05-14 11:07:31|DAG|INFO|DAG Setup: done.
+1589454451.359258|sayn_project_base_bis|2020-05-14 11:07:31|Run|0%|INFO|----------
+1589454451.359258|sayn_project_base_bis|2020-05-14 11:07:31|Run|0%|INFO|Running. Run ID: 1589454451.36052
+1589454451.359258|sayn_project_base_bis|2020-05-14 11:07:31|Run|0%|INFO|----------
+1589454451.359258|sayn_project_base_bis|2020-05-14 11:07:36|Run|0%|INFO|load_data|[32mSuccess (0:00:04.866839)[0m
+1589454451.359258|sayn_project_base_bis|2020-05-14 11:07:36|Summary|INFO|----------
+1589454451.359258|sayn_project_base_bis|2020-05-14 11:07:36|Summary|INFO|Stats for Run ID: 1589454451.36052
+1589454451.359258|sayn_project_base_bis|2020-05-14 11:07:36|Summary|INFO|----------
+1589454451.359258|sayn_project_base_bis|2020-05-14 11:07:36|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589454451.359258|sayn_project_base_bis|2020-05-14 11:07:36|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589454451.359258|sayn_project_base_bis|2020-05-14 11:07:36|Summary|INFO|Run took 0:00:05.063941
+1589454508.456733|sayn_project_base_bis|2020-05-14 11:08:28|DAG|INFO|----------
+1589454508.456733|sayn_project_base_bis|2020-05-14 11:08:28|DAG|INFO|Setting up. Run ID: 1589454508.458246
+1589454508.456733|sayn_project_base_bis|2020-05-14 11:08:28|DAG|INFO|----------
+1589454508.456733|sayn_project_base_bis|2020-05-14 11:08:28|DAG|INFO|DAG Setup: done.
+1589454508.456733|sayn_project_base_bis|2020-05-14 11:08:28|Run|0%|INFO|----------
+1589454508.456733|sayn_project_base_bis|2020-05-14 11:08:28|Run|0%|INFO|Running. Run ID: 1589454508.458246
+1589454508.456733|sayn_project_base_bis|2020-05-14 11:08:28|Run|0%|INFO|----------
+1589454508.456733|sayn_project_base_bis|2020-05-14 11:08:33|Run|0%|INFO|load_data|[32mSuccess (0:00:04.462110)[0m
+1589454508.456733|sayn_project_base_bis|2020-05-14 11:08:33|Summary|INFO|----------
+1589454508.456733|sayn_project_base_bis|2020-05-14 11:08:33|Summary|INFO|Stats for Run ID: 1589454508.458246
+1589454508.456733|sayn_project_base_bis|2020-05-14 11:08:33|Summary|INFO|----------
+1589454508.456733|sayn_project_base_bis|2020-05-14 11:08:33|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589454508.456733|sayn_project_base_bis|2020-05-14 11:08:33|Summary|INFO|[32mThe following tasks succeded: load_data[0m
+1589454508.456733|sayn_project_base_bis|2020-05-14 11:08:33|Summary|INFO|Run took 0:00:04.705911
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:14|DAG|INFO|----------
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:14|DAG|INFO|Setting up. Run ID: 1589454614.374647
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:14|DAG|INFO|----------
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:14|DAG|ERROR|dim_fighters|"file_name" is a required field
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:14|DAG|INFO|DAG Setup: done.
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:14|Run|0%|INFO|----------
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:14|Run|0%|INFO|Running. Run ID: 1589454614.374647
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:14|Run|0%|INFO|----------
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:18|Run|0%|INFO|load_data|[32mSuccess (0:00:03.917345)[0m
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:18|Run|50%|ERROR|dim_fighters|Task failed during setup. Skipping...
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:18|Summary|INFO|----------
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:18|Summary|INFO|Stats for Run ID: 1589454614.374647
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:18|Summary|INFO|----------
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:18|Summary|ERROR|Process finished. Total tasks: 2. Success: 1. Failed 1. Skipped 0.
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:18|Summary|ERROR|The following tasks succeded: load_data
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:18|Summary|ERROR|The following tasks failed: dim_fighters
+1589454614.373146|sayn_project_base_bis|2020-05-14 11:10:18|Summary|INFO|Run took 0:00:04.037574
+1589454795.031297|sayn_project_base_bis|2020-05-14 11:13:15|DAG|INFO|----------
+1589454795.031297|sayn_project_base_bis|2020-05-14 11:13:15|DAG|INFO|Setting up. Run ID: 1589454795.032769
+1589454795.031297|sayn_project_base_bis|2020-05-14 11:13:15|DAG|INFO|----------
+1589454795.031297|sayn_project_base_bis|2020-05-14 11:13:15|DAG|INFO|DAG Setup: done.
+1589454795.031297|sayn_project_base_bis|2020-05-14 11:13:15|Run|0%|INFO|----------
+1589454795.031297|sayn_project_base_bis|2020-05-14 11:13:15|Run|0%|INFO|Running. Run ID: 1589454795.032769
+1589454795.031297|sayn_project_base_bis|2020-05-14 11:13:15|Run|0%|INFO|----------
+1589454795.031297|sayn_project_base_bis|2020-05-14 11:13:19|Run|0%|INFO|load_data|[32mSuccess (0:00:04.239043)[0m
+1589454795.031297|sayn_project_base_bis|2020-05-14 11:13:19|Run|50%|INFO|dim_fighters|[32mSuccess (0:00:00.005146)[0m
+1589454795.031297|sayn_project_base_bis|2020-05-14 11:13:19|Summary|INFO|----------
+1589454795.031297|sayn_project_base_bis|2020-05-14 11:13:19|Summary|INFO|Stats for Run ID: 1589454795.032769
+1589454795.031297|sayn_project_base_bis|2020-05-14 11:13:19|Summary|INFO|----------
+1589454795.031297|sayn_project_base_bis|2020-05-14 11:13:19|Summary|INFO|[32mProcess finished. Total tasks: 2. Success: 2. Failed 0. Skipped 0.[0m
+1589454795.031297|sayn_project_base_bis|2020-05-14 11:13:19|Summary|INFO|[32mThe following tasks succeded: load_data, dim_fighters[0m
+1589454795.031297|sayn_project_base_bis|2020-05-14 11:13:19|Summary|INFO|Run took 0:00:04.383490
+1589454940.868762|sayn_project_base_bis|2020-05-14 11:15:40|DAG|INFO|----------
+1589454940.868762|sayn_project_base_bis|2020-05-14 11:15:40|DAG|INFO|Setting up. Run ID: 1589454940.870162
+1589454940.868762|sayn_project_base_bis|2020-05-14 11:15:40|DAG|INFO|----------
+1589454940.868762|sayn_project_base_bis|2020-05-14 11:15:41|DAG|INFO|DAG Setup: done.
+1589454940.868762|sayn_project_base_bis|2020-05-14 11:15:41|Run|0%|INFO|----------
+1589454940.868762|sayn_project_base_bis|2020-05-14 11:15:41|Run|0%|INFO|Running. Run ID: 1589454940.870162
+1589454940.868762|sayn_project_base_bis|2020-05-14 11:15:41|Run|0%|INFO|----------
+1589454940.868762|sayn_project_base_bis|2020-05-14 11:15:44|Run|0%|INFO|load_data|[32mSuccess (0:00:03.616833)[0m
+1589454940.868762|sayn_project_base_bis|2020-05-14 11:15:44|Run|50%|INFO|dim_fighters|[32mSuccess (0:00:00.004552)[0m
+1589454940.868762|sayn_project_base_bis|2020-05-14 11:15:44|Summary|INFO|----------
+1589454940.868762|sayn_project_base_bis|2020-05-14 11:15:44|Summary|INFO|Stats for Run ID: 1589454940.870162
+1589454940.868762|sayn_project_base_bis|2020-05-14 11:15:44|Summary|INFO|----------
+1589454940.868762|sayn_project_base_bis|2020-05-14 11:15:44|Summary|INFO|[32mProcess finished. Total tasks: 2. Success: 2. Failed 0. Skipped 0.[0m
+1589454940.868762|sayn_project_base_bis|2020-05-14 11:15:44|Summary|INFO|[32mThe following tasks succeded: load_data, dim_fighters[0m
+1589454940.868762|sayn_project_base_bis|2020-05-14 11:15:44|Summary|INFO|Run took 0:00:03.778929
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:51|DAG|INFO|----------
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:51|DAG|INFO|Setting up. Run ID: 1589455730.904778
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:51|DAG|INFO|----------
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:51|DAG|INFO|DAG Setup: done.
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:51|Run|0%|INFO|----------
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:51|Run|0%|INFO|Running. Run ID: 1589455730.904778
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:51|Run|0%|INFO|----------
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:54|Run|0%|INFO|load_data|[32mSuccess (0:00:03.644111)[0m
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:54|Run|20%|INFO|dim_arenas|[32mSuccess (0:00:00.002686)[0m
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:54|Run|40%|INFO|dim_tournaments|[32mSuccess (0:00:00.002903)[0m
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:54|Run|60%|INFO|dim_fighters|[32mSuccess (0:00:00.004590)[0m
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:54|Run|80%|ERROR|f_battles|Error running query
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:54|Run|80%|ERROR|f_battles|no such column: b.tournament_name
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:54|Run|80%|ERROR|f_battles|Query: CREATE TABLE IF NOT EXISTS main.f_battles AS 
+WITH battles AS (
+
+  SELECT JSON_EXTRACT(l.payload, '$.tournament_id') tournament_id
+       , JSON_EXTRACT(l.payload, '$.battle_id') battle_id
+       , JSON_EXTRACT(l.payload, '$.arena_id') arena_id
+       , JSON_EXTRACT(l.payload, '$.fighter1_id') fighter1_id
+       , JSON_EXTRACT(l.payload, '$.fighter2_id') fighter2_id
+       , JSON_EXTRACT(l.payload, '$.winner_id') winner_id
+
+  FROM logs l
+
+  WHERE event_type = 'battleCreation'
+)
+
+SELECT b.tournament_name
+     , b.battle_id
+     , a.arena_name
+     , f1.fighter_name fighter1_name
+     , f2.fighter_name fighter2_name
+     , w.fighter_name winner_name
+
+FROM battles b
+
+LEFT JOIN dim_tournaments t
+  ON b.tournament_id = t.tournament_id
+
+LEFT JOIN dim_arenas a
+  ON b.arena_id = a.arena_id
+
+LEFT JOIN dim_fighters f1
+  ON b.fighter1_id = f1.fighter_id
+
+LEFT JOIN dim_fighters f2
+  ON b.fighter2_id = f2.fighter_id
+
+LEFT JOIN dim_fighters w
+  ON b.winner_id = w.fighter_id
+
+;
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:54|Run|80%|ERROR|f_battles|Failed status (0:00:00.002500)
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:54|Summary|INFO|----------
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:54|Summary|INFO|Stats for Run ID: 1589455730.904778
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:54|Summary|INFO|----------
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:54|Summary|ERROR|Process finished. Total tasks: 5. Success: 4. Failed 1. Skipped 0.
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:54|Summary|ERROR|The following tasks succeded: load_data, dim_arenas, dim_tournaments, dim_fighters
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:54|Summary|ERROR|The following tasks failed: f_battles
+1589455730.903407|sayn_project_base_bis|2020-05-14 11:28:54|Summary|INFO|Run took 0:00:03.945700
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:35|DAG|INFO|----------
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:35|DAG|INFO|Setting up. Run ID: 1589455775.339228
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:35|DAG|INFO|----------
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:35|DAG|INFO|DAG Setup: done.
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:35|Run|0%|INFO|----------
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:35|Run|0%|INFO|Running. Run ID: 1589455775.339228
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:35|Run|0%|INFO|----------
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:39|Run|0%|INFO|load_data|[32mSuccess (0:00:03.589211)[0m
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:39|Run|20%|INFO|dim_fighters|[32mSuccess (0:00:00.004841)[0m
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:39|Run|40%|INFO|dim_tournaments|[32mSuccess (0:00:00.005553)[0m
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:39|Run|60%|INFO|dim_arenas|[32mSuccess (0:00:00.004531)[0m
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:39|Run|80%|INFO|f_battles|[32mSuccess (0:00:00.011791)[0m
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:39|Summary|INFO|----------
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:39|Summary|INFO|Stats for Run ID: 1589455775.339228
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:39|Summary|INFO|----------
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:39|Summary|INFO|[32mProcess finished. Total tasks: 5. Success: 5. Failed 0. Skipped 0.[0m
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:39|Summary|INFO|[32mThe following tasks succeded: load_data, dim_fighters, dim_tournaments, dim_arenas, f_battles[0m
+1589455775.337873|sayn_project_base_bis|2020-05-14 11:29:39|Summary|INFO|Run took 0:00:03.927196
+1589455861.518178|sayn_project_base_bis|2020-05-14 11:31:01|DAG|INFO|----------
+1589455861.518178|sayn_project_base_bis|2020-05-14 11:31:01|DAG|INFO|Setting up. Run ID: 1589455861.519514
+1589455861.518178|sayn_project_base_bis|2020-05-14 11:31:01|DAG|INFO|----------
+1589455861.518178|sayn_project_base_bis|2020-05-14 11:31:01|DAG|INFO|DAG Setup: done.
+1589455861.518178|sayn_project_base_bis|2020-05-14 11:31:01|Run|0%|INFO|----------
+1589455861.518178|sayn_project_base_bis|2020-05-14 11:31:01|Run|0%|INFO|Running. Run ID: 1589455861.519514
+1589455861.518178|sayn_project_base_bis|2020-05-14 11:31:01|Run|0%|INFO|----------
+1589455861.518178|sayn_project_base_bis|2020-05-14 11:31:01|Run|0%|INFO|f_battles|[32mSuccess (0:00:00.014801)[0m
+1589455861.518178|sayn_project_base_bis|2020-05-14 11:31:01|Summary|INFO|----------
+1589455861.518178|sayn_project_base_bis|2020-05-14 11:31:01|Summary|INFO|Stats for Run ID: 1589455861.519514
+1589455861.518178|sayn_project_base_bis|2020-05-14 11:31:01|Summary|INFO|----------
+1589455861.518178|sayn_project_base_bis|2020-05-14 11:31:01|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589455861.518178|sayn_project_base_bis|2020-05-14 11:31:01|Summary|INFO|[32mThe following tasks succeded: f_battles[0m
+1589455861.518178|sayn_project_base_bis|2020-05-14 11:31:01|Summary|INFO|Run took 0:00:00.258559
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:01|DAG|INFO|----------
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:01|DAG|INFO|Setting up. Run ID: 1589455921.798727
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:01|DAG|INFO|----------
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:02|DAG|INFO|DAG Setup: done.
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:02|Run|0%|INFO|----------
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:02|Run|0%|INFO|Running. Run ID: 1589455921.798727
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:02|Run|0%|INFO|----------
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:05|Run|0%|INFO|load_data|[32mSuccess (0:00:03.337679)[0m
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:05|Run|20%|INFO|dim_arenas|[32mSuccess (0:00:00.005717)[0m
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:05|Run|40%|INFO|dim_tournaments|[32mSuccess (0:00:00.004957)[0m
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:05|Run|60%|INFO|dim_fighters|[32mSuccess (0:00:00.004792)[0m
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:05|Run|80%|INFO|f_battles|[32mSuccess (0:00:00.019030)[0m
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:05|Summary|INFO|----------
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:05|Summary|INFO|Stats for Run ID: 1589455921.798727
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:05|Summary|INFO|----------
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:05|Summary|INFO|[32mProcess finished. Total tasks: 5. Success: 5. Failed 0. Skipped 0.[0m
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:05|Summary|INFO|[32mThe following tasks succeded: load_data, dim_arenas, dim_tournaments, dim_fighters, f_battles[0m
+1589455921.797316|sayn_project_base_bis|2020-05-14 11:32:05|Summary|INFO|Run took 0:00:03.644343
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:38|DAG|INFO|----------
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:38|DAG|INFO|Setting up. Run ID: 1589455958.012888
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:38|DAG|INFO|----------
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:38|DAG|INFO|DAG Setup: done.
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:38|Run|0%|INFO|----------
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:38|Run|0%|INFO|Running. Run ID: 1589455958.012888
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:38|Run|0%|INFO|----------
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:42|Run|0%|INFO|load_data|[32mSuccess (0:00:04.004248)[0m
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:42|Run|20%|INFO|dim_fighters|[32mSuccess (0:00:00.006443)[0m
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:42|Run|40%|INFO|dim_arenas|[32mSuccess (0:00:00.006496)[0m
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:42|Run|60%|INFO|dim_tournaments|[32mSuccess (0:00:00.006213)[0m
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:42|Run|80%|INFO|f_battles|[32mSuccess (0:00:00.018266)[0m
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:42|Summary|INFO|----------
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:42|Summary|INFO|Stats for Run ID: 1589455958.012888
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:42|Summary|INFO|----------
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:42|Summary|INFO|[32mProcess finished. Total tasks: 5. Success: 5. Failed 0. Skipped 0.[0m
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:42|Summary|INFO|[32mThe following tasks succeded: load_data, dim_fighters, dim_arenas, dim_tournaments, f_battles[0m
+1589455958.011551|sayn_project_base_bis|2020-05-14 11:32:42|Summary|INFO|Run took 0:00:04.330829
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:35|DAG|INFO|----------
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:35|DAG|INFO|Setting up. Run ID: 1589456015.60352
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:35|DAG|INFO|----------
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:35|DAG|INFO|DAG Setup: done.
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:35|Run|0%|INFO|----------
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:35|Run|0%|INFO|Running. Run ID: 1589456015.60352
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:35|Run|0%|INFO|----------
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:39|Run|0%|INFO|load_data|[32mSuccess (0:00:03.642415)[0m
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:39|Run|20%|INFO|dim_arenas|[32mSuccess (0:00:00.005114)[0m
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:39|Run|40%|INFO|dim_fighters|[32mSuccess (0:00:00.005167)[0m
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:39|Run|60%|INFO|dim_tournaments|[32mSuccess (0:00:00.005982)[0m
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:39|Run|80%|INFO|f_battles|[32mSuccess (0:00:00.024012)[0m
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:39|Summary|INFO|----------
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:39|Summary|INFO|Stats for Run ID: 1589456015.60352
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:39|Summary|INFO|----------
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:39|Summary|INFO|[32mProcess finished. Total tasks: 5. Success: 5. Failed 0. Skipped 0.[0m
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:39|Summary|INFO|[32mThe following tasks succeded: load_data, dim_arenas, dim_fighters, dim_tournaments, f_battles[0m
+1589456015.602547|sayn_project_base_bis|2020-05-14 11:33:39|Summary|INFO|Run took 0:00:03.907856
+1589456501.020687|sayn_project_base_bis|2020-05-14 11:41:41|DAG|INFO|----------
+1589456501.020687|sayn_project_base_bis|2020-05-14 11:41:41|DAG|INFO|Setting up. Run ID: 1589456501.022114
+1589456501.020687|sayn_project_base_bis|2020-05-14 11:41:41|DAG|INFO|----------
+1589456501.020687|sayn_project_base_bis|2020-05-14 11:41:41|DAG|INFO|DAG Setup: done.
+1589456501.020687|sayn_project_base_bis|2020-05-14 11:41:41|Run|0%|INFO|----------
+1589456501.020687|sayn_project_base_bis|2020-05-14 11:41:41|Run|0%|INFO|Running. Run ID: 1589456501.022114
+1589456501.020687|sayn_project_base_bis|2020-05-14 11:41:41|Run|0%|INFO|----------
+1589456501.020687|sayn_project_base_bis|2020-05-14 11:41:41|Run|0%|INFO|f_fighter_results|[32mSuccess (0:00:00.010251)[0m
+1589456501.020687|sayn_project_base_bis|2020-05-14 11:41:41|Summary|INFO|----------
+1589456501.020687|sayn_project_base_bis|2020-05-14 11:41:41|Summary|INFO|Stats for Run ID: 1589456501.022114
+1589456501.020687|sayn_project_base_bis|2020-05-14 11:41:41|Summary|INFO|----------
+1589456501.020687|sayn_project_base_bis|2020-05-14 11:41:41|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589456501.020687|sayn_project_base_bis|2020-05-14 11:41:41|Summary|INFO|[32mThe following tasks succeded: f_fighter_results[0m
+1589456501.020687|sayn_project_base_bis|2020-05-14 11:41:41|Summary|INFO|Run took 0:00:00.356795
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:29|DAG|INFO|----------
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:29|DAG|INFO|Setting up. Run ID: 1589456669.737927
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:29|DAG|INFO|----------
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:30|DAG|INFO|DAG Setup: done.
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:30|Run|0%|INFO|----------
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:30|Run|0%|INFO|Running. Run ID: 1589456669.737927
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:30|Run|0%|INFO|----------
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:34|Run|0%|INFO|load_data|[32mSuccess (0:00:04.049055)[0m
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:34|Run|14%|INFO|dim_fighters|[32mSuccess (0:00:00.006284)[0m
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:34|Run|29%|INFO|dim_tournaments|[32mSuccess (0:00:00.005475)[0m
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:34|Run|43%|INFO|dim_arenas|[32mSuccess (0:00:00.005001)[0m
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:34|Run|57%|INFO|f_battles|[32mSuccess (0:00:00.014977)[0m
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:34|Run|71%|INFO|f_fighter_results|[32mSuccess (0:00:00.016742)[0m
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:34|Run|86%|INFO|ranking|[32mSuccess (0:00:00.003012)[0m
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:34|Summary|INFO|----------
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:34|Summary|INFO|Stats for Run ID: 1589456669.737927
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:34|Summary|INFO|----------
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:34|Summary|INFO|[32mProcess finished. Total tasks: 7. Success: 7. Failed 0. Skipped 0.[0m
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:34|Summary|INFO|[32mThe following tasks succeded: load_data, dim_fighters, dim_tournaments, dim_arenas, f_battles, f_fighter_results, ranking[0m
+1589456669.736518|sayn_project_base_bis|2020-05-14 11:44:34|Summary|INFO|Run took 0:00:04.492375
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:19|DAG|INFO|----------
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:19|DAG|INFO|Setting up. Run ID: 1589456779.354334
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:19|DAG|INFO|----------
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:19|DAG|INFO|DAG Setup: done.
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:19|Run|0%|INFO|----------
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:19|Run|0%|INFO|Running. Run ID: 1589456779.354334
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:19|Run|0%|INFO|----------
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:28|Run|0%|INFO|load_data|[32mSuccess (0:00:09.087696)[0m
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:28|Run|14%|INFO|dim_arenas|[32mSuccess (0:00:00.051382)[0m
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:28|Run|29%|INFO|dim_tournaments|[32mSuccess (0:00:00.034542)[0m
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:28|Run|43%|INFO|dim_fighters|[32mSuccess (0:00:00.008012)[0m
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:28|Run|57%|INFO|f_battles|[32mSuccess (0:00:00.025342)[0m
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:28|Run|71%|INFO|f_fighter_results|[32mSuccess (0:00:00.021291)[0m
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:28|Run|86%|INFO|ranking|[32mSuccess (0:00:00.005686)[0m
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:28|Summary|INFO|----------
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:28|Summary|INFO|Stats for Run ID: 1589456779.354334
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:28|Summary|INFO|----------
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:29|Summary|INFO|[32mProcess finished. Total tasks: 7. Success: 7. Failed 0. Skipped 0.[0m
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:29|Summary|INFO|[32mThe following tasks succeded: load_data, dim_arenas, dim_tournaments, dim_fighters, f_battles, f_fighter_results, ranking[0m
+1589456779.352949|sayn_project_base_bis|2020-05-14 11:46:29|Summary|INFO|Run took 0:00:09.647927
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|DAG|INFO|----------
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|DAG|INFO|Setting up. Run ID: 1589456832.540506
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|DAG|INFO|----------
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|DAG|INFO|DAG Setup: done.
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|Run|0%|INFO|----------
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|Run|0%|INFO|Running. Run ID: 1589456832.540506
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|Run|0%|INFO|----------
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|Run|0%|ERROR|ranking|Error running query
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|Run|0%|ERROR|ranking|unrecognized token: ":"
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|Run|0%|ERROR|ranking|Query: DROP VIEW IF EXISTS main.ranking;
+CREATE VIEW IF NOT EXISTS main.ranking AS 
+SELECT fr.fighter_name
+     , SUM(fr.is_winner)::FLOAT / COUNT(DISTINCT fr.battle_id) win_rate
+
+FROM f_fighter_results fr
+
+GROUP BY 1
+
+ORDER BY 2 DESC
+
+;
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|Run|0%|ERROR|ranking|Failed status (0:00:00.011133)
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|Summary|INFO|----------
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|Summary|INFO|Stats for Run ID: 1589456832.540506
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|Summary|INFO|----------
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|Summary|ERROR|Process finished. Total tasks: 1. Success: 0. Failed 1. Skipped 0.
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|Summary|ERROR|The following tasks failed: ranking
+1589456832.539235|sayn_project_base_bis|2020-05-14 11:47:12|Summary|INFO|Run took 0:00:00.373784
+1589456847.162141|sayn_project_base_bis|2020-05-14 11:47:27|DAG|INFO|----------
+1589456847.162141|sayn_project_base_bis|2020-05-14 11:47:27|DAG|INFO|Setting up. Run ID: 1589456847.163612
+1589456847.162141|sayn_project_base_bis|2020-05-14 11:47:27|DAG|INFO|----------
+1589456847.162141|sayn_project_base_bis|2020-05-14 11:47:27|DAG|INFO|DAG Setup: done.
+1589456847.162141|sayn_project_base_bis|2020-05-14 11:47:27|Run|0%|INFO|----------
+1589456847.162141|sayn_project_base_bis|2020-05-14 11:47:27|Run|0%|INFO|Running. Run ID: 1589456847.163612
+1589456847.162141|sayn_project_base_bis|2020-05-14 11:47:27|Run|0%|INFO|----------
+1589456847.162141|sayn_project_base_bis|2020-05-14 11:47:27|Run|0%|INFO|ranking|[32mSuccess (0:00:00.006975)[0m
+1589456847.162141|sayn_project_base_bis|2020-05-14 11:47:27|Summary|INFO|----------
+1589456847.162141|sayn_project_base_bis|2020-05-14 11:47:27|Summary|INFO|Stats for Run ID: 1589456847.163612
+1589456847.162141|sayn_project_base_bis|2020-05-14 11:47:27|Summary|INFO|----------
+1589456847.162141|sayn_project_base_bis|2020-05-14 11:47:27|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589456847.162141|sayn_project_base_bis|2020-05-14 11:47:27|Summary|INFO|[32mThe following tasks succeded: ranking[0m
+1589456847.162141|sayn_project_base_bis|2020-05-14 11:47:27|Summary|INFO|Run took 0:00:00.293769
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:19|DAG|INFO|----------
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:19|DAG|INFO|Setting up. Run ID: 1589457079.81109
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:19|DAG|INFO|----------
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:20|DAG|INFO|DAG Setup: done.
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:20|Run|0%|INFO|----------
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:20|Run|0%|INFO|Running. Run ID: 1589457079.81109
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:20|Run|0%|INFO|----------
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Run|0%|INFO|load_data|[32mSuccess (0:00:04.174475)[0m
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Run|14%|INFO|dim_tournaments|[32mSuccess (0:00:00.006095)[0m
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Run|29%|INFO|dim_arenas|[32mSuccess (0:00:00.007583)[0m
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Run|43%|INFO|dim_fighters|[32mSuccess (0:00:00.004877)[0m
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Run|57%|ERROR|f_battles|Error running query
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Run|57%|ERROR|f_battles|no such column: b.tournament_name
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Run|57%|ERROR|f_battles|Query: -- Create temporary table
+DROP TABLE IF EXISTS main.sayn_tmp_f_battles;
+CREATE TABLE IF NOT EXISTS main.sayn_tmp_f_battles AS 
+WITH battles AS (
+
+  SELECT JSON_EXTRACT(l.payload, '$.tournament_id') tournament_id
+       , JSON_EXTRACT(l.payload, '$.battle_id') battle_id
+       , JSON_EXTRACT(l.payload, '$.arena_id') arena_id
+       , JSON_EXTRACT(l.payload, '$.fighter1_id') fighter1_id
+       , JSON_EXTRACT(l.payload, '$.fighter2_id') fighter2_id
+       , JSON_EXTRACT(l.payload, '$.winner_id') winner_id
+
+  FROM logs l
+
+  WHERE event_type = 'battleCreation'
+)
+
+SELECT t.tournament_name
+     , b.tournament_name || '-' || CAST(b.battle_id AS VARCHAR) battle_id
+     , a.arena_name
+     , f1.fighter_name fighter1_name
+     , f2.fighter_name fighter2_name
+     , w.fighter_name winner_name
+
+FROM battles b
+
+LEFT JOIN dim_tournaments t
+  ON b.tournament_id = t.tournament_id
+
+LEFT JOIN dim_arenas a
+  ON b.arena_id = a.arena_id
+
+LEFT JOIN dim_fighters f1
+  ON b.fighter1_id = f1.fighter_id
+
+LEFT JOIN dim_fighters f2
+  ON b.fighter2_id = f2.fighter_id
+
+LEFT JOIN dim_fighters w
+  ON b.winner_id = w.fighter_id
+
+;
+
+-- Move data to final table
+DROP TABLE IF EXISTS main.f_battles;
+ALTER TABLE main.sayn_tmp_f_battles RENAME TO f_battles;
+
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Run|57%|ERROR|f_battles|Failed status (0:00:00.003912)
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Run|71%|WARNING|f_fighter_results|SKIPPING
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Run|86%|WARNING|ranking|SKIPPING
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Summary|INFO|----------
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Summary|INFO|Stats for Run ID: 1589457079.81109
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Summary|INFO|----------
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Summary|ERROR|Process finished. Total tasks: 7. Success: 4. Failed 1. Skipped 2.
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Summary|ERROR|The following tasks succeded: load_data, dim_tournaments, dim_arenas, dim_fighters
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Summary|ERROR|The following tasks failed: f_battles
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Summary|ERROR|The following tasks were skipped: f_fighter_results, ranking
+1589457079.808913|sayn_project_base_bis|2020-05-14 11:51:24|Summary|INFO|Run took 0:00:04.574312
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:46|DAG|INFO|----------
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:46|DAG|INFO|Setting up. Run ID: 1589457106.347361
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:46|DAG|INFO|----------
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:46|DAG|INFO|DAG Setup: done.
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:46|Run|0%|INFO|----------
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:46|Run|0%|INFO|Running. Run ID: 1589457106.347361
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:46|Run|0%|INFO|----------
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:50|Run|0%|INFO|load_data|[32mSuccess (0:00:03.755995)[0m
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:50|Run|14%|INFO|dim_fighters|[32mSuccess (0:00:00.006168)[0m
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:50|Run|29%|INFO|dim_arenas|[32mSuccess (0:00:00.005306)[0m
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:50|Run|43%|INFO|dim_tournaments|[32mSuccess (0:00:00.004788)[0m
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:50|Run|57%|INFO|f_battles|[32mSuccess (0:00:00.014357)[0m
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:50|Run|71%|INFO|f_fighter_results|[32mSuccess (0:00:00.018329)[0m
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:50|Run|86%|INFO|ranking|[32mSuccess (0:00:00.005589)[0m
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:50|Summary|INFO|----------
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:50|Summary|INFO|Stats for Run ID: 1589457106.347361
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:50|Summary|INFO|----------
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:50|Summary|INFO|[32mProcess finished. Total tasks: 7. Success: 7. Failed 0. Skipped 0.[0m
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:50|Summary|INFO|[32mThe following tasks succeded: load_data, dim_fighters, dim_arenas, dim_tournaments, f_battles, f_fighter_results, ranking[0m
+1589457106.345993|sayn_project_base_bis|2020-05-14 11:51:50|Summary|INFO|Run took 0:00:04.190080
+1589457313.516267|sayn_project_base_bis|2020-05-14 11:55:13|DAG|INFO|----------
+1589457313.516267|sayn_project_base_bis|2020-05-14 11:55:13|DAG|INFO|Setting up. Run ID: 1589457313.518272
+1589457313.516267|sayn_project_base_bis|2020-05-14 11:55:13|DAG|INFO|----------
+1589457313.516267|sayn_project_base_bis|2020-05-14 11:55:13|DAG|INFO|DAG Setup: done.
+1589457313.516267|sayn_project_base_bis|2020-05-14 11:55:13|Run|0%|INFO|----------
+1589457313.516267|sayn_project_base_bis|2020-05-14 11:55:13|Run|0%|INFO|Running. Run ID: 1589457313.518272
+1589457313.516267|sayn_project_base_bis|2020-05-14 11:55:13|Run|0%|INFO|----------
+1589457313.516267|sayn_project_base_bis|2020-05-14 11:55:13|Run|0%|INFO|f_rankings|[32mSuccess (0:00:00.009310)[0m
+1589457313.516267|sayn_project_base_bis|2020-05-14 11:55:13|Summary|INFO|----------
+1589457313.516267|sayn_project_base_bis|2020-05-14 11:55:13|Summary|INFO|Stats for Run ID: 1589457313.518272
+1589457313.516267|sayn_project_base_bis|2020-05-14 11:55:13|Summary|INFO|----------
+1589457313.516267|sayn_project_base_bis|2020-05-14 11:55:13|Summary|INFO|[32mProcess finished. Total tasks: 1. Success: 1. Failed 0. Skipped 0.[0m
+1589457313.516267|sayn_project_base_bis|2020-05-14 11:55:13|Summary|INFO|[32mThe following tasks succeded: f_rankings[0m
+1589457313.516267|sayn_project_base_bis|2020-05-14 11:55:13|Summary|INFO|Run took 0:00:00.335302
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:33|DAG|INFO|----------
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:33|DAG|INFO|Setting up. Run ID: 1589457333.193318
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:33|DAG|INFO|----------
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:33|DAG|INFO|DAG Setup: done.
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:33|Run|0%|INFO|----------
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:33|Run|0%|INFO|Running. Run ID: 1589457333.193318
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:33|Run|0%|INFO|----------
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:37|Run|0%|INFO|load_data|[32mSuccess (0:00:03.844416)[0m
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:37|Run|14%|INFO|dim_arenas|[32mSuccess (0:00:00.003835)[0m
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:37|Run|29%|INFO|dim_tournaments|[32mSuccess (0:00:00.005934)[0m
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:37|Run|43%|INFO|dim_fighters|[32mSuccess (0:00:00.004620)[0m
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:37|Run|57%|INFO|f_battles|[32mSuccess (0:00:00.026181)[0m
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:37|Run|71%|INFO|f_fighter_results|[32mSuccess (0:00:00.028890)[0m
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:37|Run|86%|INFO|f_rankings|[32mSuccess (0:00:00.003564)[0m
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:37|Summary|INFO|----------
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:37|Summary|INFO|Stats for Run ID: 1589457333.193318
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:37|Summary|INFO|----------
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:37|Summary|INFO|[32mProcess finished. Total tasks: 7. Success: 7. Failed 0. Skipped 0.[0m
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:37|Summary|INFO|[32mThe following tasks succeded: load_data, dim_arenas, dim_tournaments, dim_fighters, f_battles, f_fighter_results, f_rankings[0m
+1589457333.192349|sayn_project_base_bis|2020-05-14 11:55:37|Summary|INFO|Run took 0:00:04.261118
+1590158024.496093|sayn_project_base_bis|2020-05-22 14:33:44|ERROR|No project.yaml found
+NoneType: None
+1590158024.496093|sayn_project_base_bis|2020-05-22 14:33:44|ERROR|Error detected in configuration
+1590158282.771729|sayn_project_base_bis|2020-05-22 14:38:02|ERROR|Error reading project.yaml
+1590158282.771729|sayn_project_base_bis|2020-05-22 14:38:02|ERROR|while parsing a mapping
+  in "<unicode string>", line 55, column 1:
+    groups:
+    ^ (line: 55)
+unexpected key not in schema 'groups'
+  in "<unicode string>", line 101, column 1:
+      #you also need to define the c ... 
+    ^ (line: 101)
+1590158282.771729|sayn_project_base_bis|2020-05-22 14:38:02|ERROR|Error detected in configuration
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|DAG|INFO|----------
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|DAG|INFO|Setting up. Run ID: 1590158318.211342
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|DAG|INFO|----------
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|DAG|ERROR|load_data|No task class "LoadData" found in "python/__init__.py"
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|DAG|ERROR|dim_tournaments|Optional property "schema" must be a string
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|DAG|ERROR|dim_arenas|Optional property "schema" must be a string
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|DAG|ERROR|dim_fighters|Optional property "schema" must be a string
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|DAG|ERROR|f_battles|Optional property "schema" must be a string
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|DAG|ERROR|f_fighter_results|Optional property "schema" must be a string
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|DAG|ERROR|f_rankings|Optional property "schema" must be a string
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|DAG|INFO|DAG Setup: done.
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|Run|0%|INFO|----------
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|Run|0%|INFO|Running. Run ID: 1590158318.211342
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|Run|0%|INFO|----------
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|Run|0%|ERROR|load_data|Task failed during setup. Skipping...
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|Run|14%|ERROR|dim_tournaments|Task failed during setup. Skipping...
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|Run|29%|ERROR|dim_arenas|Task failed during setup. Skipping...
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|Run|43%|ERROR|dim_fighters|Task failed during setup. Skipping...
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|Run|57%|ERROR|f_battles|Task failed during setup. Skipping...
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|Run|71%|ERROR|f_fighter_results|Task failed during setup. Skipping...
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|Run|86%|ERROR|f_rankings|Task failed during setup. Skipping...
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|Summary|INFO|----------
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|Summary|INFO|Stats for Run ID: 1590158318.211342
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|Summary|INFO|----------
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|Summary|ERROR|Process finished. Total tasks: 7. Success: 0. Failed 7. Skipped 0.
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|Summary|ERROR|The following tasks failed: load_data, dim_tournaments, dim_arenas, dim_fighters, f_battles, f_fighter_results, f_rankings
+1590158318.20998|sayn_project_base_bis|2020-05-22 14:38:38|Summary|INFO|Run took 0:00:00.231509
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:18|DAG|INFO|----------
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:18|DAG|INFO|Setting up. Run ID: 1590158357.972217
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:18|DAG|INFO|----------
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:18|DAG|ERROR|dim_arenas|Optional property "schema" must be a string
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:18|DAG|ERROR|dim_tournaments|Optional property "schema" must be a string
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:18|DAG|ERROR|dim_fighters|Optional property "schema" must be a string
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:18|DAG|ERROR|f_battles|Optional property "schema" must be a string
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:18|DAG|ERROR|f_fighter_results|Optional property "schema" must be a string
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:18|DAG|ERROR|f_rankings|Optional property "schema" must be a string
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:18|DAG|INFO|DAG Setup: done.
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:18|Run|0%|INFO|----------
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:18|Run|0%|INFO|Running. Run ID: 1590158357.972217
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:18|Run|0%|INFO|----------
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:22|Run|0%|ERROR|load_data|'LoadData' object has no attribute 'finished'
+Traceback (most recent call last):
+  File "/Users/robinwatteaux/venvs/173_sayn_dev/lib/python3.7/site-packages/sayn/dag.py", line 170, in _run_task
+    status = task.run()
+  File "python/load_data.py", line 143, in run
+    return self.finished()
+AttributeError: 'LoadData' object has no attribute 'finished'
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:22|Run|0%|ERROR|load_data|Finished in an unknown state (0:00:04.230725)
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:22|Run|14%|ERROR|dim_arenas|Task failed during setup. Skipping...
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:22|Run|29%|ERROR|dim_tournaments|Task failed during setup. Skipping...
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:22|Run|43%|ERROR|dim_fighters|Task failed during setup. Skipping...
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:22|Run|57%|ERROR|f_battles|Task failed during setup. Skipping...
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:22|Run|71%|ERROR|f_fighter_results|Task failed during setup. Skipping...
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:22|Run|86%|ERROR|f_rankings|Task failed during setup. Skipping...
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:22|Summary|INFO|----------
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:22|Summary|INFO|Stats for Run ID: 1590158357.972217
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:22|Summary|INFO|----------
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:22|Summary|ERROR|Process finished. Total tasks: 7. Success: 0. Failed 7. Skipped 0.
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:22|Summary|ERROR|The following tasks failed: load_data, dim_arenas, dim_tournaments, dim_fighters, f_battles, f_fighter_results, f_rankings
+1590158357.970856|sayn_project_base_bis|2020-05-22 14:39:22|Summary|INFO|Run took 0:00:04.364429
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:08|DAG|INFO|----------
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:08|DAG|INFO|Setting up. Run ID: 1590158407.968477
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:08|DAG|INFO|----------
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:08|DAG|ERROR|dim_tournaments|Optional property "schema" must be a string
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:08|DAG|ERROR|dim_fighters|Destination requires "table" field. Optional fields: tmp_schema and schema.
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:08|DAG|ERROR|dim_arenas|Destination requires "table" field. Optional fields: tmp_schema and schema.
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:08|DAG|ERROR|f_battles|Destination requires "table" field. Optional fields: tmp_schema and schema.
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:08|DAG|ERROR|f_fighter_results|Destination requires "table" field. Optional fields: tmp_schema and schema.
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:08|DAG|ERROR|f_rankings|Destination requires "table" field. Optional fields: tmp_schema and schema.
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:08|DAG|INFO|DAG Setup: done.
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:08|Run|0%|INFO|----------
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:08|Run|0%|INFO|Running. Run ID: 1590158407.968477
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:08|Run|0%|INFO|----------
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:11|Run|0%|INFO|load_data|[32mSuccess (0:00:03.069817)[0m
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:11|Run|14%|ERROR|dim_tournaments|Task failed during setup. Skipping...
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:11|Run|29%|ERROR|dim_fighters|Task failed during setup. Skipping...
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:11|Run|43%|ERROR|dim_arenas|Task failed during setup. Skipping...
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:11|Run|57%|ERROR|f_battles|Task failed during setup. Skipping...
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:11|Run|71%|ERROR|f_fighter_results|Task failed during setup. Skipping...
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:11|Run|86%|ERROR|f_rankings|Task failed during setup. Skipping...
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:11|Summary|INFO|----------
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:11|Summary|INFO|Stats for Run ID: 1590158407.968477
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:11|Summary|INFO|----------
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:11|Summary|ERROR|Process finished. Total tasks: 7. Success: 1. Failed 6. Skipped 0.
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:11|Summary|ERROR|The following tasks succeded: load_data
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:11|Summary|ERROR|The following tasks failed: dim_tournaments, dim_fighters, dim_arenas, f_battles, f_fighter_results, f_rankings
+1590158407.967249|sayn_project_base_bis|2020-05-22 14:40:11|Summary|INFO|Run took 0:00:03.223660
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:27|DAG|INFO|----------
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:27|DAG|INFO|Setting up. Run ID: 1590158487.871081
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:27|DAG|INFO|----------
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:28|DAG|INFO|DAG Setup: done.
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:28|Run|0%|INFO|----------
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:28|Run|0%|INFO|Running. Run ID: 1590158487.871081
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:28|Run|0%|INFO|----------
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:31|Run|0%|INFO|load_data|[32mSuccess (0:00:03.674100)[0m
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:31|Run|14%|INFO|dim_tournaments|[32mSuccess (0:00:00.006149)[0m
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:31|Run|29%|INFO|dim_arenas|[32mSuccess (0:00:00.008758)[0m
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:31|Run|43%|INFO|dim_fighters|[32mSuccess (0:00:00.006448)[0m
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:31|Run|57%|INFO|f_battles|[32mSuccess (0:00:00.041541)[0m
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:31|Run|71%|INFO|f_fighter_results|[32mSuccess (0:00:00.026229)[0m
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:31|Run|86%|INFO|f_rankings|[32mSuccess (0:00:00.005387)[0m
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:31|Summary|INFO|----------
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:31|Summary|INFO|Stats for Run ID: 1590158487.871081
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:31|Summary|INFO|----------
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:31|Summary|INFO|[32mProcess finished. Total tasks: 7. Success: 7. Failed 0. Skipped 0.[0m
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:31|Summary|INFO|[32mThe following tasks succeded: load_data, dim_tournaments, dim_arenas, dim_fighters, f_battles, f_fighter_results, f_rankings[0m
+1590158487.869621|sayn_project_base_bis|2020-05-22 14:41:31|Summary|INFO|Run took 0:00:03.940091
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:42|DAG|INFO|----------
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:42|DAG|INFO|Setting up. Run ID: 1590158502.784725
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:42|DAG|INFO|----------
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:42|DAG|ERROR|dim_tournaments|Optional property "schema" must be a string
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:42|DAG|INFO|DAG Setup: done.
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:42|Run|0%|INFO|----------
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:42|Run|0%|INFO|Running. Run ID: 1590158502.784725
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:42|Run|0%|INFO|----------
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:46|Run|0%|INFO|load_data|[32mSuccess (0:00:03.613042)[0m
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:46|Run|14%|ERROR|dim_tournaments|Task failed during setup. Skipping...
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:46|Run|29%|INFO|dim_arenas|[32mSuccess (0:00:00.006344)[0m
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:46|Run|43%|INFO|dim_fighters|[32mSuccess (0:00:00.005479)[0m
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:46|Run|57%|WARNING|f_battles|SKIPPING
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:46|Run|71%|WARNING|f_fighter_results|SKIPPING
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:46|Run|86%|WARNING|f_rankings|SKIPPING
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:46|Summary|INFO|----------
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:46|Summary|INFO|Stats for Run ID: 1590158502.784725
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:46|Summary|INFO|----------
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:46|Summary|ERROR|Process finished. Total tasks: 7. Success: 3. Failed 1. Skipped 3.
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:46|Summary|ERROR|The following tasks succeded: load_data, dim_arenas, dim_fighters
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:46|Summary|ERROR|The following tasks failed: dim_tournaments
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:46|Summary|ERROR|The following tasks were skipped: f_battles, f_fighter_results, f_rankings
+1590158502.783731|sayn_project_base_bis|2020-05-22 14:41:46|Summary|INFO|Run took 0:00:03.758674
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:53|DAG|INFO|----------
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:53|DAG|INFO|Setting up. Run ID: 1590158513.030187
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:53|DAG|INFO|----------
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:53|DAG|INFO|DAG Setup: done.
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:53|Run|0%|INFO|----------
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:53|Run|0%|INFO|Running. Run ID: 1590158513.030187
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:53|Run|0%|INFO|----------
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:56|Run|0%|INFO|load_data|[32mSuccess (0:00:03.726665)[0m
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:56|Run|14%|INFO|dim_fighters|[32mSuccess (0:00:00.007122)[0m
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:56|Run|29%|INFO|dim_tournaments|[32mSuccess (0:00:00.006214)[0m
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:56|Run|43%|INFO|dim_arenas|[32mSuccess (0:00:00.007284)[0m
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:56|Run|57%|INFO|f_battles|[32mSuccess (0:00:00.016195)[0m
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:56|Run|71%|INFO|f_fighter_results|[32mSuccess (0:00:00.015282)[0m
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:56|Run|86%|INFO|f_rankings|[32mSuccess (0:00:00.003921)[0m
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:56|Summary|INFO|----------
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:56|Summary|INFO|Stats for Run ID: 1590158513.030187
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:56|Summary|INFO|----------
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:56|Summary|INFO|[32mProcess finished. Total tasks: 7. Success: 7. Failed 0. Skipped 0.[0m
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:56|Summary|INFO|[32mThe following tasks succeded: load_data, dim_fighters, dim_tournaments, dim_arenas, f_battles, f_fighter_results, f_rankings[0m
+1590158513.029227|sayn_project_base_bis|2020-05-22 14:41:56|Summary|INFO|Run took 0:00:03.921109
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:02|DAG|INFO|----------
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:02|DAG|INFO|Setting up. Run ID: 1590159242.473025
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:02|DAG|INFO|----------
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:02|DAG|INFO|DAG Setup: done.
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:02|Run|0%|INFO|----------
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:02|Run|0%|INFO|Running. Run ID: 1590159242.473025
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:02|Run|0%|INFO|----------
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:06|Run|0%|INFO|load_data|[32mSuccess (0:00:03.395670)[0m
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:06|Run|14%|INFO|dim_arenas|[32mSuccess (0:00:00.005452)[0m
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:06|Run|29%|INFO|dim_tournaments|[32mSuccess (0:00:00.004756)[0m
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:06|Run|43%|INFO|dim_fighters|[32mSuccess (0:00:00.004170)[0m
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:06|Run|57%|INFO|f_battles|[32mSuccess (0:00:00.033157)[0m
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:06|Run|71%|INFO|f_fighter_results|[32mSuccess (0:00:00.033835)[0m
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:06|Run|86%|INFO|f_rankings|[32mSuccess (0:00:00.007137)[0m
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:06|Summary|INFO|----------
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:06|Summary|INFO|Stats for Run ID: 1590159242.473025
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:06|Summary|INFO|----------
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:06|Summary|INFO|[32mProcess finished. Total tasks: 7. Success: 7. Failed 0. Skipped 0.[0m
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:06|Summary|INFO|[32mThe following tasks succeded: load_data, dim_arenas, dim_tournaments, dim_fighters, f_battles, f_fighter_results, f_rankings[0m
+1590159242.471675|sayn_project_base_bis|2020-05-22 14:54:06|Summary|INFO|Run took 0:00:03.711587

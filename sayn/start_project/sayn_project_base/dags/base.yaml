@@ -1,0 +1,87 @@
+#This turorial is composed of one main DAG
+#Please the specific DAG section of the documentation for more detail about SAYN DAGs
+#ADD LINK
+
+#DAGs define at minimum a set of tasks
+#Those are the tasks that will be run for this DAG when SAYN runs
+#To run the tutorial, run the command 'sayn run' from the root of the project folder
+tasks:
+  #python
+  #here we define a Python task. Those tasks are stored into the python folder
+  #this task loads some data into our SQLite tutorial.db
+  load_data:
+    type: python
+    class: load_data.LoadData
+
+  #autosql
+  #here we define some autosql tasks which enable to write a SELECT statement and SAYN creates the table / view automatically
+  #the sql queries for those models are stored into the sql folder
+  #please note that all tasks are defined in a 'verbose' way, SAYN enables to define tasks much more efficiently using 'presets' (see documentation for more details)
+  dim_tournaments:
+    type: autosql
+    file_name: dim_tournaments.sql
+    materialisation: table
+    destination:
+      tmp_schema: main
+      schema: main
+      table: dim_tournaments
+    parents:
+      - load_data
+
+  dim_arenas:
+    type: autosql
+    file_name: dim_arenas.sql
+    materialisation: table
+    destination:
+      tmp_schema: main
+      schema: main
+      table: dim_arenas
+    parents:
+      - load_data
+
+  dim_fighters:
+    type: autosql
+    file_name: dim_fighters.sql
+    materialisation: table
+    destination:
+      tmp_schema: main
+      schema: main
+      table: dim_fighters
+    parents:
+      - load_data
+
+  f_battles:
+    type: autosql
+    file_name: f_battles.sql
+    materialisation: table
+    destination:
+      tmp_schema: main
+      schema: main
+      table: f_battles
+    parents:
+      - load_data
+      - dim_tournaments
+      - dim_arenas
+      - dim_fighters
+
+  f_fighter_results:
+    type: autosql
+    file_name: f_fighter_results.sql
+    materialisation: table
+    destination:
+      tmp_schema: main
+      schema: main
+      table: f_fighter_results
+    parents:
+      - f_battles
+
+  f_rankings:
+    type: autosql
+    file_name: ranking.sql
+    materialisation: view
+    destination:
+      tmp_schema: main
+      schema: main
+      table: f_rankings
+    parents:
+      - f_fighter_results
