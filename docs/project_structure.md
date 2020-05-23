@@ -1,21 +1,33 @@
 # SAYN Project Structure
 
-## Initial Project Structure
+SAYN projects are structured as follows:
 
-A usual SAYN project structure will be as follows:
+```
+  project_name   
+    compile/ #only appears after first run     
+    dags/
+        dag.yaml
+    logs/ #only appears after first run
+        sayn.log
+    python/
+        __init__.py
+        task_1.py
+    sql/
+        task_2.sql
+        task_3.sql
+        task_4.sql
+    .gitignore
+    project.yaml
+    readme.md
+    settings.yaml
+```
 
-      project-name    # The name you chose.
-        compile/      # The folder where compiled SQL queries are stored.
-        logs/         # The folder where SAYN logs are stored.
-        models/       # The folder where additional models can be added.
-        python/       # The folder where Python tasks modules should be stored.
-        sql/          # The folder where SQL tasks queries should be stored.
-        models.yaml   # The backbone of a SAYN project enabling to define and orchestrate tasks.
-        settings.yaml # The settings of an individual SAYN user.
-        .gitignore    # To ignore settings.yaml and other files.
+Please see below the role of each component:
 
-The two core files of a SAYN project are `settings.yaml` (unique settings for each individual) and `models.yaml` where the tasks of the project are defined (this is shared by all users on the project).
-
-Please note that `sayn init [project-name]` initialises your SAYN project with an example and and a sample SQLite database. This is only so you can have an overview of SAYN and go through the [Tutorial](tutorial.md) and can be deleted once you start working on your own project.
-
-We will now cover the detail of both files, what they contain and what they are used for.
+* `project.yaml`: defines the core components of the SAYN project. It is **shared across all collaborators**.
+* `settings.yaml`: defines the individual user's settings. It is **unique for each collaborator and should never be pushed to git** as it contains credentials.
+* `dags`: folder where `dag` files are stored. SAYN tasks are defined in those files.
+* `python`: folder where `python` tasks are stored.
+* `sql`: folder where `sql` and `autosql` tasks are stored.
+* `logs`: folder where SAYN logs are written.
+* `compile`: folder where SQL queries are compiled before execution.

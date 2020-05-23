@@ -3,8 +3,8 @@ site_name: SAYN
 theme:
   name: material
   palette:
-    primary: teal
-    accent: teal
+    primary: blue grey
+    accent: light blue
   #logo: images/sayn_logo.png
 
 #google_analytics:
@@ -19,12 +19,15 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Getting Started: getting_started.md
-  - Tutorial: tutorial.md
+  - Tutorial:
+    - Basic: tutorials/tutorial_basic.md
+    - Intermediate: tutorials/tutorial_intermediate.md
   - Project Structure: project_structure.md
-  - Settings: settings.md
-  - Models: models.md
+  - Settings:
+    - project.yaml: settings/project_yaml.md
+    - settings.yaml: settings/settings_yaml.md
   - Commands: commands.md
+  - DAGs: dags.md
   - Tasks:
     - Overview: tasks/overview.md
     - Core Tasks:
@@ -34,6 +37,6 @@ nav:
       - copy: tasks/extensions/copy.md
       - dummy: tasks/extensions/dummy.md
       - sql: tasks/extensions/sql.md
-  - Groups: groups.md
+  - Presets: presets.md
   - Parameters: parameters.md
   - Databases: databases.md

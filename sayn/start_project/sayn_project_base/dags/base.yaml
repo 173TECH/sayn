@@ -77,7 +77,7 @@ tasks:
 
   f_rankings:
     type: autosql
-    file_name: ranking.sql
+    file_name: f_rankings.sql
     materialisation: view
     destination:
       tmp_schema: main
