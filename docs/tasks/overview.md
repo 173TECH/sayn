@@ -6,7 +6,7 @@ Tasks are the core components of your SAYN DAGs (Directed Acyclic Graph). Throug
 
 ## Defining Tasks In DAGs
 
-Tasks are defined in individual [DAGs](dags.md). Their definition is composed of several attributes.
+Tasks are defined in individual [DAGs](../dags.md). Their definition is composed of several attributes.
 
 ### `type`
 
@@ -35,7 +35,7 @@ task_2:
 
 ### `tags`
 
-Task can define a `tags` attribute - you can define as many `tags` as desired on a task. Those `tags` can be used in order to run only `tasks` which are defined with a specific tag. This is useful to group several `tasks` across multiple DAGs under one structure. Please see below how to define `tags` on a task:
+Tasks can define a `tags` attribute - you can define as many `tags` as desired on a task. Those `tags` can be used in order to run only `tasks` which are defined with a specific tag. This is useful to group several `tasks` across multiple DAGs under one structure. Please see below how to define `tags` on a task:
 
 **`dag.yaml`**
 ```yaml

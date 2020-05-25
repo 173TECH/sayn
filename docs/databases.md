@@ -2,7 +2,7 @@
 
 ## About
 
-SAYN uses `sqlalchemy` in order to manage database connections. It currently supports the following databases:
+SAYN uses [sqlalchemy](https://www.sqlalchemy.org/){target="\_blank"} in order to manage database connections. It currently supports the following databases:
 
 * Snowflake
 * Redshift

@@ -1,4 +1,10 @@
-# SAYN
+<img
+  src="https://173-static-files.s3.eu-west-2.amazonaws.com/sayn_docs/logos/sayn_logo.png"
+  alt="SAYN logo"
+  style="width: 50%; height: 50%;"
+/>
+
+#
 
 SAYN is a data-modelling and processing framework for automating Python and SQL tasks. It enables analytics teams to build robust data infrastructures in minutes.
 
