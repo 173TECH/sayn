@@ -5,7 +5,6 @@ theme:
   palette:
     primary: blue grey
     accent: light blue
-  #logo: images/sayn_logo.png
 
 #google_analytics:
 #  - UA-149287493-2
@@ -19,7 +18,7 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Tutorial:
+  - Tutorials:
     - Basic: tutorials/tutorial_basic.md
     - Intermediate: tutorials/tutorial_intermediate.md
   - Project Structure: project_structure.md
@@ -30,13 +29,11 @@ nav:
   - DAGs: dags.md
   - Tasks:
     - Overview: tasks/overview.md
-    - Core Tasks:
-      - autosql: tasks/core/autosql.md
-      - python: tasks/core/python.md
-    - Extension Tasks:
-      - copy: tasks/extensions/copy.md
-      - dummy: tasks/extensions/dummy.md
-      - sql: tasks/extensions/sql.md
+    - autosql: tasks/autosql.md
+    - python: tasks/python.md
+    - copy: tasks/copy.md
+    - dummy: tasks/dummy.md
+    - sql: tasks/sql.md
   - Presets: presets.md
   - Parameters: parameters.md
   - Databases: databases.md

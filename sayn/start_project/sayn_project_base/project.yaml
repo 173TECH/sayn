@@ -6,7 +6,7 @@
 ##############
 #this file contains the details of the SAYN project -it is shared across all project users
 #for more information about the project.yaml file, please see the specific documentation:
-#ADD LINK
+#https://173tech.github.io/sayn/settings/project_yaml/
 
 ##############
 #DEFAULT DATABASE SECTION
@@ -31,14 +31,3 @@ required_credentials:
 #refer to the dags without the .yaml extension
 dags:
   - base
-
-##############
-#PARAMETERS SECTION
-##############
-#specifies the default values of each parameter used when running SAYN
-#those values can be overriden by using profiles in the settings.yaml file
-parameters:
-  table_prefix: ''
-  schema_logs: main #this is specific to SQLite (this should be the database name which is main)
-  schema_staging: main #this is specific to SQLite (this should be the database name which is main)
-  schema_models: main #this is specific to SQLite (this should be the database name which is main)

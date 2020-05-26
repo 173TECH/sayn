@@ -1,6 +1,6 @@
-#This turorial is composed of one main DAG
+#This tutorial is composed of one main DAG
 #Please the specific DAG section of the documentation for more detail about SAYN DAGs
-#ADD LINK
+#https://173tech.github.io/sayn/dags/
 
 #DAGs define at minimum a set of tasks
 #Those are the tasks that will be run for this DAG when SAYN runs

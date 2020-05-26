@@ -50,17 +50,12 @@ task_3:
 
 Different task types have different attributes. Make sure that you check each task type's specific documentation to understand how to define it.
 
-## Core Tasks
+## Task Types
 
-Please see below the core SAYN tasks:
+Please see below the available SAYN task types:
 
-- [`autosql`](core/autosql.md): simply write a `SELECT` statement and SAYN automates the data processing (i.e. table or view creation, incremental load, etc.) for you.
-- [`python`](core/python.md): enables you to write a Python process. Can be used for a wide range of cases from data extraction to data science models - anything Python lets you do.
-
-## Extension Tasks
-
-Please see below the other tasks SAYN has available:
-
-- [`copy`](extensions/copy.md): enables to automatically copy data from one database to another.
-- [`dummy`](extensions/dummy.md): those tasks do not do anything. They can be used as connectors between tasks.
-- [`sql`](extensions/sql.md): executes any SQL statement. There can be multiple statements within the SQL file.
+- [`autosql`](autosql.md): simply write a `SELECT` statement and SAYN automates the data processing (i.e. table or view creation, incremental load, etc.) for you.
+- [`python`](python.md): enables you to write a Python process. Can be used for a wide range of cases from data extraction to data science models - anything Python lets you do.
+- [`copy`](copy.md): enables to automatically copy data from one database to another.
+- [`dummy`](dummy.md): those tasks do not do anything. They can be used as connectors between tasks.
+- [`sql`](sql.md): executes any SQL statement. There can be multiple statements within the SQL file.

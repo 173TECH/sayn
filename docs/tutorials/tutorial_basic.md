@@ -4,7 +4,7 @@
 
 This tutorial covers the basic concepts of SAYN and will get you going quickly. It uses the example project in the folder created by `sayn init` and creates a small ETL process based on synthetic data.
 
-If you have need any help or want to ask a question, please reach out to the team at <sayn@173tech.com>.
+If you need any help or want to ask a question, please reach out to the team at <sayn@173tech.com>.
 
 ## Running SAYN
 
@@ -19,12 +19,12 @@ $ sayn run
 
 Running `sayn run` will output logging on your terminal about the process being executed. This is what will happen:
 
-* SAYN will run all project tasks. Those are all in a `dag` called `base.yaml`.
+* SAYN will run all project tasks. Those are all in the DAG file `dags/base.yaml`.
 * The tasks include:
     * One `python` task which creates some logs and stores them into a `logs` table within the `tutorial.db` SQLite database.
     * Several `autosql` tasks which create data models including tables and views based on those logs.
 
-You can open `tutorial.db` and see the tables and views created by `sayn run`. You can use [DB Browser for SQLite](https://sqlitebrowser.org/dl/){target="\_blank"} in order to view the content of the database. As you can observe, that `sayn run` created a small ETL process which models battles from various tournaments.
+You can open `tutorial.db` and see the tables and views created by `sayn run`. You can use [DB Browser for SQLite](https://sqlitebrowser.org/dl/){target="\_blank"} in order to view the content of the database. As you can observe, `sayn run` created a small ETL process which models battles from various tournaments.
 
 That's it, you have made your first SAYN run! We will now explain what happens in the background.
 
@@ -60,7 +60,7 @@ Please see below the role of each component:
 
 * `project.yaml`: defines the core components of the SAYN project. It is **shared across all collaborators**.
 * `settings.yaml`: defines the individual user's settings. It is **unique for each collaborator and should never be pushed to git** as it contains credentials.
-* `dags`: folder where `dag` files are stored. SAYN tasks are defined in those files.
+* `dags`: folder where DAG files are stored. SAYN tasks are defined in those files.
 * `python`: folder where `python` tasks are stored.
 * `sql`: folder where `sql` and `autosql` tasks are stored.
 * `logs`: folder where SAYN logs are written.
@@ -83,20 +83,13 @@ required_credentials:
 
 dags:
   - base
-
-parameters:
-  table_prefix: ''
-  schema_logs: main #this is specific to SQLite (this should be the database name which is main)
-  schema_staging: main #this is specific to SQLite (this should be the database name which is main)
-  schema_models: main #this is specific to SQLite (this should be the database name which is main)
 ```
 
 The following is defined:
 
-* `default_db`: the database use at run time.
-* `required_credentials`: the required credentials to run the project. Credentials details are defined the `settings.yaml` file.
+* `default_db`: the database used at run time.
+* `required_credentials`: the required credentials to run the project. Credential details are defined in the `settings.yaml` file.
 * `dags`: the DAGs of the project (this example has only one `dag` which can be found at `dags/base.yaml`). Those DAGs contain the tasks.
-* `parameters`: those parameters are used to make the tasks dynamic. They are overwritten by `parameters` in `settings.yaml`.
 
 ### Step 2: Define your individual settings with `settings.yaml`
 
@@ -112,12 +105,6 @@ profiles:
     credentials:
       warehouse: tutorial_db
 
-    parameters:
-      table_prefix: tu_
-      schema_logs: main
-      schema_staging: main
-      schema_models: main
-
 credentials:
   tutorial_db:
     type: sqlite
@@ -127,7 +114,7 @@ credentials:
 The following is defined:
 
 * `default_profile`: the profile used by default at execution time.
-* `profiles`: the list of available profiles to the user. `credentials` and `parameters` are defined for each profile. Those `parameters` overwrite the `parameters` set in `project.yaml`.
+* `profiles`: the list of available profiles to the user. Here we include the credential details for our single profile.
 * `credentials`: the list of credentials for the user.
 
 ### Step 3: Define your DAG(s)
@@ -217,7 +204,7 @@ The following is defined:
 
 * `tasks`: the tasks of the DAG.
 
-Each task is defined by a `type` and various properties respective to its `type`. In our example, we have two task types:
+Each task is defined by a `type` and various properties respective to its `type`. In our example, we use two task types:
 
 * `python`: lets you run a Python process. The `load_data.py` is our only `python` task. It creates some synthetic logs and loads them to our `tutorial.db` database.
 * `autosql`: lets you write a `SELECT` statement and SAYN then creates the table or view automatically for you. Our example has multiple `autosql` tasks which create models based on the logs.
@@ -228,6 +215,8 @@ You can now run your SAYN project with the following commands:
 
 * `sayn run`: run the whole project
 * `sayn run -t [task_name]`: runs the specific task
+
+More options are available to run specific components of your SAYN project. All details can be found in the [Commands](../commands.md) section.
 
 ## What Next?
 

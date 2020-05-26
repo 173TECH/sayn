@@ -22,10 +22,10 @@ SAYN can be used for multiple purposes across the analytics workflow:
 
 SAYN has the following key features:
 
+* YAML based creation of DAGs (Direct Acyclic Graph). This means all analysts, including non Python proficient ones, can contribute to building ETL processes.
 * [SQL SELECT statements](https://173tech.github.io/sayn/tasks/core/autosql/): turn your queries into managed tables and views automatically.
 * [Jinja parameters](https://173tech.github.io/sayn/parameters/): switch easily between development and product environment and other tricks with Jinja templating.
 * [Python tasks](https://173tech.github.io/sayn/tasks/core/python/): use Python scripts to complement your extraction and loading layer and build data science models.
-* Create a Direct Acyclic Graph by simply declaring task dependencies.
 * Multiple [databases](https://173tech.github.io/sayn/databases/) supported.
 * and much more... See the [Documentation](https://173tech.github.io/sayn/).
 
@@ -46,7 +46,7 @@ $ cd test_sayn
 $ sayn run
 ```
 
-This is it! You completed your first SAYN run on the example project. Continue with the SAYN [Tutorial](https://173tech.github.io/sayn/tutorial/) which will give you a good overview of SAYN's true power!
+This is it! You completed your first SAYN run on the example project. Continue with the [Tutorial: Basic Usage](https://173tech.github.io/sayn/tutorials/basic_usage/) which will give you a good overview of SAYN's true power!
 
 ## Support
 
