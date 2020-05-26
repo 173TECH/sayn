@@ -6,9 +6,9 @@ theme:
     primary: blue grey
     accent: light blue
 
-#google_analytics:
-#  - UA-149287493-2
-#  - auto
+google_analytics:
+  - UA-149287493-2
+  - auto
 
 markdown_extensions:
   - attr_list
