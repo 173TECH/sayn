@@ -25,7 +25,7 @@ For the below section, we consider a project with the following setup:
 # ...
 
 parameters:
-  table_prefix: ''
+  user_prefix: ''
   schema_logs: analytics_logs
   schema_staging: analytics_staging
   schema_models: analytics_models
@@ -44,14 +44,14 @@ profiles:
   dev:
     # ...
     parameters:
-      table_prefix: 'songoku_'
-      schema_logs: analytics_logs
+      user_prefix: songoku_
+      schema_logs: analytics_adhoc
       schema_staging: analytics_adhoc
       schema_models: analytics_adhoc
   prod:
     # ...
     parameters:
-      table_prefix: ''
+      user_prefix: ''
       schema_logs: analytics_logs
       schema_staging: analytics_staging
       schema_models: analytics_models
@@ -67,9 +67,9 @@ task_autosql_param:
   type: autosql
   materialisation: table
   destination:
-    tmp_schema: {{schema_staging}}
-    schema: {{schema_models}}
-    table: {{table_prefix}}{{task.name}}
+    tmp_schema: '{{schema_staging}}'
+    schema: '{{schema_models}}'
+    table: '{{user_prefix}}{{task.name}}'
 ```
 
 *Note: the `table` setting uses `{{task.name}}`. This is because the task object is in the Jinja environment and you can therefore access any task attribute. In this case, `{{task.name}}` is `task_autosql_param`.*
@@ -110,9 +110,9 @@ presets:
     type: autosql
     materialisation: table
     destination:
-      tmp_schema: {{schema_staging}}
-      schema: {{schema_models}}
-      table: {{table_prefix}}{{task.name}}
+      tmp_schema: '{{schema_staging}}'
+      schema: '{{schema_models}}'
+      table: '{{user_prefix}}{{task.name}}'
 ```
 
 The interpretation of this preset will work as in the above section, using `parameters` from the relevant profile at execution time.
@@ -139,7 +139,7 @@ FROM analytics_adhoc.songoku_my_table AS mt
 
 ### In Python Tasks
 
-`parameters` can be accessed in `python` tasks via the SAYN API. The `parameters` are stored on `sayn_config` attribute of the `Task` object and therefore be accessed with `self.sayn_config.parameters`. For example, you could have the following `python` task code to access parameters:
+`parameters` can be accessed in `python` tasks via the SAYN API. The `parameters` are stored on the `sayn_config` attribute of the `Task` object and can therefore be accessed with `self.sayn_config.parameters`. For example, you could have the following `python` task code to access parameters:
 
 ```python
 from sayn import PythonTask
