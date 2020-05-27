@@ -19,7 +19,7 @@ dags:
   - base
 
 parameters:
-  table_prefix: ''
+  user_prefix: ''
   schema_logs: analytics_logs
   schema_staging: analytics_staging
   schema_models: analytics_models
