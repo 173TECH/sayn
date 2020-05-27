@@ -25,25 +25,30 @@ class Snowflake(Database):
         self.create_metadata()
 
     def execute(self, script):
-        with self.engine.connect().execution_options(autocommit=True) as connection:
-            connection.connection.execute_string(script)
+        conn = self.engine.connect()
+        conn.connection.execute_string(script)
+        conn.connection.close()
+        # with self.engine.connect().execution_options(autocommit=1) as connection:
+        #     connection.connection.execute_string(script)
 
-    def _get_schema(self, schema):
-        if schema is not None and "." in schema:
-            self.engine.execute(f"USE {schema.split('.')[0]}")
-            return schema.split('.')[1]
+    # def _get_schema(self, schema):
+    #     if schema is not None and "." in schema:
+    #         logging.warning('Changed DB to '+schema.split('.')[0])
+    #         self.engine.execute(f"USE {schema.split('.')[0]}")
+    #         return schema.split('.')[1]
 
-        return schema
+    #     return schema
 
-    def refresh_metadata(self, only=None, schema=None):
-        if schema is not None and "." in schema:
-            self.engine.execute(f"USE {schema.split('.')[0]}")
-        self.metadata.reflect(only=only, schema=schema, extend_existing=True)
+    # def refresh_metadata(self, only=None, schema=None):
+    #     if schema is not None and "." in schema:
+    #         logging.warning('Changed DB to '+schema.split('.')[0])
+    #         self.engine.execute(f"USE {schema.split('.')[0]}")
+    #     self.metadata.reflect(only=only, schema=schema, extend_existing=True)
 
-    def get_table(self, table, schema, columns=None, required_existing=False):
-        """Create a SQLAlchemy Table object. If columns is not None, fills up columns or checks the columns are present"""
-        schema = self._get_schema(schema)
-        return super(Snowflake, self).get_table(table, schema, columns, required_existing=required_existing)
+    # def get_table(self, table, schema, columns=None, required_existing=False):
+    #     """Create a SQLAlchemy Table object. If columns is not None, fills up columns or checks the columns are present"""
+    #     schema = self._get_schema(schema)
+    #     return super(Snowflake, self).get_table(table, schema, columns, required_existing=required_existing)
 
     def move_table(self, src_table, src_schema, dst_table, dst_schema, ddl):
         drop = (
