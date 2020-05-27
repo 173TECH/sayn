@@ -1,22 +1,22 @@
-#This tutorial is composed of one main DAG
-#Please the specific DAG section of the documentation for more detail about SAYN DAGs
-#https://173tech.github.io/sayn/dags/
+# This tutorial is composed of one DAG
+# Please see the DAG section of the documentation for more details:
+# https://173tech.github.io/sayn/dags/
 
-#DAGs define at minimum a set of tasks
-#Those are the tasks that will be run for this DAG when SAYN runs
-#To run the tutorial, run the command 'sayn run' from the root of the project folder
+# DAGs define at minimum a set of tasks
+# Those will be run for this DAG when SAYN runs
+# To run the tutorial, run the command 'sayn run' from the project folder's root
 tasks:
-  #python
-  #here we define a Python task. Those tasks are stored into the python folder
-  #this task loads some data into our SQLite tutorial.db
+  # python
+  # here we define a Python task
+  # python tasks are stored into the python folder
+  # this task loads some data into our SQLite database
   load_data:
     type: python
     class: load_data.LoadData
 
-  #autosql
-  #here we define some autosql tasks which enable to write a SELECT statement and SAYN creates the table / view automatically
-  #the sql queries for those models are stored into the sql folder
-  #please note that all tasks are defined in a 'verbose' way, SAYN enables to define tasks much more efficiently using 'presets' (see documentation for more details)
+  # autosql
+  # autosql tasks enable to write a SELECT statement and SAYN creates the table / view automatically
+  # the SQL queries for those models are stored into the sql folder
   dim_tournaments:
     type: autosql
     file_name: dim_tournaments.sql

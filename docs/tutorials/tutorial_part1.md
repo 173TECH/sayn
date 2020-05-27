@@ -1,4 +1,4 @@
-# Tutorial: Basic Usage
+# Tutorial: Part 1
 
 ## What We Will Cover
 
@@ -21,12 +21,12 @@ Running `sayn run` will output logging on your terminal about the process being 
 
 * SAYN will run all project tasks. Those are all in the DAG file `dags/base.yaml`.
 * The tasks include:
-    * One `python` task which creates some logs and stores them into a `logs` table within the `tutorial.db` SQLite database.
+    * One `python` task which creates some logs and stores them into several log tables within a `test.db` SQLite database. This database is created in your project's folder root.
     * Several `autosql` tasks which create data models including tables and views based on those logs.
 
-You can open `tutorial.db` and see the tables and views created by `sayn run`. You can use [DB Browser for SQLite](https://sqlitebrowser.org/dl/){target="\_blank"} in order to view the content of the database. As you can observe, `sayn run` created a small ETL process which models battles from various tournaments.
+You can open `test.db` and see the tables and views created by `sayn run`. You can use [DB Browser for SQLite](https://sqlitebrowser.org/dl/){target="\_blank"} in order to view the content of the database. As you can observe, `sayn run` created a small ETL process which models battles from various tournaments.
 
-That's it, you have made your first SAYN run! We will now explain what happens in the background.
+That's it, you made your first SAYN run! We will now explain what happens in the background.
 
 ## Project Overview
 
@@ -34,10 +34,10 @@ The `test_sayn` folder has the following structure:
 
 ```
   test_sayn    
-    compile/ #only appears after first run     
+    compile/ # only appears after first run     
     dags/
         base.yaml
-    logs/ #only appears after first run
+    logs/ # only appears after first run
         sayn.log
     python/
         __init__.py
@@ -53,7 +53,6 @@ The `test_sayn` folder has the following structure:
     project.yaml
     readme.md
     settings.yaml
-    tutorial.db
 ```
 
 Please see below the role of each component:
@@ -76,10 +75,10 @@ Add the `project.yaml` file at the root level of your directory. Here is the fil
 
 **`project.yaml`**
 ``` yaml
-default_db: warehouse
-
 required_credentials:
   - warehouse
+
+default_db: warehouse
 
 dags:
   - base
@@ -87,8 +86,8 @@ dags:
 
 The following is defined:
 
-* `default_db`: the database used at run time.
 * `required_credentials`: the required credentials to run the project. Credential details are defined in the `settings.yaml` file.
+* `default_db`: the database used at run time.
 * `dags`: the DAGs of the project (this example has only one `dag` which can be found at `dags/base.yaml`). Those DAGs contain the tasks.
 
 ### Step 2: Define your individual settings with `settings.yaml`
@@ -98,23 +97,29 @@ Add the `settings.yaml` file at the root level of your directory. Here is the fi
 **`settings.yaml`**
 
 ``` yaml
-default_profile: test
+default_profile: dev
 
 profiles:
-  test:
+  dev:
     credentials:
-      warehouse: tutorial_db
+      warehouse: test_db
+  prod:
+    credentials:
+      warehouse: prod_db
 
 credentials:
-  tutorial_db:
+  test_db:
     type: sqlite
-    database: tutorial.db
+    database: test.db
+  prod_db:
+    type: sqlite
+    database: prod.db
 ```
 
 The following is defined:
 
 * `default_profile`: the profile used by default at execution time.
-* `profiles`: the list of available profiles to the user. Here we include the credential details for our single profile.
+* `profiles`: the list of available profiles to the user. Here we include the credential details for a `dev` and a `prod` profile.
 * `credentials`: the list of credentials for the user.
 
 ### Step 3: Define your DAG(s)
@@ -206,21 +211,22 @@ The following is defined:
 
 Each task is defined by a `type` and various properties respective to its `type`. In our example, we use two task types:
 
-* `python`: lets you run a Python process. The `load_data.py` is our only `python` task. It creates some synthetic logs and loads them to our `tutorial.db` database.
-* `autosql`: lets you write a `SELECT` statement and SAYN then creates the table or view automatically for you. Our example has multiple `autosql` tasks which create models based on the logs.
+* `python`: lets you run a Python process. The `load_data.py` is our only `python` task. It creates some synthetic logs and loads them to our `test.db` database. For more information about how to build `python` tasks, visit the [Python section](../tasks/python.md)
+* `autosql`: lets you write a `SELECT` statement and SAYN then creates the table or view automatically for you. Our example has multiple `autosql` tasks which create models based on the logs. For more information about setting up `autosql` tasks, visit the [autosql section](../tasks/autosql.md).
 
 ## Running Your Project
 
 You can now run your SAYN project with the following commands:
 
 * `sayn run`: run the whole project
+* `sayn run -p [profile_name]`: runs the whole project with the specific profile. In our case using the profile `prod` will create a `prod.db` SQLite database and process all data there.
 * `sayn run -t [task_name]`: runs the specific task
 
 More options are available to run specific components of your SAYN project. All details can be found in the [Commands](../commands.md) section.
 
 ## What Next?
 
-This is it, you should now know the basics of SAYN, congratulations! You can continue learning by going through the [Tutorial: Intermediate Usage](link) which shows you several tricks to make your SAYN project more dynamic and efficient.
+You now know the basics of SAYN, congratulations! You can continue learning by going through the [Tutorial: Part 2](tutorial_part2.md) which shows you several tricks to make your SAYN project more dynamic and efficient.
 
 Otherwise, you can go through the rest of the documentation as SAYN has much more to offer!
 

@@ -1,5 +1,5 @@
 SELECT fr.fighter_name
-     , CAST(SUM(fr.is_winner) AS FLOAT) / COUNT(DISTINCT fr.battle_id) win_rate
+     , CAST(SUM(fr.is_winner) AS FLOAT) / COUNT(DISTINCT fr.battle_id) AS win_rate
 
 FROM f_fighter_results fr
 

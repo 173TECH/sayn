@@ -18,9 +18,9 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Tutorials:
-    - Basic: tutorials/tutorial_basic.md
-    - Intermediate: tutorials/tutorial_intermediate.md
+  - Tutorial:
+    - Tutorial (Part 1): tutorials/tutorial_part1.md
+    - Tutorial (Part 2): tutorials/tutorial_part2.md
   - Project Structure: project_structure.md
   - Settings:
     - project.yaml: settings/project_yaml.md
@@ -36,4 +36,10 @@ nav:
     - sql: tasks/sql.md
   - Presets: presets.md
   - Parameters: parameters.md
-  - Databases: databases.md
+  - Databases:
+    - Overview: databases/overview.md
+    - MySQL: databases/mysql.md
+    - PostgreSQL: databases/postgresql.md
+    - Redshift: databases/redshift.md
+    - Snowflake: databases/snowflake.md
+    - SQLite: databases/sqlite.md

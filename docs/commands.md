@@ -15,24 +15,35 @@ Initialises a SAYN project in the current working directory.
 Runs the whole SAYN project. This command has the following optional flags which can be cumulated as desired:
 
 * `-t`: run specific tasks.
+* `-x`: exclude specific tasks.
 * `-p`: select profile to use for run.
 * `-f`: do a full load. Mostly useful on incremental tasks to refresh the whole table.
 * `-s`: start date for incremental loads.
 * `-e`: end date for incremental loads.
 * `-d`: display logs from `DEBUG` level.
 
-### `sayn run -t`
+#### `sayn run -t`
 
-Runs the task named `task_name`. In addition, SAYN enables you to run specific tasks in various useful ways:
+You can run specific tasks with the following commands:
 
+* `sayn run -t task_name`: run `task_name`
 * `sayn run -t +task_name`: run `task_name` and all its parents.
 * `sayn run -t task_name+`: run `task_name` and all its children.
 * `sayn run -t dag:dag_name`: run all tasks from the dag `dag_name`.
 * `sayn run -t tag:tag_name` run all tasks with tagged with `tag_name`.
 
-### `sayn run -p`
+#### `sayn run -x`
 
-Runs SAYN using the `prod` profile.
+You can exclude specific tasks from a run with the `-x` flag. It can be used as follows:
+
+* `sayn run -x task_name`: run all tasks except `task_name`.
+* `sayn run -t dag:marketing -x task_name`: run all tasks in the `marketing` DAG except `task_name`.
+
+#### `sayn run -p`
+
+Runs SAYN using a specific profile. It is used with the same logic than for the `-t` flag. Please see below some examples:
+
+* `sayn run -p profile_name`: runs SAYN using the settings of `profile_name`.
 
 ### `sayn compile`
 

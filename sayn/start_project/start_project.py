@@ -11,6 +11,11 @@ def sayn_init(sayn_project_name):
     logging.info('Creating SAYN base project at the following location: {dst}...'.format(dst=dst))
     try:
         shutil.copytree(src, dst)
+
+        # rename the sample_settings.yaml to settings.yaml
+        os.rename(Path(dst, 'sample_settings.yaml').absolute(), Path(dst, 'settings.yaml').absolute())
+
         logging.info('SAYN base project created.')
+        logging.info('For more information about SAYN visit our documentation: https://173tech.github.io/sayn/')
     except OSError as e:
         print(e)
