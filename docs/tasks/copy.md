@@ -2,7 +2,7 @@
 
 ## About
 
-The `copy` task automatically copies data from one database to another. It can be used to automatically ingest data from operational databases (e.g. PostgreSQL, MySQL, etc.) to your analytics warehouse.
+The `copy` task automatically copies data from one database to another. It can be used to automatically ingest data from operational databases (e.g. PostgreSQL) to your analytics warehouse.
 
 ## Defining `copy` Tasks In `models.yaml`
 
@@ -11,12 +11,12 @@ A `copy` task is defined as follows:
 ```yaml
 task_copy:
   type: copy
-  from:
+  source:
     db: from_db
     schema: from_schema
     table: from_table
-  to:
-    staging_schema: staging_schema
+  destination:
+    tmp_schema: staging_schema
     schema: schema
     table: table_name
   ddl:
@@ -28,12 +28,12 @@ task_copy:
 
 `copy` tasks have the following parameters that need to be set:
 
-* `from`: the source details
+* `source`: the source details
     * `db`: the source database, this should be part of the `required_credentials` in `models.yaml`
     * `schema`: the source schema.
     * `table`: the source table.
-* `to`: the destination details. The destination database is the `default_db` set in `models.yaml`.
-    * `staging_schema`: the staging schema used in the process of copying data.
+* `destination`: the destination details. The destination database is the `default_db` set in `models.yaml`.
+    * `tmp_schema`: the staging schema used in the process of copying data.
     * `schema`: the destination schema.
     * `table`: the destination schema.
 * `ddl`: setting the DDL of the process

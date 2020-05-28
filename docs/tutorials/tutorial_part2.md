@@ -181,19 +181,19 @@ SELECT t.tournament_name
 
 FROM battles b
 
-LEFT JOIN dim_tournaments t
+LEFT JOIN {{user_prefix}}dim_tournaments t
   ON b.tournament_id = t.tournament_id
 
-LEFT JOIN dim_arenas a
+LEFT JOIN {{user_prefix}}dim_arenas a
   ON b.arena_id = a.arena_id
 
-LEFT JOIN dim_fighters f1
+LEFT JOIN {{user_prefix}}dim_fighters f1
   ON b.fighter1_id = f1.fighter_id
 
-LEFT JOIN dim_fighters f2
+LEFT JOIN {{user_prefix}}dim_fighters f2
   ON b.fighter2_id = f2.fighter_id
 
-LEFT JOIN dim_fighters w
+LEFT JOIN {{user_prefix}}dim_fighters w
   ON b.winner_id = w.fighter_id
 ```
 
@@ -331,6 +331,11 @@ We have made our SAYN project dynamic with `parameters` and made our tasks' defi
 
 ## What Next?
 
-This is it, you should now have a good understanding of the core ways of using SAYN. In order to learn more about specific features, have a look at the specific sections of the documentation.
+This is it, you should now have a good understanding of the core ways of using SAYN. You can play further with this project and easily transfer it to a PostgreSQL database for example by:
+
+* changing the credentials in `settings.yaml`.
+* setting the `tmp_schema` and `schema` attributes of your `modelling` preset to `public`.
+
+Otherwise, you can learn more about the specific SAYN features by having a look at the specific sections of the documentation.
 
 Enjoy SAYN :)
