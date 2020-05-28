@@ -56,7 +56,7 @@ As you can observe, writing a `python` task requires the following:
 * define the class you want the task to run. The task should inherit from `PythonTask`.
 * the class you define can overwrite the following methods (those methods need to follow a specific signature and **you should only pass `self` as argument**):
     * `setup`: runs when setting up the task. It should return `self.failed()` if an error has occurred otherwise `self.ready()`.
-    * `compile`: runs when compiling the task. It should return `self.failed()` if an error has occurred otherwise `self.finished()`.
+    * `compile`: runs when compiling the task. It should return `self.failed()` if an error has occurred otherwise `self.success()`.
     * `run`: runs when executing the task. It should return `self.failed()` if an error has occurred otherwise `self.success()`.
 
 ### Using the SAYN API
@@ -65,7 +65,8 @@ In order, to make your `python` tasks dynamic based on project settings and prof
 
 - `self.sayn_config.parameters`: accesses project config parameters (`project.yaml`, `settings.yaml`). For more details on `parameters`, see the [Parameters](../../parameters.md) section.
 - `self.parameters`: accesses the task's parameters.
-- `self.sayn_config.credentials`: accesses the credentials available for the profile used at run time.
+- `self.sayn_config.api_credentials`: dictionary containing the API credentials available for the profile used at run time.
+- `self.sayn_config.dbs`: dictionary containing database objects specified in the profile used at run time.
 - `self.default_db`: accesses the `default_db` specified in the `project.yaml` file.
 
 Using those parameters is extremely useful in order to tailor your `python` tasks' code in order to separate between development and production environments.

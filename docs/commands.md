@@ -51,4 +51,4 @@ Compiles the SAYN code that would be executed. The same optional flags than for 
 
 ### `dag-image`
 
-Generates a visualisation of the whole SAYN process. This requires `graphviz` (both the software and the Python package).
+Generates a visualisation of the whole SAYN process. This requires `graphviz` - both the [software](https://www.graphviz.org/download/){target="\_blank"} and the [Python package](https://pypi.org/project/graphviz/){target="\_blank"}.

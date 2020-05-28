@@ -21,3 +21,5 @@ credentials:
 
 # ...
 ```
+
+The `connect_args` need to match the [sqlalchemy create_engine connect_args](https://www.psycopg.org/docs/module.html#psycopg2.connect).

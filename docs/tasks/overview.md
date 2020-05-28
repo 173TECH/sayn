@@ -18,7 +18,7 @@ task_1:
   type: sql
   file_name: task_1.sql
 ```
-Please see the `Core Tasks` and `Extension Tasks` sections on this page for the list of all task types.
+Please see the `Task Types` sections on this page for the list of all task types.
 
 ### `parents`
 
@@ -33,13 +33,41 @@ task_2:
     - task_1
 ```
 
+### `parameters`
+
+Enables to set some `parameters` at the task level. Those can then be accessed in the task. This is defined as follows:
+
+**`dag.yaml`**
+```yaml
+task_3:
+  type: sql
+  file_name: task_3.sql
+  parameters:
+    field_select: 'a, b, c'
+```
+
+For more details on `parameters`, please see the [Parameters](../parameters.md) section.
+
+### `presets`
+
+`presets` enable you to define some standard tasks. Other tasks can then inherit attributes from the pre-defined `presets`. This is defined as follows:
+
+**`dag.yaml`**
+```yaml
+task_4:
+  #this task would inherit everything from the modelling preset
+  preset: modelling
+```
+
+For more details on `presets`, please see the [Presets](../presets.md) section.
+
 ### `tags`
 
 Tasks can define a `tags` attribute - you can define as many `tags` as desired on a task. Those `tags` can be used in order to run only `tasks` which are defined with a specific tag. This is useful to group several `tasks` across multiple DAGs under one structure. Please see below how to define `tags` on a task:
 
 **`dag.yaml`**
 ```yaml
-task_3:
+task_5:
   type: python
   class: my_module.MyClass
   tags:

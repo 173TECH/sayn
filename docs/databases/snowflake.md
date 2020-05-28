@@ -24,6 +24,8 @@ credentials:
 # ...
 ```
 
+The `connect_args` need to match the [sqlalchemy create_engine connect_args](https://docs.snowflake.com/en/user-guide/python-connector-example.html#connecting-to-snowflake).
+
 ## Additional Notes
 
 ### Autocommit

@@ -4,15 +4,18 @@
 
 SAYN uses [sqlalchemy](https://www.sqlalchemy.org/){target="\_blank"} in order to manage database connections. It currently supports the following databases:
 
-* [MySQL](mysql.md)
 * [PostgreSQL](postgresql.md)
-* [Redshift](redshift.md)
 * [Snowflake](snowflake.md)
 * [SQLite](sqlite.md)
 
 ## Usage
 
-In order to connect to databases, the connection credentials need to be added into the `credentials` sections of the `settings.yaml` file. Please see below examples for how to add `credentials` of each database type:
+In order to connect to databases, the connection credentials need to be added into the `credentials` sections of the `settings.yaml` file. Database credentials need to specify two key attributes:
+
+* `type`: the connection type. This needs to be one of the supported databases.
+* `connect_args`: the connection arguments. Because SAYN uses sqlalchemy, those `connect_args` match the `connect_args` from the sqlachemy `create_engine` method.
+
+Please see the database specific pages to see credential examples for each database.
 
 ## SAYN Database API
 

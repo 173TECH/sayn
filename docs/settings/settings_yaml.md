@@ -35,23 +35,25 @@ profiles:
 credentials:
   snowflake-songoku:
     type: snowflake
-    account: [snowflake-account]
-    user: [user-name]
-    password: '[password]'
-    database: [database]
-    schema: [schema]
-    warehouse: [warehouse]
-    role: [role]
+    connect_args:
+      account: [snowflake-account]
+      user: [user-name]
+      password: '[password]'
+      database: [database]
+      schema: [schema]
+      warehouse: [warehouse]
+      role: [role]
 
   snowflake-prod:
     type: snowflake
-    account: [snowflake-account]
-    user: [user-name]
-    password: '[password]'
-    database: [database]
-    schema: [schema]
-    warehouse: [warehouse]
-    role: [role]
+    connect_args:
+      account: [snowflake-account]
+      user: [user-name]
+      password: '[password]'
+      database: [database]
+      schema: [schema]
+      warehouse: [warehouse]
+      role: [role]
 ```
 
 The `settings.yaml` file requires the following to be defined:

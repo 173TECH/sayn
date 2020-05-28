@@ -30,30 +30,6 @@ An `autosql` task is defined by the following attributes:
     * `table`: is the name of the object that will be created.
 * `delete_key`: specifies the incremental process delete key. This is for `incremental` `materialisation` only.
 
-## Controlling DDLs
-
-If desired, you can control the DDL of the SQL process by using the `ddl` parameter as follows:
-
-```yaml
-task_autosql:
-  type: autosql
-  file_name: task_autosql.sql
-  materialisation: table
-  destination:
-    tmp_schema: analytics_staging
-    schema: analytics_models
-    table: task_autosql
-  ddl:
-    #details
-```
-
-Here are the lists of available `ddl` options:
-
-* `permissions`: automatically grants permissions on the created object to specified roles and users.
-* `primary_key`: sets the primary key on the table.
-* `indexes`: sets an index on the table.
-* `columns`: enables to specify the column types.
-
 ## Using `autosql` In `incremental` Mode
 
 If you do not want to have a full refresh of your tables, you can use the `autosql` task with `incremental` `materialisation`. This is extremely useful for large data volumes when full refresh would be too long.
@@ -62,11 +38,11 @@ SAYN `autosql` tasks with `incremental` materialisation require a `delete_key` t
 
 ```yaml
 task_autosql_incremental:
-  file_name: task_autosql_incremental.sql
   type: autosql
+  file_name: task_autosql_incremental.sql
   materialisation: incremental
-  to:
-    staging_schema: analytics_staging
+  destination:
+    tmp_schema: analytics_staging
     schema: analytics_models
     table: task_autosql
   delete_key:
