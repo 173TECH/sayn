@@ -186,7 +186,7 @@ class Database:
             f"DROP TABLE IF EXISTS {dst_schema+'.' if dst_schema else ''}{dst_table};"
         )
         rename = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{src_table} RENAME TO {dst_table};"
-        if dst_schema is not None:
+        if dst_schema is not None and dst_schema != src_schema:
             change_schema = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{dst_table} SET SCHEMA {dst_schema};"
         else:
             change_schema = ""
