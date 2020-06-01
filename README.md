@@ -46,7 +46,7 @@ $ cd test_sayn
 $ sayn run
 ```
 
-This is it! You completed your first SAYN run on the example project. Continue with the [Tutorial: Basic Usage](https://173tech.github.io/sayn/tutorials/basic_usage/) which will give you a good overview of SAYN's true power!
+This is it! You completed your first SAYN run on the example project. Continue with the [Tutorial: Part 1](https://173tech.github.io/sayn/tutorials/tutorial_part1/) which will give you a good overview of SAYN's true power!
 
 ## Support
 
