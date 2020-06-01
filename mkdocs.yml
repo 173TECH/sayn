@@ -3,13 +3,12 @@ site_name: SAYN
 theme:
   name: material
   palette:
-    primary: teal
-    accent: teal
-  #logo: images/sayn_logo.png
+    primary: blue grey
+    accent: light blue
 
-#google_analytics:
-#  - UA-149287493-2
-#  - auto
+google_analytics:
+  - UA-149287493-2
+  - auto
 
 markdown_extensions:
   - attr_list
@@ -19,21 +18,28 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Getting Started: getting_started.md
-  - Tutorial: tutorial.md
+  - Tutorial:
+    - Tutorial (Part 1): tutorials/tutorial_part1.md
+    - Tutorial (Part 2): tutorials/tutorial_part2.md
   - Project Structure: project_structure.md
-  - Settings: settings.md
-  - Models: models.md
+  - Settings:
+    - project.yaml: settings/project_yaml.md
+    - settings.yaml: settings/settings_yaml.md
   - Commands: commands.md
+  - DAGs: dags.md
   - Tasks:
     - Overview: tasks/overview.md
-    - Core Tasks:
-      - autosql: tasks/core/autosql.md
-      - python: tasks/core/python.md
-    - Extension Tasks:
-      - copy: tasks/extensions/copy.md
-      - dummy: tasks/extensions/dummy.md
-      - sql: tasks/extensions/sql.md
-  - Groups: groups.md
+    - autosql: tasks/autosql.md
+    - python: tasks/python.md
+    - copy: tasks/copy.md
+    - dummy: tasks/dummy.md
+    - sql: tasks/sql.md
+  - Presets: presets.md
   - Parameters: parameters.md
-  - Databases: databases.md
+  - Databases:
+    - Overview: databases/overview.md
+    #- MySQL: databases/mysql.md
+    - PostgreSQL: databases/postgresql.md
+    #- Redshift: databases/redshift.md
+    - Snowflake: databases/snowflake.md
+    - SQLite: databases/sqlite.md

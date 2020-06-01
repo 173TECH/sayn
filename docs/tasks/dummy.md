@@ -17,11 +17,9 @@ This task does not require any other setting than its `type`.
 
 ## Usage
 
-`dummy` tasks come in useful when you have multiple tasks that depend upon a long list of similar parents. Let's consider the following setup in `models.yaml`:
+`dummy` tasks come in useful when you have multiple tasks that depend upon a long list of similar parents. Let's consider the following setup in your DAG `dag.yaml`:
 
 ```yaml
-#your models code
-
 tasks:
   #definition of task_1, task_2, task_3, task_4 ...
 
@@ -53,8 +51,6 @@ tasks:
 You can avoid repeting the `parents` across those multiple tasks using a `dummy` task to create a connector. This is how it would look like with a dummy task.
 
 ```yaml
-#your models code
-
 tasks:
   #some tasks
 

@@ -1,4 +1,10 @@
-# SAYN
+<img
+  src="https://173-static-files.s3.eu-west-2.amazonaws.com/sayn_docs/logos/sayn_logo.png"
+  alt="SAYN logo"
+  style="width: 50%; height: 50%;"
+/>
+
+#
 
 SAYN is a data-modelling and processing framework for automating Python and SQL tasks. It enables analytics teams to build robust data infrastructures in minutes.
 
@@ -8,7 +14,7 @@ SAYN is a data-modelling and processing framework for automating Python and SQL 
 
 SAYN can be used for multiple purposes across the analytics workflow:
 
-* Data extraction: complement tools such as Stitch or Fivetran with customised extraction processes.
+* Data extraction: complement tools such as Fivetran or Stitch with customised extraction processes.
 * Date modelling: transform raw data in your data warehouse.
 * Date science: integrate and execute data science models.
 
@@ -16,11 +22,11 @@ SAYN can be used for multiple purposes across the analytics workflow:
 
 SAYN has the following key features:
 
-* [SQL SELECT statements](https://173tech.github.io/sayn/tasks/core/autosql/): turn your queries into managed tables and views automatically.
+* YAML based creation of [DAGs](https://173tech.github.io/sayn/dags/) (Direct Acyclic Graph). This means all analysts, including non Python proficient ones, can contribute to building ETL processes.
+* [SQL SELECT statements](https://173tech.github.io/sayn/tasks/autosql/): turn your queries into managed tables and views automatically.
 * [Jinja parameters](https://173tech.github.io/sayn/parameters/): switch easily between development and product environment and other tricks with Jinja templating.
-* [Python tasks](https://173tech.github.io/sayn/tasks/core/python/): use Python scripts to complement your extraction and loading layer and build data science models.
-* Create a Direct Acyclic Graph by simply declaring task dependencies.
-* Multiple [databases](https://173tech.github.io/sayn/databases/) supported.
+* [Python tasks](https://173tech.github.io/sayn/tasks/python/): use Python scripts to complement your extraction and loading layer and build data science models.
+* Multiple [databases](https://173tech.github.io/sayn/databases/overview/) supported.
 * and much more... See the [Documentation](https://173tech.github.io/sayn/).
 
 ## Design Principles
@@ -40,7 +46,7 @@ $ cd test_sayn
 $ sayn run
 ```
 
-This is it! You completed your first SAYN run on the example project. Continue with the SAYN [Tutorial](https://173tech.github.io/sayn/tutorial/) which will give you a good overview of SAYN's true power!
+This is it! You completed your first SAYN run on the example project. Continue with the [Tutorial: Basic Usage](https://173tech.github.io/sayn/tutorials/basic_usage/) which will give you a good overview of SAYN's true power!
 
 ## Support
 
