@@ -39,21 +39,23 @@ def create_python(name, task):
     if len(module_str) > 0:
         try:
             task_module = importlib.import_module(f"sayn_python_tasks.{module_str}")
-        except:
-            logging.error(f'Module "{module_str}" not found in python folder')
+        except Exception as e:
+            logging.error(f'Error loading module "{module_str}"')
+            logging.error(e)
             return fail_creation(name, task)
     else:
         task_module = importlib.import_module("sayn_python_tasks")
 
     try:
         klass = getattr(task_module, class_str)
-    except:
+    except Exception as e:
         module_file_name = (
             module_str.replace(".", "/") if len(module_str) > 0 else "__init__"
         )
         logging.error(
-            f'No task class "{class_str}" found in "python/{module_file_name}.py"'
+            f'Error importing class "{class_str}" found in "python/{module_file_name}.py"'
         )
+        logging.error(e)
 
         return fail_creation(name, task)
 
