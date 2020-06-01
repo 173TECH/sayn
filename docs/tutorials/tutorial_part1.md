@@ -42,6 +42,9 @@ The `test_sayn` folder has the following structure:
     python/
         __init__.py
         load_data.py
+        utils/
+          __init__.py
+          log_creator.py
     sql/
         dim_arenas.sql
         dim_fighters.sql
@@ -211,14 +214,14 @@ The following is defined:
 
 Each task is defined by a `type` and various properties respective to its `type`. In our example, we use two task types:
 
-* `python`: lets you run a Python process. The `load_data.py` is our only `python` task. It creates some synthetic logs and loads them to our `test.db` database. For more information about how to build `python` tasks, visit the [Python section](../tasks/python.md)
+* `python`: lets you run a Python process. The `load_data.py` is our only `python` task. It creates some synthetic logs and loads them to our database. For more information about how to build `python` tasks, visit the [Python section](../tasks/python.md)
 * `autosql`: lets you write a `SELECT` statement and SAYN then creates the table or view automatically for you. Our example has multiple `autosql` tasks which create models based on the logs. For more information about setting up `autosql` tasks, visit the [autosql section](../tasks/autosql.md).
 
 ## Running Your Project
 
 You can now run your SAYN project with the following commands:
 
-* `sayn run`: run the whole project
+* `sayn run`: runs the whole project
 * `sayn run -p [profile_name]`: runs the whole project with the specific profile. In our case using the profile `prod` will create a `prod.db` SQLite database and process all data there.
 * `sayn run -t [task_name]`: runs the specific task
 

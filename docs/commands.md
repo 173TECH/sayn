@@ -12,12 +12,12 @@ Initialises a SAYN project in the current working directory.
 
 ### `sayn run`
 
-Runs the whole SAYN project. This command has the following optional flags which can be cumulated as desired:
+Runs the whole SAYN project. **This command should be run from the project's root.** It has the following optional flags which can be cumulated as desired:
 
 * `-t`: run specific tasks.
 * `-x`: exclude specific tasks.
 * `-p`: select profile to use for run.
-* `-f`: do a full load. Mostly useful on incremental tasks to refresh the whole table.
+* `-f`: do a full refresh. Mostly useful on incremental tasks to refresh the whole table.
 * `-s`: start date for incremental loads.
 * `-e`: end date for incremental loads.
 * `-d`: display logs from `DEBUG` level.
@@ -30,7 +30,7 @@ You can run specific tasks with the following commands:
 * `sayn run -t +task_name`: run `task_name` and all its parents.
 * `sayn run -t task_name+`: run `task_name` and all its children.
 * `sayn run -t dag:dag_name`: run all tasks from the dag `dag_name`.
-* `sayn run -t tag:tag_name` run all tasks with tagged with `tag_name`.
+* `sayn run -t tag:tag_name` run all tasks tagged with `tag_name`.
 
 #### `sayn run -x`
 
@@ -47,8 +47,8 @@ Runs SAYN using a specific profile. It is used with the same logic than for the 
 
 ### `sayn compile`
 
-Compiles the SAYN code that would be executed. The same optional flags than for `sayn run` apply.
+Compiles the SAYN code that would be executed. **This command should be run from the project's root.** The same optional flags than for `sayn run` apply.
 
 ### `dag-image`
 
-Generates a visualisation of the whole SAYN process. This requires `graphviz` - both the [software](https://www.graphviz.org/download/){target="\_blank"} and the [Python package](https://pypi.org/project/graphviz/){target="\_blank"}.
+Generates a visualisation of the whole SAYN process. **This command should be run from the project's root.** This requires `graphviz` - both the [software](https://www.graphviz.org/download/){target="\_blank"} and the [Python package](https://pypi.org/project/graphviz/){target="\_blank"}.

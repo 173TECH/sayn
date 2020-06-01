@@ -16,7 +16,7 @@ task_python:
 
 It is defined by the following attributes:
 
-- `type`: the task type, this needs to be one the the task types supported by SAYN.
+- `type`:`python`.
 - `class`: the import statement that should be executed to import the Python Class. Please note that Python tasks scripts should be saved in the `python` folder within the project's root.
 
 Please note that for the `python` tasks to run, you must have an `__init__.py` file into the `python` folder so it is treated as a package.
@@ -63,7 +63,7 @@ As you can observe, writing a `python` task requires the following:
 
 In order, to make your `python` tasks dynamic based on project settings and profiles, you can use the SAYN API. A lot of useful information is stored on the task in the `sayn_config` attribute:
 
-- `self.sayn_config.parameters`: accesses project config parameters (`project.yaml`, `settings.yaml`). For more details on `parameters`, see the [Parameters](../../parameters.md) section.
+- `self.sayn_config.parameters`: accesses project config parameters (`project.yaml`, `settings.yaml`). For more details on `parameters`, see the [Parameters](../parameters.md) section.
 - `self.parameters`: accesses the task's parameters.
 - `self.sayn_config.api_credentials`: dictionary containing the API credentials available for the profile used at run time.
 - `self.sayn_config.dbs`: dictionary containing database objects specified in the profile used at run time.

@@ -21,7 +21,7 @@ task_autosql:
 
 An `autosql` task is defined by the following attributes:
 
-* `type`: the task type, this needs to be one the the task types supported by SAYN.
+* `type`: `autosql`.
 * `file_name`: the name of the file **within the sql folder of the project's root**.
 * `materialisation`: this should be either `table`, `view` or `incremental`. `table` will create a table, `view` will create a view. `incremental` will create a table and will load the data incrementally based on a delete key (see more detail on `incremental` below).
 * `destination`: this sets the details of the data processing.

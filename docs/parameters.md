@@ -119,14 +119,14 @@ The interpretation of this preset will work as in the above section, using `para
 
 ### In SQL Queries
 
-For SQL related tasks (`autosql`, `sql`), `parameters` can be accessed in SQL queries with the following syntax: `{{parameter-name}}`. For example, `task_autosql_param` defined above could refer to the following query:
+For SQL related tasks (`autosql`, `sql`), `parameters` can be accessed in SQL queries with the following syntax: `{{parameter_name}}`. For example, `task_autosql_param` defined above could refer to the following query:
 
 **sql/task_autosql_param.sql**
 
 ```sql
 SELECT mt.*
 
-FROM {{schema_models}}.{{table_prefix}}my_table AS mt
+FROM {{schema_models}}.{{user_prefix}}my_table AS mt
 ```
 
 This SQL query would then be compiled with the relevant `paramaters` based on the profile of the execution. If using the `dev` profile, this would therefore be compiled as:
@@ -139,7 +139,12 @@ FROM analytics_adhoc.songoku_my_table AS mt
 
 ### In Python Tasks
 
-`parameters` can be accessed in `python` tasks via the SAYN API. The `parameters` are stored on the `sayn_config` attribute of the `Task` object and can therefore be accessed with `self.sayn_config.parameters`. For example, you could have the following `python` task code to access parameters:
+`parameters` can be accessed in `python` tasks via the SAYN API as they are stored on the Task object:
+
+* `self.sayn_config.parameters`: accesses the project `parameters` set in `project.yaml` and `settings.yaml`.
+* `self.parameters`: accesses the task's `parameters`.
+
+For example, you could have the following `python` task code to access your project parameters:
 
 ```python
 from sayn import PythonTask
@@ -164,5 +169,3 @@ class TaskPython(PythonTask):
         else:
           return self.success()
 ```
-
-In this code, the `sayn_params` variable will contain a dictionary with all `parameters` from both the project and the task itself.

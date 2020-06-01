@@ -28,6 +28,7 @@ task_copy:
 
 `copy` tasks have the following parameters that need to be set:
 
+* `type`: `copy`.
 * `source`: the source details
     * `db`: the source database, this should be part of the `required_credentials` in `models.yaml`
     * `schema`: the source schema.

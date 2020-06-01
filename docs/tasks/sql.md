@@ -16,4 +16,5 @@ task_sql:
 
 `sql` tasks only have one parameter that needs to be set:
 
-- `file_name`: the name of the file **within the `sql` folder** of the project's root. SAYN automatically looks into this folder so there is no need to prepend `sql/` to the`file_name`.
+* `type`: `sql`.
+* `file_name`: the name of the file **within the `sql` folder** of the project's root. SAYN automatically looks into this folder so there is no need to prepend `sql/` to the`file_name`.

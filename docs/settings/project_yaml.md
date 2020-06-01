@@ -33,5 +33,5 @@ The `project.yaml` file requires the following to be defined:
 
 In addition, the `project.yaml` file can define the following in order to make the SAYN project more dynamic and efficient:
 
-* `parameters`: those parameters are used to make the tasks dynamic. They are overwritten by `parameters` in `settings.yaml`. See the [Parameters](parameters.md) section for more details.
-* `presets`: defines preset task structures so task can inherit attributes from those `presets` directly. See the [Presets](presets.md) section for more details.
+* `parameters`: those parameters are used to make the tasks dynamic. They are overwritten by `parameters` in `settings.yaml`. See the [Parameters](../parameters.md) section for more details.
+* `presets`: defines preset task structures so task can inherit attributes from those `presets` directly. See the [Presets](../presets.md) section for more details.

@@ -18,7 +18,7 @@ task_1:
   type: sql
   file_name: task_1.sql
 ```
-Please see the `Task Types` sections on this page for the list of all task types.
+Please see the `Task Types` section on this page for the list of all task types.
 
 ### `parents`
 

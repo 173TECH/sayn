@@ -70,7 +70,7 @@ The `credentials` section of the `settings.yaml` file is used to store both data
 
 #### Databases
 
-SAYN supports various databases. In order to create a database credential, define the `type` as one of the supported databases (see the [Database](databases.md) section for more details) and the connection parameters relevant to the database type.
+SAYN supports various databases. In order to create a database credential, define the `type` as one of the supported databases (see the [Database](../databases/overview.md) section for more details) and the connection parameters relevant to the database type.
 
 #### APIs
 
@@ -87,4 +87,4 @@ credentials:
     api_key: 'api_key'
 ```
 
-Those API credentials can then be accessed in `python` tasks through the `task` object.
+Those API credentials can then be accessed in `python` tasks through the Task object.
