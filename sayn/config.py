@@ -83,7 +83,9 @@ class Config:
             return
 
         settings = self._read_settings(
-            profile, project["required_credentials"], list(project["parameters"].keys()),
+            profile,
+            project["required_credentials"],
+            list(project["parameters"].keys()),
         )
         if settings is None:
             return
@@ -533,9 +535,7 @@ class Config:
         tasks = dict()
 
         for dag_name, dag in dags.items():
-            presets = self._get_dag_presets(
-                dag["presets"], dag_name, global_presets
-            )
+            presets = self._get_dag_presets(dag["presets"], dag_name, global_presets)
 
             # Now process the tasks
 

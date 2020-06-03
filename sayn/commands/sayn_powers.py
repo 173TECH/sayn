@@ -1,4 +1,5 @@
 from datetime import datetime, date, timedelta
+
 import logging
 import sys
 
@@ -76,9 +77,7 @@ def init(sayn_project_name):
 @cli.command(help="Compile sql tasks.")
 @click_run_options
 def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
-    run_command(
-        "compile", debug, tasks, exclude, profile, full_load, start_dt, end_dt
-    )
+    run_command("compile", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
 
 
 @cli.command(help="Run SAYN tasks.")
