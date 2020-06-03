@@ -9,7 +9,7 @@ readme = "README.md"
 repository = "https://github.com/173TECH/sayn"
 homepage = "https://173tech.github.io/sayn"
 
-include = ["NOTICE.md", "mkdocs.yml", "docs/*", "docs/**/*"]
+include = ["CHANGELOG.md", "NOTICE.md", "mkdocs.yml", "docs/*", "docs/**/*"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
