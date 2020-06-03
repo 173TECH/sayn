@@ -11,7 +11,7 @@ If you need any help or want to ask a question, please reach out to the team at 
 Run the below in order to install SAYN and process your first SAYN run.
 
 ```bash
-$ pip install git+https://github.com/173TECH/sayn.git
+$ pip install sayn
 $ sayn init test_sayn
 $ cd test_sayn
 $ sayn run

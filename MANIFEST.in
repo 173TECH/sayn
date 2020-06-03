@@ -1,3 +1,0 @@
-graft sayn/sayn_start_project/sayn_project_base *
-graft sayn/sayn_start_project/sayn_project_base/python *
-graft sayn/sayn_start_project/sayn_project_base/sql *

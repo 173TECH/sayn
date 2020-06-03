@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "sayn"
+version = "0.2.0"
+description = "Data-modelling and processing framework for automating Python and SQL tasks"
+authors = ["Robin Watteaux <robin@173tech.com>", "Adrian Macias <adrian@173tech.com>"]
+license = "Apache-2.0"
+
+readme = "README.md"
+repository = "https://github.com/173TECH/sayn"
+homepage = "https://173tech.github.io/sayn"
+
+include = ["CHANGELOG.md", "NOTICE.md", "mkdocs.yml", "docs/*", "docs/**/*"]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+Click = "^7.0"
+coloredlogs = "^14.0"
+jinja2 = "^2.10.3"
+sqlalchemy = "^1.3.12"
+strictyaml = "^1.0.6"
+
+# DB drivers (optional)
+psycopg2 = { version = "^2.8.5", optional = true }
+snowflake-connector-python = { version = "^2.0.3", optional = true }
+snowflake-sqlalchemy = { version = "^1.1.18", optional = true }
+
+graphviz = "^0.14"
+
+[tool.poetry.extras]
+postgresql = ["psycopg2"]
+snowflake = ["snowflake-connector-python", "snowflake-sqlalchemy"]
+graphviz = ["graphviz"]
+
+
+[tool.poetry.scripts]
+sayn = "sayn.commands.sayn_powers:cli"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
