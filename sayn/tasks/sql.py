@@ -74,17 +74,19 @@ class SqlTask(Task):
             "destination", default={"tmp_schema": None, "schema": None}
         )
 
+        self.schema = destination.pop('schema', None)
+        if self.schema is not None and isinstance(self.schema, str):
+            self.schema = self.compile_property(self.schema)
+        elif self.schema is not None:
+            return self.failed('Optional property "schema" must be a string')
+
         self.tmp_schema = destination.pop('tmp_schema', None)
         if self.tmp_schema is not None and isinstance(self.tmp_schema, str):
             self.tmp_schema = self.compile_property(self.tmp_schema)
         elif self.tmp_schema is not None:
             return self.failed('Optional property "tmp_schema" must be a string')
-
-        self.schema = destination.pop('schema', None)
-        if self.schema is not None and isinstance(self.schema, str):
-            self.schema = self.compile_property(self.schema)
         else:
-            return self.failed('Optional property "schema" must be a string')
+            self.tmp_schema = self.schema
 
         if set(destination.keys()) == set(["table"]) and destination["table"] is not None:
             self.table = self.compile_property(destination.pop("table"))
