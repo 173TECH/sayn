@@ -1,6 +1,6 @@
 import logging
 
-from sqlalchemy import create_engine, MetaData, Table
+from sqlalchemy import MetaData, Table
 from sqlalchemy.sql import select, func, or_, text
 
 from . import DatabaseError
@@ -15,11 +15,11 @@ class Database:
     #   - DROP CASCADE
     #   - NO SET SCHEMA
 
-    def __init__(self, name, name_in_settings, settings):
+    def setup_db(self, name, name_in_settings, db_type, engine):
         self.name = name
         self.name_in_settings = name_in_settings
-        self.db_type = settings.pop("type")
-        self.engine = create_engine(f"{self.dialect}://", **settings)
+        self.db_type = db_type
+        self.engine = engine
         self.metadata = MetaData(self.engine)
 
     # API

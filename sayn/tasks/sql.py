@@ -74,24 +74,28 @@ class SqlTask(Task):
             "destination", default={"tmp_schema": None, "schema": None}
         )
 
-        self.schema = destination.pop('schema', None)
+        self.schema = destination.pop("schema", None)
         if self.schema is not None and isinstance(self.schema, str):
             self.schema = self.compile_property(self.schema)
         elif self.schema is not None:
             return self.failed('Optional property "schema" must be a string')
 
-        self.tmp_schema = destination.pop('tmp_schema', None)
-        if 'NO SET SCHEMA' in self.db.sql_features and self.tmp_schema is not None:
-            return self.failed(f'"tmp_schema" not supported for database of type "{self.db.type}"')
-
-        if self.tmp_schema is not None and isinstance(self.tmp_schema, str):
+        self.tmp_schema = destination.pop("tmp_schema", None)
+        if "NO SET SCHEMA" in self.db.sql_features and self.tmp_schema is not None:
+            return self.failed(
+                f'"tmp_schema" not supported for database of type "{self.db.type}"'
+            )
+        elif self.tmp_schema is not None and isinstance(self.tmp_schema, str):
             self.tmp_schema = self.compile_property(self.tmp_schema)
         elif self.tmp_schema is not None:
             return self.failed('Optional property "tmp_schema" must be a string')
         else:
             self.tmp_schema = self.schema
 
-        if set(destination.keys()) == set(["table"]) and destination["table"] is not None:
+        if (
+            set(destination.keys()) == set(["table"])
+            and destination["table"] is not None
+        ):
             self.table = self.compile_property(destination.pop("table"))
             self.tmp_table = f"sayn_tmp_{self.table}"
         else:
@@ -106,8 +110,8 @@ class SqlTask(Task):
         if ddl is not None:
             if isinstance(ddl, str):
                 # TODO external file not implemented
-                #parsed = yaml.load(self.compile_property(ddl))
-                raise ValueError('External file for ddl not implemented')
+                # parsed = yaml.load(self.compile_property(ddl))
+                raise ValueError("External file for ddl not implemented")
             else:
                 parsed = yaml.as_document(ddl)
 
