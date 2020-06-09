@@ -32,6 +32,30 @@ class AutoSqlTask(SqlTask):
 
         return self._check_extra_fields()
 
+    def _get_compiled_query(self):
+        if self.materialisation == "view":
+            compiled = self.create_query
+        elif self.materialisation == "table":
+            compiled = f"{self.create_query}\n\n-- Move table\n{self.move_query}"
+        elif not self.db.table_exists(self.table, self.schema):
+            # Incremental when table doesn't currently exists
+            compiled = f"{self.create_query}\n\n-- Move table\n{self.move_query}"
+        else:
+            compiled = f"{self.create_query}\n\n-- Merge table\n{self.merge_query}"
+
+        if self.permissions_query is not None:
+            compiled += f"\n-- Grant permissions\n{self.permissions_query}"
+
+        return compiled
+
+    def run(self):
+        self.compiled = self._get_compiled_query()
+        return super(AutoSqlTask, self).run()
+
+    def compile(self):
+        self.compiled = self._get_compiled_query()
+        return super(AutoSqlTask, self).compile()
+
     # Task property methods
 
     def _setup_materialisation(self):
@@ -57,63 +81,37 @@ class AutoSqlTask(SqlTask):
         return TaskStatus.READY
 
     def _setup_sql(self):
+        # Autosql tasks are split in 4 queries depending on the materialisation
+        # 1. Create: query to create and load data
+        self.create_query = None
+        # 2. Move: query to moves the tmp table to the target one
+        self.move_query = None
+        # 3. Merge: query to merge data into the target object
+        self.merge_query = None
+        # 4. Permissions: grants permissions if necessary
+        self.permissions_query = None
+
+        # 0. Retrieve the select statement compiled with jinja
         try:
             query = self.template.render(**self.parameters)
         except Exception as e:
             return self.failed(f"Error compiling template\n{e}")
 
-        if self.ddl.get("permissions") is not None:
-            permissions = "\n\n-- Grant permissions\n" + self.db.grant_permissions(
-                self.table, self.schema, self.ddl["permissions"]
-            )
-        else:
-            permissions = ""
-
-        if self.ddl.get("indexes") is not None:
-            indexes = self.db.create_indexes(self.tmp_table, self.tmp_schema, self.ddl)
-        else:
-            indexes = ""
-
+        # 1. Create query
         if self.materialisation == "view":
             # Views just replace the current object if it exists
-            self.compiled = (
-                self.db.create_table_select(
-                    self.table, self.schema, query, replace=True, view=True,
-                )
-                + permissions
+            self.create_query = self.db.create_table_select(
+                self.table, self.schema, query, replace=True, view=True,
             )
-            return self.ready()
-
-        # Some common statements
-        tmp_table = self.db.create_table_select(
-            self.tmp_table, self.tmp_schema, query, replace=True,
-        )
-
-        move = (
-            self.db.move_table(
-                self.tmp_table, self.tmp_schema, self.table, self.schema, self.ddl,
-            )
-            + permissions
-        )
-
-        if not self.db.table_exists(self.table, self.schema):
-            # When the table doesn't currently exists, regardless of materialisation, just create it
+        else:
+            # We always load data into a temporary table
             if self.ddl.get("columns") is not None:
                 # create table with DDL and insert the output of the select
-                create_table_ddl = (
-                    self.db.create_table_ddl(
-                        self.table,
-                        self.schema,
-                        self.ddl,
-                        replace=self.sayn_config.options["full_load"],
-                    )
-                    + "\n\n"
-                    + indexes
-                    + "\n\n"
-                    + permissions
+                create_table_ddl = self.db.create_table_ddl(
+                    self.tmp_table, self.tmp_schema, self.ddl, replace=True,
                 )
                 insert = self.db.insert(self.table, self.schema, query)
-                self.compiled = (
+                create_load = (
                     f"-- Create table\n"
                     f"{create_table_ddl}\n\n"
                     f"-- Load data\n"
@@ -122,68 +120,39 @@ class AutoSqlTask(SqlTask):
 
             else:
                 # or create from the select if DDL not present
-                self.compiled = (
-                    self.db.create_table_select(
-                        self.table,
-                        self.schema,
-                        query,
-                        replace=self.sayn_config.options["full_load"],
-                    )
-                    + "\n\n"
-                    + indexes
-                    + "\n\n"
-                    + permissions
+                create_load = self.db.create_table_select(
+                    self.tmp_table, self.tmp_schema, query, replace=True,
                 )
 
-        # If the table exists and there's DDL defined, ...
-        elif (
-            self.materialisation == "table"
-            and self.ddl is not None
-            and "columns" in self.ddl
-        ):
-            # ... when it's a TABLE materialisation: create, load and replace table with temporary
-            create_tmp_ddl = self.db.create_table_ddl(
-                self.tmp_table, self.tmp_schema, self.ddl, replace=True,
-            )
-            insert_tmp = self.db.insert(self.tmp_table, self.tmp_schema, query)
-            self.compiled = (
-                f"-- Create temporary table\n"
-                f"{create_tmp_ddl}\n\n"
-                f"-- Load data\n"
-                f"{insert_tmp}\n\n"
-                f"-- Move data to final table\n"
-                f"{move}"
-            )
+            # Add indexes if necessary
+            if self.ddl.get("indexes") is not None:
+                indexes = "\n-- Create indexes\n" + self.db.create_indexes(
+                    self.tmp_table, self.tmp_schema, self.ddl
+                )
+            else:
+                indexes = ""
 
-        elif self.materialisation == "table" and (
-            self.ddl is None or "columns" not in self.ddl
-        ):
-            # ... when it exists and it's a TABLE materialisation, create in temp and move
-            self.compiled = (
-                f"-- Create temporary table\n"
-                f"{tmp_table}\n\n"
-                f"-- Move data to final table\n"
-                f"{move}"
-            )
+            self.create_query = create_load + "\n" + indexes
 
-        elif self.materialisation == "incremental":
-            # ... whether there's DDL or not, ...
-            # ... when it's a INCREMENTAL materialisation: MERGE instead of load
-            merge = self.db.merge_tables(
+        # 2. Move
+        self.move_query = self.db.move_table(
+            self.tmp_table, self.tmp_schema, self.table, self.schema, self.ddl,
+        )
+
+        # 3. Merge
+        if self.materialisation == "incremental":
+            self.merge_query = self.db.merge_tables(
                 self.tmp_table,
                 self.tmp_schema,
                 self.table,
                 self.schema,
                 self.delete_key,
             )
-            self.compiled = (
-                f"-- Create temporary table\n"
-                f"{tmp_table}\n\n"
-                f"-- Move data to final table\n"
-                f"{merge}\n\n"
-            )
 
-        else:
-            raise ValueError("SAYN issue")
+        # Permissions are always the same
+        if self.ddl.get("permissions") is not None:
+            self.permissions_query = self.db.grant_permissions(
+                self.table, self.schema, self.ddl["permissions"]
+            )
 
         return TaskStatus.READY

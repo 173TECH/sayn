@@ -1,9 +1,9 @@
-from .postgresql import Postgresql
+from .postgresql import Database
 
 
-class Redshift(Postgresql): pass
-#     def __init__(self, name, name_in_settings, settings):
-#         # self.dialect = "postgresql"
-#         # connection_details = settings
-#         # connection_details.pop("type")
-#         super().__init__(name, name_in_settings, connection_details)
+class Redshift(Database):
+    sql_features = ["DROP CASCADE", "NO SET SCHEMA"]
+
+    def __init__(self, name, name_in_settings, settings):
+        self.dialect = "postgresql"
+        super().__init__(name, name_in_settings, settings)

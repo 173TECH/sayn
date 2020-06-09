@@ -8,12 +8,18 @@ from ..utils import yaml
 
 
 class Database:
-    sql_features = ["DROP IF EXISTS", "CREATE IF NOT EXISTS"]
+    sql_features = []
+    # Supported sql_features
+    #   - CREATE IF NOT EXISTS
+    #   - CREATE TABLE NO BRACKETS
+    #   - DROP CASCADE
+    #   - NO SET SCHEMA
 
-    def __init__(self, name, name_in_settings, connection_details):
+    def __init__(self, name, name_in_settings, settings):
         self.name = name
         self.name_in_settings = name_in_settings
-        self.engine = create_engine(f"{self.dialect}://", **connection_details)
+        self.db_type = settings.pop("type")
+        self.engine = create_engine(f"{self.dialect}://", **settings)
         self.metadata = MetaData(self.engine)
 
     # API
@@ -128,7 +134,13 @@ class Database:
         q = ""
         if replace:
             q += self.drop_table(table_name, schema, view) + "\n"
-        q += f"CREATE {table_or_view} IF NOT EXISTS {table} AS (\n{select}\n);"
+        if_not_exists = (
+            " IF NOT EXISTS" if "CREATE IF NOT EXISTS" in self.sql_features else ""
+        )
+        if "CREATE TABLE NO BRACKETS" in self.sql_features:
+            q += f"CREATE {table_or_view}{if_not_exists} {table} AS \n{select}\n;"
+        else:
+            q += f"CREATE {table_or_view}{if_not_exists} {table} AS (\n{select}\n);"
 
         return q
 
@@ -151,7 +163,10 @@ class Database:
         q = ""
         if replace:
             q += self.drop_table(table_name, schema) + "\n"
-        q += f"CREATE TABLE IF NOT EXISTS {table} (\n      {columns}\n);\n"
+        if_not_exists = (
+            " IF NOT EXISTS" if "CREATE IF NOT EXISTS" in self.sql_features else ""
+        )
+        q += f"CREATE {table_or_view}{if_not_exists} {table} AS (\n      {columns}\n);"
 
         return q
 
@@ -174,7 +189,7 @@ class Database:
 
         q += "\n".join(
             [
-                f"CREATE INDEX IF NOT EXISTS {table_name}_{name} ON {table}({', '.join(cols)});"
+                f"CREATE INDEX {table_name}_{name} ON {table}({', '.join(cols)});"
                 for name, cols in indexes.items()
             ]
         )
@@ -196,7 +211,15 @@ class Database:
         """
         table = f"{schema+'.' if schema else ''}{table}"
         table_or_view = "VIEW" if view else "TABLE"
-        return f"DROP {table_or_view} IF EXISTS {table};"
+
+        q = f"DROP {table_or_view} IF EXISTS {table}"
+
+        if "DROP CASCADE" in self.sql_features:
+            q += " CASCADE;"
+        else:
+            q += ";"
+
+        return q
 
     def insert(self, table, schema, select):
         """Returns an INSERT statment from a SELECT
@@ -207,7 +230,7 @@ class Database:
     def move_table(self, src_table, src_schema, dst_table, dst_schema, ddl):
         """Returns SQL code to rename a table and change schema
         """
-        drop = self.drop_table(dst_table, dst_schema + "." if dst_schema else "")
+        drop = self.drop_table(dst_table, dst_schema)
         rename = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{src_table} RENAME TO {dst_table};"
         if dst_schema is not None and dst_schema != src_schema:
             change_schema = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{dst_table} SET SCHEMA {dst_schema};"
@@ -217,7 +240,7 @@ class Database:
         idx_alter = []
         if ddl.get("indexes") is not None:
             # Change index names
-            for idx in ddl.get("indexes", dict()).keys():
+            for idx in ddl["indexes"].keys():
                 if idx == "primary_key":
                     # Primary keys are called as the table
                     idx_alter.append(
@@ -243,7 +266,7 @@ class Database:
             f"                WHERE {src}.{delete_key} = {dst}.{delete_key});"
         )
         insert = f"INSERT INTO {dst} SELECT * FROM {src};"
-        drop = f"DROP TABLE {src};"
+        drop = self.drop_table(src_table, src_schema)
         return "\n".join((delete, insert, drop))
 
     # Copy task
