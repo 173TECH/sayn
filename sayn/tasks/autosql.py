@@ -62,12 +62,17 @@ class AutoSqlTask(SqlTask):
         except Exception as e:
             return self.failed(f"Error compiling template\n{e}")
 
-        if self.ddl is not None and "permissions" in self.ddl:
+        if self.ddl.get("permissions") is not None:
             permissions = "\n\n-- Grant permissions\n" + self.db.grant_permissions(
                 self.table, self.schema, self.ddl["permissions"]
             )
         else:
             permissions = ""
+
+        if self.ddl.get("indexes") is not None:
+            indexes = self.db.create_indexes(self.tmp_table, self.tmp_schema, self.ddl)
+        else:
+            indexes = ""
 
         if self.materialisation == "view":
             # Views just replace the current object if it exists
@@ -86,18 +91,14 @@ class AutoSqlTask(SqlTask):
 
         move = (
             self.db.move_table(
-                self.tmp_table,
-                self.tmp_schema,
-                self.table,
-                self.schema,
-                self.ddl,
+                self.tmp_table, self.tmp_schema, self.table, self.schema, self.ddl,
             )
             + permissions
         )
 
         if not self.db.table_exists(self.table, self.schema):
             # When the table doesn't currently exists, regardless of materialisation, just create it
-            if self.ddl is not None and "columns" in self.ddl:
+            if self.ddl.get("columns") is not None:
                 # create table with DDL and insert the output of the select
                 create_table_ddl = (
                     self.db.create_table_ddl(
@@ -106,6 +107,9 @@ class AutoSqlTask(SqlTask):
                         self.ddl,
                         replace=self.sayn_config.options["full_load"],
                     )
+                    + "\n\n"
+                    + indexes
+                    + "\n\n"
                     + permissions
                 )
                 insert = self.db.insert(self.table, self.schema, query)
@@ -125,6 +129,9 @@ class AutoSqlTask(SqlTask):
                         query,
                         replace=self.sayn_config.options["full_load"],
                     )
+                    + "\n\n"
+                    + indexes
+                    + "\n\n"
                     + permissions
                 )
 
@@ -138,9 +145,7 @@ class AutoSqlTask(SqlTask):
             create_tmp_ddl = self.db.create_table_ddl(
                 self.tmp_table, self.tmp_schema, self.ddl, replace=True,
             )
-            insert_tmp = self.db.insert(
-                self.tmp_table, self.tmp_schema, query
-            )
+            insert_tmp = self.db.insert(self.tmp_table, self.tmp_schema, query)
             self.compiled = (
                 f"-- Create temporary table\n"
                 f"{create_tmp_ddl}\n\n"

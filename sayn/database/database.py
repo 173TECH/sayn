@@ -1,4 +1,3 @@
-from itertools import groupby
 import logging
 
 from sqlalchemy import create_engine, MetaData, Table
@@ -9,11 +8,40 @@ from ..utils import yaml
 
 
 class Database:
+    sql_features = ["DROP IF EXISTS", "CREATE IF NOT EXISTS"]
+
     def __init__(self, name, name_in_settings, connection_details):
         self.name = name
         self.name_in_settings = name_in_settings
         self.engine = create_engine(f"{self.dialect}://", **connection_details)
-        self.create_metadata()
+        self.metadata = MetaData(self.engine)
+
+    # API
+
+    def execute(self, script):
+        """Executes a script in the database
+        """
+        with self.engine.connect().execution_options(autocommit=True) as connection:
+            connection.execute(script)
+
+    def select(self, query, params=None):
+        """Executes the query and returns a dictionary with the data
+        """
+        if params is not None:
+            res = self.engine.execute(query, **params)
+        else:
+            res = self.engine.execute(query)
+
+        return [dict(zip(res.keys(), r)) for r in res.fetchall()]
+
+    def load_data(self, table, schema, data):
+        """Loads a list of values into the database
+        """
+        table_def = self.get_table(table, schema)
+        with self.engine.connect().execution_options(autocommit=True) as connection:
+            connection.execute(table_def.insert().values(data))
+
+    # Utils
 
     def validate_ddl(self, ddl, type_required=True):
         schema = yaml.Map(
@@ -28,11 +56,12 @@ class Database:
                             yaml.Optional("primary"): yaml.Bool(),
                             yaml.Optional("not_null"): yaml.Bool(),
                             yaml.Optional("unique"): yaml.Bool(),
-                            yaml.Optional("indexes"): yaml.UniqueSeq(
-                                yaml.NotEmptyStr()
-                            ),
                         }
                     )
+                ),
+                yaml.Optional("indexes"): yaml.MapPattern(
+                    yaml.NotEmptyStr(),
+                    yaml.Map({"columns": yaml.UniqueSeq(yaml.NotEmptyStr())}),
                 ),
                 yaml.Optional("permissions"): yaml.MapPattern(
                     yaml.NotEmptyStr(), yaml.NotEmptyStr()
@@ -46,35 +75,10 @@ class Database:
             logging.error(e)
             return
 
-        return ddl.data
-
-    def connect(self):
-        return self.engine.connect()
-
-    def execute(self, script):
-        with self.engine.connect().execution_options(autocommit=True) as connection:
-            connection.execute(script)
-
-    def select(self, query, params=None):
-        if params is not None:
-            res = self.engine.execute(query, **params)
-        else:
-            res = self.engine.execute(query)
-
-        return [dict(zip(res.keys(), r)) for r in res.fetchall()]
-
-    def load_data(self, table, schema, data):
-        table_def = self.get_table(table, schema)
-        with self.engine.connect().execution_options(autocommit=True) as connection:
-            connection.execute(table_def.insert().values(data))
-
-    def create_metadata(self):
-        self.metadata = MetaData(self.engine)
+        return ddl.data or dict()
 
     def refresh_metadata(self, only=None, schema=None):
         self.metadata.reflect(only=only, schema=schema, extend_existing=True)
-
-    # ETL steps
 
     def get_table(self, table, schema, columns=None, required_existing=False):
         """Create a SQLAlchemy Table object. If columns is not None, fills up columns or checks the columns are present"""
@@ -112,49 +116,62 @@ class Database:
         else:
             return False
 
+    # ETL steps return SQL code ready for execution
+
     def create_table_select(self, table, schema, select, replace=False, view=False):
+        """Returns SQL code for a create table from a select statment
+        """
+        table_name = table
         table = f"{schema+'.' if schema else ''}{table}"
         table_or_view = "VIEW" if view else "TABLE"
 
         q = ""
         if replace:
-            q += f"DROP {table_or_view} IF EXISTS {table};\n"
+            q += self.drop_table(table_name, schema, view) + "\n"
         q += f"CREATE {table_or_view} IF NOT EXISTS {table} AS (\n{select}\n);"
 
         return q
 
     def create_table_ddl(self, table, schema, ddl, replace=False):
+        """Returns SQL code for a create table from a select statment
+        """
         table_name = table
         table = f"{schema+'.' if schema else ''}{table_name}"
+
         columns = "\n    , ".join(
             [
                 (
                     f'{c["name"]} {c["type"]}'
-                    f'{" PRIMARY KEY" if c.get("primary", False) else ""}'
                     f'{" NOT NULL" if c.get("not_null", False) else ""}'
                 )
                 for c in ddl["columns"]
             ]
         )
-        indexes = {
-            idx: [c[1] for c in cols]
-            for idx, cols in groupby(
-                sorted(
-                    [
-                        (idx, c["name"])
-                        for c in ddl["columns"]
-                        if "indexes" in c
-                        for idx in c["indexes"]
-                    ]
-                ),
-                lambda x: x[0],
-            )
-        }
 
         q = ""
         if replace:
-            q += f"DROP TABLE IF EXISTS {table};\n"
+            q += self.drop_table(table_name, schema) + "\n"
         q += f"CREATE TABLE IF NOT EXISTS {table} (\n      {columns}\n);\n"
+
+        return q
+
+    def create_indexes(self, table, schema, ddl):
+        """Returns SQL to create indexes from ddl
+        """
+        table_name = table
+        table = f"{schema+'.' if schema else ''}{table}"
+
+        indexes = {
+            idx: idx_def["columns"]
+            for idx, idx_def in ddl.get("indexes", dict()).items()
+            if idx != "primary_key"
+        }
+
+        q = ""
+        if "primary_key" in ddl.get("indexes", dict()):
+            pk_cols = ", ".join(ddl["indexes"]["primary_key"]["columns"])
+            q += f"ALTER TABLE {table_name} ADD PRIMARY KEY ({pk_cols});"
+
         q += "\n".join(
             [
                 f"CREATE INDEX IF NOT EXISTS {table_name}_{name} ON {table}({', '.join(cols)});"
@@ -165,6 +182,8 @@ class Database:
         return q
 
     def grant_permissions(self, table, schema, ddl):
+        """Returns a set of GRANT statments
+        """
         return "\n".join(
             [
                 f"GRANT {priv} ON {schema+'.' if schema else ''}{table} TO \"{role}\";"
@@ -173,18 +192,22 @@ class Database:
         )
 
     def drop_table(self, table, schema, view=False):
+        """Returns a DROP statement
+        """
         table = f"{schema+'.' if schema else ''}{table}"
         table_or_view = "VIEW" if view else "TABLE"
         return f"DROP {table_or_view} IF EXISTS {table};"
 
     def insert(self, table, schema, select):
+        """Returns an INSERT statment from a SELECT
+        """
         table = f"{schema+'.' if schema else ''}{table}"
         return f"INSERT INTO {table} (\n{select}\n);"
 
     def move_table(self, src_table, src_schema, dst_table, dst_schema, ddl):
-        drop = (
-            f"DROP TABLE IF EXISTS {dst_schema+'.' if dst_schema else ''}{dst_table};"
-        )
+        """Returns SQL code to rename a table and change schema
+        """
+        drop = self.drop_table(dst_table, dst_schema + "." if dst_schema else "")
         rename = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{src_table} RENAME TO {dst_table};"
         if dst_schema is not None and dst_schema != src_schema:
             change_schema = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{dst_table} SET SCHEMA {dst_schema};"
@@ -192,24 +215,24 @@ class Database:
             change_schema = ""
 
         idx_alter = []
-        if ddl is not None and "columns" in ddl:
-            # Change primary key name
-            if len([c for c in ddl["columns"] if c.get("primary", False)]):
-                idx_alter.append(
-                    f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_pkey RENAME TO {dst_table}_pkey;"
-                )
-
+        if ddl.get("indexes") is not None:
             # Change index names
-            for idx in [
-                idx for c in ddl["columns"] for idx in c.get("indexes", list())
-            ]:
-                idx_alter.append(
-                    f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx} RENAME TO {dst_table}_{idx};"
-                )
+            for idx in ddl.get("indexes", dict()).keys():
+                if idx == "primary_key":
+                    # Primary keys are called as the table
+                    idx_alter.append(
+                        f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_pkey RENAME TO {dst_table}_pkey;"
+                    )
+                else:
+                    idx_alter.append(
+                        f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx} RENAME TO {dst_table}_{idx};"
+                    )
 
         return "\n".join([drop, rename, change_schema] + idx_alter)
 
     def merge_tables(self, src_table, src_schema, dst_table, dst_schema, delete_key):
+        """Returns SQL to merge data in incremental loads
+        """
         dst = f"{dst_schema+'.' if dst_schema else ''}{dst_table}"
         src = f"{src_schema+'.' if src_schema else ''}{src_table}"
 
@@ -222,6 +245,8 @@ class Database:
         insert = f"INSERT INTO {dst} SELECT * FROM {src};"
         drop = f"DROP TABLE {src};"
         return "\n".join((delete, insert, drop))
+
+    # Copy task
 
     def copy_from_table(
         self, src, dst_table, dst_schema=None, columns=None, incremental_column=None
