@@ -6,7 +6,7 @@ db_parameters = ["database"]
 
 
 class Sqlite(Database):
-    sql_features = ["CREATE TABLE NO BRACKETS", "NO SET SCHEMA"]
+    sql_features = ["CREATE TABLE NO PARENTHESES", "NO SET SCHEMA"]
 
     def __init__(self, name, name_in_settings, settings):
         db_type = settings.pop("type")

@@ -11,7 +11,7 @@ class Database:
     sql_features = []
     # Supported sql_features
     #   - CREATE IF NOT EXISTS
-    #   - CREATE TABLE NO BRACKETS
+    #   - CREATE TABLE NO PARENTHESES
     #   - DROP CASCADE
     #   - NO SET SCHEMA
 
@@ -81,7 +81,7 @@ class Database:
             logging.error(e)
             return
 
-        return ddl.data or dict()
+        return ddl.data
 
     def refresh_metadata(self, only=None, schema=None):
         self.metadata.reflect(only=only, schema=schema, extend_existing=True)
@@ -137,7 +137,7 @@ class Database:
         if_not_exists = (
             " IF NOT EXISTS" if "CREATE IF NOT EXISTS" in self.sql_features else ""
         )
-        if "CREATE TABLE NO BRACKETS" in self.sql_features:
+        if "CREATE TABLE NO PARENTHESES" in self.sql_features:
             q += f"CREATE {table_or_view}{if_not_exists} {table} AS \n{select}\n;"
         else:
             q += f"CREATE {table_or_view}{if_not_exists} {table} AS (\n{select}\n);"
@@ -166,7 +166,7 @@ class Database:
         if_not_exists = (
             " IF NOT EXISTS" if "CREATE IF NOT EXISTS" in self.sql_features else ""
         )
-        q += f"CREATE {table_or_view}{if_not_exists} {table} AS (\n      {columns}\n);"
+        q += f"CREATE TABLE{if_not_exists} {table} AS (\n      {columns}\n);"
 
         return q
 

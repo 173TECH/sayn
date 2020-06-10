@@ -101,14 +101,14 @@ class AutoSqlTask(SqlTask):
         if self.materialisation == "view":
             # Views just replace the current object if it exists
             self.create_query = self.db.create_table_select(
-                self.table, self.schema, query, replace=True, view=True,
+                self.table, self.schema, query, replace=True, view=True
             )
         else:
             # We always load data into a temporary table
             if self.ddl.get("columns") is not None:
                 # create table with DDL and insert the output of the select
                 create_table_ddl = self.db.create_table_ddl(
-                    self.tmp_table, self.tmp_schema, self.ddl, replace=True,
+                    self.tmp_table, self.tmp_schema, self.ddl, replace=True
                 )
                 insert = self.db.insert(self.table, self.schema, query)
                 create_load = (
@@ -121,7 +121,7 @@ class AutoSqlTask(SqlTask):
             else:
                 # or create from the select if DDL not present
                 create_load = self.db.create_table_select(
-                    self.tmp_table, self.tmp_schema, query, replace=True,
+                    self.tmp_table, self.tmp_schema, query, replace=True, ddl=self.ddl
                 )
 
             # Add indexes if necessary
@@ -136,7 +136,7 @@ class AutoSqlTask(SqlTask):
 
         # 2. Move
         self.move_query = self.db.move_table(
-            self.tmp_table, self.tmp_schema, self.table, self.schema, self.ddl,
+            self.tmp_table, self.tmp_schema, self.table, self.schema, self.ddl
         )
 
         # 3. Merge
@@ -155,4 +155,5 @@ class AutoSqlTask(SqlTask):
                 self.table, self.schema, self.ddl["permissions"]
             )
 
+        return TaskStatus.READY
         return TaskStatus.READY
