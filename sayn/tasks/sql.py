@@ -123,7 +123,7 @@ class SqlTask(Task):
                 return TaskStatus.READY
 
         else:
-            self.ddl = None
+            self.ddl = dict()
             return TaskStatus.READY
 
     # Utility methods
