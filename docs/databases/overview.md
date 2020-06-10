@@ -4,84 +4,64 @@
 
 SAYN uses [sqlalchemy](https://www.sqlalchemy.org/){target="\_blank"} in order to manage database connections. It currently supports the following databases:
 
-* [PostgreSQL](postgresql.md)
+* [Redshift](redshift.md)
 * [Snowflake](snowflake.md)
+* [PostgreSQL](postgresql.md)
 * [SQLite](sqlite.md)
 
 ## Usage
 
-In order to connect to databases, the connection credentials need to be added into the `credentials` sections of the `settings.yaml` file. Database credentials need to specify two key attributes:
+Database connections are definied as `credentials` in `settings.yaml` like this:
 
-* `type`: the connection type. This needs to be one of the supported databases.
-* `connect_args`: the connection arguments. Because SAYN uses sqlalchemy, those `connect_args` match the `connect_args` from the sqlachemy `create_engine` method.
+!!! example "settings.yaml"
+    ```yaml
+    credentials:
+      db_name:
+        type: redshift
 
-Please see the database specific pages to see credential examples for each database.
+        host: redshift-cluster.dff9slsflkjsdflkj.eu-west-1.redshift.amazonaws.com
+    ```
 
-## SAYN Database API
+You can check the list of connection parameters in the database specific page in this section. If a
+parameter not listed in the database page is included in `settings.yaml`, that parameter will be passed on to
+[sqlalchemy.create_engine](https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine)
+so refer to sqlalchemy's documentation if you need to fine tune the connection.
 
-SAYN provides three core functions in order to interact with the default database in Python scripts. The default database is stored on the `default_db` attribute of the Task object. It can therefore be accessed as follows in any Python task:
+For example, if we want to specify a connection timeout for a PostgreSQL database, we can specify
+that in the `connect_args` parameter:
 
-```python
-from sayn import PythonTask
+!!! example "settings.yaml"
+    ```yaml
+    credentials:
+      db_name:
+        type: postgresql
 
-class TaskPython(PythonTask):
-    def setup(self):
-        #code doing setup
+        host: ...
 
-    def run(self):
-        db = self.default_db
-        #code you want to run
-```
+        connect_args:
+          connect_timeout: 100
+    ```
 
-Please see below the details of the available methods on the `default_db`.
+## Using databases in Python tasks
 
-### `.execute()`
+Databases defined in the SAYN project are available to Python tasks via `Config.dbs`. For
+convenience though, all Python tasks have a `default_db`. 
 
-#### Functionality
+!!! example "Example PythonTask"
+    ```python hl_lines="8"
+    from sayn import PythonTask
 
-Lets you execute any SQL script on the default database.
+    class TaskPython(PythonTask):
+        def setup(self):
+            #code doing setup
 
-#### Signature
+        def run(self):
+            data = self.default_db.select("SELECT * FROM test_table")
+            #code you want to run
+    ```
 
-`def execute(self, script)`
+## Database API
 
-* `script`: the SQL script to be executed. There can be multiple SQL queries separated by `;` within a single script.
-
-#### Returns
-
-None
-
-### `.select()`
-
-#### Functionality
-
-Runs a SQL query and returns the results in a list of tuples.
-
-#### Signature
-
-`def select(self, query, params=None)`
-
-* `query`: the SQL script to be executed.
-* `params`: parameters of the `sqlalchemy` `execute` method.
-
-#### Returns
-
-List of tuples containing the results. There is one tuple per row.
-
-### `.load()`
-
-#### Functionality
-
-Loads data into a destination table.
-
-#### Signature
-
-`def load_data(self, table, schema, data)`
-
-* `table`: the destination table.
-* `schema`: the destination schema.
-* `data`: the data to be loaded. It should be a list of tuples, with one tuple per row.
-
-#### Returns
-
-None.
+::: sayn.database.Database
+    :docstring:
+    :members: execute select load_data

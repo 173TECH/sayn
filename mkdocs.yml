@@ -15,6 +15,13 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.superfences
+  - admonition
+  - codehilite
+  - mkautodoc
+
+extra_css:
+    - css/custom.css
 
 nav:
   - Home: index.md
@@ -38,9 +45,9 @@ nav:
   - Parameters: parameters.md
   - Databases:
     - Overview: databases/overview.md
-    #- MySQL: databases/mysql.md
-    - PostgreSQL: databases/postgresql.md
-    #- Redshift: databases/redshift.md
+    - Redshift: databases/redshift.md
     - Snowflake: databases/snowflake.md
+    - PostgreSQL: databases/postgresql.md
+    #- MySQL: databases/mysql.md
     - SQLite: databases/sqlite.md
 

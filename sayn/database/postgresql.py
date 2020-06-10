@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 
 from .database import Database
 
-db_parameters = ["host", "user", "password", "port", "database"]
+db_parameters = ["host", "user", "password", "port", "dbname"]
 
 
 class Postgresql(Database):

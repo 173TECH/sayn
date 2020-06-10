@@ -8,6 +8,17 @@ from ..utils import yaml
 
 
 class Database:
+    """
+    Base class for databases in SAYN.
+
+    **Attributes**
+
+    * **engine** - A sqlalchemy engine referencing the database
+    * **name** - Name of the db as defined in `required_credentials` in `project.yaml`
+    * **name_in_yaml** - Name of db under `credentials` in `settings.yaml`
+    * **db_type** - Type of the database
+    """
+
     sql_features = []
     # Supported sql_features
     #   - CREATE IF NOT EXISTS
@@ -25,13 +36,23 @@ class Database:
     # API
 
     def execute(self, script):
-        """Executes a script in the database
+        """Executes a script in the database. Multiple statements are supported.
+
+        **Parameters**
+
+        * **script** - The SQL script to execute
         """
         with self.engine.connect().execution_options(autocommit=True) as connection:
             connection.execute(script)
 
     def select(self, query, params=None):
-        """Executes the query and returns a dictionary with the data
+        """Executes the query and returns a list of dictionaries with the data.
+
+        **Parameters**
+
+        * **query** - The SELECT query to execute
+        * **params** - sqlalchemy parameters to use when building the final query as per
+          [sqlalchemy.engine.Connection.execute](https://docs.sqlalchemy.org/en/13/core/connections.html#sqlalchemy.engine.Connection.execute)
         """
         if params is not None:
             res = self.engine.execute(query, **params)
