@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from .database import Database
 from ..utils import yaml
 
-db_parameters = ["host", "user", "password", "port", "dbname"]
+db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
 
 
 class Redshift(Database):
@@ -18,6 +18,43 @@ class Redshift(Database):
         # Create engine using the connect_args argument to create_engine
         if "connect_args" not in settings:
             settings["connect_args"] = dict()
+
+        if "cluster_id" in settings and "password" not in settings:
+            # if a cluster_id is given and no password, we use boto to complete the credentials
+            cluster_id = settings["cluster_id"]
+
+            host = settings.pop("host", None)
+            port = settings.pop("port", None)
+            # User is required
+            user = settings.pop("user")
+
+            import boto3
+
+            boto_session = boto3.Session()
+
+            redshift_client = boto_session.client("redshift")
+
+            # Get the address when not provided
+            if host is None or port is None:
+                cluster_info = redshift_client.describe_clusters(
+                    ClusterIdentifier=cluster_id
+                )["Clusters"][0]
+
+                settings["connect_args"]["host"] = (
+                    host or cluster_info["Endpoint"]["Address"]
+                )
+                settings["connect_args"]["port"] = (
+                    port or cluster_info["Endpoint"]["Port"]
+                )
+
+            # Get the password and user
+            credentials = redshift_client.get_cluster_credentials(
+                ClusterIdentifier=settings["cluster_id"], DbUser=user
+            )
+
+            settings["connect_args"]["user"] = credentials["DbUser"]
+            settings["connect_args"]["password"] = credentials["DbPassword"]
+
         for param in db_parameters:
             if param in settings:
                 settings["connect_args"][param] = settings.pop(param)
