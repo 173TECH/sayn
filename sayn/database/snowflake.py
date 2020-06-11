@@ -40,6 +40,7 @@ class Snowflake(Database):
     def execute(self, script):
         conn = self.engine.connect()
         conn.connection.execute_string(script)
+        conn.connection.commit()
         conn.connection.close()
 
     def move_table(self, src_table, src_schema, dst_table, dst_schema, ddl):

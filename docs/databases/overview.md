@@ -48,7 +48,7 @@ Databases defined in the SAYN project are available to Python tasks via `Config.
 convenience though, all Python tasks have a `default_db`. 
 
 !!! example "Example PythonTask"
-    ```python hl_lines="8"
+    ``` python hl_lines="8"
     from sayn import PythonTask
 
     class TaskPython(PythonTask):
@@ -60,8 +60,12 @@ convenience though, all Python tasks have a `default_db`.
             #code you want to run
     ```
 
-## Database API
+### Database class
 
-::: sayn.database.Database
-    :docstring:
-    :members: execute select load_data
+::: sayn.database.database.Database
+    selection:
+      members:
+        - execute
+        - select
+        - load_data
+

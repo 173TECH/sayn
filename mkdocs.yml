@@ -1,5 +1,9 @@
 site_name: SAYN
 
+repo_name: 173TECH/sayn
+repo_url: https://github.com/173TECH/sayn
+edit_uri: ""
+
 theme:
   name: material
   palette:
@@ -17,8 +21,25 @@ markdown_extensions:
       emoji_generator: !!python/name:materialx.emoji.to_svg
   - pymdownx.superfences
   - admonition
-  - codehilite
-  - mkautodoc
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          rendering:
+            show_source: false
+      watch:
+        - sayn
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/173TECH
+
 
 extra_css:
     - css/custom.css
@@ -50,4 +71,5 @@ nav:
     - PostgreSQL: databases/postgresql.md
     #- MySQL: databases/mysql.md
     - SQLite: databases/sqlite.md
-
+  - API Reference:
+    - Database: api/database.md

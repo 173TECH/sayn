@@ -11,12 +11,14 @@ class Database:
     """
     Base class for databases in SAYN.
 
-    **Attributes**
+    Databases are implemented using sqlalchemy, and the `engine` attribute is available
+    when working in python tasks without the need for calling create_engine.
 
-    * **engine** - A sqlalchemy engine referencing the database
-    * **name** - Name of the db as defined in `required_credentials` in `project.yaml`
-    * **name_in_yaml** - Name of db under `credentials` in `settings.yaml`
-    * **db_type** - Type of the database
+    Attributes:
+        * engine (sqlalchemy.Engine): A sqlalchemy engine referencing the database
+        * name (str): Name of the db as defined in `required_credentials` in `project.yaml`
+        * name_in_yaml (str): Name of db under `credentials` in `settings.yaml`
+        * db_type (str): Type of the database
     """
 
     sql_features = []
@@ -38,9 +40,8 @@ class Database:
     def execute(self, script):
         """Executes a script in the database. Multiple statements are supported.
 
-        **Parameters**
-
-        * **script** - The SQL script to execute
+        Args:
+            script (sql): The SQL script to execute
         """
         with self.engine.connect().execution_options(autocommit=True) as connection:
             connection.execute(script)
@@ -48,11 +49,14 @@ class Database:
     def select(self, query, params=None):
         """Executes the query and returns a list of dictionaries with the data.
 
-        **Parameters**
+        Args:
+            query (str): The SELECT query to execute
+            params (dict): sqlalchemy parameters to use when building the final query as per
+                [sqlalchemy.engine.Connection.execute](https://docs.sqlalchemy.org/en/13/core/connections.html#sqlalchemy.engine.Connection.execute)
 
-        * **query** - The SELECT query to execute
-        * **params** - sqlalchemy parameters to use when building the final query as per
-          [sqlalchemy.engine.Connection.execute](https://docs.sqlalchemy.org/en/13/core/connections.html#sqlalchemy.engine.Connection.execute)
+        Returns:
+            list: A list of dictionaries with the results of the query
+
         """
         if params is not None:
             res = self.engine.execute(query, **params)
@@ -63,6 +67,14 @@ class Database:
 
     def load_data(self, table, schema, data):
         """Loads a list of values into the database
+
+        The default loading mechanism is an INSERT...VALUES, but database drivers
+        will implement more appropriate methods.
+
+        Args:
+            table (str): The target table name
+            schema (str): The target schema or None
+            data (list): A list of dictionaries to load
         """
         table_def = self.get_table(table, schema)
         with self.engine.connect().execution_options(autocommit=True) as connection:
@@ -71,6 +83,16 @@ class Database:
     # Utils
 
     def validate_ddl(self, ddl, type_required=True):
+        """Validates the ddl field in autosql and copy tasks.
+
+        Args:
+            ddl (strictyaml): A strictyaml object pointing at the ddl definition
+            type_required (bool): Indicates if the type of columns is required when columns
+              are present in the ddl
+
+        Returns:
+            dict: A validated ddl dictionary
+        """
         schema = yaml.Map(
             {
                 yaml.Optional("columns"): yaml.Seq(
@@ -105,10 +127,27 @@ class Database:
         return ddl.data
 
     def refresh_metadata(self, only=None, schema=None):
+        """Refreshes the sqlalchemy metadata object.
+
+        Args:
+            only (list): A list of object names to filter the refresh on
+            schema (str): The schema name to filter on the refresh
+        """
         self.metadata.reflect(only=only, schema=schema, extend_existing=True)
 
     def get_table(self, table, schema, columns=None, required_existing=False):
-        """Create a SQLAlchemy Table object. If columns is not None, fills up columns or checks the columns are present"""
+        """Create a SQLAlchemy Table object.
+
+        Args:
+            table (str): The table name
+            schema (str): The schema or None
+            columns (list): A list of column names to build the table object
+            required_existing (bool): If True and columns is not None, fills up
+                the table columns with the specification in columns
+
+        Returns:
+            sqlalchemy.Table: A table object from sqlalchemy
+        """
         table_def = Table(table, self.metadata, schema=schema, extend_existing=True)
 
         if table_def.exists():
@@ -146,7 +185,17 @@ class Database:
     # ETL steps return SQL code ready for execution
 
     def create_table_select(self, table, schema, select, replace=False, view=False):
-        """Returns SQL code for a create table from a select statment
+        """Returns SQL code for a create table from a select statment.
+
+        Args:
+            table (str): The target table name
+            schema (str): The target schema or None
+            select (str): A SQL SELECT query to build the table with
+            replace (bool): Issue a DROP statement
+            view (bool): Indicates if the object to create is a view. Defaults to creating a table
+
+        Returns:
+            str: A SQL script for the CREATE...AS
         """
         table_name = table
         table = f"{schema+'.' if schema else ''}{table}"
@@ -166,7 +215,16 @@ class Database:
         return q
 
     def create_table_ddl(self, table, schema, ddl, replace=False):
-        """Returns SQL code for a create table from a select statment
+        """Returns SQL code for a create table from a select statment.
+
+        Args:
+            table (str): The target table name
+            schema (str): The target schema or None
+            ddl (dict): A ddl task definition
+            replace (bool): Issue a DROP statement
+
+        Returns:
+            str: A SQL script for the CREATE TABLE statement
         """
         table_name = table
         table = f"{schema+'.' if schema else ''}{table_name}"
@@ -192,7 +250,15 @@ class Database:
         return q
 
     def create_indexes(self, table, schema, ddl):
-        """Returns SQL to create indexes from ddl
+        """Returns SQL to create indexes from ddl.
+
+        Args:
+            table (str): The target table name
+            schema (str): The target schema or None
+            ddl (dict): A ddl task definition
+
+        Returns:
+            str: A SQL script for the CREATE INDEX statements
         """
         table_name = table
         table = f"{schema+'.' if schema else ''}{table}"
@@ -218,7 +284,15 @@ class Database:
         return q
 
     def grant_permissions(self, table, schema, ddl):
-        """Returns a set of GRANT statments
+        """Returns a set of GRANT statments.
+
+        Args:
+            table (str): The target table name
+            schema (str): The target schema or None
+            ddl (dict): A ddl task definition
+
+        Returns:
+            str: A SQL script for the GRANT statements
         """
         return "\n".join(
             [
@@ -228,7 +302,15 @@ class Database:
         )
 
     def drop_table(self, table, schema, view=False):
-        """Returns a DROP statement
+        """Returns a DROP statement.
+
+        Args:
+            table (str): The target table name
+            schema (str): The target schema or None
+            view (bool): Indicates if the object to drop is a view. Defaults to dropping a table
+
+        Returns:
+            str: A SQL script for the DROP statements
         """
         table = f"{schema+'.' if schema else ''}{table}"
         table_or_view = "VIEW" if view else "TABLE"
@@ -243,13 +325,39 @@ class Database:
         return q
 
     def insert(self, table, schema, select):
-        """Returns an INSERT statment from a SELECT
+        """Returns an INSERT statment from a SELECT query.
+
+        Args:
+            table (str): The target table name
+            schema (str): The target schema or None
+            select (str): The SELECT statement to issue
+
+        Returns:
+            str: A SQL script for the INSERT statement
         """
         table = f"{schema+'.' if schema else ''}{table}"
         return f"INSERT INTO {table} (\n{select}\n);"
 
     def move_table(self, src_table, src_schema, dst_table, dst_schema, ddl):
-        """Returns SQL code to rename a table and change schema
+        """Returns SQL code to rename a table and change schema.
+
+        Note:
+            Table movement is performed as a series of ALTER statments:
+
+              * ALTER TABLE RENAME
+              * ALTER TABLE SET SCHEMA (if the database supports it)
+              * ALTER INDEX RENAME (to ensure consistency in the naming). Index names
+                  are taken from the ddl field
+
+        Args:
+            src_table (str): The source table name
+            src_schema (str): The source schema or None
+            dst_table (str): The target table name
+            dst_schema (str): The target schema or None
+            ddl (dict): A ddl task definition
+
+        Returns:
+            str: A SQL script for moving the table
         """
         drop = self.drop_table(dst_table, dst_schema)
         rename = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{src_table} RENAME TO {dst_table};"
@@ -275,7 +383,23 @@ class Database:
         return "\n".join([drop, rename, change_schema] + idx_alter)
 
     def merge_tables(self, src_table, src_schema, dst_table, dst_schema, delete_key):
-        """Returns SQL to merge data in incremental loads
+        """Returns SQL to merge data in incremental loads.
+
+        Note:
+            Data merge is performed by issuing these statements:
+
+              * DELETE from target WHERE data exists in source
+              * INSERT into target SELECT * from source
+
+        Args:
+            src_table (str): The source table name
+            src_schema (str): The source schema or None
+            dst_table (str): The target table name
+            dst_schema (str): The target schema or None
+            delete_key (str): The column name to use for deleting records from the target table
+
+        Returns:
+            str: A SQL script for moving the table
         """
         dst = f"{dst_schema+'.' if dst_schema else ''}{dst_table}"
         src = f"{src_schema+'.' if src_schema else ''}{src_table}"
