@@ -1,9 +1,7 @@
 import logging
 
 from sqlalchemy import MetaData, Table
-from sqlalchemy.sql import select, func, or_, text
 
-from . import DatabaseError
 from ..utils import yaml
 
 
@@ -413,86 +411,3 @@ class Database:
         insert = f"INSERT INTO {dst} SELECT * FROM {src};"
         drop = self.drop_table(src_table, src_schema)
         return "\n".join((delete, insert, drop))
-
-    # Copy task
-
-    def copy_from_table(
-        self, src, dst_table, dst_schema=None, columns=None, incremental_column=None
-    ):
-        # 1. Check source table
-        if not src.exists():
-            raise DatabaseError(f"Source table {src.fullname} does not exists")
-
-        if columns is None:
-            columns = [c.name for c in src.columns]
-            if incremental_column is not None and incremental_column not in src.columns:
-                raise DatabaseError(
-                    f"Incremental column {incremental_column} not in source table {src.fullname}"
-                )
-        else:
-            if incremental_column is not None and incremental_column not in columns:
-                columns.append(incremental_column)
-
-            for column in columns:
-                if column not in src.columns:
-                    raise DatabaseError(
-                        f"Specified column {column} not in source table {src.fullname}"
-                    )
-
-        # 2. Get incremental value
-        table = self.get_table(dst_table, dst_schema, columns=columns)
-
-        if incremental_column is not None and not dst_table.exists():
-            if incremental_column not in table.columns:
-                raise DatabaseError(
-                    f"Incremental column {incremental_column} not in destination table {table.fullname}"
-                )
-            incremental_value = (
-                select([func.max(table.c[incremental_column])])
-                .where(table.c[incremental_column] != None)
-                .execute()
-                .fetchone()[0]
-            )
-        elif table is None:
-            # Create table
-            table = Table(dst_table, self.metadata, schema=dst_schema)
-            for column in columns:
-                table.append_column(src.columns[column].copy())
-            table.create()
-            incremental_value = None
-        else:
-            incremental_value = None
-
-        # 3. Get data
-        if incremental_value is None:
-            where_cond = True
-        else:
-            where_cond = or_(
-                src.c[incremental_column] == None,
-                src.c[incremental_column] > incremental_value,
-            )
-        query = select([src.c[c] for c in columns]).where(where_cond)
-        data = query.execute().fetchall()
-
-        # 4. Load data
-        return self.load_data(
-            [dict(zip([str(c.name) for c in query.c], row)) for row in data], table
-        )
-
-    def get_max_value(self, table, schema, column):
-        table_def = self.get_table(table, schema)
-        return select([func.max(table_def.c[column])]).where(
-            table_def.c[column] != None
-        )
-
-    def get_data(self, table, schema, columns, incremental_key=None):
-        src = self.get_table(table, schema, columns)
-        q = select([src.c[c] for c in columns])
-        if incremental_key is not None:
-            q = q.where(
-                or_(
-                    src.c[incremental_key] == None,
-                    src.c[incremental_key] > text(":incremental_value"),
-                )
-            )
-        return q
