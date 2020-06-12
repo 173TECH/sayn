@@ -15,8 +15,8 @@ SAYN is a data-modelling and processing framework for automating Python and SQL 
 SAYN can be used for multiple purposes across the analytics workflow:
 
 * Data extraction: complement tools such as Fivetran or Stitch with customised extraction processes.
-* Date modelling: transform raw data in your data warehouse.
-* Date science: integrate and execute data science models.
+* Data modelling: transform raw data in your data warehouse.
+* Data science: integrate and execute data science models.
 
 ## Key Features
 
