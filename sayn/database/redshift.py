@@ -21,7 +21,7 @@ class Redshift(Database):
 
         if "cluster_id" in settings and "password" not in settings:
             # if a cluster_id is given and no password, we use boto to complete the credentials
-            cluster_id = settings["cluster_id"]
+            cluster_id = settings.pop("cluster_id")
 
             host = settings.pop("host", None)
             port = settings.pop("port", None)
@@ -49,7 +49,7 @@ class Redshift(Database):
 
             # Get the password and user
             credentials = redshift_client.get_cluster_credentials(
-                ClusterIdentifier=settings["cluster_id"], DbUser=user
+                ClusterIdentifier=cluster_id, DbUser=user
             )
 
             settings["connect_args"]["user"] = credentials["DbUser"]
