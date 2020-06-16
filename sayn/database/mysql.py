@@ -1,13 +1,22 @@
+from sqlalchemy import create_engine
+
 from .database import Database
+
+db_parameters = ["host", "user", "password", "port", "database"]
 
 
 class Mysql(Database):
-    def __init__(self, name, name_in_settings, settings):
-        self.dialect = "postgresql"
-        connection_details = settings
-        connection_details.pop("type")
-        super().__init__(name, name_in_settings, connection_details)
+    sql_features = ["DROP CASCADE"]
 
-    def execute(self, script):
-        with self.engine.connect().execution_options(autocommit=True) as connection:
-            connection.execute(script, multi=True)
+    def __init__(self, name, name_in_settings, settings):
+        db_type = settings.pop("type")
+
+        # Create engine using the connect_args argument to create_engine
+        if "connect_args" not in settings:
+            settings["connect_args"] = dict()
+        for param in db_parameters:
+            if param in settings:
+                settings["connect_args"][param] = settings.pop(param)
+
+        engine = create_engine("mysql+mysqlconnector://", **settings)
+        self.setup_db(name, name_in_settings, db_type, engine)

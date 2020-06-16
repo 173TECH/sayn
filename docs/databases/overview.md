@@ -7,6 +7,7 @@ SAYN uses [sqlalchemy](https://www.sqlalchemy.org/){target="\_blank"} in order t
 * [Redshift](redshift.md)
 * [Snowflake](snowflake.md)
 * [PostgreSQL](postgresql.md)
+* [Mysql](mysql.md)
 * [SQLite](sqlite.md)
 
 ## Usage
