@@ -182,7 +182,7 @@ class Database:
 
     # ETL steps return SQL code ready for execution
 
-    def create_table_select(self, table, schema, select, replace=False, view=False):
+    def create_table_select(self, table, schema, select, replace=False, view=False, ddl=dict()):
         """Returns SQL code for a create table from a select statment.
 
         Args:
