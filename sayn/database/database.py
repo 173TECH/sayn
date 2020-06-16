@@ -182,7 +182,9 @@ class Database:
 
     # ETL steps return SQL code ready for execution
 
-    def create_table_select(self, table, schema, select, replace=False, view=False, ddl=dict()):
+    def create_table_select(
+        self, table, schema, select, replace=False, view=False, ddl=dict()
+    ):
         """Returns SQL code for a create table from a select statment.
 
         Args:
@@ -243,7 +245,7 @@ class Database:
         if_not_exists = (
             " IF NOT EXISTS" if "CREATE IF NOT EXISTS" in self.sql_features else ""
         )
-        q += f"CREATE TABLE{if_not_exists} {table} AS (\n      {columns}\n);"
+        q += f"CREATE TABLE{if_not_exists} {table} (\n      {columns}\n);"
 
         return q
 
