@@ -126,9 +126,9 @@ class CopyTask(SqlTask):
         # Source property indicating the table this will create
         source = self._pop_property("source", default={"schema": None})
 
-        self.schema = source.pop("schema", None)
-        if self.schema is not None and isinstance(self.schema, str):
-            self.schema = self.compile_property(self.schema)
+        self.source_schema = source.pop("schema", None)
+        if self.source_schema is not None and isinstance(self.source_schema, str):
+            self.source_schema = self.compile_property(self.source_schema)
         else:
             return self.failed('Optional property "schema" must be a string')
 
@@ -282,66 +282,3 @@ class CopyTask(SqlTask):
                 )
             )
         return q
-
-    # def copy_from_table(
-    #     self, src, dst_table, dst_schema=None, columns=None, incremental_column=None
-    # ):
-    #     # 1. Check source table
-    #     if not src.exists():
-    #         raise DatabaseError(f"Source table {src.fullname} does not exists")
-
-    #     if columns is None:
-    #         columns = [c.name for c in src.columns]
-    #         if incremental_column is not None and incremental_column not in src.columns:
-    #             raise DatabaseError(
-    #                 f"Incremental column {incremental_column} not in source table {src.fullname}"
-    #             )
-    #     else:
-    #         if incremental_column is not None and incremental_column not in columns:
-    #             columns.append(incremental_column)
-
-    #         for column in columns:
-    #             if column not in src.columns:
-    #                 raise DatabaseError(
-    #                     f"Specified column {column} not in source table {src.fullname}"
-    #                 )
-
-    #     # 2. Get incremental value
-    #     table = self.get_table(dst_table, dst_schema, columns=columns)
-
-    #     if incremental_column is not None and not dst_table.exists():
-    #         if incremental_column not in table.columns:
-    #             raise DatabaseError(
-    #                 f"Incremental column {incremental_column} not in destination table {table.fullname}"
-    #             )
-    #         incremental_value = (
-    #             select([func.max(table.c[incremental_column])])
-    #             .where(table.c[incremental_column] != None)
-    #             .execute()
-    #             .fetchone()[0]
-    #         )
-    #     elif table is None:
-    #         # Create table
-    #         table = Table(dst_table, self.metadata, schema=dst_schema)
-    #         for column in columns:
-    #             table.append_column(src.columns[column].copy())
-    #         table.create()
-    #         incremental_value = None
-    #     else:
-    #         incremental_value = None
-
-    #     # 3. Get data
-    #     if incremental_value is None:
-    #         where_cond = True
-    #     else:
-    #         where_cond = or_(
-    #             src.c[incremental_column] == None,
-    #             src.c[incremental_column] > incremental_value,
-    #         )
-    #     query = select([src.c[c] for c in columns]).where(where_cond)
-    #     data = query.execute().fetchall()
-
-    #     # 4. Load data
-    #     return self.load_data(
-    #         [dict(zip([str(c.name) for c in query.c], row)) for row in data], table
-    #     )
