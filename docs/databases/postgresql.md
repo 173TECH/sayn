@@ -3,19 +3,19 @@
 SAYN will consider the following parameters to construct the sqlalchemy url:
 
 - **host**
+- **port**
 - **user**
 - **password**
-- **port**
 - **dbname**
 
-Other parameters specified will be passed on to 
+Other parameters specified will be passed to
 [sqlalchemy.create_engine](https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine)
 when creating the engine.
 
 !!! example "settings.yaml"
     ```yaml
     ...
-    
+
     credentials:
       postgresql-conn:
         type: postgresql
@@ -24,7 +24,7 @@ when creating the engine.
         user: [username]
         password: '[password]' #use quotes to avoid conflict with special characters
         dbname: [database_name]
-    
+
     ...
     ```
 
