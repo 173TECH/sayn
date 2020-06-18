@@ -35,6 +35,12 @@ graphviz = ["graphviz"]
 [tool.poetry.scripts]
 sayn = "sayn.commands.sayn_powers:cli"
 
+
+[tool.poetry.dev-dependencies]
+mkdocs = "^1.1.2"
+mkdocs-material = "^5.2.3"
+mkdocstrings = "^0.11.4"
+
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"

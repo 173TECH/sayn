@@ -1,20 +1,19 @@
 # SQLite
 
-## Connection
+SAYN will form the sqlalchemy connection URL with the `database` parameter,
+which should point to a file path relative to the SAYN project.
 
-This is an example of SQLite credential details to connect:
+Any parameter other than `database` will be passed to
+[sqlalchemy.create_engine](https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine).
 
-**`settings.yaml`**
+!!! example "settings.yaml"
+    ```yaml
+    credentials:
+      sqlite-conn:
+        type: sqlite
+        database: [path_to_database]
+    ```
 
-```yaml
-# ...
 
-credentials:
-  sqlite-conn:
-    type: sqlite
-    database: [path_to_database]
-
-# ...
-```
-
-The attributes other than `type` need to match the [sqlalchemy create_engine connect_args](https://docs.python.org/3/library/sqlite3.html#sqlite3.connect).
+Check the sqlalchemy [sqlite](https://docs.sqlalchemy.org/en/13/dialects/sqlite.html)
+dialect for extra parameters.

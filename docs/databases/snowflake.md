@@ -1,33 +1,37 @@
 # Snowflake
 
-## Connection
+SAYN will consider the following parameters to construct the sqlalchemy url:
 
-This is an example of Snowflake credential details to connect:
+- **account**
+- **region**
+- **user**
+- **password**
+- **database**
+- **warehouse**
+- **role**
+- **schema**
+- **host**
+- **port**
 
-**`settings.yaml`**
+Other parameters specified will be passed on to 
+[sqlalchemy.create_engine](https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine)
+when creating the engine.
 
-```yaml
-# ...
+!!! example "settings.yaml"
+    ```yaml
+    ...
+    
+    credentials:
+      postgresql-conn:
+        type: snowflake
+        account: [account]
+        user: [username]
+        role: [user_role]
+        password: '[password]' #use quotes to avoid conflict with special characters
+        database: [database_name]
+    
+    ...
+    ```
 
-credentials:
-  snowflake-conn:
-    type: snowflake
-    connect_args:
-      account: [account]
-      user: [username]
-      password: '[password]' #use quotes to avoid conflict with special characters
-      database: [database]
-      schema: [schema]
-      warehouse: [warehouse]
-      role: [role]
-
-# ...
-```
-
-The `connect_args` need to match the [sqlalchemy create_engine connect_args](https://docs.snowflake.com/en/user-guide/python-connector-example.html#connecting-to-snowflake).
-
-## Additional Notes
-
-### Autocommit
-
-Autocommit is False by default when creating Snowflake connections through sqlalchemy. If you are using `sql` tasks, you might want to set the `autocommit` attribute to True in the connection credentials.
+Check the sqlalchemy [snowflake dialect](https://docs.snowflake.com/en/user-guide/sqlalchemy.html)
+for extra parameters.

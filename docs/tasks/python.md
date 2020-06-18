@@ -27,7 +27,7 @@ Please note that for the `python` tasks to run, you must have an `__init__.py` f
 
 Please see below an example of a `python` task:
 
-```python
+``` python
 from sayn import PythonTask
 
 class TaskPython(PythonTask):

@@ -1,25 +1,32 @@
 # PostgreSQL
 
-## Connection
+SAYN will consider the following parameters to construct the sqlalchemy url:
 
-This is an example of PostgreSQL credential details to connect:
+- **host**
+- **user**
+- **password**
+- **port**
+- **dbname**
 
-**`settings.yaml`**
+Other parameters specified will be passed on to 
+[sqlalchemy.create_engine](https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine)
+when creating the engine.
 
-```yaml
-# ...
+!!! example "settings.yaml"
+    ```yaml
+    ...
+    
+    credentials:
+      postgresql-conn:
+        type: postgresql
+        host: [host]
+        port: [port]
+        user: [username]
+        password: '[password]' #use quotes to avoid conflict with special characters
+        dbname: [database_name]
+    
+    ...
+    ```
 
-credentials:
-  postgresql-conn:
-    type: postgresql
-    connect_args:
-      host: [host]
-      port: [port]
-      user: [username]
-      password: '[password]' #use quotes to avoid conflict with special characters
-      dbname: [database_name]
-
-# ...
-```
-
-The `connect_args` need to match the [sqlalchemy create_engine connect_args](https://www.psycopg.org/docs/module.html#psycopg2.connect).
+Check the sqlalchemy [psycopg2](https://docs.sqlalchemy.org/en/13/dialects/postgresql.html#module-sqlalchemy.dialects.postgresql.psycopg2)
+dialect for extra parameters.
