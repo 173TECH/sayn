@@ -16,7 +16,11 @@ class Mysql(Database):
             settings["connect_args"] = dict()
         for param in db_parameters:
             if param in settings:
-                settings["connect_args"][param] = settings.pop(param)
+                if param == "port":
+                    value = int(settings.pop(param))
+                else:
+                    value = settings.pop(param)
+                settings["connect_args"][param] = value
 
-        engine = create_engine("mysql+mysqlconnector://", **settings)
+        engine = create_engine("mysql+pymysql://", **settings)
         self.setup_db(name, name_in_settings, db_type, engine)
