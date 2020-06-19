@@ -23,16 +23,6 @@ class Postgresql(Database):
         engine = create_engine("postgresql://", **settings)
         self.setup_db(name, name_in_settings, db_type, engine)
 
-    def select_stream(self, query, params=None):
-        with self.engine.connect().execution_options(stream_results=True) as connection:
-            if params is not None:
-                res = connection.execute(query, **params)
-            else:
-                res = connection.execute(query)
-
-            for record in res.fetchall():
-                yield dict(zip(res.keys(), record))
-
     def load_data_stream(self, table, schema, data_iter):
         def flush(connection, cursor, buffer):
             copy_sql = (

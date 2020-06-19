@@ -1,3 +1,4 @@
+from itertools import groupby
 import logging
 
 from sqlalchemy import MetaData, Table
@@ -43,7 +44,7 @@ class Database:
         """
         self.engine.execute(script)
 
-    def select(self, query, params=None):
+    def select(self, query, **params):
         """Executes the query and returns a list of dictionaries with the data.
 
         Args:
@@ -62,7 +63,7 @@ class Database:
 
         return [dict(zip(res.keys(), r)) for r in res.fetchall()]
 
-    def select_stream(self, query, params=None):
+    def select_stream(self, query, **params):
         """Executes the query and returns an iterator dictionaries with the data.
 
         The main difference with select() is that this method executes the query with a server-side
@@ -78,10 +79,7 @@ class Database:
 
         """
         with self.engine.connect().execution_options(stream_results=True) as connection:
-            if params is not None:
-                res = connection.execute(query, **params)
-            else:
-                res = connection.execute(query)
+            res = connection.execute(query, **params)
 
             for record in res.cursor:
                 yield dict(zip(res.keys(), record))
