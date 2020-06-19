@@ -103,21 +103,21 @@ class Database:
 
     def validate_ddl(self, ddl, **kwargs):
         if "columns" not in ddl:
-            columns = dict()
+            columns = None
         else:
             columns = self.validate_columns(ddl.get("columns"), **kwargs)
             if columns is None:
                 return
 
         if "indexes" not in ddl:
-            indexes = dict()
+            indexes = None
         else:
             indexes = self.validate_indexes(ddl.get("indexes"), **kwargs)
             if indexes is None:
                 return
 
         if "permissions" not in ddl:
-            permissions = dict()
+            permissions = None
         else:
             permissions = self.validate_permissions(ddl.get("permissions"), **kwargs)
             if permissions is None:

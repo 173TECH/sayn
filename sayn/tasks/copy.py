@@ -21,7 +21,7 @@ class CopyTask(SqlTask):
             return status
 
         status = self._setup_ddl(type_required=False)
-        if self.ddl is None:
+        if self.ddl is None or self.ddl.get("columns") is None:
             # TODO full copy of table when ddl not specified
             return self.failed("DDL is required for copy tasks")
 
@@ -77,7 +77,7 @@ class CopyTask(SqlTask):
         self.db.load_data_stream(self.tmp_table, self.tmp_schema, data_iter)
 
         # 4. finish
-        if table_exists:
+        if table_exists and self.incremental_key is not None:
             self._write_query(f"{self.merge_query}", suffix="_merge")
             self.db.execute(self.merge_query)
         else:
