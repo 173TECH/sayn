@@ -113,7 +113,7 @@ class Database:
                 return
 
         if "indexes" not in ddl:
-            columns = dict()
+            indexes = dict()
         else:
             indexes = self.validate_indexes(ddl.get("indexes"), **kwargs)
             if indexes is None:
