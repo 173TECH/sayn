@@ -1,4 +1,3 @@
-from itertools import groupby
 import logging
 
 from sqlalchemy import MetaData, Table
