@@ -47,7 +47,11 @@ class CopyTask(SqlTask):
             self._write_query(
                 self.last_incremental_value_query, suffix="_last_incremental_value"
             )
-            last_incremental_value = self.db.execute(self.last_incremental_value_query)
+            res = self.db.select(self.last_incremental_value_query)
+            if len(res) == 1:
+                last_incremental_value = res[0]["value"]
+            else:
+                last_incremental_value = None
         else:
             last_incremental_value = None
 
@@ -68,14 +72,14 @@ class CopyTask(SqlTask):
 
         # 4. finish
         if table_exists:
+            self._write_query(f"{self.merge_query}", suffix="_merge")
+            self.db.execute(self.merge_query)
+        else:
             self._write_query(f"{self.move_query}", suffix="_move")
             self.db.execute(self.move_query)
             if self.permissions_query is not None:
                 self._write_query(f"{self.permissions_query}", suffix="_permissions")
                 self.db.execute(self.permissions_query)
-        else:
-            self._write_query(f"{self.merge_query}", suffix="_merge")
-            self.db.execute(self.merge_query)
 
         return self.success()
 
