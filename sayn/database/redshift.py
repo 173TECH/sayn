@@ -62,46 +62,48 @@ class Redshift(Database):
         engine = create_engine("postgresql://", **settings)
         self.setup_db(name, name_in_settings, db_type, engine)
 
-    def validate_ddl(self, ddl, type_required=True):
-        schema = yaml.Map(
-            {
-                yaml.Optional("columns"): yaml.Seq(
-                    yaml.Map(
-                        {
-                            "name": yaml.NotEmptyStr(),
-                            "type"
-                            if type_required
-                            else yaml.Optional("type"): yaml.NotEmptyStr(),
-                            yaml.Optional("primary"): yaml.Bool(),
-                            yaml.Optional("not_null"): yaml.Bool(),
-                            yaml.Optional("unique"): yaml.Bool(),
-                        }
-                    )
-                ),
-                yaml.Optional("indexes"): yaml.MapPattern(
-                    yaml.NotEmptyStr(),
-                    yaml.Map({"columns": yaml.UniqueSeq(yaml.NotEmptyStr())}),
-                ),
-                yaml.Optional("distribution"): yaml.Regex(r"even|all|key([^,]+)"),
-                yaml.Optional("sorting"): yaml.Map(
-                    {
-                        yaml.Optional("type"): yaml.Enum(["compound", "interleaved"]),
-                        "columns": yaml.UniqueSeq(yaml.NotEmptyStr()),
-                    }
-                ),
-                yaml.Optional("permissions"): yaml.MapPattern(
-                    yaml.NotEmptyStr(), yaml.NotEmptyStr()
-                ),
-            }
-        )
-
-        try:
-            ddl.revalidate(schema)
-        except Exception as e:
-            logging.error(e)
+    def validate_ddl(self, ddl, **kwargs):
+        out_ddl = super(self, Database).validate_ddl(ddl, **kwargs)
+        if out_ddl is None:
             return
 
-        return ddl.data
+        # Redshift specific ddl
+        column_names = [c["name"] for c in out_ddl["columns"]]
+        if "sorting" in kwargs:
+            try:
+                sorting = yaml.as_document(
+                    kwargs["sorting"],
+                    schema=yaml.Map(
+                        {
+                            yaml.Optional("type"): yaml.Enum(
+                                ["compound", "interleaved"]
+                            ),
+                            "columns": yaml.UniqueSeq(
+                                yaml.NotEmptyStr()
+                                if len(column_names) == 0
+                                else yaml.Enum(column_names)
+                            ),
+                        }
+                    ),
+                )
+            except Exception as e:
+                logging.error(e)
+                return
+
+            out_ddl["sorting"] = sorting.data
+
+        if "distribution" in kwargs:
+            try:
+                distribution = yaml.as_document(
+                    kwargs["distribution"], schema=yaml.Regex(r"even|all|key([^,]+)")
+                )
+            except Exception as e:
+                logging.error(e)
+                return
+
+            out_ddl["distribution"] = distribution.data
+
+        return out_ddl
 
     def _get_table_attributes(self, ddl):
         if "sorting" not in ddl and "distribution" not in ddl:

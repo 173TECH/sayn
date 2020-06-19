@@ -115,7 +115,7 @@ class SqlTask(Task):
             else:
                 parsed = yaml.as_document(ddl)
 
-            self.ddl = self.db.validate_ddl(parsed, type_required=type_required)
+            self.ddl = self.db.validate_ddl(ddl, type_required=type_required)
 
             if self.ddl is None:
                 return self.failed("Error processing DDL")
