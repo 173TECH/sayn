@@ -216,7 +216,7 @@ class Config:
                 parameter_key = key[len("SAYN_PARAMETER_") :]
                 if parameter_key not in allowed_parameters:
                     logging.error(
-                        f'Parameter "{parameter_key}" not defined in models.yaml. '
+                        f'Parameter "{parameter_key}" not defined in project.yaml. '
                     )
                     logging.error(
                         f"Allowed parameters are {', '.join(allowed_parameters)}"
