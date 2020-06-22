@@ -39,6 +39,7 @@ sayn = "sayn.commands.sayn_powers:cli"
 
 
 [tool.poetry.dev-dependencies]
+pytest = "^5.4.3"
 mkdocs = "^1.1.2"
 mkdocs-material = "^5.2.3"
 mkdocstrings = "^0.11.4"
