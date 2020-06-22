@@ -1,3 +1,4 @@
+from itertools import groupby
 import logging
 
 from sqlalchemy import MetaData, Table
@@ -41,10 +42,9 @@ class Database:
         Args:
             script (sql): The SQL script to execute
         """
-        with self.engine.connect().execution_options(autocommit=True) as connection:
-            connection.execute(script)
+        self.engine.execute(script)
 
-    def select(self, query, params=None):
+    def select(self, query, **params):
         """Executes the query and returns a list of dictionaries with the data.
 
         Args:
@@ -63,6 +63,27 @@ class Database:
 
         return [dict(zip(res.keys(), r)) for r in res.fetchall()]
 
+    def select_stream(self, query, **params):
+        """Executes the query and returns an iterator dictionaries with the data.
+
+        The main difference with select() is that this method executes the query with a server-side
+        cursor (sqlalchemy stream_results = True).
+
+        Args:
+            query (str): The SELECT query to execute
+            params (dict): sqlalchemy parameters to use when building the final query as per
+                [sqlalchemy.engine.Connection.execute](https://docs.sqlalchemy.org/en/13/core/connections.html#sqlalchemy.engine.Connection.execute)
+
+        Returns:
+            list: A list of dictionaries with the results of the query
+
+        """
+        with self.engine.connect().execution_options(stream_results=True) as connection:
+            res = connection.execute(query, **params)
+
+            for record in res.cursor:
+                yield dict(zip(res.keys(), record))
+
     def load_data(self, table, schema, data):
         """Loads a list of values into the database
 
@@ -78,46 +99,128 @@ class Database:
         with self.engine.connect().execution_options(autocommit=True) as connection:
             connection.execute(table_def.insert().values(data))
 
-    # Utils
+    # DDL validation methods
 
-    def validate_ddl(self, ddl, type_required=True):
-        """Validates the ddl field in autosql and copy tasks.
+    def validate_ddl(self, ddl, **kwargs):
+        if "columns" not in ddl:
+            columns = None
+        else:
+            columns = self.validate_columns(ddl.get("columns"), **kwargs)
+            if columns is None:
+                return
+
+        if "indexes" not in ddl:
+            indexes = None
+        else:
+            indexes = self.validate_indexes(ddl.get("indexes"), **kwargs)
+            if indexes is None:
+                return
+
+        if "permissions" not in ddl:
+            permissions = None
+        else:
+            permissions = self.validate_permissions(ddl.get("permissions"), **kwargs)
+            if permissions is None:
+                return
+
+        return {
+            "columns": columns,
+            "indexes": indexes,
+            "permissions": permissions,
+        }
+
+    def validate_columns(self, columns, **kwargs):
+        """Validates the columns definition for a task.
+
+        A column definition can be in the formats:
+         * str: indicates the column name
+         * dict: specificies name, type and other properties supported by the database driver
 
         Args:
-            ddl (strictyaml): A strictyaml object pointing at the ddl definition
-            type_required (bool): Indicates if the type of columns is required when columns
-              are present in the ddl
+            columns (list): A list of column definitions
 
         Returns:
-            dict: A validated ddl dictionary
+            list: A list of dictionaries with the column definition in a dict format or None if
+            there was an error during validation
         """
-        schema = yaml.Map(
-            {
-                yaml.Optional("columns"): yaml.Seq(
-                    yaml.Map(
+        try:
+            ddl = yaml.as_document(
+                columns,
+                schema=yaml.Seq(
+                    yaml.NotEmptyStr()
+                    | yaml.Map(
                         {
                             "name": yaml.NotEmptyStr(),
-                            "type"
-                            if type_required
-                            else yaml.Optional("type"): yaml.NotEmptyStr(),
+                            yaml.Optional("type"): yaml.NotEmptyStr(),
                             yaml.Optional("primary"): yaml.Bool(),
                             yaml.Optional("not_null"): yaml.Bool(),
                             yaml.Optional("unique"): yaml.Bool(),
                         }
                     )
                 ),
-                yaml.Optional("indexes"): yaml.MapPattern(
+            )
+        except Exception as e:
+            logging.error(e)
+            return
+
+        ddl = [c if isinstance(c, dict) else {"name": c} for c in ddl.data]
+
+        duplicate_cols = [
+            k for k, v in groupby(sorted([c["name"] for c in ddl])) if len(list(v)) > 1
+        ]
+        if len(duplicate_cols) > 0:
+            logging.error(f"Duplicate columns found: {', '.join(duplicate_cols)}")
+            return
+
+        if kwargs.get("types_required"):
+            missing_type = [c["name"] for c in ddl if "type" not in c]
+            if len(missing_type) > 0:
+                logging.error(f"Missing type for columns: {', '.join(missing_type)}")
+                return
+
+        return ddl
+
+    def validate_indexes(self, indexes, **kwargs):
+        """Validates the indexes definition for a task.
+
+        Args:
+            indexes (dict): A dictionary of indexes with the column list
+
+        Returns:
+            list: A dictionary with the index definition or None if there was
+            an error during validation
+        """
+        try:
+            ddl = yaml.as_document(
+                indexes,
+                schema=yaml.MapPattern(
                     yaml.NotEmptyStr(),
                     yaml.Map({"columns": yaml.UniqueSeq(yaml.NotEmptyStr())}),
                 ),
-                yaml.Optional("permissions"): yaml.MapPattern(
-                    yaml.NotEmptyStr(), yaml.NotEmptyStr()
-                ),
-            }
-        )
+            )
+        except Exception as e:
+            logging.error(e)
+            return
 
+        return ddl.data
+
+    def validate_permissions(self, permissions, **kwargs):
+        """Validates the permissions definition for a task.
+
+        Args:
+            permissions (dict): A dictionary in the role -> grant format
+
+        Returns:
+            list: A dictionary with the grant list or None if there was an error during validation
+        """
         try:
-            ddl.revalidate(schema)
+            ddl = yaml.as_document(
+                permissions,
+                schema=yaml.MapPattern(
+                    yaml.NotEmptyStr(),
+                    yaml.NotEmptyStr() | yaml.UniqueSeq(yaml.NotEmptyStr()),
+                ),
+            )
         except Exception as e:
             logging.error(e)
             return
@@ -182,7 +285,9 @@ class Database:
 
     # ETL steps return SQL code ready for execution
 
-    def create_table_select(self, table, schema, select, replace=False, view=False, ddl=dict()):
+    def create_table_select(
+        self, table, schema, select, replace=False, view=False, ddl=dict()
+    ):
         """Returns SQL code for a create table from a select statment.
 
         Args:
@@ -243,7 +348,7 @@ class Database:
         if_not_exists = (
             " IF NOT EXISTS" if "CREATE IF NOT EXISTS" in self.sql_features else ""
         )
-        q += f"CREATE TABLE{if_not_exists} {table} AS (\n      {columns}\n);"
+        q += f"CREATE TABLE{if_not_exists} {table} (\n      {columns}\n);"
 
         return q
 
@@ -270,7 +375,7 @@ class Database:
         q = ""
         if "primary_key" in ddl.get("indexes", dict()):
             pk_cols = ", ".join(ddl["indexes"]["primary_key"]["columns"])
-            q += f"ALTER TABLE {table_name} ADD PRIMARY KEY ({pk_cols});"
+            q += f"ALTER TABLE {table} ADD PRIMARY KEY ({pk_cols});"
 
         q += "\n".join(
             [

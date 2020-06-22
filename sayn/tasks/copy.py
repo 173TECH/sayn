@@ -1,19 +1,12 @@
-import logging
-
-from sqlalchemy.sql import select, func, or_, text
-
 from .task import TaskStatus
 from .sql import SqlTask
+
+from sqlalchemy import or_, select, text
 
 
 class CopyTask(SqlTask):
     def setup(self):
         self.db = self.sayn_config.default_db
-
-        status = self._setup_ddl(type_required=False)
-        if self.ddl is None:
-            # TODO full copy of table when ddl not specified
-            return self.failed("DDL is required for copy tasks")
 
         status = self._setup_source()
         if status != TaskStatus.READY:
@@ -27,6 +20,11 @@ class CopyTask(SqlTask):
         if status != TaskStatus.READY:
             return status
 
+        status = self._setup_ddl(type_required=False)
+        if self.ddl is None or self.ddl.get("columns") is None:
+            # TODO full copy of table when ddl not specified
+            return self.failed("DDL is required for copy tasks")
+
         status = self._setup_table_columns()
         if status != TaskStatus.READY:
             return status
@@ -38,75 +36,77 @@ class CopyTask(SqlTask):
         return self.ready()
 
     def run(self):
-        logging.debug("Writting query on disk")
-        status = self._write_queries()
-        if status != TaskStatus.SUCCESS:
-            return self.failed()
+        # Steps:
+        # 0. check table exists
+        table_exists = self.db.table_exists(self.table, self.schema)
 
-        logging.debug("Running SQL")
-        try:
-            step = "last_incremental_value"
+        # 1. create load
+        self._write_query(self.create_query, suffix="_create_load_table")
+        self.db.execute(self.create_query)
+
+        # 2. get last incremental value
+        if table_exists and self.incremental_key is not None:
+            self._write_query(
+                self.last_incremental_value_query, suffix="_last_incremental_value"
+            )
+            res = self.db.select(self.last_incremental_value_query)
+            if len(res) == 1:
+                last_incremental_value = res[0]["value"]
+            else:
+                last_incremental_value = None
+        else:
             last_incremental_value = None
-            if self.compiled[step] is not None:
-                res = self.db.select(self.compiled[step])
-                res = list(res[0].values())[0]
-                if res is not None:
-                    last_incremental_value = {"incremental_value": res}
 
-            step = "get_data"
-            data = self.source_db.select(self.compiled[step], last_incremental_value)
+        # 3. get data
+        # Retrieve in streaming
+        if last_incremental_value is None:
+            self._write_query(self.get_data_query, suffix="_get_data")
+            data_iter = self.source_db.select_stream(self.get_data_query)
+        else:
+            query = self.get_data_query.where(
+                or_(
+                    self.source_table_def.c[self.incremental_key] == None,
+                    self.source_table_def.c[self.incremental_key]
+                    > last_incremental_value,
+                )
+            )
+            self._write_query(query, suffix="_get_data")
+            data_iter = self.source_db.select_stream(query)
 
-            if len(data) == 0:
-                logging.debug("Nothing to load")
-                return self.success()
+        # Load in streaming
+        self.db.load_data_stream(self.tmp_table, self.tmp_schema, data_iter)
 
-            step = "create_load_table"
-            if self.compiled[step] is not None:
-                self.db.execute(self.compiled[step])
-
-            step = "load_data"
-            self.db.load_data(self.load_table, self.load_schema, data)
-
-            step = "finish"
-            if self.compiled[step] is not None:
-                self.db.execute(self.compiled[step])
-        except Exception as e:
-            logging.error(f'Error running step "{step}"')
-            logging.error(e)
-            if step != "load_data":
-                logging.debug(f"Query: {self.compiled[step]}")
-            return self.failed()
+        # 4. finish
+        if table_exists and self.incremental_key is not None:
+            self._write_query(f"{self.merge_query}", suffix="_merge")
+            self.db.execute(self.merge_query)
+        else:
+            self._write_query(f"{self.move_query}", suffix="_move")
+            self.db.execute(self.move_query)
+            if self.permissions_query is not None:
+                self._write_query(f"{self.permissions_query}", suffix="_permissions")
+                self.db.execute(self.permissions_query)
 
         return self.success()
 
     def compile(self):
-        status = self._write_queries()
-        if status != TaskStatus.SUCCESS:
-            return self.failed()
+        self._write_query(self.create_query, suffix="_create_load_table")
+        if self.incremental_key is not None:
+            self._write_query(
+                self.last_incremental_value_query, suffix="_last_incremental_value"
+            )
+            self._write_query(
+                f"{self.get_data_query_all}{self.get_data_query_filter}",
+                suffix="_get_data",
+            )
         else:
-            return self.success()
+            self._write_query(self.get_data_query_all, suffix="_get_data")
+        self._write_query(f"{self.move_query}", suffix="_move")
+        self._write_query(f"{self.merge_query}", suffix="_merge")
+        if self.permissions_query is not None:
+            self._write_query(f"{self.permissions_query}", suffix="_permissions")
 
-    def _write_queries(self):
-        try:
-
-            step = "last_incremental_value"
-            if self.compiled[step] is not None:
-                self._write_query(self.compiled[step], suffix=step)
-
-            step = "get_data"
-            self._write_query(self.compiled[step], suffix=step)
-
-            step = "create_load_table"
-            if self.compiled[step] is not None:
-                self._write_query(self.compiled[step], suffix=step)
-
-            step = "finish"
-            if self.compiled[step] is not None:
-                self._write_query(self.compiled[step], suffix=step)
-        except Exception as e:
-            return self.failed((f'Error saving query "{step}" on disk', e))
-
-        return TaskStatus.SUCCESS
+        return self.success()
 
     # Task property methods
 
@@ -117,7 +117,7 @@ class CopyTask(SqlTask):
 
         if (self.delete_key is None) != (self.incremental_key is None):
             return self.failed(
-                f'Incremental copy requires both "delete_key" and "incremental_key"'
+                'Incremental copy requires both "delete_key" and "incremental_key"'
             )
 
         return TaskStatus.READY
@@ -126,9 +126,9 @@ class CopyTask(SqlTask):
         # Source property indicating the table this will create
         source = self._pop_property("source", default={"schema": None})
 
-        self.schema = source.pop("schema", None)
-        if self.schema is not None and isinstance(self.schema, str):
-            self.schema = self.compile_property(self.schema)
+        self.source_schema = source.pop("schema", None)
+        if self.source_schema is not None and isinstance(self.source_schema, str):
+            self.source_schema = self.compile_property(self.source_schema)
         else:
             return self.failed('Optional property "schema" must be a string')
 
@@ -174,174 +174,69 @@ class CopyTask(SqlTask):
             if "type" not in column:
                 column["type"] = self.source_table_def.columns[
                     column["name"]
-                ].type.compile()
+                ].type.compile(dialect=self.db.engine.dialect)
 
         return TaskStatus.READY
-
-    # Utility methods
 
     def _setup_sql(self):
-        self.destination_table_def = self.db.get_table(
-            self.table, self.schema, columns=self.source_table_def.columns
+        # 1. Create: Create the table where we'll load the data
+        self.create_query = None
+        # 2. Incremental value: Get the last incremental value
+        self.last_incremental_value_query = None
+        # 3. Get data: retrieves the data from the source table
+        self.get_data_query_all = None
+        self.get_data_query_filter = None
+        # 4. Move: query to moves the tmp table to the target one
+        self.move_query = None
+        # 5. Merge: query to merge data into the target object
+        self.merge_query = None
+        # 6. Permissions: grants permissions if necessary
+        self.permissions_query = None
+
+        # 1. Create query
+        # We always load data into a temporary table
+        create_table_ddl = self.db.create_table_ddl(
+            self.tmp_table, self.tmp_schema, self.ddl, replace=True
         )
 
-        if self.destination_table_def is None:
-            return self.failed("Error detecting destination table")
-
-        if not self.destination_table_def.exists():
-            # Full load:
-            # Create final table directly and load there
-            self.load_table = self.table
-            self.load_schema = self.schema
-            create_load_table = self.db.create_table_ddl(
-                self.load_table, self.load_schema, self.ddl
+        # Add indexes if necessary
+        if self.ddl.get("indexes") is not None:
+            indexes = "\n-- Create indexes\n" + self.db.create_indexes(
+                self.tmp_table, self.tmp_schema, self.ddl
             )
-            self.compiled = {
-                "last_incremental_value": None,
-                "get_data": self.get_data(
-                    self.source_table,
-                    self.source_schema,
-                    [c["name"] for c in self.ddl["columns"]],
-                ),
-                "create_load_table": f"-- Create table\n{create_load_table}",
-                "finish": None,
-            }
-
-        elif self.incremental_key is None:
-            # Table exists and it's not an incremental load:
-            # Create temporary table, load there and then move
-            self.load_table = self.tmp_table
-            self.load_schema = self.tmp_schema
-            create_load_table = self.db.create_table_ddl(
-                self.load_table, self.load_schema, self.ddl, replace=True
-            )
-            self.compiled = {
-                "last_incremental_value": None,
-                "get_data": self.get_data(
-                    self.source_table,
-                    self.source_schema,
-                    [c["name"] for c in self.ddl["columns"]],
-                ),
-                "create_load_table": f"-- Create temporary table\n{create_load_table}",
-                "finish": self.db.move_table(
-                    self.load_table,
-                    self.load_schema,
-                    self.table,
-                    self.schema,
-                    self.ddl,
-                ),
-            }
-        elif self.delete_key is not None:
-            # Incremental load:
-            # Create temporary table, load there and then merge
-            self.load_table = self.tmp_table
-            self.load_schema = self.tmp_schema
-            create_load_table = self.db.create_table_ddl(
-                self.load_table, self.load_schema, self.ddl, replace=True
-            )
-            self.compiled = {
-                "last_incremental_value": self.get_max_value(
-                    self.table, self.schema, self.incremental_key
-                ),
-                "get_data": self.get_data(
-                    self.source_table,
-                    self.source_schema,
-                    [c["name"] for c in self.ddl["columns"]],
-                    incremental_key=self.incremental_key,
-                ),
-                "create_load_table": f"-- Create temporary table\n{create_load_table}",
-                "finish": self.db.merge_tables(
-                    self.load_table,
-                    self.load_schema,
-                    self.table,
-                    self.schema,
-                    self.delete_key,
-                ),
-            }
         else:
-            raise ValueError("Sayn error in copy")
+            indexes = ""
+
+        self.create_query = create_table_ddl + "\n" + indexes
+
+        # 2. Incremental value
+        full_table_name = (
+            f"{'' if self.schema is None else self.schema +'.'}{self.table}"
+        )
+        if self.incremental_key is not None:
+            self.last_incremental_value_query = f"SELECT MAX({self.incremental_key}) AS value FROM {full_table_name} WHERE {self.incremental_key} IS NOT NULL"
+        else:
+            self.last_incremental_value_query = None
+
+        # 3. Get data
+        self.get_data_query = select(
+            [self.source_table_def.c[c["name"]] for c in self.ddl["columns"]]
+        )
+
+        # 4. Move
+        self.move_query = self.db.move_table(
+            self.tmp_table, self.tmp_schema, self.table, self.schema, self.ddl
+        )
+
+        # 5. Merge
+        self.merge_query = self.db.merge_tables(
+            self.tmp_table, self.tmp_schema, self.table, self.schema, self.delete_key,
+        )
+
+        # 6. Permissions are always the same
+        if self.ddl.get("permissions") is not None:
+            self.permissions_query = self.db.grant_permissions(
+                self.table, self.schema, self.ddl["permissions"]
+            )
 
         return TaskStatus.READY
-
-    # Execution steps
-
-    def get_max_value(self, table, schema, column):
-        table_def = self.db.get_table(table, schema)
-        return select([func.max(table_def.c[column])]).where(
-            table_def.c[column] != None
-        )
-
-    def get_data(self, table, schema, columns, incremental_key=None):
-        src = self.source_db.get_table(table, schema, columns)
-        q = select([src.c[c] for c in columns])
-        if incremental_key is not None:
-            q = q.where(
-                or_(
-                    src.c[incremental_key] == None,
-                    src.c[incremental_key] > text(":incremental_value"),
-                )
-            )
-        return q
-
-    # def copy_from_table(
-    #     self, src, dst_table, dst_schema=None, columns=None, incremental_column=None
-    # ):
-    #     # 1. Check source table
-    #     if not src.exists():
-    #         raise DatabaseError(f"Source table {src.fullname} does not exists")
-
-    #     if columns is None:
-    #         columns = [c.name for c in src.columns]
-    #         if incremental_column is not None and incremental_column not in src.columns:
-    #             raise DatabaseError(
-    #                 f"Incremental column {incremental_column} not in source table {src.fullname}"
-    #             )
-    #     else:
-    #         if incremental_column is not None and incremental_column not in columns:
-    #             columns.append(incremental_column)
-
-    #         for column in columns:
-    #             if column not in src.columns:
-    #                 raise DatabaseError(
-    #                     f"Specified column {column} not in source table {src.fullname}"
-    #                 )
-
-    #     # 2. Get incremental value
-    #     table = self.get_table(dst_table, dst_schema, columns=columns)
-
-    #     if incremental_column is not None and not dst_table.exists():
-    #         if incremental_column not in table.columns:
-    #             raise DatabaseError(
-    #                 f"Incremental column {incremental_column} not in destination table {table.fullname}"
-    #             )
-    #         incremental_value = (
-    #             select([func.max(table.c[incremental_column])])
-    #             .where(table.c[incremental_column] != None)
-    #             .execute()
-    #             .fetchone()[0]
-    #         )
-    #     elif table is None:
-    #         # Create table
-    #         table = Table(dst_table, self.metadata, schema=dst_schema)
-    #         for column in columns:
-    #             table.append_column(src.columns[column].copy())
-    #         table.create()
-    #         incremental_value = None
-    #     else:
-    #         incremental_value = None
-
-    #     # 3. Get data
-    #     if incremental_value is None:
-    #         where_cond = True
-    #     else:
-    #         where_cond = or_(
-    #             src.c[incremental_column] == None,
-    #             src.c[incremental_column] > incremental_value,
-    #         )
-    #     query = select([src.c[c] for c in columns]).where(where_cond)
-    #     data = query.execute().fetchall()
-
-    #     # 4. Load data
-    #     return self.load_data(
-    #         [dict(zip([str(c.name) for c in query.c], row)) for row in data], table
-    #     )
