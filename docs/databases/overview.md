@@ -12,7 +12,7 @@ SAYN uses [sqlalchemy](https://www.sqlalchemy.org/){target="\_blank"} in order t
 
 ## Usage
 
-Database connections are definied as `credentials` in `settings.yaml` like this:
+Database connections are defined as `credentials` in `settings.yaml` by specifying the database `type` and other connection parameters.
 
 !!! example "settings.yaml"
     ```yaml
@@ -20,16 +20,15 @@ Database connections are definied as `credentials` in `settings.yaml` like this:
       db_name:
         type: redshift
 
-        host: redshift-cluster.dff9slsflkjsdflkj.eu-west-1.redshift.amazonaws.com
+        host: ...
+        # other connection parameters ...
     ```
 
-You can check the list of connection parameters in the database specific page in this section. If a
-parameter not listed in the database page is included in `settings.yaml`, that parameter will be passed on to
-[sqlalchemy.create_engine](https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine)
-so refer to sqlalchemy's documentation if you need to fine tune the connection.
+You can check the list of connection parameters in the database specific pages of this section. If a
+parameter that is not listed on the database page is included in `settings.yaml`, that parameter will be passed to
+[sqlalchemy.create_engine](https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine). Refer to sqlalchemy's documentation if you need to fine tune the connection.
 
-For example, if we want to specify a connection timeout for a PostgreSQL database, we can specify
-that in the `connect_args` parameter:
+For example, to specify a connection timeout for a PostgreSQL connection, this can be specified in the `connect_args` parameter:
 
 !!! example "settings.yaml"
     ```yaml
@@ -38,6 +37,7 @@ that in the `connect_args` parameter:
         type: postgresql
 
         host: ...
+        # other connection parameters
 
         connect_args:
           connect_timeout: 100
@@ -46,7 +46,7 @@ that in the `connect_args` parameter:
 ## Using databases in Python tasks
 
 Databases defined in the SAYN project are available to Python tasks via `Config.dbs`. For
-convenience though, all Python tasks have a `default_db`. 
+convenience though, all Python tasks have a `default_db`.
 
 !!! example "Example PythonTask"
     ``` python hl_lines="8"
@@ -61,7 +61,7 @@ convenience though, all Python tasks have a `default_db`.
             #code you want to run
     ```
 
-### Database class
+## Database class
 
 ::: sayn.database.database.Database
     selection:
@@ -69,4 +69,3 @@ convenience though, all Python tasks have a `default_db`.
         - execute
         - select
         - load_data
-
