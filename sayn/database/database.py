@@ -42,7 +42,8 @@ class Database:
         Args:
             script (sql): The SQL script to execute
         """
-        self.engine.execute(script)
+        with self.engine.connect().execution_options(autocommit=True) as connection:
+            connection.execute(script)
 
     def select(self, query, **params):
         """Executes the query and returns a list of dictionaries with the data.
