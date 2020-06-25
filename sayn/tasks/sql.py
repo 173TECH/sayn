@@ -112,8 +112,6 @@ class SqlTask(Task):
                 # TODO external file not implemented
                 # parsed = yaml.load(self.compile_property(ddl))
                 raise ValueError("External file for ddl not implemented")
-            else:
-                parsed = yaml.as_document(ddl)
 
             self.ddl = self.db.validate_ddl(ddl, type_required=type_required)
 

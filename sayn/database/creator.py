@@ -19,7 +19,10 @@ drivers = {
 
 
 def create_all(credentials):
-    return {n: create(n, c["name_in_settings"], c["settings"]) for n, c in credentials.items()}
+    return {
+        n: create(n, c["name_in_settings"], c["settings"])
+        for n, c in credentials.items()
+    }
 
 
 def create(name, name_in_settings, settings):

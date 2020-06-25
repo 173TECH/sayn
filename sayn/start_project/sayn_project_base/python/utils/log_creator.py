@@ -3,7 +3,7 @@ import time
 
 # Table creation queries
 
-q_create_fighters = '''
+q_create_fighters = """
     DROP TABLE IF EXISTS {user_prefix}logs_fighters
     ;
 
@@ -13,9 +13,9 @@ q_create_fighters = '''
         fighter_name VARCHAR
     )
     ;
-'''
+"""
 
-q_create_arenas = '''
+q_create_arenas = """
     DROP TABLE IF EXISTS {user_prefix}logs_arenas
     ;
 
@@ -25,9 +25,9 @@ q_create_arenas = '''
         arena_name VARCHAR
     )
     ;
-'''
+"""
 
-q_create_tournaments = '''
+q_create_tournaments = """
     DROP TABLE IF EXISTS {user_prefix}logs_tournaments
     ;
 
@@ -37,9 +37,9 @@ q_create_tournaments = '''
         tournament_name VARCHAR
     )
     ;
-'''
+"""
 
-q_create_battles = '''
+q_create_battles = """
     DROP TABLE IF EXISTS {user_prefix}logs_battles
     ;
 
@@ -53,9 +53,9 @@ q_create_battles = '''
         winner_id INTEGER
     )
     ;
-'''
+"""
 
-#Log Details
+# Log Details
 
 fighter_logs = [
     (1, "son goku"),
@@ -77,14 +77,15 @@ arena_logs = [
     (2, "world edge"),
     (3, "namek"),
     (4, "volcanic crater"),
-    (5, "underwater")
+    (5, "underwater"),
 ]
 
 tournament_logs = [
     (1, "world championships"),
     (2, "tenka-ichi budokai"),
-    (3, "king of the mountain")
+    (3, "king of the mountain"),
 ]
+
 
 def create_battle_logs(tournament_battles):
     battle_logs = []
@@ -119,84 +120,88 @@ def create_battle_logs(tournament_battles):
                 arena_id,
                 fighter1_id,
                 fighter2_id,
-                winner_id
+                winner_id,
             )
 
             battle_logs.append(row)
 
     return battle_logs
 
+
 # Data Package
 
-def prepare_data(tournament_battles, user_prefix=''):
+
+def prepare_data(tournament_battles, user_prefix=""):
     logs = {
-        'fighters': {
-            'create': q_create_fighters.format(user_prefix=user_prefix),
-            'data': fighter_logs
+        "fighters": {
+            "create": q_create_fighters.format(user_prefix=user_prefix),
+            "data": fighter_logs,
         },
-        'arenas': {
-            'create': q_create_arenas.format(user_prefix=user_prefix),
-            'data': arena_logs
+        "arenas": {
+            "create": q_create_arenas.format(user_prefix=user_prefix),
+            "data": arena_logs,
         },
-        'tournaments': {
-            'create': q_create_tournaments.format(user_prefix=user_prefix),
-            'data': tournament_logs
+        "tournaments": {
+            "create": q_create_tournaments.format(user_prefix=user_prefix),
+            "data": tournament_logs,
         },
-        'battles': {
-            'create': q_create_battles.format(user_prefix=user_prefix),
-            'data': create_battle_logs(tournament_battles)
+        "battles": {
+            "create": q_create_battles.format(user_prefix=user_prefix),
+            "data": create_battle_logs(tournament_battles),
         },
     }
 
     return logs
 
+
 # Log Load
 
-def generate_load_query(log_type, log, user_prefix=''):
+
+def generate_load_query(log_type, log, user_prefix=""):
     event_id = time.time()
 
-    if log_type == 'fighters':
-        q_insert = '''
+    if log_type == "fighters":
+        q_insert = """
             INSERT INTO {user_prefix}logs_fighters VALUES('{event_id}', {fighter_id}, '{fighter_name}')
-        '''.format(
+        """.format(
             user_prefix=user_prefix,
             event_id=event_id,
             fighter_id=log[0],
-            fighter_name=log[1]
+            fighter_name=log[1],
         )
 
-    elif log_type == 'arenas':
-        q_insert = '''
+    elif log_type == "arenas":
+        q_insert = """
             INSERT INTO {user_prefix}logs_arenas VALUES('{event_id}', {arena_id}, '{arena_name}')
-        '''.format(
+        """.format(
             user_prefix=user_prefix,
             event_id=event_id,
             arena_id=log[0],
-            arena_name=log[1]
+            arena_name=log[1],
         )
 
-    elif log_type == 'tournaments':
-        q_insert = '''
+    elif log_type == "tournaments":
+        q_insert = """
             INSERT INTO {user_prefix}logs_tournaments VALUES('{event_id}', {tournament_id}, '{tournament_name}')
-        '''.format(
+        """.format(
             user_prefix=user_prefix,
             event_id=event_id,
             tournament_id=log[0],
-            tournament_name=log[1]
+            tournament_name=log[1],
         )
 
-    elif log_type == 'battles':
-        q_insert = '''
+    elif log_type == "battles":
+        q_insert = """
             INSERT INTO {user_prefix}logs_battles VALUES('{event_id}', {tournament_id}, {battle_id}, {arena_id}, {fighter1_id}, {fighter2_id}, {winner_id})
-        '''.format(
+        """.format(
             user_prefix=user_prefix,
             event_id=event_id,
             tournament_id=log[0],
             battle_id=log[1],
             arena_id=log[2],
-            fighter1_id = log[3],
-            fighter2_id = log[4],
-            winner_id = log[5]
+            fighter1_id=log[3],
+            fighter2_id=log[4],
+            winner_id=log[5],
         )
 
     else:

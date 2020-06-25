@@ -65,7 +65,7 @@ class CopyTask(SqlTask):
         else:
             query = self.get_data_query.where(
                 or_(
-                    self.source_table_def.c[self.incremental_key] == None,
+                    self.source_table_def.c[self.incremental_key].is_(None),
                     self.source_table_def.c[self.incremental_key]
                     > last_incremental_value,
                 )
