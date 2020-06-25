@@ -25,8 +25,8 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
-        os: [Ubuntu]
-        python: [3.6, 3.7, 3.8]
+        os: [Ubuntu, MacOS, Windows]
+        python-version: [3.6, 3.7, 3.8]
 
     steps:
       - uses: actions/checkout@v2
