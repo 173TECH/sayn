@@ -25,16 +25,26 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Python
+
+      - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
-      - name: Upgrade setuptools
-        run: pip install --upgrade setuptools
+
+      - name: Get full Python version
+        id: full-python-version
+        shell: bash
+        run: echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))")
+
       - name: Install Poetry
-        run: pip install poetry
-      - name: Install packages
+        run: |
+          pip install --upgrade setuptools
+          pip install poetry
+
+      - name: Install dependencies
         run: poetry install
-      - name: Run tests
-        run: pytest
+
+      - name: Run pytest
+        shell: bash
+        run: poetry run pytest
 
