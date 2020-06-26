@@ -1,6 +1,5 @@
 from copy import copy, deepcopy
 from collections import deque, OrderedDict
-
 from datetime import datetime
 from itertools import groupby
 import logging
