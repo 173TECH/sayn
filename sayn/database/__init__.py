@@ -5,7 +5,3 @@ from .redshift import Redshift
 from .snowflake import Snowflake
 from .mysql import Mysql
 from .sqlite import Sqlite
-
-
-class DatabaseError(Exception):
-    pass

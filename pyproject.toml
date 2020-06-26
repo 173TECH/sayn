@@ -46,6 +46,7 @@ mkdocs-material = "^5.2.3"
 mkdocstrings = "^0.11.4"
 black = "^19.10b0"
 flake8 = "^3.8.3"
+pytest-sugar = "^0.9.3"
 
 [build-system]
 requires = ["poetry>=0.12"]

@@ -31,6 +31,7 @@ class Config:
         end_dt=None,
         **cmd_parameters,
     ):
+        print(f"profile: {profile}")
         # Process basic command parameters
         self.run_id = (datetime.now() - datetime(1970, 1, 1)).total_seconds()
 

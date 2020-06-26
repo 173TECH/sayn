@@ -83,7 +83,7 @@ class SqlTask(Task):
         self.tmp_schema = destination.pop("tmp_schema", None)
         if "NO SET SCHEMA" in self.db.sql_features and self.tmp_schema is not None:
             return self.failed(
-                f'"tmp_schema" not supported for database of type "{self.db.type}"'
+                f'"tmp_schema" not supported for database of type "{self.db.db_type}"'
             )
         elif self.tmp_schema is not None and isinstance(self.tmp_schema, str):
             self.tmp_schema = self.compile_property(self.tmp_schema)

@@ -13,7 +13,7 @@ class Sqlite(Database):
 
         database = settings.pop("database")
 
-        engine = create_engine(f"sqlite://{database}", **settings)
+        engine = create_engine(f"sqlite:///{database}", **settings)
         self.setup_db(name, name_in_settings, db_type, engine)
 
     def execute(self, script):
