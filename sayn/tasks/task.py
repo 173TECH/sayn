@@ -42,15 +42,15 @@ class Task(object):
 
     def _check_extra_fields(self):
         # Cleanup preset
-        if 'preset' in self._task_def:
-            if 'preset' in self._task_def['preset']:
-                if len(self._task_def['preset']['preset']) == 0:
+        if "preset" in self._task_def:
+            if "preset" in self._task_def["preset"]:
+                if len(self._task_def["preset"]["preset"]) == 0:
                     # Clean nested preset if possible
-                    del self._task_def['preset']['preset']
+                    del self._task_def["preset"]["preset"]
 
-            if len(self._task_def['preset']) == 0:
+            if len(self._task_def["preset"]) == 0:
                 # If the nested preset is empty, clean the outer one if possible
-                del self._task_def['preset']
+                del self._task_def["preset"]
 
         if len(self._task_def) > 0:
             return self.failed(
@@ -84,15 +84,15 @@ class Task(object):
         value = default
 
         # Extract the value from the deepest level of nesting first and go outwards
-        # We always remove it from the _task_def 
-        if 'preset' in self._task_def:
-            if 'preset' in self._task_def['preset']:
-                if property in self._task_def['preset']['preset']:
-                    new_value = self._task_def['preset']['preset'].pop(property)
+        # We always remove it from the _task_def
+        if "preset" in self._task_def:
+            if "preset" in self._task_def["preset"]:
+                if property in self._task_def["preset"]["preset"]:
+                    new_value = self._task_def["preset"]["preset"].pop(property)
                     value = merge_value(value, new_value)
 
-            if property in self._task_def['preset']:
-                new_value = self._task_def['preset'].pop(property)
+            if property in self._task_def["preset"]:
+                new_value = self._task_def["preset"].pop(property)
                 value = merge_value(value, new_value)
 
         if property in self._task_def:

@@ -22,14 +22,14 @@ class Logger:
         self.set_file_logger(log_file)
 
     def set_config(self, **kwargs):
-        if 'stage' in kwargs:
-            self.stage_name = kwargs['stage']
+        if "stage" in kwargs:
+            self.stage_name = kwargs["stage"]
 
-        if 'task' in kwargs:
-            self.task_name = kwargs['task']
+        if "task" in kwargs:
+            self.task_name = kwargs["task"]
 
-        if 'progress' in kwargs:
-            self.progress = kwargs['progress']
+        if "progress" in kwargs:
+            self.progress = kwargs["progress"]
 
         self._set_console_formatter()
         self._set_file_formatter()
@@ -78,14 +78,14 @@ class Logger:
         if self.task_name is not None:
             fmt_string += f"{self.task_name}|"
 
-        fmt_string +="%(message)s"
+        fmt_string += "%(message)s"
 
         formatter = coloredlogs.ColoredFormatter(
             fmt=fmt_string,
             field_styles={
-            #    "asctime": {}
-            #    "stage_name": {"bold": True, "color": "blue"},
-            #    "progress": {"bold": True, "color": "blue"},
+                #    "asctime": {}
+                #    "stage_name": {"bold": True, "color": "blue"},
+                #    "progress": {"bold": True, "color": "blue"},
             },
             level_styles={
                 "debug": {"color": "blue"},
@@ -93,7 +93,7 @@ class Logger:
                 "warning": {"color": "yellow"},
                 "error": {"color": "red"},
                 "critical": {"color": "red"},
-                #"exception": {"color": "red"},
+                # "exception": {"color": "red"},
             },
         )
         self.console_handler.setFormatter(formatter)
@@ -113,7 +113,7 @@ class Logger:
             if self.task_name is not None:
                 fmt_string += f"{self.task_name}|"
 
-            fmt_string +="%(message)s"
+            fmt_string += "%(message)s"
 
             formatter = logging.Formatter(fmt_string, "%Y-%m-%d %H:%M:%S",)
             self.file_handler.setFormatter(formatter)

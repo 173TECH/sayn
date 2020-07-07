@@ -24,7 +24,7 @@ default_profile: dev
 profiles:
   dev:
     credentials:
-      warehouse: test_db
+      warehouse: dev_db
   prod:
     credentials:
       warehouse: prod_db
@@ -36,9 +36,9 @@ profiles:
 #credentials can include both database connection and API connection details
 #for the detail of supported databases and specific connection parameters, please refer to the SAYN documentation
 credentials:
-  test_db:
+  dev_db:
     type: sqlite
-    database: test.db
+    database: dev.db
   prod_db:
     type: sqlite
     database: prod.db

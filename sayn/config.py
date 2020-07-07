@@ -61,9 +61,7 @@ class Config:
             raise SaynConfigError("Error detected in configuration")
 
         # Process and store the config from the yaml files
-        self.options.update(
-            {"selected_profile": config["selected_profile"],}
-        )
+        self.options.update({"selected_profile": config["selected_profile"]})
 
         self._setup_parameters(config["parameters"], cmd_parameters)
 

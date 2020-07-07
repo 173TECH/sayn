@@ -214,7 +214,10 @@ class Dag:
             status = self._run_task(command, task)
             if status == TaskStatus.SKIPPED:
                 skipped.append(task.name)
-            elif status in (TaskStatus.FAILED, TaskStatus.UNKNOWN) or status != TaskStatus.SUCCESS:
+            elif (
+                status in (TaskStatus.FAILED, TaskStatus.UNKNOWN)
+                or status != TaskStatus.SUCCESS
+            ):
                 failed.append(task.name)
             else:
                 success.append(task.name)

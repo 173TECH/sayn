@@ -1,5 +1,3 @@
-class DatabaseError(Exception): pass
-
 from .creator import create_all
 from .database import Database
 from .postgresql import Postgresql
