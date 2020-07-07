@@ -1,5 +1,3 @@
-![Tests](https://github.com/173TECH/sayn/workflows/Tests/badge.svg)
-
 <img
   src="https://173-static-files.s3.eu-west-2.amazonaws.com/sayn_docs/logos/sayn_logo.png"
   alt="SAYN logo"
