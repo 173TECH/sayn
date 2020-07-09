@@ -161,13 +161,13 @@ class Task(object):
         self.status = TaskStatus.SUCCESS
         return self.status
 
-    def failed(self, messages=None):
-        if messages is not None:
-            if isinstance(messages, str):
-                messages = [messages]
-            for message in messages:
-                logging.error(message)
-
+    #def failed(self, messages=None):
+    #    if messages is not None:
+    #        if isinstance(messages, str):
+    #            messages = [messages]
+    #        for message in messages:
+    #            logging.error(message)
+    def failed(self):
         self.status = TaskStatus.FAILED
         return self.status
 

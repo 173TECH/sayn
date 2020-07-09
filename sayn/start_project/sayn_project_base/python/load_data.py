@@ -31,12 +31,14 @@ class LoadData(PythonTask):
         # load the logs
         for log_type, log_details in self.data_to_load.items():
             # create table
-            logging.info("Creating table: {log_type}.".format(log_type=log_type))
+            #logging.info("Creating table: {log_type}.".format(log_type=log_type))
+            self.ui.spinner_info("Creating table: {log_type}.".format(log_type=log_type))
 
             self.default_db.execute(log_details["create"])
 
             # load logs
-            logging.info("Loading logs: {log_type}.".format(log_type=log_type))
+            #logging.info("Loading logs: {log_type}.".format(log_type=log_type))
+            self.ui.spinner_info("Loading logs: {log_type}.".format(log_type=log_type))
             logs = log_details["data"]
 
             for log in logs:
@@ -45,6 +47,7 @@ class LoadData(PythonTask):
                 self.default_db.execute(q_insert)
 
             # done
-            logging.info("Done: {log_type}.".format(log_type=log_type))
+            #logging.info("Done: {log_type}.".format(log_type=log_type))
+            self.ui.spinner_info("Done: {log_type}.".format(log_type=log_type))
 
         return self.success()
