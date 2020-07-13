@@ -1,6 +1,5 @@
-import logging
-
 from .task import Task
+from ..utils.ui import UI
 
 
 class IgnoreTask(Task):
@@ -8,13 +7,13 @@ class IgnoreTask(Task):
         return False
 
     def setup(self):
-        logging.debug("Setting up IgnoreTask")
+        UI()._debug("Setting up IgnoreTask")
         return self.ready()
 
     def compile(self):
-        logging.debug("IgnoreTask compiling")
+        UI()._debug("IgnoreTask compiling")
         return self.success()
 
     def run(self):
-        logging.debug("IgnoreTask running.")
+        UI()._debug("IgnoreTask running.")
         return self.success()

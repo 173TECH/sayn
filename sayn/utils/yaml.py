@@ -1,5 +1,3 @@
-import logging
-
 from strictyaml import (
     Bool,
     Map,
@@ -16,6 +14,7 @@ from strictyaml import (
     EmptyDict,
 )
 from strictyaml import YAMLValidationError as ValidationError
+from ..utils.ui import UI
 
 
 class Identifier(Regex):
@@ -48,7 +47,7 @@ class CaseInsensitiveEnum(Enum):
 
 def load(path):
     if not path.is_file():
-        logging.exception(f"No {path.name} found")
+        UI()._spinner_error(f"No {path.name} found")
         return
     else:
         from strictyaml import load
@@ -56,6 +55,6 @@ def load(path):
         try:
             return load(path.read_text())
         except ValidationError as e:
-            logging.error(f"Error reading {path.name}")
-            logging.error(e)
+            UI()._spinner_error(f"Error reading {path.name}")
+            UI()._spinner_error(f"{e}")
             return

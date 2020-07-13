@@ -1,7 +1,7 @@
 from enum import Enum
-import logging
 
 from ..config import Config
+from ..utils.ui import UI
 
 
 class TaskStatus(Enum):
@@ -111,9 +111,7 @@ class Task(object):
         elif isinstance(value, dict):
             return {k: self.compile_property(v) for k, v in value.items()}
         else:
-            logging.error(
-                "Property value type {} not supported".format(str(type(value)))
-            )
+            UI()._error("Property value type {} not supported".format(str(type(value))))
 
     # Execution functions
 
@@ -161,13 +159,13 @@ class Task(object):
         self.status = TaskStatus.SUCCESS
         return self.status
 
-    #def failed(self, messages=None):
-    #    if messages is not None:
-    #        if isinstance(messages, str):
-    #            messages = [messages]
-    #        for message in messages:
-    #            logging.error(message)
-    def failed(self):
+    def failed(self, messages=None):
+        if messages is not None:
+            if isinstance(messages, str):
+                messages = [messages]
+            for message in messages:
+                UI()._error(message)
+
         self.status = TaskStatus.FAILED
         return self.status
 

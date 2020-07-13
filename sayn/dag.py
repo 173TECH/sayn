@@ -2,19 +2,17 @@ from copy import copy, deepcopy
 from collections import deque, OrderedDict
 from datetime import datetime
 from itertools import groupby
-import logging
 import sys
-import time
 
 from .config import Config
 from .utils.singleton import singleton
-from .utils.logger import Logger
 from .utils.ui import UI
 from .tasks import create_task, TaskStatus, IgnoreTask
 
 
 class DagValidationError(Exception):
     pass
+
 
 @singleton
 class Dag:
@@ -24,15 +22,6 @@ class Dag:
     tasks = dict()
 
     def __init__(self, tasks_query=(), exclude_query=()):
-        #Logger().set_config(stage="DAG")
-        #logging.info("----------")
-        #logging.info(f"Setting up. Run ID: {Config().run_id}")
-        #logging.info("----------")
-        setup_start_ts = datetime.now()
-
-        ui = UI().set_config(task_name=f"Setup runID {Config().run_id}")
-        ui.spinner_start()
-
         task_definitions = Config()._task_definitions
 
         # Setup DAG structure using just names and parents
@@ -108,16 +97,13 @@ class Dag:
 
         # Run the setup for each task
         for _, task in self.tasks.items():
-            Logger().set_config(task=task.name)
+            UI()._set_config(task_name=task.name)
             if task.status == TaskStatus.FAILED:
                 continue
             task.setup()
 
         # delete the task_definitions attribute from the config so it we do not have tasks on both APIs
         # delattr(Config(), "_task_definitions")
-        #Logger().set_config(task=None)
-        #logging.info("DAG Setup: done.")
-        ui.spinner_succeed(f"{datetime.now() - setup_start_ts}")
 
     def _task_query(self, tags, dags, query):
         """Returns a list of tasks from the dag matching the query"""
@@ -159,22 +145,19 @@ class Dag:
             raise KeyError(f'Task "{query}" not in dag')
 
     def _run_task(self, command, task, tcounter, ntasks):
-        #Logger().set_config(task=task.name)
-        ui = UI().set_config(task.name, tcounter=tcounter, ntasks=ntasks)
-        ui.spinner_start()
-        time.sleep(1)
-        ui.spinner_info("testing")
-        time.sleep(1)
+        progress = "(" + str(tcounter) + "/" + str(ntasks) + ")"
+        ui = UI()
+        ui._set_config(stage_name="run", task_name=task.name, progress=progress)
+        ui._start_spinner()
         task_start_ts = datetime.now()
         if task.status != TaskStatus.READY:
             task.failed()
-            ui.spinner_fail("Task failed during setup. Skipping...")
+            ui._status_fail("Task failed during setup. Skipping...")
         elif not task.can_run():
-            #logging.warn("SKIPPING")
             task.skipped()
-            ui.spinner_warn("SKIPPING")
+            ui._status_warn("SKIPPING")
         else:
-            #logging.debug("Starting")
+            ui._debug("Starting")
             task.executing()
             try:
                 if command == "compile":
@@ -184,34 +167,25 @@ class Dag:
                 else:
                     status = None
             except Exception as e:
-                #logging.exception(e)
+                ui._info(str(e))
 
                 status = None
 
             if status is None:
                 task.status = TaskStatus.UNKNOWN
-                ui.spinner_fail(
+                ui._status_fail(
                     f"finished in an unknown state ({datetime.now() - task_start_ts})"
                 )
-                #logging.error(
-                #    f"Finished in an unknown state ({datetime.now() - task_start_ts})"
-                #)
             elif status != TaskStatus.SUCCESS:
-                ui.spinner_fail(f"{datetime.now() - task_start_ts}")
-                #logging.error(f"Failed status ({datetime.now() - task_start_ts})")
+                ui._status_fail(f"{datetime.now() - task_start_ts}")
             else:
-                ui.spinner_succeed(f"{datetime.now() - task_start_ts}")
-                #logging.info(
-                #    f"\u001b[32mSuccess ({datetime.now() - task_start_ts})\u001b[0m"
-                #)
+                ui._status_success(f"{datetime.now() - task_start_ts}")
 
         return task.status
 
     def _run_command(self, command):
-        Logger().set_config(stage="Run", task=None, progress="0")
-        #logging.info("----------")
-        #logging.info(f"Running. Run ID: {Config().run_id}")
-        #logging.info("----------")
+        ui = UI()
+        ui._set_config(stage_name="run", task_name=None, progress=None)
 
         failed = list()
         success = list()
@@ -241,13 +215,6 @@ class Dag:
                 success.append(task.name)
 
             tcounter += 1
-            run_progress = str(round((tcounter) / ntasks * 100))
-            Logger().set_config(progress=run_progress)
-
-        Logger().set_config(stage="Summary", task=None, progress=None)
-        logging.info("----------")
-        logging.info(f"Stats for Run ID: {Config().run_id}")
-        logging.info("----------")
 
         recap_str = list()
         recap_str.append(
@@ -260,12 +227,16 @@ class Dag:
         if len(skipped) > 0:
             recap_str.append(f"The following tasks were skipped: {', '.join(skipped)}")
 
+        ui = UI()
+        ui._set_config(stage_name="summary", task_name=None, progress=None)
+        ui._start_spinner()
+
         if len(failed) > 0:
-            log_func = logging.error
+            log_func = lambda x: ui._status_fail(x)
         elif len(skipped) > 0:
-            log_func = logging.warning
+            log_func = lambda x: ui._status_warning(x)
         else:
-            log_func = lambda x: logging.info(f"\u001b[32m{x}\u001b[0m")
+            log_func = lambda x: ui._status_success(x)
 
         for msg in recap_str:
             log_func(msg)
@@ -287,7 +258,7 @@ class Dag:
         try:
             from graphviz import Digraph
         except:
-            logging.error(
+            UI()._error(
                 "Graphviz is required. To install it `pip install graphviz` and install it in your system (eg: `brew install graphviz"
             )
             sys.exit()

@@ -1,5 +1,3 @@
-import logging
-
 from .task import Task
 from ..utils.ui import UI
 
@@ -11,17 +9,17 @@ class PythonTask(Task):
         # Add some convenient properties
         self.default_db = self.sayn_config.default_db
 
-        #Add UI
-        self.ui = UI()
+        # Add UI
+        self.logger = UI()
 
     def setup(self):
-        logging.debug("Setting up Python Task")
+        UI()._debug("Setting up Python Task")
         return self.ready()
 
     def compile(self):
-        logging.debug("PythonTask compiling")
+        UI()._debug("PythonTask compiling")
         return self.success()
 
     def run(self):
-        logging.debug("PythonTask running.")
+        UI()._debug("PythonTask running.")
         return self.success()

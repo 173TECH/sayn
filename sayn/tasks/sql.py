@@ -1,8 +1,8 @@
-import logging
 from pathlib import Path
 
 from .task import Task, TaskStatus
 from ..utils import yaml
+from ..utils.ui import UI
 
 
 class SqlTask(Task):
@@ -25,17 +25,21 @@ class SqlTask(Task):
         return self._check_extra_fields()
 
     def run(self):
-        logging.debug("Writting query on disk")
+        UI()._debug("Writting query on disk")
+
         self._write_query(self.compiled)
         if self.status == TaskStatus.FAILED:
             return self.failed()
 
-        logging.debug("Running SQL")
-        logging.debug(self.compiled)
+        UI()._debug("Running SQL")
+        UI()._debug(self.compiled)
+
         try:
             self.db.execute(self.compiled)
         except Exception as e:
-            return self.failed(("Error running query", e, f"Query: {self.compiled}"))
+            return self.failed(
+                ("Error running query", f"{e}", f"Query: {self.compiled}")
+            )
 
         return self.success()
 
@@ -43,7 +47,7 @@ class SqlTask(Task):
         try:
             self._write_query(self.compiled)
         except Exception as e:
-            return self.failed(("Error saving query on disk", e))
+            return self.failed(("Error saving query on disk", f"{e}"))
 
         return self.success()
 
@@ -63,7 +67,7 @@ class SqlTask(Task):
         path = Path(self.sayn_config.sql_path, self.compile_property(self.file_name))
 
         if not path.is_file():
-            logging.error(f"{path}: file not found")
+            UI()._error(f"{path}: file not found")
             return
 
         return self.sayn_config.jinja_env.get_template(str(path))
