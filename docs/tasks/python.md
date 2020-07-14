@@ -73,12 +73,10 @@ Using those parameters is extremely useful in order to tailor your `python` task
 
 ### Logging for Python tasks with the SAYN API
 
-In order to log for Python tasks, you should use the SAYN API. It can be accessed through the `self.logger` attribute on the task. Please see below it's available methods:
+In order to log for Python tasks, you should use the SAYN API. It can be accessed through the `self.logger` attribute on the task. It has the following methods:
 
-::: sayn.utils.ui.UI
-    selection:
-      members:
-        - debug
-        - info
-        - warning
-        - error
+* `self.logger.print(self, text)`: print to console.
+* `self.logger.debug(self, text)`: debug log to console and file.
+* `self.logger.info(self, text)`: info log to console and file.
+* `self.logger.warning(self, text)`: warning log to console and file.
+* `self.logger.error(self, text)`: error log to console and file.

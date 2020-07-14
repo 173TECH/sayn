@@ -25,14 +25,14 @@ class SqlTask(Task):
         return self._check_extra_fields()
 
     def run(self):
-        UI()._debug("Writting query on disk")
+        UI().debug("Writting query on disk")
 
         self._write_query(self.compiled)
         if self.status == TaskStatus.FAILED:
             return self.failed()
 
-        UI()._debug("Running SQL")
-        UI()._debug(self.compiled)
+        UI().debug("Running SQL")
+        UI().debug(self.compiled)
 
         try:
             self.db.execute(self.compiled)
@@ -67,7 +67,7 @@ class SqlTask(Task):
         path = Path(self.sayn_config.sql_path, self.compile_property(self.file_name))
 
         if not path.is_file():
-            UI()._error(f"{path}: file not found")
+            UI().error(f"{path}: file not found")
             return
 
         return self.sayn_config.jinja_env.get_template(str(path))

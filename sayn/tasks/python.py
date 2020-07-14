@@ -13,13 +13,13 @@ class PythonTask(Task):
         self.logger = UI()
 
     def setup(self):
-        UI()._debug("Setting up Python Task")
+        UI().debug("Setting up Python Task")
         return self.ready()
 
     def compile(self):
-        UI()._debug("PythonTask compiling")
+        UI().debug("PythonTask compiling")
         return self.success()
 
     def run(self):
-        UI()._debug("PythonTask running.")
+        UI().debug("PythonTask running.")
         return self.success()

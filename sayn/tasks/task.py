@@ -111,7 +111,7 @@ class Task(object):
         elif isinstance(value, dict):
             return {k: self.compile_property(v) for k, v in value.items()}
         else:
-            UI()._error("Property value type {} not supported".format(str(type(value))))
+            UI().error("Property value type {} not supported".format(str(type(value))))
 
     # Execution functions
 
@@ -164,7 +164,7 @@ class Task(object):
             if isinstance(messages, str):
                 messages = [messages]
             for message in messages:
-                UI()._error(message)
+                UI().error(message)
 
         self.status = TaskStatus.FAILED
         return self.status

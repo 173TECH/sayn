@@ -7,13 +7,13 @@ class IgnoreTask(Task):
         return False
 
     def setup(self):
-        UI()._debug("Setting up IgnoreTask")
+        UI().debug("Setting up IgnoreTask")
         return self.ready()
 
     def compile(self):
-        UI()._debug("IgnoreTask compiling")
+        UI().debug("IgnoreTask compiling")
         return self.success()
 
     def run(self):
-        UI()._debug("IgnoreTask running.")
+        UI().debug("IgnoreTask running.")
         return self.success()

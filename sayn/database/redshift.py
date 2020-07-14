@@ -87,7 +87,7 @@ class Redshift(Database):
                     ),
                 )
             except Exception as e:
-                UI()._error(f"{e}")
+                UI().error(f"{e}")
                 return
 
             out_ddl["sorting"] = sorting.data
@@ -98,7 +98,7 @@ class Redshift(Database):
                     kwargs["distribution"], schema=yaml.Regex(r"even|all|key([^,]+)")
                 )
             except Exception as e:
-                UI()._error(f"{e}")
+                UI().error(f"{e}")
                 return
 
             out_ddl["distribution"] = distribution.data

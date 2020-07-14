@@ -152,12 +152,12 @@ class Dag:
         task_start_ts = datetime.now()
         if task.status != TaskStatus.READY:
             task.failed()
-            ui._status_fail("Task failed during setup. Skipping...")
+            ui._status_fail("Task failed during setup.")
         elif not task.can_run():
             task.skipped()
             ui._status_warn("SKIPPING")
         else:
-            ui._debug("Starting")
+            ui.debug("Starting")
             task.executing()
             try:
                 if command == "compile":
@@ -167,7 +167,7 @@ class Dag:
                 else:
                     status = None
             except Exception as e:
-                ui._info(str(e))
+                ui.info(str(e))
 
                 status = None
 
@@ -258,7 +258,7 @@ class Dag:
         try:
             from graphviz import Digraph
         except:
-            UI()._error(
+            UI().error(
                 "Graphviz is required. To install it `pip install graphviz` and install it in your system (eg: `brew install graphviz"
             )
             sys.exit()

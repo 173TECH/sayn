@@ -93,7 +93,7 @@ def run_command(command, debug, tasks, exclude, profile, full_load, start_dt, en
     ui._start_spinner()
 
     try:
-        ui._info("Setting config.")
+        ui.info("Setting config.")
         Config(
             profile=profile, full_load=full_load, start_dt=start_dt, end_dt=end_dt,
         )
@@ -115,9 +115,7 @@ def run_command(command, debug, tasks, exclude, profile, full_load, start_dt, en
         raise ValueError(f'Unknown command "{command}"')
 
     ui._set_config(stage_name="summary")
-    ui._info(
-        f"{command.capitalize()} took {datetime.now() - run_start_ts}", new_cl_line=True
-    )
+    ui.print(f"{command.capitalize()} took {datetime.now() - run_start_ts}")
 
 
 @cli.command(help="Generate DAG image")

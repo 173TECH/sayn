@@ -29,7 +29,7 @@ def create_python(name, task):
         class_str = task.pop("class")
 
     if class_str is None:
-        UI()._error('Missing required "class" field in python task')
+        UI().error('Missing required "class" field in python task')
         return fail_creation(name, task)
 
     module_str = ".".join(class_str.split(".")[:-1])
@@ -39,8 +39,8 @@ def create_python(name, task):
         try:
             task_module = importlib.import_module(f"sayn_python_tasks.{module_str}")
         except Exception as e:
-            UI()._error(f'Error loading module "{module_str}"')
-            UI()._error(f"{e}")
+            UI().error(f'Error loading module "{module_str}"')
+            UI().error(f"{e}")
             return fail_creation(name, task)
     else:
         task_module = importlib.import_module("sayn_python_tasks")
@@ -51,10 +51,10 @@ def create_python(name, task):
         module_file_name = (
             module_str.replace(".", "/") if len(module_str) > 0 else "__init__"
         )
-        UI()._error(
+        UI().error(
             f'Error importing class "{class_str}" found in "python/{module_file_name}.py"'
         )
-        UI()._error(f"{e}")
+        UI().error(f"{e}")
 
         return fail_creation(name, task)
 
@@ -80,6 +80,6 @@ def create_task(name, type, task, ignore):
         return creators["ignore"](name, task)
     else:
         if type not in creators:
-            UI()._error(f'"{type}" is not a valid task type')
+            UI().error(f'"{type}" is not a valid task type')
             return Task(name, task)
         return creators[type](name, task)
