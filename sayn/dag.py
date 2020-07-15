@@ -167,7 +167,7 @@ class Dag:
                 else:
                     status = None
             except Exception as e:
-                ui.info(str(e))
+                ui.error(e)
 
                 status = None
 
