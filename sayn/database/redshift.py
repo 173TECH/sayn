@@ -1,10 +1,10 @@
-import logging
 import re
 
 from sqlalchemy import create_engine
 
 from .database import Database
 from ..utils import yaml
+from ..utils.ui import UI
 
 db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
 
@@ -87,7 +87,7 @@ class Redshift(Database):
                     ),
                 )
             except Exception as e:
-                logging.error(e)
+                UI().error(f"{e}")
                 return
 
             out_ddl["sorting"] = sorting.data
@@ -98,7 +98,7 @@ class Redshift(Database):
                     kwargs["distribution"], schema=yaml.Regex(r"even|all|key([^,]+)")
                 )
             except Exception as e:
-                logging.error(e)
+                UI().error(f"{e}")
                 return
 
             out_ddl["distribution"] = distribution.data

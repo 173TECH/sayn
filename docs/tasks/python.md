@@ -61,12 +61,22 @@ As you can observe, writing a `python` task requires the following:
 
 ### Using the SAYN API
 
-In order, to make your `python` tasks dynamic based on project settings and profiles, you can use the SAYN API. A lot of useful information is stored on the task in the `sayn_config` attribute:
+In order, to make your `python` tasks dynamic based on project settings and profiles, you can use the SAYN API:
 
 - `self.sayn_config.parameters`: accesses project config parameters (`project.yaml`, `settings.yaml`). For more details on `parameters`, see the [Parameters](../parameters.md) section.
-- `self.parameters`: accesses the task's parameters.
 - `self.sayn_config.api_credentials`: dictionary containing the API credentials available for the profile used at run time.
 - `self.sayn_config.dbs`: dictionary containing database objects specified in the profile used at run time.
+- `self.parameters`: accesses the task's parameters.
 - `self.default_db`: accesses the `default_db` specified in the `project.yaml` file.
 
 Using those parameters is extremely useful in order to tailor your `python` tasks' code in order to separate between development and production environments.
+
+### Logging for Python tasks with the SAYN API
+
+In order to log for Python tasks, you should use the SAYN API. It can be accessed through the `self.logger` attribute on the task. It has the following methods:
+
+* `self.logger.print(self, text)`: print to console.
+* `self.logger.debug(self, text)`: debug log to console and file.
+* `self.logger.info(self, text)`: info log to console and file.
+* `self.logger.warning(self, text)`: warning log to console and file.
+* `self.logger.error(self, text)`: error log to console and file.

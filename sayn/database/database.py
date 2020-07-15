@@ -1,9 +1,9 @@
 from itertools import groupby
-import logging
 
 from sqlalchemy import MetaData, Table
 
 from ..utils import yaml
+from ..utils.ui import UI
 
 
 class Database:
@@ -161,7 +161,7 @@ class Database:
                 ),
             )
         except Exception as e:
-            logging.error(e)
+            UI().error(f"{e}")
             return
 
         ddl = [c if isinstance(c, dict) else {"name": c} for c in ddl.data]
@@ -170,13 +170,13 @@ class Database:
             k for k, v in groupby(sorted([c["name"] for c in ddl])) if len(list(v)) > 1
         ]
         if len(duplicate_cols) > 0:
-            logging.error(f"Duplicate columns found: {', '.join(duplicate_cols)}")
+            UI().error(f"Duplicate columns found: {', '.join(duplicate_cols)}")
             return
 
         if kwargs.get("types_required"):
             missing_type = [c["name"] for c in ddl if "type" not in c]
             if len(missing_type) > 0:
-                logging.error(f"Missing type for columns: {', '.join(missing_type)}")
+                UI().error(f"Missing type for columns: {', '.join(missing_type)}")
                 return
 
         return ddl
@@ -200,7 +200,7 @@ class Database:
                 ),
             )
         except Exception as e:
-            logging.error(e)
+            UI().error(f"{e}")
             return
 
         return ddl.data
@@ -223,7 +223,7 @@ class Database:
                 ),
             )
         except Exception as e:
-            logging.error(e)
+            UI().error(f"{e}")
             return
 
         return ddl.data
@@ -261,7 +261,7 @@ class Database:
                 )
 
                 if len(cols_requested - cols_in_table) > 0:
-                    logging.error(
+                    UI().error(
                         f"Missing columns \"{', '.join(cols_requested - cols_in_table)}\" in table \"{table_def.name}\""
                     )
                     return

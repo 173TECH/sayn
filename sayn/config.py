@@ -2,7 +2,6 @@ import copy
 from datetime import datetime, date, timedelta
 import importlib
 import json
-import logging
 import os
 from pathlib import Path
 import shutil
@@ -12,6 +11,7 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 from .utils import yaml
 from .utils.singleton import singleton
+from .utils.ui import UI
 from . import database
 
 
@@ -125,8 +125,8 @@ class Config:
         try:
             parsed.revalidate(schema)
         except yaml.ValidationError as e:
-            logging.error(f"Error reading {path.name}")
-            logging.error(e)
+            UI().error(f"Error reading {path.name}")
+            UI().error(f"{e}")
             return
 
         self._setup_paths()
@@ -143,12 +143,10 @@ class Config:
         if default_db is None and len(parsed["required_credentials"]) == 1:
             default_db = parsed["required_credentials"].data[0]
         elif default_db is None and len(parsed["required_credentials"]) > 1:
-            logging.error(
-                "Default database is required when multiple credentials are set"
-            )
+            UI().error("Default database is required when multiple credentials are set")
             return
         elif default_db not in parsed["required_credentials"]:
-            logging.error(f'Default database "{default_db}" not defined')
+            UI().error(f'Default database "{default_db}" not defined')
             return
         # else:
         #    default_db already points to an existing credential
@@ -181,8 +179,8 @@ class Config:
         try:
             parsed.revalidate(schema)
         except yaml.ValidationError as e:
-            logging.error(f'Error reading dag "{path.name}"')
-            logging.error(e)
+            UI().error(f'Error reading dag "{path.name}"')
+            UI().error(f"{e}")
             return
 
         return {
@@ -193,12 +191,14 @@ class Config:
     def _read_settings(self, profile, required_credentials, allowed_parameters):
         env_vars = {k: v for k, v in os.environ.items() if k.startswith("SAYN_")}
         if len(env_vars) > 0:
-            print("Reading settings from environment variables")
+            # print("Reading settings from environment variables")
+            UI().info("Reading settings from environment variables")
             return self._read_settings_environment(
                 env_vars, required_credentials, allowed_parameters
             )
         else:
-            print('Reading settings from "settings.yaml"')
+            UI().info('Reading settings from "settings.yaml"')
+            # print('Reading settings from "settings.yaml"')
             return self._read_settings_file(
                 profile, required_credentials, allowed_parameters
             )
@@ -213,10 +213,10 @@ class Config:
             if key.startswith("SAYN_PARAMETER_"):
                 parameter_key = key[len("SAYN_PARAMETER_") :]
                 if parameter_key not in allowed_parameters:
-                    logging.error(
+                    UI().error(
                         f'Parameter "{parameter_key}" not defined in project.yaml. '
                     )
-                    logging.error(
+                    UI().error(
                         f"Allowed parameters are {', '.join(allowed_parameters)}"
                     )
                     return
@@ -238,20 +238,20 @@ class Config:
                         "settings": json.loads(value),
                     }
                 except Exception as e:
-                    logging.error(
+                    UI().error(
                         f'Error trying to parse environment variable "{key}" as json'
                     )
-                    logging.error(e)
+                    UI().error(f"{e}")
                     return
 
             else:
-                logging.error(f'Environment variable "{key}" is not recognised')
+                UI().error(f'Environment variable "{key}" is not recognised')
                 return
 
         # Ensure all credentials are specified
         for credential in required_credentials:
             if credential not in credentials:
-                logging.error(f'Missing credential "{credential}"')
+                UI().error(f'Missing credential "{credential}"')
                 return
 
         return {
@@ -291,8 +291,8 @@ class Config:
         try:
             parsed.revalidate(schema)
         except yaml.ValidationError as e:
-            logging.error(f'Error reading settings "{path.name}"')
-            logging.error(e)
+            UI().error(f'Error reading settings "{path.name}"')
+            UI().error(f"{e}")
             return
 
         # Extract values on first pass
@@ -300,12 +300,12 @@ class Config:
 
         # Get the default_profile
         if selected_profile is None and len(parsed["profiles"]) > 1:
-            logging.error("Default profile is required when multiple profiles are set")
+            UI().error("Default profile is required when multiple profiles are set")
             return
         elif selected_profile is None and len(parsed["profiles"]) == 1:
             selected_profile = list(parsed["profiles"].data.keys())[0]
         elif selected_profile not in parsed["profiles"]:
-            logging.error(f'Default profile "{selected_profile}" not defined')
+            UI().error(f'Default profile "{selected_profile}" not defined')
             return
 
         profile = parsed["profiles"][selected_profile]
@@ -317,7 +317,7 @@ class Config:
         }
         no_type = [n for n, c in credentials.items() if "type" not in c["settings"]]
         if len(no_type) > 0:
-            logging.error(f"Some credentials have no type: {', '.join(no_type)}")
+            UI().error(f"Some credentials have no type: {', '.join(no_type)}")
             return
         credentials = {
             name: credentials[name_in_settings]
@@ -383,7 +383,7 @@ class Config:
 
         # Validate the default_db against db credentials
         if default_db not in db_credentials:
-            logging.error(
+            UI().error(
                 f"Credential {credentials[default_db]['name_in_settings']} is not a database"
             )
             return
@@ -412,8 +412,8 @@ class Config:
         try:
             loader.exec_module(m)
         except Exception as e:
-            logging.error(f"Error importing python module")
-            logging.error(e)
+            UI().error(f"Error importing python module")
+            UI().error(f"{e}")
             raise SaynConfigError(
                 f"Error importing python folder {self.python_path.absolute}"
             )
@@ -449,7 +449,7 @@ class Config:
 
                 else:
                     # Global preset not defined
-                    logging.error(
+                    UI().error(
                         "Referenced preset {} in dag {} not defined in project.yaml".format(
                             preset.get("preset"), dag_name
                         )
@@ -468,7 +468,7 @@ class Config:
 
             # Check for duplicates
             if name in all_tasks:
-                logging.error(
+                UI().error(
                     "Duplicate tasks in dag {}: {}".format(
                         dag_name,
                         ", ".join(set(tasks.keys().intersection(set(all_tasks)))),
@@ -481,7 +481,7 @@ class Config:
                 if task["preset"] in presets:
                     task["preset"] = copy.deepcopy(presets[task["preset"]])
                 else:
-                    logging.error(
+                    UI().error(
                         "Preset {} referenced in task {} not found".format(
                             task["preset"], name
                         )
@@ -500,7 +500,7 @@ class Config:
                     # Nested preset
                     task["type"] = task["preset"]["preset"].pop("type")
                 else:
-                    logging.error(f"Missing type in task {name} in dag {dag_name}")
+                    UI().error(f"Missing type in task {name} in dag {dag_name}")
                     return
 
             # Consolidate the parents and tags list
@@ -556,7 +556,7 @@ class Config:
                     if parent not in tasks
                 ]
                 if len(missing_parents) > 0:
-                    logging.error(
+                    UI().error(
                         "Missing parent tasks {} referenced in task {}".format(
                             ", ".join(missing_parents), name
                         )

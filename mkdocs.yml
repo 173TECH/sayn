@@ -69,7 +69,7 @@ nav:
     - Redshift: databases/redshift.md
     - Snowflake: databases/snowflake.md
     - PostgreSQL: databases/postgresql.md
-    #- MySQL: databases/mysql.md
+    - MySQL: databases/mysql.md
     - SQLite: databases/sqlite.md
   - API Reference:
     - Database: api/database.md

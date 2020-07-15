@@ -1,13 +1,11 @@
 from datetime import datetime, date, timedelta
-
-import logging
 import sys
 
 import click
 
 from ..config import Config, SaynConfigError
-from ..utils.logger import Logger
 from ..dag import Dag
+from ..utils.ui import UI
 from ..start_project.start_project import sayn_init
 
 click_debug = click.option(
@@ -90,17 +88,24 @@ def run_command(command, debug, tasks, exclude, profile, full_load, start_dt, en
     run_start_ts = datetime.now()
     run_id = (run_start_ts - datetime(1970, 1, 1)).total_seconds()
 
-    Logger(run_id=run_id, debug=debug)
+    ui = UI(run_id=run_id, debug=debug)
+    ui._set_config(stage_name="setup")
+    ui._start_spinner()
 
     try:
+        ui.info("Setting config.")
         Config(
             profile=profile, full_load=full_load, start_dt=start_dt, end_dt=end_dt,
         )
     except SaynConfigError as e:
-        logging.error(e)
+        ui._status_fail(f"{e}")
         sys.exit(1)
 
     dag = Dag(tasks_query=tasks, exclude_query=exclude)
+
+    # setup finished
+    ui._set_config(task_name=None)
+    ui._status_success(f"{datetime.now() - run_start_ts}")
 
     if command == "run":
         dag.run()
@@ -109,7 +114,8 @@ def run_command(command, debug, tasks, exclude, profile, full_load, start_dt, en
     else:
         raise ValueError(f'Unknown command "{command}"')
 
-    logging.info(f"{command.capitalize()} took {datetime.now() - run_start_ts}")
+    ui._set_config(stage_name="summary")
+    ui.print(f"{command.capitalize()} took {datetime.now() - run_start_ts}")
 
 
 @cli.command(help="Generate DAG image")
@@ -119,12 +125,15 @@ def dag_image(debug, tasks, exclude):
     run_start_ts = datetime.now()
     run_id = (run_start_ts - datetime(1970, 1, 1)).total_seconds()
 
-    Logger(run_id=run_id, debug=debug)
+    ui = UI(run_id=run_id, debug=debug)
+    ui._set_config(stage_name="setup")
+    ui._start_spinner()
 
     try:
         Config()
+        ui._status_success("Config set.")
     except SaynConfigError as e:
-        logging.error(e)
+        ui._status_fail(f"{e}")
         sys.exit(1)
 
     dag = Dag(tasks_query=tasks, exclude_query=exclude)

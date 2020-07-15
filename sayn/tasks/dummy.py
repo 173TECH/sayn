@@ -1,17 +1,16 @@
-import logging
-
 from .task import Task
+from ..utils.ui import UI
 
 
 class DummyTask(Task):
     def setup(self):
-        logging.debug("Setting up Dummy Task")
+        UI().debug("Setting up Dummy Task")
         return self.ready()
 
     def compile(self):
-        logging.debug("DummyTask compiling")
+        UI().debug("DummyTask compiling")
         return self.success()
 
     def run(self):
-        logging.debug("DummyTask running.")
+        UI().debug("DummyTask running.")
         return self.success()
