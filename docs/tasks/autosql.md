@@ -8,16 +8,20 @@ The `autosql` task lets you write a `SELECT` statement and SAYN then automates t
 
 An `autosql` task is defined as follows:
 
-```yaml
-task_autosql:
-  type: autosql
-  file_name: task_autosql.sql
-  materialisation: table
-  destination:
-    tmp_schema: analytics_staging
-    schema: analytics_models
-    table: task_autosql
-```
+!!! example "autosql task definition"
+    ```yaml
+    ...
+
+    task_autosql:
+      type: autosql
+      file_name: task_autosql.sql
+      materialisation: table
+      destination:
+        tmp_schema: analytics_staging
+        schema: analytics_models
+        table: task_autosql
+    ...
+    ```
 
 An `autosql` task is defined by the following attributes:
 
@@ -36,21 +40,56 @@ If you do not want to have a full refresh of your tables, you can use the `autos
 
 SAYN `autosql` tasks with `incremental` materialisation require a `delete_key` to be set. Please see below an example:
 
-```yaml
-task_autosql_incremental:
-  type: autosql
-  file_name: task_autosql_incremental.sql
-  materialisation: incremental
-  destination:
-    tmp_schema: analytics_staging
-    schema: analytics_models
-    table: task_autosql
-  delete_key:
-      - dt
-```
+!!! example "autosql in incremental mode"
+    ```yaml
+    ...
+
+    task_autosql_incremental:
+      type: autosql
+      file_name: task_autosql_incremental.sql
+      materialisation: incremental
+      destination:
+        tmp_schema: analytics_staging
+        schema: analytics_models
+        table: task_autosql
+      delete_key:
+          - dt
+    ...
+    ```
 
 When using `incremental`, SAYN will do the following in the background:
 
 1. Create a temporary table based on the incremental logic from the SAYN query.
 2. Delete rows from the target table that are found in the temporary table based on the `delete_key`.
 3. Load the temporary table in the destination table.
+
+## Defining DDLs
+
+You can define the following DDL parameters in the `autosql` task definition:
+
+* indexes
+* primary_key
+
+!!! example "autosql with DDL"
+    ```yaml
+    ...
+
+    task_autosql:
+      type: autosql
+      file_name: task_autosql.sql
+      materialisation: table
+      destination:
+        tmp_schema: analytics_staging
+        schema: analytics_models
+        table: task_autosql
+      ddl:
+        indexes:
+          primary_key:
+            columns:
+              - column1
+              - column2
+          idx1:
+            columns:
+              - column1
+    ...
+    ```
