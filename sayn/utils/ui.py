@@ -20,9 +20,9 @@ class UI:
         self.flog.set_config(**kwargs)
 
     # spinner start
-    def _start_spinner(self):
-        self.clog.spinner_start()
-        logging.info("Starting")
+    # def _start_spinner(self):
+    #    self.clog.spinner_start()
+    #    logging.info("Starting")
 
     # Process Logging
     def print(self, text):
@@ -39,7 +39,7 @@ class UI:
         Parameters:
         - text: the text to log.
         """
-        self.clog.spinner_debug(text)
+        self.clog.print_debug(text)
         logging.debug(text)
 
     def info(self, text):
@@ -48,7 +48,7 @@ class UI:
         Parameters:
         - text: the text to log.
         """
-        self.clog.spinner_info(text)
+        self.clog.print_info(text)
         logging.info(text)
 
     def warning(self, text):
@@ -57,7 +57,7 @@ class UI:
         Parameters:
         - text: the text to log.
         """
-        self.clog.spinner_warn(text)
+        self.clog.print_warning(text)
         logging.warning(text)
 
     def error(self, text):
@@ -67,18 +67,18 @@ class UI:
         - text: the text to log.
         """
         text = f"{text}"  # for errors
-        self.clog.spinner_error(text)
+        self.clog.print_error(text)
         logging.error(text)
 
     ## Final status logging
     def _status_success(self, text):
-        self.clog.spinner_succeed(text)
+        self.clog.print_success(text)
         logging.info("Success: " + text)
 
     def _status_warn(self, text):
-        self.clog.spinner_warning(text)
+        self.clog.print_warning(text)
         logging.warning("Warning: " + text)
 
     def _status_fail(self, text):
-        self.clog.spinner_fail(text)
+        self.clog.print_error(text)
         logging.error("Fail: " + text)

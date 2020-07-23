@@ -90,7 +90,6 @@ def run_command(command, debug, tasks, exclude, profile, full_load, start_dt, en
 
     ui = UI(run_id=run_id, debug=debug)
     ui._set_config(stage_name="setup")
-    ui._start_spinner()
 
     try:
         ui.info("Setting config.")
@@ -127,7 +126,6 @@ def dag_image(debug, tasks, exclude):
 
     ui = UI(run_id=run_id, debug=debug)
     ui._set_config(stage_name="setup")
-    ui._start_spinner()
 
     try:
         Config()
