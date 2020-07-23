@@ -20,7 +20,6 @@ sqlalchemy = "^1.3.12"
 strictyaml = "^1.0.6"
 
 graphviz = { version = "^0.14", optional = true }
-#halo = "^0.0.29"
 
 # DB drivers (optional)
 psycopg2 = { version = "^2.8.5", optional = true }
