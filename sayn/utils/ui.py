@@ -19,11 +19,6 @@ class UI:
         self.clog.set_config(**kwargs)
         self.flog.set_config(**kwargs)
 
-    # spinner start
-    # def _start_spinner(self):
-    #    self.clog.spinner_start()
-    #    logging.info("Starting")
-
     # Process Logging
     def print(self, text):
         """
