@@ -148,7 +148,7 @@ class Dag:
         progress = "(" + str(tcounter) + "/" + str(ntasks) + ")"
         ui = UI()
         ui._set_config(stage_name="run", task_name=task.name, progress=progress)
-        ui._start_spinner()
+        ui.info("Starting.")
         task_start_ts = datetime.now()
         if task.status != TaskStatus.READY:
             task.failed()
@@ -229,7 +229,6 @@ class Dag:
 
         ui = UI()
         ui._set_config(stage_name="summary", task_name=None, progress=None)
-        ui._start_spinner()
 
         if len(failed) > 0:
             log_func = lambda x: ui._status_fail(x)
