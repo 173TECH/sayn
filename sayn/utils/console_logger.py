@@ -51,10 +51,16 @@ class ConsoleLogger:
         print(self.logging_prefix(self.stage_name) + text)
 
     def print_warning(self, text):
-        print("\u001b[33m" + self.logging_prefix(self.stage_name) + text + "\u001b[37m")
+        print(
+            "\u001b[93m" + self.logging_prefix(self.stage_name) + text + "\u001b[39;49m"
+        )
 
     def print_error(self, text):
-        print("\u001b[31m" + self.logging_prefix(self.stage_name) + text + "\u001b[37m")
+        print(
+            "\u001b[91m" + self.logging_prefix(self.stage_name) + text + "\u001b[39;49m"
+        )
 
     def print_success(self, text):
-        print("\u001b[32m" + self.logging_prefix(self.stage_name) + text + "\u001b[37m")
+        print(
+            "\u001b[92m" + self.logging_prefix(self.stage_name) + text + "\u001b[39;49m"
+        )
