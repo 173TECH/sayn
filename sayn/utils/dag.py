@@ -86,31 +86,11 @@ def topological_sort(dag):
 
 
 # DAG querying
-def query(dag, query):
-    topo_sort = topological_sort(dag)
-    include_upstream = False
-    include_downstream = False
-    if query[0] == "+":
-        include_upstream = True
-        query = query[1:]
-    if query[-1] == "+":
-        include_downstream = True
-        query = query[:-1]
-
-    to_include = [query]
-    if include_upstream:
-        to_include.extend(upstream(dag, query))
-    if include_downstream:
-        to_include.extend(downstream(dag, query))
-
-    return [n for n in topo_sort if n in to_include]
+def _downstream(dag, node):
+    return _upstream(reverse_dict_inclusive(dag), node)
 
 
-def downstream(dag, node):
-    return upstream(reverse_dict_inclusive(dag), node)
-
-
-def upstream(dag, node):
+def _upstream(dag, node):
     to_include = list()
     queue = dag[node]
     while len(queue) > 0:
@@ -120,3 +100,32 @@ def upstream(dag, node):
             queue.extend(dag[current])
 
     return to_include
+
+
+def query(dag, query=list()):
+    topo_sort = topological_sort(dag)
+    if len(query) == 0:
+        return topo_sort
+
+    query = sorted(query, key=lambda x: 0 if x["operation"] == "include" else 1)
+    to_include = set()
+    query_cache = dict()
+
+    for operand in query:
+        key = (operand["task"], operand["upstream"], operand["downstream"])
+        if key in query_cache:
+            tasks = query_cache[key]
+        else:
+            tasks = [key[0]]
+            if key[1]:
+                tasks.extend(_upstream(dag, key[0]))
+            if key[2]:
+                tasks.extend(_downstream(dag, key[0]))
+            query_cache[key] = tasks
+
+        if operand["operation"] == "include":
+            to_include = to_include.union(tasks)
+        else:
+            to_include -= tasks
+
+    return [n for n in topo_sort if n in to_include]
