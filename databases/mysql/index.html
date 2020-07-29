@@ -5,10 +5,10 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<link href="https://173tech.github.io/sayn/databases/postgresql/" rel="canonical"/>
+<link href="https://173tech.github.io/sayn/databases/mysql/" rel="canonical"/>
 <link href="../../assets/images/favicon.png" rel="shortcut icon"/>
 <meta content="mkdocs-1.1.2, mkdocs-material-5.2.1" name="generator"/>
-<title>PostgreSQL - SAYN</title>
+<title>MySQL - SAYN</title>
 <link href="../../assets/stylesheets/main.71dfd922.min.css" rel="stylesheet"/>
 <link href="../../assets/stylesheets/palette.616af814.min.css" rel="stylesheet"/>
 <meta content="#546e7a" name="theme-color"/>
@@ -25,7 +25,7 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#postgresql">
+<a class="md-skip" href="#mysql">
           Skip to content
         </a>
 </div>
@@ -46,7 +46,7 @@
           </span>
 <span class="md-header-nav__topic md-ellipsis">
             
-              PostgreSQL
+              MySQL
             
           </span>
 </div>
@@ -283,14 +283,14 @@
       Snowflake
     </a>
 </li>
-<li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
-<a class="md-nav__link md-nav__link--active" href="./" title="PostgreSQL">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../postgresql/" title="PostgreSQL">
       PostgreSQL
     </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../mysql/" title="MySQL">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<a class="md-nav__link md-nav__link--active" href="./" title="MySQL">
       MySQL
     </a>
 </li>
@@ -341,16 +341,16 @@
 </div>
 <div class="md-content">
 <article class="md-content__inner md-typeset">
-<h1 id="postgresql">PostgreSQL<a class="headerlink" href="#postgresql" title="Permanent link">¶</a></h1>
+<h1 id="mysql">Mysql<a class="headerlink" href="#mysql" title="Permanent link">¶</a></h1>
 <p>SAYN will consider the following parameters to construct the sqlalchemy url:</p>
 <ul>
 <li><strong>host</strong></li>
-<li><strong>port</strong></li>
 <li><strong>user</strong></li>
 <li><strong>password</strong></li>
-<li><strong>dbname</strong></li>
+<li><strong>port</strong></li>
+<li><strong>database</strong></li>
 </ul>
-<p>Other parameters specified will be passed to
+<p>Other parameters specified will be passed on to 
 <a href="https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine">sqlalchemy.create_engine</a>
 when creating the engine.</p>
 <div class="admonition example">
@@ -358,18 +358,18 @@ when creating the engine.</p>
 <div class="highlight"><pre><span></span><code><span class="nn">...</span>
 
 <span class="nt">credentials</span><span class="p">:</span>
-  <span class="nt">postgresql-conn</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">postgresql</span>
+  <span class="nt">mysql-conn</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mysql</span>
     <span class="nt">host</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">host</span><span class="p p-Indicator">]</span>
     <span class="nt">port</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">port</span><span class="p p-Indicator">]</span>
     <span class="nt">user</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">username</span><span class="p p-Indicator">]</span>
     <span class="nt">password</span><span class="p">:</span> <span class="s">'[password]'</span> <span class="c1">#use quotes to avoid conflict with special characters</span>
-    <span class="nt">dbname</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">database_name</span><span class="p p-Indicator">]</span>
+    <span class="nt">database</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">database_name</span><span class="p p-Indicator">]</span>
 
 <span class="nn">...</span>
 </code></pre></div>
 </div>
-<p>Check the sqlalchemy <a href="https://docs.sqlalchemy.org/en/13/dialects/postgresql.html#module-sqlalchemy.dialects.postgresql.psycopg2">psycopg2</a>
+<p>Check the sqlalchemy <a href="https://docs.sqlalchemy.org/en/13/dialects/mysql.html#module-sqlalchemy.dialects.mysql.mysqlconnector">mysql-connector</a>
 dialect for extra parameters.</p>
 </article>
 </div>
@@ -378,7 +378,7 @@ dialect for extra parameters.</p>
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav aria-label="Footer" class="md-footer-nav__inner md-grid">
-<a class="md-footer-nav__link md-footer-nav__link--prev" href="../snowflake/" rel="prev" title="Snowflake">
+<a class="md-footer-nav__link md-footer-nav__link--prev" href="../postgresql/" rel="prev" title="PostgreSQL">
 <div class="md-footer-nav__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
 </div>
@@ -387,17 +387,17 @@ dialect for extra parameters.</p>
 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Snowflake
+                PostgreSQL
               </div>
 </div>
 </a>
-<a class="md-footer-nav__link md-footer-nav__link--next" href="../mysql/" rel="next" title="MySQL">
+<a class="md-footer-nav__link md-footer-nav__link--next" href="../sqlite/" rel="next" title="SQLite">
 <div class="md-footer-nav__title">
 <div class="md-ellipsis">
 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                MySQL
+                SQLite
               </div>
 </div>
 <div class="md-footer-nav__button md-icon">

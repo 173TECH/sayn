@@ -1,1061 +1,768 @@
 
+<!DOCTYPE html>
 
-
-<!doctype html>
-<html lang="en" class="no-js">
-  <head>
-    
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width,initial-scale=1">
-      
-      
-      
-      <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-5.2.1">
-    
-    
-      
-        <title>Tutorial (Part 2) - SAYN</title>
-      
-    
-    
-      <link rel="stylesheet" href="../../assets/stylesheets/main.71dfd922.min.css">
-      
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.616af814.min.css">
-      
-      
-        
-        
-        <meta name="theme-color" content="#546e7a">
-      
-    
-    
-    
-      
-        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
-        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
-      
-    
-    
-    
-    
-      
-        
-<link rel="preconnect dns-prefetch" href="https://www.google-analytics.com">
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<link href="https://173tech.github.io/sayn/tutorials/tutorial_part2/" rel="canonical"/>
+<link href="../../assets/images/favicon.png" rel="shortcut icon"/>
+<meta content="mkdocs-1.1.2, mkdocs-material-5.2.1" name="generator"/>
+<title>Tutorial (Part 2) - SAYN</title>
+<link href="../../assets/stylesheets/main.71dfd922.min.css" rel="stylesheet"/>
+<link href="../../assets/stylesheets/palette.616af814.min.css" rel="stylesheet"/>
+<meta content="#546e7a" name="theme-color"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&amp;display=fallback" rel="stylesheet"/>
+<style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+<link href="../../css/custom.css" rel="stylesheet"/>
+<link href="https://www.google-analytics.com" rel="preconnect dns-prefetch"/>
 <script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-149287493-2","auto"),ga("set","anonymizeIp",!0),ga("send","pageview"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){if(this.value){var e=document.location.pathname;ga("send","pageview",e+"?q="+this.value)}})}),document.addEventListener("DOMContentSwitch",function(){ga("send","pageview")})</script>
-<script async src="https://www.google-analytics.com/analytics.js"></script>
-      
-    
-    
-  </head>
-  
-  
-    
-    
-    
-    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="blue-grey" data-md-color-accent="light-blue">
-  
-    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
-    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer"></label>
-    <div data-md-component="skip">
-      
-        
-        <a href="#tutorial-part-2" class="md-skip">
+<script async="" src="https://www.google-analytics.com/analytics.js"></script>
+</head>
+<body data-md-color-accent="light-blue" data-md-color-primary="blue-grey" data-md-color-scheme="" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#tutorial-part-2">
           Skip to content
         </a>
-      
-    </div>
-    <div data-md-component="announce">
-      
-    </div>
-    
-      <header class="md-header" data-md-component="header">
-  <nav class="md-header-nav md-grid" aria-label="Header">
-    <a href="../.." title="SAYN" class="md-header-nav__button md-logo" aria-label="SAYN">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
-
-    </a>
-    <label class="md-header-nav__button md-icon" for="__drawer">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
-    </label>
-    <div class="md-header-nav__title" data-md-component="header-title">
-      
-        <div class="md-header-nav__ellipsis">
-          <span class="md-header-nav__topic md-ellipsis">
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header-nav md-grid">
+<a aria-label="SAYN" class="md-header-nav__button md-logo" href="https://173tech.github.io/sayn/" title="SAYN">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
+</a>
+<label class="md-header-nav__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"></path></svg>
+</label>
+<div class="md-header-nav__title" data-md-component="header-title">
+<div class="md-header-nav__ellipsis">
+<span class="md-header-nav__topic md-ellipsis">
             SAYN
           </span>
-          <span class="md-header-nav__topic md-ellipsis">
+<span class="md-header-nav__topic md-ellipsis">
             
               Tutorial (Part 2)
             
           </span>
-        </div>
-      
-    </div>
-    
-      <label class="md-header-nav__button md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
-      </label>
-      
+</div>
+</div>
+<label class="md-header-nav__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
+</label>
 <div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="__search"></label>
-  <div class="md-search__inner" role="search">
-    <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
-      <label class="md-search__icon md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-      </label>
-      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
-      </button>
-    </form>
-    <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="search-result">
-          <div class="md-search-result__meta">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" data-md-state="active" name="query" placeholder="Search" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</label>
+<button aria-label="Clear" class="md-search__icon md-icon" data-md-component="search-reset" tabindex="-1" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path></svg>
+</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
-        </div>
-      </div>
-    </div>
-  </div>
+<ol class="md-search-result__list"></ol>
 </div>
-    
-    
-  </nav>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header-nav__source">
+<a class="md-source" href="https://github.com/173TECH/sayn" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"></path></svg>
+</div>
+<div class="md-source__repository">
+    173TECH/sayn
+  </div>
+</a>
+</div>
+</nav>
 </header>
-    
-    <div class="md-container" data-md-component="container">
-      
-        
-      
-      
-        
-      
-      <main class="md-main" data-md-component="main">
-        <div class="md-main__inner md-grid">
-          
-            
-              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
-  <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="SAYN" class="md-nav__button md-logo" aria-label="SAYN">
-      
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
-
-    </a>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="SAYN" class="md-nav__button md-logo" href="https://173tech.github.io/sayn/" title="SAYN">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
+</a>
     SAYN
   </label>
-  
-  <ul class="md-nav__list" data-md-scrollfix>
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../.." title="Home" class="md-nav__link">
+<div class="md-nav__source">
+<a class="md-source" href="https://github.com/173TECH/sayn" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"></path></svg>
+</div>
+<div class="md-source__repository">
+    173TECH/sayn
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../.." title="Home">
       Home
     </a>
-  </li>
-
-    
-      
-      
-      
-
-  
-
-
-  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-    
-      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2" checked>
-    
-    <label class="md-nav__link" for="nav-2">
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-2" id="nav-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-2">
       Tutorial
       <span class="md-nav__icon md-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"/></svg>
-      </span>
-    </label>
-    <nav class="md-nav" aria-label="Tutorial" data-md-level="1">
-      <label class="md-nav__title" for="nav-2">
-        <span class="md-nav__icon md-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-        </span>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"></path></svg>
+</span>
+</label>
+<nav aria-label="Tutorial" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-2">
+<span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</span>
         Tutorial
       </label>
-      <ul class="md-nav__list" data-md-scrollfix>
-        
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../tutorial_part1/" title="Tutorial (Part 1)" class="md-nav__link">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tutorial_part1/" title="Tutorial (Part 1)">
       Tutorial (Part 1)
     </a>
-  </li>
-
-        
-          
-          
-          
-
-  
-
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    
-      
-    
-    
-      <label class="md-nav__link md-nav__link--active" for="__toc">
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
         Tutorial (Part 2)
         <span class="md-nav__icon md-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 9h14V7H3v2m0 4h14v-2H3v2m0 4h14v-2H3v2m16 0h2v-2h-2v2m0-10v2h2V7h-2m0 6h2v-2h-2v2z"/></svg>
-        </span>
-      </label>
-    
-    <a href="./" title="Tutorial (Part 2)" class="md-nav__link md-nav__link--active">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9h14V7H3v2m0 4h14v-2H3v2m0 4h14v-2H3v2m16 0h2v-2h-2v2m0-10v2h2V7h-2m0 6h2v-2h-2v2z"></path></svg>
+</span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./" title="Tutorial (Part 2)">
       Tutorial (Part 2)
     </a>
-    
-      
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-      </span>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#what-we-will-cover" class="md-nav__link">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-we-will-cover">
     What We Will Cover
   </a>
-  
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#implementing-parameters-and-presets" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#implementing-parameters-and-presets">
     Implementing parameters and presets
   </a>
-  
-    <nav class="md-nav" aria-label="Implementing parameters and presets">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#step-1-using-parameters" class="md-nav__link">
+<nav aria-label="Implementing parameters and presets" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#step-1-using-parameters">
     Step 1: Using parameters
   </a>
-  
-    <nav class="md-nav" aria-label="Step 1: Using parameters">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#parameters-setup" class="md-nav__link">
+<nav aria-label="Step 1: Using parameters" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#parameters-setup">
     parameters Setup
   </a>
-  
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#step-2-making-tasks-dynamic-with-parameters" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#step-2-making-tasks-dynamic-with-parameters">
     Step 2: Making Tasks Dynamic With parameters
   </a>
-  
-    <nav class="md-nav" aria-label="Step 2: Making Tasks Dynamic With parameters">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#in-python-tasks" class="md-nav__link">
+<nav aria-label="Step 2: Making Tasks Dynamic With parameters" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#in-python-tasks">
     In python tasks
   </a>
-  
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#in-autosql-tasks" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#in-autosql-tasks">
     In autosql tasks
   </a>
-  
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#step-3-using-presets-to-standardise-task-definitions" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#step-3-using-presets-to-standardise-task-definitions">
     Step 3: Using presets To Standardise Task Definitions
   </a>
-  
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#running-our-new-project" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-our-new-project">
     Running Our New Project
   </a>
-  
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#what-next" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-next">
     What Next?
   </a>
-  
 </li>
-      
-    </ul>
-  
+</ul>
 </nav>
-    
-  </li>
-
-        
-      </ul>
-    </nav>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../../project_structure/" title="Project Structure" class="md-nav__link">
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../project_structure/" title="Project Structure">
       Project Structure
     </a>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item md-nav__item--nested">
-    
-      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
-    
-    <label class="md-nav__link" for="nav-4">
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" id="nav-4" type="checkbox"/>
+<label class="md-nav__link" for="nav-4">
       Settings
       <span class="md-nav__icon md-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"/></svg>
-      </span>
-    </label>
-    <nav class="md-nav" aria-label="Settings" data-md-level="1">
-      <label class="md-nav__title" for="nav-4">
-        <span class="md-nav__icon md-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-        </span>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"></path></svg>
+</span>
+</label>
+<nav aria-label="Settings" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-4">
+<span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</span>
         Settings
       </label>
-      <ul class="md-nav__list" data-md-scrollfix>
-        
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../settings/project_yaml/" title="project.yaml" class="md-nav__link">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../settings/project_yaml/" title="project.yaml">
       project.yaml
     </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../settings/settings_yaml/" title="settings.yaml" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../settings/settings_yaml/" title="settings.yaml">
       settings.yaml
     </a>
-  </li>
-
-        
-      </ul>
-    </nav>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../../commands/" title="Commands" class="md-nav__link">
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../commands/" title="Commands">
       Commands
     </a>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../../dags/" title="DAGs" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../dags/" title="DAGs">
       DAGs
     </a>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item md-nav__item--nested">
-    
-      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7">
-    
-    <label class="md-nav__link" for="nav-7">
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" id="nav-7" type="checkbox"/>
+<label class="md-nav__link" for="nav-7">
       Tasks
       <span class="md-nav__icon md-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"/></svg>
-      </span>
-    </label>
-    <nav class="md-nav" aria-label="Tasks" data-md-level="1">
-      <label class="md-nav__title" for="nav-7">
-        <span class="md-nav__icon md-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-        </span>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"></path></svg>
+</span>
+</label>
+<nav aria-label="Tasks" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-7">
+<span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</span>
         Tasks
       </label>
-      <ul class="md-nav__list" data-md-scrollfix>
-        
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../tasks/overview/" title="Overview" class="md-nav__link">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tasks/overview/" title="Overview">
       Overview
     </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../tasks/autosql/" title="autosql" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tasks/autosql/" title="autosql">
       autosql
     </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../tasks/python/" title="python" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tasks/python/" title="python">
       python
     </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../tasks/copy/" title="copy" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tasks/copy/" title="copy">
       copy
     </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../tasks/dummy/" title="dummy" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tasks/dummy/" title="dummy">
       dummy
     </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../tasks/sql/" title="sql" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../tasks/sql/" title="sql">
       sql
     </a>
-  </li>
-
-        
-      </ul>
-    </nav>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../../presets/" title="Presets" class="md-nav__link">
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../presets/" title="Presets">
       Presets
     </a>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../../parameters/" title="Parameters" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../parameters/" title="Parameters">
       Parameters
     </a>
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item md-nav__item--nested">
-    
-      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-10" type="checkbox" id="nav-10">
-    
-    <label class="md-nav__link" for="nav-10">
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-10" id="nav-10" type="checkbox"/>
+<label class="md-nav__link" for="nav-10">
       Databases
       <span class="md-nav__icon md-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"/></svg>
-      </span>
-    </label>
-    <nav class="md-nav" aria-label="Databases" data-md-level="1">
-      <label class="md-nav__title" for="nav-10">
-        <span class="md-nav__icon md-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-        </span>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"></path></svg>
+</span>
+</label>
+<nav aria-label="Databases" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-10">
+<span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</span>
         Databases
       </label>
-      <ul class="md-nav__list" data-md-scrollfix>
-        
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../databases/overview/" title="Overview" class="md-nav__link">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../databases/overview/" title="Overview">
       Overview
     </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../databases/postgresql/" title="PostgreSQL" class="md-nav__link">
-      PostgreSQL
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../databases/redshift/" title="Redshift">
+      Redshift
     </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../databases/snowflake/" title="Snowflake" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../databases/snowflake/" title="Snowflake">
       Snowflake
     </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../databases/sqlite/" title="SQLite" class="md-nav__link">
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../databases/postgresql/" title="PostgreSQL">
+      PostgreSQL
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../databases/mysql/" title="MySQL">
+      MySQL
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../databases/sqlite/" title="SQLite">
       SQLite
     </a>
-  </li>
-
-        
-      </ul>
-    </nav>
-  </li>
-
-    
-  </ul>
+</li>
+</ul>
 </nav>
-                  </div>
-                </div>
-              </div>
-            
-            
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-11" id="nav-11" type="checkbox"/>
+<label class="md-nav__link" for="nav-11">
+      API Reference
       <span class="md-nav__icon md-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-      </span>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"></path></svg>
+</span>
+</label>
+<nav aria-label="API Reference" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-11">
+<span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</span>
+        API Reference
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../api/database/" title="Database">
+      Database
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#what-we-will-cover" class="md-nav__link">
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-we-will-cover">
     What We Will Cover
   </a>
-  
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#implementing-parameters-and-presets" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#implementing-parameters-and-presets">
     Implementing parameters and presets
   </a>
-  
-    <nav class="md-nav" aria-label="Implementing parameters and presets">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#step-1-using-parameters" class="md-nav__link">
+<nav aria-label="Implementing parameters and presets" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#step-1-using-parameters">
     Step 1: Using parameters
   </a>
-  
-    <nav class="md-nav" aria-label="Step 1: Using parameters">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#parameters-setup" class="md-nav__link">
+<nav aria-label="Step 1: Using parameters" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#parameters-setup">
     parameters Setup
   </a>
-  
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#step-2-making-tasks-dynamic-with-parameters" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#step-2-making-tasks-dynamic-with-parameters">
     Step 2: Making Tasks Dynamic With parameters
   </a>
-  
-    <nav class="md-nav" aria-label="Step 2: Making Tasks Dynamic With parameters">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#in-python-tasks" class="md-nav__link">
+<nav aria-label="Step 2: Making Tasks Dynamic With parameters" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#in-python-tasks">
     In python tasks
   </a>
-  
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#in-autosql-tasks" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#in-autosql-tasks">
     In autosql tasks
   </a>
-  
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#step-3-using-presets-to-standardise-task-definitions" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#step-3-using-presets-to-standardise-task-definitions">
     Step 3: Using presets To Standardise Task Definitions
   </a>
-  
 </li>
-        
-      </ul>
-    </nav>
-  
+</ul>
+</nav>
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#running-our-new-project" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#running-our-new-project">
     Running Our New Project
   </a>
-  
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#what-next" class="md-nav__link">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#what-next">
     What Next?
   </a>
-  
 </li>
-      
-    </ul>
-  
+</ul>
 </nav>
-                  </div>
-                </div>
-              </div>
-            
-          
-          <div class="md-content">
-            <article class="md-content__inner md-typeset">
-              
-                
-                
-                  
-                
-                
-                <h1 id="tutorial-part-2">Tutorial: Part 2</h1>
-<h2 id="what-we-will-cover">What We Will Cover</h2>
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<h1 id="tutorial-part-2">Tutorial: Part 2<a class="headerlink" href="#tutorial-part-2" title="Permanent link">¶</a></h1>
+<h2 id="what-we-will-cover">What We Will Cover<a class="headerlink" href="#what-we-will-cover" title="Permanent link">¶</a></h2>
 <p>This tutorial builds upon the <a href="../tutorial_part1/">Tutorial: Part 1</a> and introduces you to SAYN concepts which will enable you to make your projects more dynamic and efficient.</p>
-<p>If you need any help or want to ask a question, please reach out to the team at <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#115;&#97;&#121;&#110;&#64;&#49;&#55;&#51;&#116;&#101;&#99;&#104;&#46;&#99;&#111;&#109;">&#115;&#97;&#121;&#110;&#64;&#49;&#55;&#51;&#116;&#101;&#99;&#104;&#46;&#99;&#111;&#109;</a>.</p>
-<h2 id="implementing-parameters-and-presets">Implementing <code>parameters</code> and <code>presets</code></h2>
+<p>If you need any help or want to ask a question, please reach out to the team at <a href="mailto:sayn@173tech.com">sayn@173tech.com</a>.</p>
+<h2 id="implementing-parameters-and-presets">Implementing <code>parameters</code> and <code>presets</code><a class="headerlink" href="#implementing-parameters-and-presets" title="Permanent link">¶</a></h2>
 <p>The <a href="../tutorial_part1/">Tutorial: Part 1</a> got you to implement a first ETL process with SAYN. We will now look into two core SAYN features which will enable you to build efficient and dynamic projects as you scale: <code>parameters</code> and <code>presets</code>.</p>
 <p>For this tutorial, we will use the code generated by <code>sayn init</code> and make amends as we go through the new concepts.</p>
 <p>A <a href="https://github.com/173TECH/sayn_tutorial_part2" target="_blank">Github repository</a> is available with the final code if you prefer to have all the code written directly. After cloning, you simply need to make sure to rename the <code>sample_settings.yaml</code> file to <code>settings.yaml</code> for the project to work.</p>
-<h3 id="step-1-using-parameters">Step 1: Using <code>parameters</code></h3>
-<h4 id="parameters-setup"><code>parameters</code> Setup</h4>
+<h3 id="step-1-using-parameters">Step 1: Using <code>parameters</code><a class="headerlink" href="#step-1-using-parameters" title="Permanent link">¶</a></h3>
+<h4 id="parameters-setup"><code>parameters</code> Setup<a class="headerlink" href="#parameters-setup" title="Permanent link">¶</a></h4>
 <p>You can use <code>parameters</code> in order to make your SAYN tasks' code dynamic. We will set one project parameter called <code>user_prefix</code>. This will enable us to distinguish which user generated tables.</p>
 <p>First, add <code>paramaters</code> to <code>project.yaml</code>. Those <code>parameters</code> will contain the default values for the SAYN project:</p>
-<p><strong><code>project.yaml</code></strong></p>
-<pre><code class="yaml">required_credentials:
-  - warehouse
+<p><strong><code>project.yaml</code></strong>
+<div class="highlight"><pre><span></span><code><span class="nt">required_credentials</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">warehouse</span>
 
-default_db: warehouse
+<span class="nt">default_db</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">warehouse</span>
 
-dags:
-  - base
+<span class="nt">dags</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">base</span>
 
-parameters:
-  user_prefix: '' #no prefix for prod
-</code></pre>
-
+<span class="nt">parameters</span><span class="p">:</span>
+  <span class="nt">user_prefix</span><span class="p">:</span> <span class="s">''</span> <span class="c1">#no prefix for prod</span>
+</code></pre></div></p>
 <p>Then, add the <code>parameters</code> to your profiles in <code>settings.yaml</code>.</p>
-<p><strong><code>settings.yaml</code></strong></p>
-<pre><code class="yaml">default_profile: dev
+<p><strong><code>settings.yaml</code></strong>
+<div class="highlight"><pre><span></span><code><span class="nt">default_profile</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dev</span>
 
-profiles:
-  dev:
-    credentials:
-      warehouse: test_db
-    parameters:
-      user_prefix: sg_
-  prod:
-    credentials:
-      warehouse: prod_db
-    parameters:
-      user_prefix: '' #no prefix for prod
+<span class="nt">profiles</span><span class="p">:</span>
+  <span class="nt">dev</span><span class="p">:</span>
+    <span class="nt">credentials</span><span class="p">:</span>
+      <span class="nt">warehouse</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">test_db</span>
+    <span class="nt">parameters</span><span class="p">:</span>
+      <span class="nt">user_prefix</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sg_</span>
+  <span class="nt">prod</span><span class="p">:</span>
+    <span class="nt">credentials</span><span class="p">:</span>
+      <span class="nt">warehouse</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">prod_db</span>
+    <span class="nt">parameters</span><span class="p">:</span>
+      <span class="nt">user_prefix</span><span class="p">:</span> <span class="s">''</span> <span class="c1">#no prefix for prod</span>
 
-credentials:
-  test_db:
-    type: sqlite
-    database: test.db
-  prod_db:
-    type: sqlite
-    database: prod.db
-</code></pre>
-
-<h3 id="step-2-making-tasks-dynamic-with-parameters">Step 2: Making Tasks Dynamic With <code>parameters</code></h3>
+<span class="nt">credentials</span><span class="p">:</span>
+  <span class="nt">test_db</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sqlite</span>
+    <span class="nt">database</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">test.db</span>
+  <span class="nt">prod_db</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sqlite</span>
+    <span class="nt">database</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">prod.db</span>
+</code></pre></div></p>
+<h3 id="step-2-making-tasks-dynamic-with-parameters">Step 2: Making Tasks Dynamic With <code>parameters</code><a class="headerlink" href="#step-2-making-tasks-dynamic-with-parameters" title="Permanent link">¶</a></h3>
 <p>Now that our parameters are setup, we can use those to make our tasks' code dynamic. We will now change our tasks' code to use the <code>user_prefix</code> parameter.</p>
-<h4 id="in-python-tasks">In <code>python</code> tasks</h4>
+<h4 id="in-python-tasks">In <code>python</code> tasks<a class="headerlink" href="#in-python-tasks" title="Permanent link">¶</a></h4>
 <p>For the Python <code>load_data</code> task, we will access the <code>user_prefix</code> parameter and then pass it to the functions doing the data processing. You can look into <code>python/utils/log_creator.py</code> to see how we use the <code>user_prefix</code> parameter to change the table names.</p>
 <p>Replace your <code>pyhton/load_data.py</code> script with the code below. As you can observe, we create a <code>user_prefix</code> variable by reading <code>self.sayn_config.parameters</code>. The <code>parameters</code> are stored on the Task object and can therefore be accessed in that way.</p>
-<p><strong><code>load_data.py</code></strong></p>
-<pre><code class="python">import sqlite3
-import logging
-from .utils.log_creator import prepare_data, generate_load_query
-from sayn import PythonTask
+<p><strong><code>load_data.py</code></strong>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">sqlite3</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">.utils.log_creator</span> <span class="kn">import</span> <span class="n">prepare_data</span><span class="p">,</span> <span class="n">generate_load_query</span>
+<span class="kn">from</span> <span class="nn">sayn</span> <span class="kn">import</span> <span class="n">PythonTask</span>
 
-class LoadData(PythonTask):
-    def setup(self):
-       err = False
+<span class="k">class</span> <span class="nc">LoadData</span><span class="p">(</span><span class="n">PythonTask</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+       <span class="n">err</span> <span class="o">=</span> <span class="kc">False</span>
 
-       # we use this list to control how many battles we want per tournament
-       tournament_battles = [
-           {&quot;tournament_id&quot;: 1, &quot;n_battles&quot;: 1000},
-           {&quot;tournament_id&quot;: 2, &quot;n_battles&quot;: 250},
-           {&quot;tournament_id&quot;: 3, &quot;n_battles&quot;: 500},
-       ]
+       <span class="c1"># we use this list to control how many battles we want per tournament</span>
+       <span class="n">tournament_battles</span> <span class="o">=</span> <span class="p">[</span>
+           <span class="p">{</span><span class="s2">"tournament_id"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"n_battles"</span><span class="p">:</span> <span class="mi">1000</span><span class="p">},</span>
+           <span class="p">{</span><span class="s2">"tournament_id"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"n_battles"</span><span class="p">:</span> <span class="mi">250</span><span class="p">},</span>
+           <span class="p">{</span><span class="s2">"tournament_id"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"n_battles"</span><span class="p">:</span> <span class="mi">500</span><span class="p">},</span>
+       <span class="p">]</span>
 
-       user_prefix = self.sayn_config.parameters['user_prefix']
+       <span class="n">user_prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sayn_config</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">'user_prefix'</span><span class="p">]</span>
 
-       try:
-           self.data_to_load = prepare_data(tournament_battles, user_prefix=user_prefix)
-       except Exception as e:
-           err = True
-           logging.error(e)
+       <span class="k">try</span><span class="p">:</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">data_to_load</span> <span class="o">=</span> <span class="n">prepare_data</span><span class="p">(</span><span class="n">tournament_battles</span><span class="p">,</span> <span class="n">user_prefix</span><span class="o">=</span><span class="n">user_prefix</span><span class="p">)</span>
+       <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+           <span class="n">err</span> <span class="o">=</span> <span class="kc">True</span>
+           <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
-       if err:
-           return self.failed()
-       else:
-           return self.ready()
+       <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
+           <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">failed</span><span class="p">()</span>
+       <span class="k">else</span><span class="p">:</span>
+           <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ready</span><span class="p">()</span>
 
-    def run(self):
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        user_prefix = self.sayn_config.parameters['user_prefix']
+        <span class="n">user_prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sayn_config</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">'user_prefix'</span><span class="p">]</span>
 
-        # load the logs
-        for log_type, log_details in self.data_to_load.items():
-            # create table
-            logging.info('Creating table: {log_type}.'.format(log_type=log_type))
+        <span class="c1"># load the logs</span>
+        <span class="k">for</span> <span class="n">log_type</span><span class="p">,</span> <span class="n">log_details</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_to_load</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># create table</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Creating table: </span><span class="si">{log_type}</span><span class="s1">.'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">log_type</span><span class="o">=</span><span class="n">log_type</span><span class="p">))</span>
 
-            self.default_db.execute(log_details['create'])
+            <span class="bp">self</span><span class="o">.</span><span class="n">default_db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">log_details</span><span class="p">[</span><span class="s1">'create'</span><span class="p">])</span>
 
-            # load logs
-            logging.info('Loading logs: {log_type}.'.format(log_type=log_type))
-            logs = log_details['data']
+            <span class="c1"># load logs</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Loading logs: </span><span class="si">{log_type}</span><span class="s1">.'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">log_type</span><span class="o">=</span><span class="n">log_type</span><span class="p">))</span>
+            <span class="n">logs</span> <span class="o">=</span> <span class="n">log_details</span><span class="p">[</span><span class="s1">'data'</span><span class="p">]</span>
 
-            for log in logs:
-                q_insert = generate_load_query(log_type, log, user_prefix=user_prefix)
+            <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs</span><span class="p">:</span>
+                <span class="n">q_insert</span> <span class="o">=</span> <span class="n">generate_load_query</span><span class="p">(</span><span class="n">log_type</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">user_prefix</span><span class="o">=</span><span class="n">user_prefix</span><span class="p">)</span>
 
-                self.default_db.execute(q_insert)
+                <span class="bp">self</span><span class="o">.</span><span class="n">default_db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">q_insert</span><span class="p">)</span>
 
-            # done
-            logging.info('Done: {log_type}.'.format(log_type=log_type))
+            <span class="c1"># done</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Done: </span><span class="si">{log_type}</span><span class="s1">.'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">log_type</span><span class="o">=</span><span class="n">log_type</span><span class="p">))</span>
 
-        return self.success()
-</code></pre>
-
-<h4 id="in-autosql-tasks">In <code>autosql</code> tasks</h4>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">success</span><span class="p">()</span>
+</code></pre></div></p>
+<h4 id="in-autosql-tasks">In <code>autosql</code> tasks<a class="headerlink" href="#in-autosql-tasks" title="Permanent link">¶</a></h4>
 <p>You can also access the project <code>parameters</code> in <code>autosql</code> tasks with the following syntax: <code>{{parameter_name}}</code>. SAYN's compilation process uses Jinja. Replace all the SQL queries with the following:</p>
-<p><strong><code>dim_arenas.sql</code></strong></p>
-<pre><code class="sql">SELECT l.arena_id
-     , l.arena_name
+<p><strong><code>dim_arenas.sql</code></strong>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="n">l</span><span class="p">.</span><span class="n">arena_id</span>
+     <span class="p">,</span> <span class="n">l</span><span class="p">.</span><span class="n">arena_name</span>
 
-FROM {{user_prefix}}logs_arenas l
-</code></pre>
+<span class="k">FROM</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">logs_arenas</span> <span class="n">l</span>
+</code></pre></div></p>
+<p><strong><code>dim_fighters.sql</code></strong>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="n">l</span><span class="p">.</span><span class="n">fighter_id</span>
+     <span class="p">,</span> <span class="n">l</span><span class="p">.</span><span class="n">fighter_name</span>
 
-<p><strong><code>dim_fighters.sql</code></strong></p>
-<pre><code class="sql">SELECT l.fighter_id
-     , l.fighter_name
+<span class="k">FROM</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">logs_fighters</span> <span class="n">l</span>
+</code></pre></div></p>
+<p><strong><code>dim_tournaments.sql</code></strong>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="n">l</span><span class="p">.</span><span class="n">tournament_id</span>
+     <span class="p">,</span> <span class="n">l</span><span class="p">.</span><span class="n">tournament_name</span>
 
-FROM {{user_prefix}}logs_fighters l
-</code></pre>
+<span class="k">FROM</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">logs_tournaments</span> <span class="n">l</span>
+</code></pre></div></p>
+<p><strong><code>f_battles.sql</code></strong>
+<div class="highlight"><pre><span></span><code><span class="k">WITH</span> <span class="n">battles</span> <span class="k">AS</span> <span class="p">(</span>
 
-<p><strong><code>dim_tournaments.sql</code></strong></p>
-<pre><code class="sql">SELECT l.tournament_id
-     , l.tournament_name
+  <span class="k">SELECT</span> <span class="n">l</span><span class="p">.</span><span class="n">tournament_id</span>
+       <span class="p">,</span> <span class="n">l</span><span class="p">.</span><span class="n">battle_id</span>
+       <span class="p">,</span> <span class="n">l</span><span class="p">.</span><span class="n">arena_id</span>
+       <span class="p">,</span> <span class="n">l</span><span class="p">.</span><span class="n">fighter1_id</span>
+       <span class="p">,</span> <span class="n">l</span><span class="p">.</span><span class="n">fighter2_id</span>
+       <span class="p">,</span> <span class="n">l</span><span class="p">.</span><span class="n">winner_id</span>
 
-FROM {{user_prefix}}logs_tournaments l
-</code></pre>
+  <span class="k">FROM</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">logs_battles</span> <span class="n">l</span>
+<span class="p">)</span>
 
-<p><strong><code>f_battles.sql</code></strong></p>
-<pre><code class="sql">WITH battles AS (
+<span class="k">SELECT</span> <span class="n">t</span><span class="p">.</span><span class="n">tournament_name</span>
+     <span class="p">,</span> <span class="n">t</span><span class="p">.</span><span class="n">tournament_name</span> <span class="o">||</span> <span class="s1">'-'</span> <span class="o">||</span> <span class="k">CAST</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">battle_id</span> <span class="k">AS</span> <span class="nb">VARCHAR</span><span class="p">)</span> <span class="k">AS</span> <span class="n">battle_id</span>
+     <span class="p">,</span> <span class="n">a</span><span class="p">.</span><span class="n">arena_name</span>
+     <span class="p">,</span> <span class="n">f1</span><span class="p">.</span><span class="n">fighter_name</span> <span class="k">AS</span> <span class="n">fighter1_name</span>
+     <span class="p">,</span> <span class="n">f2</span><span class="p">.</span><span class="n">fighter_name</span> <span class="k">AS</span> <span class="n">fighter2_name</span>
+     <span class="p">,</span> <span class="n">w</span><span class="p">.</span><span class="n">fighter_name</span> <span class="k">AS</span> <span class="n">winner_name</span>
 
-  SELECT l.tournament_id
-       , l.battle_id
-       , l.arena_id
-       , l.fighter1_id
-       , l.fighter2_id
-       , l.winner_id
+<span class="k">FROM</span> <span class="n">battles</span> <span class="n">b</span>
 
-  FROM {{user_prefix}}logs_battles l
-)
+<span class="k">LEFT</span> <span class="k">JOIN</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">dim_tournaments</span> <span class="n">t</span>
+  <span class="k">ON</span> <span class="n">b</span><span class="p">.</span><span class="n">tournament_id</span> <span class="o">=</span> <span class="n">t</span><span class="p">.</span><span class="n">tournament_id</span>
 
-SELECT t.tournament_name
-     , t.tournament_name || '-' || CAST(b.battle_id AS VARCHAR) AS battle_id
-     , a.arena_name
-     , f1.fighter_name AS fighter1_name
-     , f2.fighter_name AS fighter2_name
-     , w.fighter_name AS winner_name
+<span class="k">LEFT</span> <span class="k">JOIN</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">dim_arenas</span> <span class="n">a</span>
+  <span class="k">ON</span> <span class="n">b</span><span class="p">.</span><span class="n">arena_id</span> <span class="o">=</span> <span class="n">a</span><span class="p">.</span><span class="n">arena_id</span>
 
-FROM battles b
+<span class="k">LEFT</span> <span class="k">JOIN</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">dim_fighters</span> <span class="n">f1</span>
+  <span class="k">ON</span> <span class="n">b</span><span class="p">.</span><span class="n">fighter1_id</span> <span class="o">=</span> <span class="n">f1</span><span class="p">.</span><span class="n">fighter_id</span>
 
-LEFT JOIN {{user_prefix}}dim_tournaments t
-  ON b.tournament_id = t.tournament_id
+<span class="k">LEFT</span> <span class="k">JOIN</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">dim_fighters</span> <span class="n">f2</span>
+  <span class="k">ON</span> <span class="n">b</span><span class="p">.</span><span class="n">fighter2_id</span> <span class="o">=</span> <span class="n">f2</span><span class="p">.</span><span class="n">fighter_id</span>
 
-LEFT JOIN {{user_prefix}}dim_arenas a
-  ON b.arena_id = a.arena_id
+<span class="k">LEFT</span> <span class="k">JOIN</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">dim_fighters</span> <span class="n">w</span>
+  <span class="k">ON</span> <span class="n">b</span><span class="p">.</span><span class="n">winner_id</span> <span class="o">=</span> <span class="n">w</span><span class="p">.</span><span class="n">fighter_id</span>
+</code></pre></div></p>
+<p><strong><code>f_fighter_results.sql</code></strong>
+<div class="highlight"><pre><span></span><code><span class="k">WITH</span> <span class="n">fighter1_outcome</span> <span class="k">AS</span> <span class="p">(</span>
 
-LEFT JOIN {{user_prefix}}dim_fighters f1
-  ON b.fighter1_id = f1.fighter_id
+  <span class="k">SELECT</span> <span class="n">b</span><span class="p">.</span><span class="n">tournament_name</span>
+       <span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">battle_id</span>
+       <span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">arena_name</span>
+       <span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">fighter1_name</span>
+       <span class="p">,</span> <span class="k">CASE</span> <span class="k">WHEN</span> <span class="n">b</span><span class="p">.</span><span class="n">fighter1_name</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">winner_name</span> <span class="k">THEN</span> <span class="mi">1</span> <span class="k">ELSE</span> <span class="mi">0</span> <span class="k">END</span> <span class="k">AS</span> <span class="n">is_winner</span>
 
-LEFT JOIN {{user_prefix}}dim_fighters f2
-  ON b.fighter2_id = f2.fighter_id
+  <span class="k">FROM</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">f_battles</span> <span class="n">b</span>
+<span class="p">)</span>
 
-LEFT JOIN {{user_prefix}}dim_fighters w
-  ON b.winner_id = w.fighter_id
-</code></pre>
+<span class="p">,</span> <span class="n">fighter2_outcome</span> <span class="k">AS</span> <span class="p">(</span>
 
-<p><strong><code>f_fighter_results.sql</code></strong></p>
-<pre><code class="sql">WITH fighter1_outcome AS (
+  <span class="k">SELECT</span> <span class="n">b</span><span class="p">.</span><span class="n">tournament_name</span>
+       <span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">battle_id</span>
+       <span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">arena_name</span>
+       <span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">fighter2_name</span>
+       <span class="p">,</span> <span class="k">CASE</span> <span class="k">WHEN</span> <span class="n">b</span><span class="p">.</span><span class="n">fighter2_name</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">winner_name</span> <span class="k">THEN</span> <span class="mi">1</span> <span class="k">ELSE</span> <span class="mi">0</span> <span class="k">END</span> <span class="k">AS</span> <span class="n">is_winner</span>
 
-  SELECT b.tournament_name
-       , b.battle_id
-       , b.arena_name
-       , b.fighter1_name
-       , CASE WHEN b.fighter1_name = b.winner_name THEN 1 ELSE 0 END AS is_winner
+  <span class="k">FROM</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">f_battles</span> <span class="n">b</span>
+<span class="p">)</span>
 
-  FROM {{user_prefix}}f_battles b
-)
+<span class="k">SELECT</span> <span class="n">f1</span><span class="p">.</span><span class="n">tournament_name</span>
+     <span class="p">,</span> <span class="n">f1</span><span class="p">.</span><span class="n">battle_id</span>
+     <span class="p">,</span> <span class="n">f1</span><span class="p">.</span><span class="n">arena_name</span>
+     <span class="p">,</span> <span class="n">f1</span><span class="p">.</span><span class="n">fighter1_name</span> <span class="k">AS</span> <span class="n">fighter_name</span>
+     <span class="p">,</span> <span class="n">f1</span><span class="p">.</span><span class="n">is_winner</span>
 
-, fighter2_outcome AS (
+<span class="k">FROM</span> <span class="n">fighter1_outcome</span> <span class="n">f1</span>
 
-  SELECT b.tournament_name
-       , b.battle_id
-       , b.arena_name
-       , b.fighter2_name
-       , CASE WHEN b.fighter2_name = b.winner_name THEN 1 ELSE 0 END AS is_winner
+<span class="k">UNION</span>
 
-  FROM {{user_prefix}}f_battles b
-)
+<span class="k">SELECT</span> <span class="n">f2</span><span class="p">.</span><span class="n">tournament_name</span>
+     <span class="p">,</span> <span class="n">f2</span><span class="p">.</span><span class="n">battle_id</span>
+     <span class="p">,</span> <span class="n">f2</span><span class="p">.</span><span class="n">arena_name</span>
+     <span class="p">,</span> <span class="n">f2</span><span class="p">.</span><span class="n">fighter2_name</span> <span class="k">AS</span> <span class="n">fighter_name</span>
+     <span class="p">,</span> <span class="n">f2</span><span class="p">.</span><span class="n">is_winner</span>
 
-SELECT f1.tournament_name
-     , f1.battle_id
-     , f1.arena_name
-     , f1.fighter1_name AS fighter_name
-     , f1.is_winner
+<span class="k">FROM</span> <span class="n">fighter2_outcome</span> <span class="n">f2</span>
+</code></pre></div></p>
+<p><strong><code>f_rankings</code></strong>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="n">fr</span><span class="p">.</span><span class="n">fighter_name</span>
+     <span class="p">,</span> <span class="k">CAST</span><span class="p">(</span><span class="k">SUM</span><span class="p">(</span><span class="n">fr</span><span class="p">.</span><span class="n">is_winner</span><span class="p">)</span> <span class="k">AS</span> <span class="nb">FLOAT</span><span class="p">)</span> <span class="o">/</span> <span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span> <span class="n">fr</span><span class="p">.</span><span class="n">battle_id</span><span class="p">)</span> <span class="k">AS</span> <span class="n">win_rate</span>
 
-FROM fighter1_outcome f1
+<span class="k">FROM</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">f_fighter_results</span> <span class="n">fr</span>
 
-UNION
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="mi">1</span>
 
-SELECT f2.tournament_name
-     , f2.battle_id
-     , f2.arena_name
-     , f2.fighter2_name AS fighter_name
-     , f2.is_winner
-
-FROM fighter2_outcome f2
-</code></pre>
-
-<p><strong><code>f_rankings</code></strong></p>
-<pre><code class="sql">SELECT fr.fighter_name
-     , CAST(SUM(fr.is_winner) AS FLOAT) / COUNT(DISTINCT fr.battle_id) AS win_rate
-
-FROM {{user_prefix}}f_fighter_results fr
-
-GROUP BY 1
-
-ORDER BY 2 DESC
-</code></pre>
-
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="mi">2</span> <span class="k">DESC</span>
+</code></pre></div></p>
 <p>Our SQL queries are now all set to read tables which are prefixed with the relevant <code>user_prefix</code> parameter depending on the profile used at execution. However, our <code>autosql</code> tasks still create tables in a static way as we have the <code>table</code> attribute of our <code>autosql</code> tasks hardcoded. The next step will fix this.</p>
-<h3 id="step-3-using-presets-to-standardise-task-definitions">Step 3: Using <code>presets</code> To Standardise Task Definitions</h3>
+<h3 id="step-3-using-presets-to-standardise-task-definitions">Step 3: Using <code>presets</code> To Standardise Task Definitions<a class="headerlink" href="#step-3-using-presets-to-standardise-task-definitions" title="Permanent link">¶</a></h3>
 <p>Because most of our tasks have a similar configuration, we can significantly reduce the YAML task definitions using <code>presets</code>. <code>presets</code> enable to create standardised tasks which can be used to define other tasks by setting a preset attribute. We define a <code>modelling</code> preset and use it in our DAG <code>base.yaml</code>. Replace the file <code>dags/base.yaml</code> with the following:</p>
-<p><strong><code>dags/base.yaml</code></strong></p>
-<pre><code class="yaml">presets:
-  modelling:
-    type: autosql
-    file_name: '{{task.name}}.sql'
-    materialisation: table
-    destination:
-      tmp_schema: main
-      schema: main
-      table: '{{user_prefix}}{{task.name}}'
-    parents:
-      - load_data
+<p><strong><code>dags/base.yaml</code></strong>
+<div class="highlight"><pre><span></span><code><span class="nt">presets</span><span class="p">:</span>
+  <span class="nt">modelling</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
+    <span class="nt">file_name</span><span class="p">:</span> <span class="s">'{{task.name}}.sql'</span>
+    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
+    <span class="nt">destination</span><span class="p">:</span>
+      <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">main</span>
+      <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">main</span>
+      <span class="nt">table</span><span class="p">:</span> <span class="s">'{{user_prefix}}{{task.name}}'</span>
+    <span class="nt">parents</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">load_data</span>
 
-tasks:
-  load_data:
-    type: python
-    class: load_data.LoadData
+<span class="nt">tasks</span><span class="p">:</span>
+  <span class="nt">load_data</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python</span>
+    <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">load_data.LoadData</span>
 
-  #this task sets modelling as its preset attribute
-  #therefore it inherits all the attributes from the modelling preset
-  dim_tournaments:
-    preset: modelling
+  <span class="c1">#this task sets modelling as its preset attribute</span>
+  <span class="c1">#therefore it inherits all the attributes from the modelling preset</span>
+  <span class="nt">dim_tournaments</span><span class="p">:</span>
+    <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
 
-  dim_arenas:
-    preset: modelling
+  <span class="nt">dim_arenas</span><span class="p">:</span>
+    <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
 
-  dim_fighters:
-    preset: modelling
+  <span class="nt">dim_fighters</span><span class="p">:</span>
+    <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
 
-  f_battles:
-    preset: modelling
-    parents:
-      - dim_tournaments
-      - dim_arenas
-      - dim_fighters
+  <span class="nt">f_battles</span><span class="p">:</span>
+    <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
+    <span class="nt">parents</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dim_tournaments</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dim_arenas</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dim_fighters</span>
 
-  f_fighter_results:
-    preset: modelling
-    parents:
-      - f_battles
+  <span class="nt">f_fighter_results</span><span class="p">:</span>
+    <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
+    <span class="nt">parents</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">f_battles</span>
 
-  #for that task, we overwrite the modelling preset materialisation attribute as we want this model to be a view
-  f_rankings:
-    preset: modelling
-    materialisation: view
-    parents:
-      - f_fighter_results
-</code></pre>
-
+  <span class="c1">#for that task, we overwrite the modelling preset materialisation attribute as we want this model to be a view</span>
+  <span class="nt">f_rankings</span><span class="p">:</span>
+    <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
+    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">view</span>
+    <span class="nt">parents</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">f_fighter_results</span>
+</code></pre></div></p>
 <p>Using the <code>modelling</code> preset on tasks' definitions will imply:</p>
 <ul>
 <li>those tasks will be <code>autosql</code> and materialise as a <code>table</code>.</li>
 <li>they will all have the <code>load_data</code> task as a parent.</li>
 <li>and they will have all other attributes set in the <code>modelling</code> preset.</li>
 </ul>
-<h2 id="running-our-new-project">Running Our New Project</h2>
+<h2 id="running-our-new-project">Running Our New Project<a class="headerlink" href="#running-our-new-project" title="Permanent link">¶</a></h2>
 <p>You can now test running <code>sayn run</code> or <code>sayn -p prod</code>. The two options will do the following:</p>
 <ul>
 <li><code>sayn run</code>:<ul>
@@ -1072,7 +779,7 @@ tasks:
 </li>
 </ul>
 <p>We have made our SAYN project dynamic with <code>parameters</code> and made our tasks' definitions more efficients with <code>presets</code>.</p>
-<h2 id="what-next">What Next?</h2>
+<h2 id="what-next">What Next?<a class="headerlink" href="#what-next" title="Permanent link">¶</a></h2>
 <p>This is it, you should now have a good understanding of the core ways of using SAYN. You can play further with this project and easily transfer it to a PostgreSQL database for example by:</p>
 <ul>
 <li>changing the credentials in <code>settings.yaml</code>.</li>
@@ -1080,76 +787,62 @@ tasks:
 </ul>
 <p>Otherwise, you can learn more about the specific SAYN features by having a look at the specific sections of the documentation.</p>
 <p>Enjoy SAYN :)</p>
-                
-              
-              
-                
-
-
-              
-            </article>
-          </div>
-        </div>
-      </main>
-      
-        
+</article>
+</div>
+</div>
+</main>
 <footer class="md-footer">
-  
-    <div class="md-footer-nav">
-      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
-        
-          <a href="../tutorial_part1/" title="Tutorial (Part 1)" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
-            <div class="md-footer-nav__button md-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-            </div>
-            <div class="md-footer-nav__title">
-              <div class="md-ellipsis">
-                <span class="md-footer-nav__direction">
+<div class="md-footer-nav">
+<nav aria-label="Footer" class="md-footer-nav__inner md-grid">
+<a class="md-footer-nav__link md-footer-nav__link--prev" href="../tutorial_part1/" rel="prev" title="Tutorial (Part 1)">
+<div class="md-footer-nav__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</div>
+<div class="md-footer-nav__title">
+<div class="md-ellipsis">
+<span class="md-footer-nav__direction">
                   Previous
                 </span>
                 Tutorial (Part 1)
               </div>
-            </div>
-          </a>
-        
-        
-          <a href="../../project_structure/" title="Project Structure" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
-            <div class="md-footer-nav__title">
-              <div class="md-ellipsis">
-                <span class="md-footer-nav__direction">
+</div>
+</a>
+<a class="md-footer-nav__link md-footer-nav__link--next" href="../../project_structure/" rel="next" title="Project Structure">
+<div class="md-footer-nav__title">
+<div class="md-ellipsis">
+<span class="md-footer-nav__direction">
                   Next
                 </span>
                 Project Structure
               </div>
-            </div>
-            <div class="md-footer-nav__button md-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-            </div>
-          </a>
-        
-      </nav>
-    </div>
-  
-  <div class="md-footer-meta md-typeset">
-    <div class="md-footer-meta__inner md-grid">
-      <div class="md-footer-copyright">
+</div>
+<div class="md-footer-nav__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"></path></svg>
+</div>
+</a>
+</nav>
+</div>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
         
         Made with
-        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+        <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
           Material for MkDocs
         </a>
-      </div>
-      
-    </div>
-  </div>
+</div>
+<div class="md-footer-social">
+<a class="md-footer-social__link" href="https://github.com/173TECH" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 496 512" xmlns="http://www.w3.org/2000/svg"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"></path></svg>
+</a>
+</div>
+</div>
+</div>
 </footer>
-      
-    </div>
-    
-      <script src="../../assets/javascripts/vendor.d710d30a.min.js"></script>
-      <script src="../../assets/javascripts/bundle.5f27aba8.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
-      
-      <script>
+</div>
+<script src="../../assets/javascripts/vendor.d710d30a.min.js"></script>
+<script src="../../assets/javascripts/bundle.5f27aba8.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
+<script>
         app = initialize({
           base: "../..",
           features: [],
@@ -1158,7 +851,5 @@ tasks:
           }, typeof search !== "undefined" && search)
         })
       </script>
-      
-    
-  </body>
+</body>
 </html>

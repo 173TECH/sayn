@@ -5,10 +5,10 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<link href="https://173tech.github.io/sayn/databases/postgresql/" rel="canonical"/>
+<link href="https://173tech.github.io/sayn/databases/redshift/" rel="canonical"/>
 <link href="../../assets/images/favicon.png" rel="shortcut icon"/>
 <meta content="mkdocs-1.1.2, mkdocs-material-5.2.1" name="generator"/>
-<title>PostgreSQL - SAYN</title>
+<title>Redshift - SAYN</title>
 <link href="../../assets/stylesheets/main.71dfd922.min.css" rel="stylesheet"/>
 <link href="../../assets/stylesheets/palette.616af814.min.css" rel="stylesheet"/>
 <meta content="#546e7a" name="theme-color"/>
@@ -25,7 +25,7 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#postgresql">
+<a class="md-skip" href="#redshift">
           Skip to content
         </a>
 </div>
@@ -46,7 +46,7 @@
           </span>
 <span class="md-header-nav__topic md-ellipsis">
             
-              PostgreSQL
+              Redshift
             
           </span>
 </div>
@@ -273,19 +273,45 @@
       Overview
     </a>
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../redshift/" title="Redshift">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+        Redshift
+        <span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9h14V7H3v2m0 4h14v-2H3v2m0 4h14v-2H3v2m16 0h2v-2h-2v2m0-10v2h2V7h-2m0 6h2v-2h-2v2z"></path></svg>
+</span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./" title="Redshift">
       Redshift
     </a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#connecting-with-regular-users">
+    Connecting with regular users
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#connecting-with-iam">
+    Connecting with IAM
+  </a>
+</li>
+</ul>
+</nav>
 </li>
 <li class="md-nav__item">
 <a class="md-nav__link" href="../snowflake/" title="Snowflake">
       Snowflake
     </a>
 </li>
-<li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
-<a class="md-nav__link md-nav__link--active" href="./" title="PostgreSQL">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../postgresql/" title="PostgreSQL">
       PostgreSQL
     </a>
 </li>
@@ -335,13 +361,32 @@
 <div class="md-sidebar__scrollwrap">
 <div class="md-sidebar__inner">
 <nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#connecting-with-regular-users">
+    Connecting with regular users
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#connecting-with-iam">
+    Connecting with IAM
+  </a>
+</li>
+</ul>
 </nav>
 </div>
 </div>
 </div>
 <div class="md-content">
 <article class="md-content__inner md-typeset">
-<h1 id="postgresql">PostgreSQL<a class="headerlink" href="#postgresql" title="Permanent link">¶</a></h1>
+<h1 id="redshift">Redshift<a class="headerlink" href="#redshift" title="Permanent link">¶</a></h1>
+<h2 id="connecting-with-regular-users">Connecting with regular users<a class="headerlink" href="#connecting-with-regular-users" title="Permanent link">¶</a></h2>
 <p>SAYN will consider the following parameters to construct the sqlalchemy url:</p>
 <ul>
 <li><strong>host</strong></li>
@@ -358,7 +403,7 @@ when creating the engine.</p>
 <div class="highlight"><pre><span></span><code><span class="nn">...</span>
 
 <span class="nt">credentials</span><span class="p">:</span>
-  <span class="nt">postgresql-conn</span><span class="p">:</span>
+  <span class="nt">redshift-conn</span><span class="p">:</span>
     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">postgresql</span>
     <span class="nt">host</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">host</span><span class="p p-Indicator">]</span>
     <span class="nt">port</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">port</span><span class="p p-Indicator">]</span>
@@ -371,6 +416,34 @@ when creating the engine.</p>
 </div>
 <p>Check the sqlalchemy <a href="https://docs.sqlalchemy.org/en/13/dialects/postgresql.html#module-sqlalchemy.dialects.postgresql.psycopg2">psycopg2</a>
 dialect for extra parameters.</p>
+<h2 id="connecting-with-iam">Connecting with IAM<a class="headerlink" href="#connecting-with-iam" title="Permanent link">¶</a></h2>
+<p>You can connect to Redshift with SAYN through IAM users. In order to do so, add <code>cluster_id</code> to your credentials in <code>settings.yaml</code>. SAYN will use <code>boto3</code> to get a temporary password using AWS IAM.</p>
+<div class="admonition example">
+<p class="admonition-title">settings.yaml</p>
+<div class="highlight"><pre><span></span><code><span class="nn">...</span>
+
+<span class="nt">credentials</span><span class="p">:</span>
+  <span class="nt">redshift-conn</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">postgresql</span>
+    <span class="nt">host</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">host</span><span class="p p-Indicator">]</span>
+    <span class="nt">port</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">port</span><span class="p p-Indicator">]</span>
+    <span class="nt">user</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">username</span><span class="p p-Indicator">]</span>
+    <span class="nt">password</span><span class="p">:</span> <span class="s">'[password]'</span> <span class="c1">#use quotes to avoid conflict with special characters</span>
+    <span class="nt">dbname</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">database_name</span><span class="p p-Indicator">]</span>
+    <span class="nt">cluster_id</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">redshift-cluster-id</span><span class="p p-Indicator">]</span>
+
+<span class="nn">...</span>
+</code></pre></div>
+</div>
+<p>For this connection methodology to work:</p>
+<ul>
+<li><code>boto3</code> needs to be installed in the project virtual environment <code>pip install boto3</code>.</li>
+<li>AWS credentials need to be
+    <a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html">setup</a>.</li>
+<li>The <code>user</code> and <code>dbname</code> still need to be specified (use the database user, not the <code>IAM:user</code>).</li>
+<li><code>host</code> and <code>port</code> can be skipped and these values will be obtained using boto3's
+    <code>redshift describe-clusters</code>.</li>
+</ul>
 </article>
 </div>
 </div>
@@ -378,7 +451,7 @@ dialect for extra parameters.</p>
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav aria-label="Footer" class="md-footer-nav__inner md-grid">
-<a class="md-footer-nav__link md-footer-nav__link--prev" href="../snowflake/" rel="prev" title="Snowflake">
+<a class="md-footer-nav__link md-footer-nav__link--prev" href="../overview/" rel="prev" title="Overview">
 <div class="md-footer-nav__button md-icon">
 <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
 </div>
@@ -387,17 +460,17 @@ dialect for extra parameters.</p>
 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Snowflake
+                Overview
               </div>
 </div>
 </a>
-<a class="md-footer-nav__link md-footer-nav__link--next" href="../mysql/" rel="next" title="MySQL">
+<a class="md-footer-nav__link md-footer-nav__link--next" href="../snowflake/" rel="next" title="Snowflake">
 <div class="md-footer-nav__title">
 <div class="md-ellipsis">
 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                MySQL
+                Snowflake
               </div>
 </div>
 <div class="md-footer-nav__button md-icon">
