@@ -1,5 +1,20 @@
 # Change Log
 
+## [0.3.0] - 2020-07-29
+
+### Changed
+
+- Allows indexes definition without column definition under ddl for autosql
+- Reworks the db credentials specifications
+- Adds Redshift distribution and sort table attributes
+- Adds Redshift connection through IAM temporary passwords
+- Added MySQL
+- Updated copy task to latest changes of db drivers
+- Added select_stream to improve performance in copy tasks
+- Added load_data_strem to postgresql for bulk loading in copy tasks
+- Changed underlying structure of logging
+- Added first tests
+
 ## [0.2.1] - 2020-06-04
 
 ### Fixed
