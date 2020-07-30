@@ -7,6 +7,8 @@ from ..config import Config, SaynConfigError
 from ..dag import Dag
 from ..utils.ui import UI
 from ..start_project.start_project import sayn_init
+from ..app.common import SaynApp, read_project, get_query, get_tasks
+from ..utils.dag import query as dag_query
 
 click_debug = click.option(
     "--debug", "-d", is_flag=True, default=False, help="Include debug messages"
@@ -85,11 +87,20 @@ def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 
 
 def run_command(command, debug, tasks, exclude, profile, full_load, start_dt, end_dt):
-    run_start_ts = datetime.now()
-    run_id = (run_start_ts - datetime(1970, 1, 1)).total_seconds()
+    app = SaynApp()
+    project = read_project()
+    app.set_tasks(get_tasks(project))
 
-    ui = UI(run_id=run_id, debug=debug)
+    ui = UI(run_id=app.run_id, debug=debug)
     ui._set_config(stage_name="setup")
+
+    task_query = get_query(app.tasks, include=tasks, exclude=exclude)
+    for task in dag_query(app.dag, task_query):
+        app.tasks[task].in_query = True
+        if app.tasks[task].in_query:
+            app.tasks[task].run()
+
+    sys.exit()
 
     try:
         ui.info("Setting config.")
@@ -104,7 +115,7 @@ def run_command(command, debug, tasks, exclude, profile, full_load, start_dt, en
 
     # setup finished
     ui._set_config(task_name=None)
-    ui._status_success(f"{datetime.now() - run_start_ts}")
+    ui._status_success(f"{datetime.now() - app.run_start_ts}")
 
     if command == "run":
         dag.run()
@@ -114,7 +125,7 @@ def run_command(command, debug, tasks, exclude, profile, full_load, start_dt, en
         raise ValueError(f'Unknown command "{command}"')
 
     ui._set_config(stage_name="summary")
-    ui.print(f"{command.capitalize()} took {datetime.now() - run_start_ts}")
+    ui.print(f"{command.capitalize()} took {datetime.now() - app.run_start_ts}")
 
 
 @cli.command(help="Generate DAG image")

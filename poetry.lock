@@ -766,7 +766,7 @@ python-versions = "*"
 version = "2020.1"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "YAML parser and emitter for Python"
 name = "pyyaml"
 optional = false
@@ -1034,7 +1034,7 @@ postgresql = ["psycopg2"]
 snowflake = ["snowflake-connector-python", "snowflake-sqlalchemy"]
 
 [metadata]
-content-hash = "0434a8bc06f78cef2a78717ae42aa682b6bb20bc9ff7f7fa17b04eb672e115a6"
+content-hash = "ae04a738cee0ffd073f79d867ce783f6081583ad0576d60b7747e5085adc7c4b"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -1443,7 +1443,6 @@ regex = [
     {file = "regex-2020.7.14.tar.gz", hash = "sha256:3a3af27a8d23143c49a3420efe5b3f8cf1a48c6fc8bc6856b03f638abc1833bb"},
 ]
 requests = [
-    {file = "requests-2.23.0-py2.7.egg", hash = "sha256:5d2d0ffbb515f39417009a46c14256291061ac01ba8f875b90cad137de83beb4"},
     {file = "requests-2.23.0-py2.py3-none-any.whl", hash = "sha256:43999036bfa82904b6af1d99e4882b560e5e2c68e5c4b0aa03b655f3d7d73fee"},
     {file = "requests-2.23.0.tar.gz", hash = "sha256:b3f43d496c6daba4493e7c431722aeb7dbc6288f52a6e04e7b6023b0247817e6"},
 ]
