@@ -58,17 +58,17 @@ def test_upstream01():
 
 def test_downstream02():
     test_dag = {"task1": ["task2", "task3"], "task2": ["task3"], "task3": []}
-    assert dag._downstream(test_dag, "task1") == []
+    assert dag.downstream(test_dag, "task1") == []
 
 
 def test_downstream03():
     test_dag = {"task1": ["task2", "task3"], "task2": ["task3"], "task3": []}
-    assert dag._downstream(test_dag, "task2") == ["task1"]
+    assert dag.downstream(test_dag, "task2") == ["task1"]
 
 
 def test_downstream04():
     test_dag = {"task1": ["task2", "task3"], "task2": ["task3"], "task3": []}
-    assert set(dag._downstream(test_dag, "task3")) == set(["task2", "task1"])
+    assert set(dag.downstream(test_dag, "task3")) == set(["task2", "task1"])
 
 
 def test_upstream05():

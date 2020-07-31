@@ -7,7 +7,8 @@ from ..config import Config, SaynConfigError
 from ..dag import Dag
 from ..utils.ui import UI
 from ..start_project.start_project import sayn_init
-from ..app.common import SaynApp, read_project, get_query, get_tasks
+from ..app.common import SaynApp, get_query, get_tasks
+from ..app.config import read_project, read_dags, read_settings
 from ..utils.dag import query as dag_query
 
 click_debug = click.option(
@@ -89,7 +90,9 @@ def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 def run_command(command, debug, tasks, exclude, profile, full_load, start_dt, end_dt):
     app = SaynApp()
     project = read_project()
-    app.set_tasks(get_tasks(project))
+    dags = read_dags(project.dags)
+    # settings = read_settings()
+    app.set_tasks(get_tasks(project.presets, dags))
 
     ui = UI(run_id=app.run_id, debug=debug)
     ui._set_config(stage_name="setup")

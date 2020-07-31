@@ -1,12 +1,16 @@
 from datetime import datetime
-from pathlib import Path
 import re
 from uuid import UUID, uuid4
 
-import yaml
-
-
 from ..utils.ui import UI
+from ..utils.misc import merge_dicts, merge_dict_list
+from ..utils.dag import (
+    is_valid as dag_is_valid,
+    upstream as dag_upstream,
+    topological_sort,
+)
+from .config import ConfigError
+
 
 RE_TASK_QUERY = re.compile(
     (
@@ -99,26 +103,117 @@ def get_query(tasks, include=list(), exclude=list()):
     ]
 
 
-def read_project():
-    project_yaml = yaml.safe_load(Path("project.yaml").read_text())
-    project_yaml["dags"] = {
-        dag: yaml.safe_load(Path(f"dags/{dag}.yaml").read_text())
-        for dag in project_yaml["dags"]
-    }
-    return project_yaml
-
-
-def get_tasks(project):
-    tasks = {
-        task_name: TaskWrapper(dict(task_def, name=task_name, dag=dag_name))
-        for dag_name, dag_def in project["dags"].items()
-        for task_name, task_def in dag_def["tasks"].items()
+def get_presets(global_presets, dags):
+    # 1. Construct a dictionary of presets so we can attach that info to the tasks
+    presets_info = {
+        f"sayn_global:{k}": {kk: vv for kk, vv in v.items() if kk != "preset"}
+        for k, v in global_presets.items()
     }
 
-    for task in tasks.values():
-        task.set_parents(tasks)
+    # 1.1. We start with the global presets defined in project.yaml
+    presets_dag = {
+        k: [f"sayn_global:{v}"] if v is not None else []
+        for k, v in {
+            f"sayn_global:{name}": preset.get("preset")
+            for name, preset in global_presets.items()
+        }.items()
+    }
 
-    return tasks
+    # 1.2. Then we add the presets defined in the dags
+    for dag_name, dag in dags.items():
+        presets_info.update(
+            {
+                f"{dag_name}:{k}": {kk: vv for kk, vv in v.items() if kk != "preset"}
+                for k, v in dag.presets.items()
+            }
+        )
+
+        dag_presets_dag = {
+            name: preset.get("preset") for name, preset in dag.presets.items()
+        }
+
+        # Check if the preset referenced is defined in the dag, otherwise, point at the
+        # global dag
+        dag_presets_dag = {
+            f"{dag_name}:{k}": [
+                f"{dag_name}:{v}" if v in dag_presets_dag else f"sayn_global:{v}"
+            ]
+            if v is not None
+            else []
+            for k, v in dag_presets_dag.items()
+        }
+        presets_dag.update(dag_presets_dag)
+
+    # 1.3. The preset references represent a dag that we need to validate, ensuring
+    #      there are no cycles and that all references exists
+    dag_is_valid(presets_dag)
+
+    # 1.4. Merge the presets with the reference preset, so that we have 1 dictionary
+    #      per preset a task could reference
+    presets = {
+        name: merge_dict_list(
+            [presets_info[p] for p in dag_upstream(presets_dag, name)]
+            + [presets_info[name]]
+        )
+        for name in topological_sort(presets_dag)
+    }
+
+    return presets
+
+
+def get_task(task, task_name, dag_name, presets):
+    if "preset" in task:
+        preset_name = task["preset"]
+        preset = presets.get(
+            f"{dag_name}:{preset_name}", presets.get(f"sayn_global:{preset_name}")
+        )
+        if preset is None:
+            raise ConfigError(
+                f'Preset "{preset_name}" referenced by task "{task_name}" in dag "{dag_name}" not declared'
+            )
+        task = merge_dicts(preset, task)
+
+    import pprint
+
+    pprint.pprint(dict(task, name=task_name, dag=dag_name))
+    print("")
+
+    return TaskWrapper(dict(task, name=task_name, dag=dag_name))
+
+
+def get_tasks(global_presets, dags):
+    presets = get_presets(global_presets, dags)
+
+    return {
+        task_name: get_task(task, task_name, dag_name, presets)
+        for dag_name, dag in dags.items()
+        for task_name, task in dag.tasks.items()
+    }
+
+
+#     dag_presets_dag = {
+#         k: [v] if v is not None else []
+#         for dag_name, dag in dags.items()
+#         for k, v in {
+#             f"{name}": preset.get("preset") for name, preset in dag.presets.items()
+#         }.items()
+#     }
+#
+#     for preset in dags.presets.values():
+#         if "preset" in preset:
+#             if preset["preset"] in dag_presets:
+#                 merge_dicts()
+#
+#     tasks = {
+#         task_name: get_task(task_def, dag_name, dags.presets, global_presets)
+#         for dag_name, dag_def in dags.items()
+#         for task_name, task_def in dag_def.tasks.items()
+#     }
+#
+#     for task in tasks.values():
+#         task.set_parents(tasks)
+#
+#     return tasks
 
 
 class TaskWrapper:

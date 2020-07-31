@@ -3,7 +3,7 @@ from .misc import reverse_dict, reverse_dict_inclusive
 
 class MissingParentsError(Exception):
     def __init__(self, missing):
-        message = "Some referenced tasks are missing: " + "; ".join(
+        message = "Some referenced tasks are missing: " + ", ".join(
             [
                 f'"{parent}" referenced by ({", ".join(children)})'
                 for parent, children in missing.items()
@@ -86,11 +86,11 @@ def topological_sort(dag):
 
 
 # DAG querying
-def _downstream(dag, node):
-    return _upstream(reverse_dict_inclusive(dag), node)
+def downstream(dag, node):
+    return upstream(reverse_dict_inclusive(dag), node)
 
 
-def _upstream(dag, node):
+def upstream(dag, node):
     to_include = list()
     queue = dag[node]
     while len(queue) > 0:
@@ -118,9 +118,9 @@ def query(dag, query=list()):
         else:
             tasks = [key[0]]
             if key[1]:
-                tasks.extend(_upstream(dag, key[0]))
+                tasks.extend(upstream(dag, key[0]))
             if key[2]:
-                tasks.extend(_downstream(dag, key[0]))
+                tasks.extend(downstream(dag, key[0]))
             query_cache[key] = tasks
 
         if operand["operation"] == "include":
