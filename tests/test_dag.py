@@ -53,7 +53,7 @@ def test_topological_sort02():
 
 def test_upstream01():
     test_dag = {"task1": ["task2", "task3"], "task2": ["task3"], "task3": []}
-    assert set(dag._upstream(test_dag, "task1")) == set(["task3", "task2"])
+    assert set(dag.upstream(test_dag, "task1")) == set(["task3", "task2"])
 
 
 def test_downstream02():
@@ -73,7 +73,7 @@ def test_downstream04():
 
 def test_upstream05():
     test_dag = {"task1": ["task2", "task3"], "task2": ["task3"], "task3": []}
-    assert dag._upstream(test_dag, "task3") == []
+    assert dag.upstream(test_dag, "task3") == []
 
 
 def test_query00():

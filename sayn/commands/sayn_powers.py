@@ -7,7 +7,7 @@ from ..config import Config, SaynConfigError
 from ..dag import Dag
 from ..utils.ui import UI
 from ..start_project.start_project import sayn_init
-from ..app.common import SaynApp, get_query, get_tasks
+from ..app.common import SaynApp, get_query, get_tasks_dict
 from ..app.config import read_project, read_dags, read_settings
 from ..utils.dag import query as dag_query
 
@@ -92,12 +92,14 @@ def run_command(command, debug, tasks, exclude, profile, full_load, start_dt, en
     project = read_project()
     dags = read_dags(project.dags)
     # settings = read_settings()
-    app.set_tasks(get_tasks(project.presets, dags))
+    tasks_dict = get_tasks_dict(project.presets, dags)
+    task_query = get_query(tasks_dict, include=tasks, exclude=exclude)
+
+    app.set_tasks(tasks_dict)
 
     ui = UI(run_id=app.run_id, debug=debug)
     ui._set_config(stage_name="setup")
 
-    task_query = get_query(app.tasks, include=tasks, exclude=exclude)
     for task in dag_query(app.dag, task_query):
         app.tasks[task].in_query = True
         if app.tasks[task].in_query:

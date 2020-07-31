@@ -28,7 +28,7 @@ class DagQueryError(Exception):
 
 
 def _get_query_component(tasks, query):
-    tasks = {k: {"dag": v.dag, "tags": v.tags} for k, v in tasks.items()}
+    tasks = {k: {"dag": v["dag"], "tags": v.get("tags")} for k, v in tasks.items()}
     match = RE_TASK_QUERY.match(query)
     if match is None:
         raise DagQueryError(f'Incorrect task query syntax "{query}"')
@@ -161,7 +161,7 @@ def get_presets(global_presets, dags):
     return presets
 
 
-def get_task(task, task_name, dag_name, presets):
+def get_task_dict(task, task_name, dag_name, presets):
     if "preset" in task:
         preset_name = task["preset"]
         preset = presets.get(
@@ -173,19 +173,14 @@ def get_task(task, task_name, dag_name, presets):
             )
         task = merge_dicts(preset, task)
 
-    import pprint
-
-    pprint.pprint(dict(task, name=task_name, dag=dag_name))
-    print("")
-
-    return TaskWrapper(dict(task, name=task_name, dag=dag_name))
+    return dict(task, name=task_name, dag=dag_name)
 
 
-def get_tasks(global_presets, dags):
+def get_tasks_dict(global_presets, dags):
     presets = get_presets(global_presets, dags)
 
     return {
-        task_name: get_task(task, task_name, dag_name, presets)
+        task_name: get_task_dict(task, task_name, dag_name, presets)
         for dag_name, dag in dags.items()
         for task_name, task in dag.tasks.items()
     }

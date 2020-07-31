@@ -86,7 +86,3 @@ def read_settings():
 
 def validate(config, settings):
     pass
-
-
-c = read_project()
-c
