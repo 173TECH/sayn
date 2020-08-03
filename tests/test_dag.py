@@ -5,12 +5,12 @@ from sayn.utils import dag
 
 def test_valid01():
     test_dag = {"task1": ["task2", "task3"], "task2": [], "task3": []}
-    assert dag.is_valid(test_dag)
+    assert dag.dag_is_valid(test_dag)
 
 
 def test_valid02():
     test_dag = {"task1": ["task2", "task3"], "task2": ["task3"], "task3": []}
-    assert dag.is_valid(test_dag)
+    assert dag.dag_is_valid(test_dag)
 
 
 def test_missing_parents01():
@@ -20,25 +20,25 @@ def test_missing_parents01():
         "task3": ["task4"],
     }
     with pytest.raises(dag.MissingParentsError):
-        dag.is_valid(test_dag)
+        dag.dag_is_valid(test_dag)
 
 
 def test_cycle01():
     test_dag = {"task1": ["task2", "task3"], "task2": ["task2"], "task3": []}
     with pytest.raises(dag.CycleError):
-        dag.is_valid(test_dag)
+        dag.dag_is_valid(test_dag)
 
 
 def test_cycle02():
     test_dag = {"task1": ["task2", "task3"], "task2": ["task1"], "task3": []}
     with pytest.raises(dag.CycleError):
-        dag.is_valid(test_dag)
+        dag.dag_is_valid(test_dag)
 
 
 def test_cycle03():
     test_dag = {"task1": ["task2", "task3"], "task2": ["task3"], "task3": ["task1"]}
     with pytest.raises(dag.CycleError):
-        dag.is_valid(test_dag)
+        dag.dag_is_valid(test_dag)
 
 
 def test_topological_sort01():

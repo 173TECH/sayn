@@ -1,5 +1,4 @@
 from .sql import SqlTask
-from .task import TaskStatus
 
 
 class AutoSqlTask(SqlTask):
@@ -7,7 +6,7 @@ class AutoSqlTask(SqlTask):
         self.db = self.sayn_config.default_db
 
         status = self._setup_file_name()
-        if status != TaskStatus.READY:
+        if status != 0:  # TODO TaskStatus.READY:
             return self.failed()
 
         self.template = self._get_query_template()
@@ -15,19 +14,19 @@ class AutoSqlTask(SqlTask):
             return self.failed()
 
         status = self._setup_materialisation()
-        if status != TaskStatus.READY:
+        if status != 0:  # TODO TaskStatus.READY:
             return status
 
         status = self._setup_destination()
-        if status != TaskStatus.READY:
+        if status != 0:  # TODO TaskStatus.READY:
             return status
 
         status = self._setup_ddl()
-        if status != TaskStatus.READY:
+        if status != 0:  # TODO TaskStatus.READY:
             return status
 
         status = self._setup_sql()
-        if status != TaskStatus.READY:
+        if status != 0:  # TODO TaskStatus.READY:
             return status
 
         return self._check_extra_fields()
@@ -78,7 +77,7 @@ class AutoSqlTask(SqlTask):
             if self.delete_key is None:
                 return self.failed("Incremental materialisation requires delete_key")
 
-        return TaskStatus.READY
+        return  # TODO return TaskStatus.READY
 
     def _setup_sql(self):
         # Autosql tasks are split in 4 queries depending on the materialisation
@@ -155,5 +154,4 @@ class AutoSqlTask(SqlTask):
                 self.table, self.schema, self.ddl["permissions"]
             )
 
-        return TaskStatus.READY
-        return TaskStatus.READY
+        return  # TODO return TaskStatus.READY

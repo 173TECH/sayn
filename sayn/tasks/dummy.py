@@ -1,8 +1,8 @@
-from .task import Task
+from .task import TaskRunner
 from ..utils.ui import UI
 
 
-class DummyTask(Task):
+class DummyTask(TaskRunner):
     def setup(self):
         UI().debug("Setting up Dummy Task")
         return self.ready()

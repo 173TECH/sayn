@@ -1,8 +1,8 @@
-from .task import Task
+from .task import TaskRunner
 from ..utils.ui import UI
 
 
-class PythonTask(Task):
+class PythonTask(TaskRunner):
     def __init__(self, name, task):
         super(PythonTask, self).__init__(name, task)
 

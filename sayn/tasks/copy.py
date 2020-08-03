@@ -1,7 +1,6 @@
-from .task import TaskStatus
 from .sql import SqlTask
 
-from sqlalchemy import or_, select, text
+from sqlalchemy.sql import or_, select
 
 
 class CopyTask(SqlTask):
@@ -9,15 +8,15 @@ class CopyTask(SqlTask):
         self.db = self.sayn_config.default_db
 
         status = self._setup_source()
-        if status != TaskStatus.READY:
+        if status != 0:  # TODO TaskStatus.READY:
             return status
 
         status = self._setup_destination()
-        if status != TaskStatus.READY:
+        if status != 0:  # TODO TaskStatus.READY:
             return status
 
         status = self._setup_incremental()
-        if status != TaskStatus.READY:
+        if status != 0:  # TODO TaskStatus.READY:
             return status
 
         status = self._setup_ddl(type_required=False)
@@ -26,11 +25,11 @@ class CopyTask(SqlTask):
             return self.failed("DDL is required for copy tasks")
 
         status = self._setup_table_columns()
-        if status != TaskStatus.READY:
+        if status != 0:  # TODO TaskStatus.READY:
             return status
 
         status = self._setup_sql()
-        if status != TaskStatus.READY:
+        if status != 0:  # TODO TaskStatus.READY:
             return status
 
         return self.ready()
@@ -120,7 +119,7 @@ class CopyTask(SqlTask):
                 'Incremental copy requires both "delete_key" and "incremental_key"'
             )
 
-        return TaskStatus.READY
+        return  # TODO return TaskStatus.READY
 
     def _setup_source(self):
         # Source property indicating the table this will create
@@ -151,7 +150,7 @@ class CopyTask(SqlTask):
         else:
             self.source_db = self.sayn_config.dbs[source_db_name]
 
-        return TaskStatus.READY
+        return  # TODO return TaskStatus.READY
 
     def _setup_table_columns(self):
         self.source_table_def = self.source_db.get_table(
@@ -176,7 +175,7 @@ class CopyTask(SqlTask):
                     column["name"]
                 ].type.compile(dialect=self.db.engine.dialect)
 
-        return TaskStatus.READY
+        return  # TODO return TaskStatus.READY
 
     def _setup_sql(self):
         # 1. Create: Create the table where we'll load the data
@@ -239,4 +238,4 @@ class CopyTask(SqlTask):
                 self.table, self.schema, self.ddl["permissions"]
             )
 
-        return TaskStatus.READY
+        return  # TODO return TaskStatus.READY

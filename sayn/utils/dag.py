@@ -59,7 +59,7 @@ def _is_cyclic(dag):
     return True
 
 
-def is_valid(dag):
+def dag_is_valid(dag):
     _has_missing_parents(dag)
     _is_cyclic(dag)
 
@@ -68,7 +68,7 @@ def is_valid(dag):
 
 # DAG -> Sorted list
 def topological_sort(dag):
-    is_valid(dag)
+    dag_is_valid(dag)
     topo_sorted = []
     pending = list(dag.keys())
     current = 0

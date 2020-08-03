@@ -1,6 +1,6 @@
 import pytest
 
-from sayn.app.common import get_query, DagQueryError
+from sayn.app.common import get_query, TaskQueryError
 
 
 tasks = {
@@ -26,7 +26,7 @@ def test_simple01():
 
 
 def test_simple02():
-    with pytest.raises(DagQueryError):
+    with pytest.raises(TaskQueryError):
         get_query(tasks, include=["task_undefined"])
 
 
@@ -88,17 +88,17 @@ def test_tag01():
 
 
 def test_error_identifier01():
-    with pytest.raises(DagQueryError):
+    with pytest.raises(TaskQueryError):
         get_query(tasks, include=["+_task_undefined"])
 
 
 def test_error_identifier02():
-    with pytest.raises(DagQueryError):
+    with pytest.raises(TaskQueryError):
         get_query(tasks, include=["tag:tag_undefined"])
 
 
 def test_error_identifier03():
-    with pytest.raises(DagQueryError):
+    with pytest.raises(TaskQueryError):
         get_query(tasks, include=["dag:dag_undefined"])
 
 

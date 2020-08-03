@@ -1,21 +1,8 @@
-from enum import Enum
-
 from ..config import Config
 from ..utils.ui import UI
 
 
-class TaskStatus(Enum):
-    UNKNOWN = -1
-    SETTING_UP = 0
-    READY = 1
-    EXECUTING = 2
-    SUCCESS = 3
-    FAILED = 4
-    SKIPPED = 5
-    IGNORED = 6
-
-
-class Task(object):
+class TaskRunner(object):
     # Init functions
     def __init__(self, name, task):
         self.sayn_config = Config()
@@ -123,10 +110,10 @@ class Task(object):
         return True
 
     def can_run(self):
-        if self.status != TaskStatus.READY:
+        if self.status != 0:  # TODO TaskStatus.READY:
             return False
         for p in self.parents:
-            if p.status not in (TaskStatus.IGNORED, TaskStatus.SUCCESS):
+            if p.status not in (0):  # TODO (TaskStatus.IGNORED, TaskStatus.SUCCESS):
                 return False
         return True
 
@@ -144,19 +131,19 @@ class Task(object):
     # Status functions
 
     def setting_up(self):
-        self.status = TaskStatus.SETTING_UP
+        self.status = 0  # TODO TaskStatus.SETTING_UP
         return self.status
 
     def ready(self):
-        self.status = TaskStatus.READY
+        self.status = 0  # TODO TaskStatus.READY
         return self.status
 
     def executing(self):
-        self.status = TaskStatus.EXECUTING
+        self.status = 0  # TODO TaskStatus.EXECUTING
         return self.status
 
     def success(self):
-        self.status = TaskStatus.SUCCESS
+        self.status = 0  # TODO TaskStatus.SUCCESS
         return self.status
 
     def failed(self, messages=None):
@@ -166,9 +153,9 @@ class Task(object):
             for message in messages:
                 UI().error(message)
 
-        self.status = TaskStatus.FAILED
+        self.status = 0  # TODO TaskStatus.FAILED
         return self.status
 
     def skipped(self):
-        self.status = TaskStatus.SKIPPED
+        self.status = 0  # TODO TaskStatus.SKIPPED
         return self.status

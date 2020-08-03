@@ -1,16 +1,15 @@
 from pathlib import Path
 
-from .task import Task, TaskStatus
-from ..utils import yaml
+from .task import TaskRunner
 from ..utils.ui import UI
 
 
-class SqlTask(Task):
+class SqlTask(TaskRunner):
     def setup(self):
         self.db = self.sayn_config.default_db
 
         status = self._setup_file_name()
-        if status != TaskStatus.READY:
+        if status != 0:  # TODO TaskStatus.READY:
             return status
 
         self.template = self._get_query_template()
@@ -28,7 +27,7 @@ class SqlTask(Task):
         UI().debug("Writting query on disk")
 
         self._write_query(self.compiled)
-        if self.status == TaskStatus.FAILED:
+        if self.status == 0:  # TODO TaskStatus.FAILED:
             return self.failed()
 
         UI().debug("Running SQL")
@@ -61,7 +60,7 @@ class SqlTask(Task):
         else:
             self.file_name = self.compile_property(self.file_name)
 
-        return TaskStatus.READY
+        return  # TODO return TaskStatus.READY
 
     def _get_query_template(self):
         path = Path(self.sayn_config.sql_path, self.compile_property(self.file_name))
@@ -107,7 +106,7 @@ class SqlTask(Task):
                 'Destination requires "table" field. Optional fields: tmp_schema and schema.'
             )
 
-        return TaskStatus.READY
+        return  # TODO return TaskStatus.READY
 
     def _setup_ddl(self, type_required=True):
         ddl = self._pop_property("ddl")
@@ -122,11 +121,11 @@ class SqlTask(Task):
             if self.ddl is None:
                 return self.failed("Error processing DDL")
             else:
-                return TaskStatus.READY
+                return  # TODO return TaskStatus.READY
 
         else:
             self.ddl = dict()
-            return TaskStatus.READY
+            return  # TODO return TaskStatus.READY
 
     # Utility methods
 
