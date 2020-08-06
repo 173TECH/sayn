@@ -38,7 +38,7 @@ An `autosql` task is defined by the following attributes:
 
 If you do not want to have a full refresh of your tables, you can use the `autosql` task with `incremental` `materialisation`. This is extremely useful for large data volumes when full refresh would be too long.
 
-SAYN `autosql` tasks with `incremental` materialisation require a `delete_key` to be set. Please see below an example:
+SAYN `autosql` tasks with `incremental` materialisation require a `delete_key`. Please see below an example:
 
 !!! example "autosql in incremental mode"
     ```yaml
@@ -52,8 +52,7 @@ SAYN `autosql` tasks with `incremental` materialisation require a `delete_key` t
         tmp_schema: analytics_staging
         schema: analytics_models
         table: task_autosql
-      delete_key:
-          - dt
+      delete_key: dt
     ...
     ```
 
@@ -62,6 +61,14 @@ When using `incremental`, SAYN will do the following in the background:
 1. Create a temporary table based on the incremental logic from the SAYN query.
 2. Delete rows from the target table that are found in the temporary table based on the `delete_key`.
 3. Load the temporary table in the destination table.
+
+### Incremental SAYN parameters
+
+There are three SAYN parameters which you can use for autosql tasks in incremental mode:
+
+* `full_load`: controlled by the `-f` flag in the SAYN command. This will reload the whole table.
+* `start_dt`: controlled by the `-s` flag in the SAYN command.
+* `end_dt`: controlled by the `-e` flag in the SAYN command.
 
 ## Defining DDLs
 
