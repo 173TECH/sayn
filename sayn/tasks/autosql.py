@@ -1,5 +1,6 @@
 from .sql import SqlTask
 from .task import TaskStatus
+from ..config import Config
 
 
 class AutoSqlTask(SqlTask):
@@ -37,11 +38,15 @@ class AutoSqlTask(SqlTask):
             compiled = self.create_query
         elif self.materialisation == "table":
             compiled = f"{self.create_query}\n\n-- Move table\n{self.move_query}"
-        elif not self.db.table_exists(self.table, self.schema):
-            # Incremental when table doesn't currently exists
-            compiled = f"{self.create_query}\n\n-- Move table\n{self.move_query}"
-        else:
-            compiled = f"{self.create_query}\n\n-- Merge table\n{self.merge_query}"
+        else:  # incremental
+            if (
+                not self.db.table_exists(self.table, self.schema)
+                or Config().options["full_load"]
+            ):
+                # Incremental when table doesn't currently exists or running in full load
+                compiled = f"{self.create_query}\n\n-- Move table\n{self.move_query}"
+            else:
+                compiled = f"{self.create_query}\n\n-- Merge table\n{self.merge_query}"
 
         if self.permissions_query is not None:
             compiled += f"\n-- Grant permissions\n{self.permissions_query}"
