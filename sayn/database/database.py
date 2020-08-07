@@ -428,19 +428,30 @@ class Database:
 
         return q
 
-    def insert(self, table, schema, select):
+    def insert(self, table, schema, select, columns=None):
         """Returns an INSERT statment from a SELECT query.
 
         Args:
             table (str): The target table name
             schema (str): The target schema or None
             select (str): The SELECT statement to issue
+            columns (list): The list of column names specified in DDL
 
         Returns:
             str: A SQL script for the INSERT statement
         """
         table = f"{schema+'.' if schema else ''}{table}"
-        return f"INSERT INTO {table} (\n{select}\n);"
+
+        # we reshape the insert statement to avoid conflict if columns are not specified in same order between query and dag file
+        if columns is not None:
+            select = "SELECT i." + "\n, i.".join(columns) + f"\n\nFROM ({select}) AS i"
+
+        if "INSERT TABLE NO PARENTHESES" in self.sql_features:
+            insert = f"INSERT INTO {table} \n{select}\n;"
+        else:
+            insert = f"INSERT INTO {table} (\n{select}\n);"
+
+        return insert
 
     def move_table(self, src_table, src_schema, dst_table, dst_schema, ddl):
         """Returns SQL code to rename a table and change schema.

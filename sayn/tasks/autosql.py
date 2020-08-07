@@ -1,5 +1,6 @@
 from .sql import SqlTask
 from .task import TaskStatus
+from ..utils.ui import UI
 
 
 class AutoSqlTask(SqlTask):
@@ -111,11 +112,32 @@ class AutoSqlTask(SqlTask):
         else:
             # We always load data into a temporary table
             if self.ddl.get("columns") is not None:
+                ddl_column_names = [c["name"] for c in self.ddl.get("columns")]
+
+                # if incremental load and columns not in same order than ddl columns -> stop
+                if (
+                    self.materialisation == "incremental"
+                    and self.sayn_config.options["full_load"] is False
+                ):
+                    table_column_names = [
+                        c.name
+                        for c in self.db.get_table(self.table, self.schema).columns
+                    ]
+                    if ddl_column_names != table_column_names:
+                        UI().error(
+                            "ABORTING: DDL columns in task settings are not in similar order than table columns. Please do a full load of the table."
+                        )
+                        return TaskStatus.FAILED
+
                 # create table with DDL and insert the output of the select
                 create_table_ddl = self.db.create_table_ddl(
                     self.tmp_table, self.tmp_schema, self.ddl, replace=True
                 )
-                insert = self.db.insert(self.table, self.schema, query)
+
+                # we need to reshape the query to ensure that the columns are always in the right order
+                insert = self.db.insert(
+                    self.tmp_table, self.tmp_schema, query, columns=ddl_column_names
+                )
                 create_load = (
                     f"-- Create table\n"
                     f"{create_table_ddl}\n\n"
@@ -160,5 +182,4 @@ class AutoSqlTask(SqlTask):
                 self.table, self.schema, self.ddl["permissions"]
             )
 
-        return TaskStatus.READY
         return TaskStatus.READY

@@ -19,19 +19,15 @@ class ConsoleLogger:
         if "progress" in kwargs:
             self.progress = kwargs["progress"]
 
-    def logging_prefix(self, stage_name, sub_info=False, fst_line=False):
+    def logging_prefix(self, stage_name, sub_info=False):
         task_name = self.task_name if self.task_name is not None else ""
         progress = self.progress if self.progress is not None else ""
         now = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
 
         if stage_name == "setup":
-            prefix = now + " Setup|" + task_name
+            prefix = now + " Setup|" + task_name + "|"
         if stage_name == "run":
-            if fst_line:
-                bar = ""
-            else:
-                bar = "|"
-            prefix = now + " Run|" + progress + "|" + task_name + bar
+            prefix = now + " Run|" + progress + "|" + task_name + "|"
         if stage_name == "summary":
             prefix = now + " Summary|"
         if sub_info:
