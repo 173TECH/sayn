@@ -1,9 +1,9 @@
-from .sql import SqlTask
+from .sql import SqlTaskRunner
 
 from sqlalchemy.sql import or_, select
 
 
-class CopyTask(SqlTask):
+class CopyTask(SqlTaskRunner):
     def setup(self):
         self.db = self.sayn_config.default_db
 

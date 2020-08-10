@@ -2,7 +2,32 @@ from ..config import Config
 from ..utils.ui import UI
 
 
-class TaskRunner(object):
+class TaskRunner:
+    name = None
+    dag = None
+    tags = list()
+    parameters = dict()
+    global_parameters = dict()
+
+    connections = dict()
+    logger = None
+
+    jinja_env = None
+
+    def compile_text(self, text, **params):
+        return self.jinja_env.from_string(text).render(**params)
+
+    def setup(self, **kwargs):
+        raise NotImplementedError("Setup method not implemented")
+
+    def run(self):
+        raise NotImplementedError("Run method not implemented")
+
+    def compile(self):
+        raise NotImplementedError("Compile method not implemented")
+
+
+class TaskRunner_old(object):
     # Init functions
     def __init__(self, name, task):
         self.sayn_config = Config()

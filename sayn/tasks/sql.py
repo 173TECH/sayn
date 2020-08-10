@@ -1,10 +1,27 @@
 from pathlib import Path
 
+from pydantic import BaseModel, FilePath
+
 from .task import TaskRunner
 from ..utils.ui import UI
 
 
-class SqlTask(TaskRunner):
+class SqlTaskRunner(TaskRunner):
+    class SqlTaskCofig(BaseModel):
+        file_name: FilePath
+
+    def setup(self, **kwargs):
+        config = self.SqlTaskConfig(**kwargs)
+        self.file_path = config.file_name
+
+    def run(self):
+        pass
+
+    def compile(self):
+        pass
+
+
+class SqlTaskRunner_old(TaskRunner):
     def setup(self):
         self.db = self.sayn_config.default_db
 

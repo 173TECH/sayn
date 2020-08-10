@@ -2,11 +2,15 @@ from datetime import datetime
 import re
 from uuid import UUID, uuid4
 
-from ..utils.dag import topological_sort
 from ..utils.ui import UI
-from .config import read_project, read_dags, read_settings
 from ..utils.dag import query as dag_query
-from ..tasks.creator import Task, get_tasks_dict
+from ..utils.dag import topological_sort
+from ..tasks import Task
+from .config import read_project, read_dags, read_settings, get_tasks_dict
+
+#####################################
+# Task query interpretation functions
+#####################################
 
 RE_TASK_QUERY = re.compile(
     (
@@ -107,7 +111,7 @@ class SaynApp:
     tasks = dict()
     dag = dict()
 
-    # task_query = dict()
+    task_query = list()
     # warehouse = None
     # connectors = dict()
     # progress_handlers = list()
@@ -132,9 +136,8 @@ class SaynApp:
 
         # Set tasks and dag from it
         tasks_dict = get_tasks_dict(self.project.presets, self.dags)
-        task_query = get_query(tasks_dict, include=include, exclude=exclude)
-        tasks_in_query = dag_query(self.dag, task_query)
-        self.set_tasks(tasks_dict, tasks_in_query)
+        self.task_query = get_query(tasks_dict, include=include, exclude=exclude)
+        self.set_tasks(tasks_dict)
 
         # Set settings and connections
 
@@ -142,23 +145,31 @@ class SaynApp:
         self.project = project
 
     def set_dags(self, dags):
-        self.project = dags
+        self.dags = dags
 
     def set_settings(self, settings):
-        self.project = settings
+        self.settings = settings
 
-    def set_tasks(self, tasks, tasks_in_query):
+    def set_tasks(self, tasks):
         self.dag = {
-            task.name: [p.name for p in task.parents] for task in tasks.values()
+            task["name"]: [p for p in task.get("parents", list())]
+            for task in tasks.values()
         }
+
         self._tasks_dict = {
             task_name: tasks[task_name] for task_name in topological_sort(self.dag)
         }
+
+        tasks_in_query = dag_query(self.dag, self.task_query)
+
         for task_name, task in self._tasks_dict.items():
             self.tasks[task_name] = Task(
                 task,
                 [self.tasks[p] for p in task.get("parents", list())],
                 task_name in tasks_in_query,
+                self.project.parameters,
+                list(),
+                self.ui,
             )
 
     def run(self):
