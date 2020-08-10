@@ -112,9 +112,9 @@ class SaynApp:
     dag = dict()
 
     task_query = list()
-    # warehouse = None
-    # connectors = dict()
-    # progress_handlers = list()
+
+    connections = dict()
+    default_db = None
 
     def __init__(self, debug):
         self.ui = UI(run_id=self.run_id, debug=debug)
@@ -129,7 +129,7 @@ class SaynApp:
         start_dt=None,
         end_dt=None,
     ):
-        # Read configuration from disk
+        # Read the project configuration
         self.set_project(read_project())
         self.set_dags(read_dags(self.project.dags))
         self.set_settings(read_settings())
