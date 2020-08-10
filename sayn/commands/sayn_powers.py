@@ -114,7 +114,7 @@ def run_command(command, debug, tasks, exclude, profile, full_load, start_dt, en
         raise ValueError(f'Unknown command "{command}"')
 
     ui._set_config(stage_name="summary")
-    ui.print(f"{command.capitalize()} took {datetime.now() - run_start_ts}")
+    ui.info(f"{command.capitalize()} took {datetime.now() - run_start_ts}")
 
 
 @cli.command(help="Generate DAG image")
