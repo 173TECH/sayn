@@ -34,11 +34,16 @@ class AutoSqlTask(SqlTaskRunner):
     def _get_compiled_query(self):
         if self.materialisation == "view":
             compiled = self.create_query
-        elif self.materialisation == "table":
+        # table | incremental when table does not exit or full load
+        elif self.materialisation == "table" or (
+            self.materialisation == "incremental"
+            and (
+                not self.db.table_exists(self.table, self.schema)
+                or self.sayn_config.options["full_load"]
+            )
+        ):
             compiled = f"{self.create_query}\n\n-- Move table\n{self.move_query}"
-        elif not self.db.table_exists(self.table, self.schema):
-            # Incremental when table doesn't currently exists
-            compiled = f"{self.create_query}\n\n-- Move table\n{self.move_query}"
+        # incremental in remaining cases
         else:
             compiled = f"{self.create_query}\n\n-- Merge table\n{self.merge_query}"
 

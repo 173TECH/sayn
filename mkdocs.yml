@@ -3,6 +3,7 @@ site_name: SAYN
 repo_name: 173TECH/sayn
 repo_url: https://github.com/173TECH/sayn
 edit_uri: ""
+site_url: https://173tech.github.io/sayn/
 
 theme:
   name: material
