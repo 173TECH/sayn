@@ -68,12 +68,12 @@ class UI:
     ## Final status logging
     def _status_success(self, text):
         self.clog.print_success(text)
-        logging.info("Success: " + text)
+        logging.info(text)
 
     def _status_warn(self, text):
         self.clog.print_warning(text)
-        logging.warning("Warning: " + text)
+        logging.warning(text)
 
     def _status_fail(self, text):
         self.clog.print_error(text)
-        logging.error("Fail: " + text)
+        logging.error(text)
