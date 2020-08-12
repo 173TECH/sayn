@@ -3,16 +3,15 @@ from pathlib import Path
 from pydantic import BaseModel, FilePath
 
 from .task import TaskRunner
-from ..utils.ui import UI
+from ..database import DatabaseError
 
 
-class SqlTaskRunner(TaskRunner):
-    class SqlTaskCofig(BaseModel):
+class SqlTask(TaskRunner):
+    class Cofig(BaseModel):
         file_name: FilePath
 
     def setup(self, **kwargs):
-        config = self.SqlTaskConfig(**kwargs)
-        self.file_path = config.file_name
+        self.file_path = self.config.file_name
 
     def run(self):
         pass
@@ -41,14 +40,14 @@ class SqlTaskRunner_old(TaskRunner):
         return self._check_extra_fields()
 
     def run(self):
-        UI().debug("Writting query on disk")
+        self.logger.debug("Writting query on disk")
 
         self._write_query(self.compiled)
         if self.status == 0:  # TODO TaskStatus.FAILED:
             return self.failed()
 
-        UI().debug("Running SQL")
-        UI().debug(self.compiled)
+        self.logger.debug("Running SQL")
+        self.logger.debug(self.compiled)
 
         try:
             self.db.execute(self.compiled)
@@ -83,7 +82,7 @@ class SqlTaskRunner_old(TaskRunner):
         path = Path(self.sayn_config.sql_path, self.compile_property(self.file_name))
 
         if not path.is_file():
-            UI().error(f"{path}: file not found")
+            self.logger.error(f"{path}: file not found")
             return
 
         return self.sayn_config.jinja_env.get_template(str(path))
@@ -133,7 +132,10 @@ class SqlTaskRunner_old(TaskRunner):
                 # parsed = yaml.load(self.compile_property(ddl))
                 raise ValueError("External file for ddl not implemented")
 
-            self.ddl = self.db.validate_ddl(ddl, type_required=type_required)
+            try:
+                self.ddl = self.db.validate_ddl(ddl, type_required=type_required)
+            except DatabaseError as e:
+                return self.failed(f"Error processing DDL: {e}")
 
             if self.ddl is None:
                 return self.failed("Error processing DDL")

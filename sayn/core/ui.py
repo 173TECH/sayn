@@ -1,12 +1,10 @@
 from pathlib import Path
 import logging
 
-from .singleton import singleton
 from .file_logger import FileLogger
 from .console_logger import ConsoleLogger
 
 
-@singleton
 class UI:
     def __init__(self, run_id=None, debug=False, log_file=Path("logs/sayn.log")):
         self.clog = ConsoleLogger(debug)

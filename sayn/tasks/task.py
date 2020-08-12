@@ -1,5 +1,4 @@
 from ..config import Config
-from ..utils.ui import UI
 
 
 class TaskRunner:
@@ -123,7 +122,9 @@ class TaskRunner_old(object):
         elif isinstance(value, dict):
             return {k: self.compile_property(v) for k, v in value.items()}
         else:
-            UI().error("Property value type {} not supported".format(str(type(value))))
+            self.logger.error(
+                "Property value type {} not supported".format(str(type(value)))
+            )
 
     # Execution functions
 
@@ -176,7 +177,7 @@ class TaskRunner_old(object):
             if isinstance(messages, str):
                 messages = [messages]
             for message in messages:
-                UI().error(message)
+                self.logger.error(message)
 
         self.status = 0  # TODO TaskStatus.FAILED
         return self.status

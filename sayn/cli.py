@@ -5,8 +5,8 @@ from datetime import date, timedelta
 import click
 
 # from ..config import Config, SaynConfigError
-from ..start_project.start_project import sayn_init
-from ..app.common import SaynApp
+from .scaffolding.start_project import sayn_init
+from .app import SaynApp
 
 click_debug = click.option(
     "--debug", "-d", is_flag=True, default=False, help="Include debug messages"

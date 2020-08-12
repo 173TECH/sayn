@@ -38,7 +38,7 @@ mysql = ["pymysql"]
 
 
 [tool.poetry.scripts]
-sayn = "sayn.commands.sayn_powers:cli"
+sayn = "sayn.cli:cli"
 
 
 [tool.poetry.dev-dependencies]

@@ -1,9 +1,6 @@
 from datetime import datetime
 
-from .singleton import singleton
 
-
-@singleton
 class ConsoleLogger:
     def __init__(self, debug):
         self.debug = debug

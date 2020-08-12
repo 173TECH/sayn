@@ -1,32 +1,13 @@
 from .misc import reverse_dict, reverse_dict_inclusive
 
-
-class MissingParentsError(Exception):
-    def __init__(self, missing):
-        message = "Some referenced tasks are missing: " + ", ".join(
-            [
-                f'"{parent}" referenced by ({", ".join(children)})'
-                for parent, children in missing.items()
-            ]
-        )
-        super(MissingParentsError, self).__init__(message)
-
-        self.missing = missing
-
-
-class CycleError(Exception):
-    def __init__(self, cycle):
-        message = f"Cycle found in the DAG {' -> '.join(cycle)}"
-        super(CycleError, self).__init__(message)
-
-        self.cycle = cycle
+from ..errors import DagCycleError, DagMissingParentsError
 
 
 def _has_missing_parents(dag):
     rev = reverse_dict(dag)
     missing = {p: c for p, c in rev.items() if p not in dag}
     if len(missing) > 0:
-        raise MissingParentsError(missing)
+        raise DagMissingParentsError(missing)
     return False
 
 
@@ -36,13 +17,13 @@ def _is_cyclic_helper(dag, node, visited, stack, breadcrumbs):
 
     for parent in dag[node]:
         if parent == node:
-            raise CycleError([node, parent])
+            raise DagCycleError([node, parent])
         elif not visited[parent]:
             res = _is_cyclic_helper(dag, parent, visited, stack, breadcrumbs + [parent])
             if res is not None:
-                raise CycleError(res)
+                raise DagCycleError(res)
         elif stack[parent]:
-            raise CycleError(breadcrumbs + [parent])
+            raise DagCycleError(breadcrumbs + [parent])
 
     stack[node] = False
 

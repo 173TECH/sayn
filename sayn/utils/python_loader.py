@@ -2,9 +2,7 @@ from pathlib import Path
 import importlib
 import sys
 
-
-class PythonLoaderError(Exception):
-    pass
+from ..errors import PythonLoaderError
 
 
 class PythonLoader:

@@ -1,7 +1,7 @@
-from .sql import SqlTaskRunner
+from .sql import SqlTask
 
 
-class AutoSqlTask(SqlTaskRunner):
+class AutoSqlTask(SqlTask):
     def setup(self):
         self.db = self.sayn_config.default_db
 

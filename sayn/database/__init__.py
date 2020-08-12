@@ -1,5 +1,5 @@
 from .creator import create_all
-from .database import Database
+from .database import Database, DatbaseError
 from .postgresql import Postgresql
 from .redshift import Redshift
 from .snowflake import Snowflake

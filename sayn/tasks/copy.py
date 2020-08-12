@@ -1,9 +1,10 @@
-from .sql import SqlTaskRunner
-
 from sqlalchemy.sql import or_, select
 
+from ..database import DatabaseError
+from .sql import SqlTask
 
-class CopyTask(SqlTaskRunner):
+
+class CopyTask(SqlTask):
     def setup(self):
         self.db = self.sayn_config.default_db
 
@@ -153,12 +154,15 @@ class CopyTask(SqlTaskRunner):
         return  # TODO return TaskStatus.READY
 
     def _setup_table_columns(self):
-        self.source_table_def = self.source_db.get_table(
-            self.source_table,
-            self.source_schema,
-            columns=[c["name"] for c in self.ddl["columns"]],
-            required_existing=True,
-        )
+        try:
+            self.source_table_def = self.source_db.get_table(
+                self.source_table,
+                self.source_schema,
+                columns=[c["name"] for c in self.ddl["columns"]],
+                required_existing=True,
+            )
+        except DatabaseError as e:
+            return self.failed(f"{e}")
 
         if self.source_table_def is None or not self.source_table_def.exists():
             return self.failed(

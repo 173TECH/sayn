@@ -8,24 +8,11 @@ from pydantic import BaseModel, validator, ValidationError
 from ruamel.yaml import YAML
 from ruamel.yaml.error import MarkedYAMLError
 
+from ..errors import YamlParsingError, ConfigError
 from ..utils.misc import merge_dicts, merge_dict_list
 from ..utils.dag import dag_is_valid, upstream, topological_sort
 
 RE_ENV_VAR_NAME = re.compile(r"SAYN_(?P<type>PARAMETER|CREDENTIAL)_(?P<name>.*)")
-
-
-class ConfigError(Exception):
-    pass
-
-
-class YamlParsingError(ConfigError):
-    def __init__(self, problem, file, line):
-        message = f"Error parsing {file}: {problem} on line {line}"
-        super(ConfigError, self).__init__(message)
-
-        self.problem = problem
-        self.file = file
-        self.line = line
 
 
 def read_yaml_file(filename):

@@ -2,8 +2,8 @@ from itertools import groupby
 
 from sqlalchemy import MetaData, Table
 
+from ..core.errors import DatabaseError
 from ..utils import yaml
-from ..utils.ui import UI
 
 
 class Database:
@@ -161,8 +161,7 @@ class Database:
                 ),
             )
         except Exception as e:
-            UI().error(f"{e}")
-            return
+            raise DatabaseError(f"{e}")
 
         ddl = [c if isinstance(c, dict) else {"name": c} for c in ddl.data]
 
@@ -170,14 +169,14 @@ class Database:
             k for k, v in groupby(sorted([c["name"] for c in ddl])) if len(list(v)) > 1
         ]
         if len(duplicate_cols) > 0:
-            UI().error(f"Duplicate columns found: {', '.join(duplicate_cols)}")
-            return
+            raise DatabaseError(f"Duplicate columns found: {', '.join(duplicate_cols)}")
 
         if kwargs.get("types_required"):
             missing_type = [c["name"] for c in ddl if "type" not in c]
             if len(missing_type) > 0:
-                UI().error(f"Missing type for columns: {', '.join(missing_type)}")
-                return
+                raise DatabaseError(
+                    f"Missing type for columns: {', '.join(missing_type)}"
+                )
 
         return ddl
 
@@ -200,8 +199,7 @@ class Database:
                 ),
             )
         except Exception as e:
-            UI().error(f"{e}")
-            return
+            raise DatabaseError(f"{e}")
 
         return ddl.data
 
@@ -223,8 +221,7 @@ class Database:
                 ),
             )
         except Exception as e:
-            UI().error(f"{e}")
-            return
+            raise DatabaseError(f"{e}")
 
         return ddl.data
 
@@ -261,10 +258,9 @@ class Database:
                 )
 
                 if len(cols_requested - cols_in_table) > 0:
-                    UI().error(
+                    raise DatabaseError(
                         f"Missing columns \"{', '.join(cols_requested - cols_in_table)}\" in table \"{table_def.name}\""
                     )
-                    return
 
                 if len(cols_in_table - cols_requested) > 0:
                     for column in cols_in_table - cols_requested:

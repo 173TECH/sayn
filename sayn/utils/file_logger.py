@@ -1,11 +1,7 @@
 import logging
-import coloredlogs
 from pathlib import Path
 
-from .singleton import singleton
 
-
-@singleton
 class FileLogger:
     def __init__(self, run_id=None, debug=False, log_file=Path("logs/sayn.log")):
         self.run_id = run_id
@@ -31,7 +27,7 @@ class FileLogger:
         if "progress" in kwargs:
             self.progress = kwargs["progress"]
 
-        self._set_file_formatter()
+        self.set_file_formatter()
 
     def set_debug(self):
         self.level = logging.DEBUG
@@ -53,10 +49,10 @@ class FileLogger:
             self.file_handler = logging.FileHandler(self.log_file)
             self.file_handler.setLevel(self.level)
 
-            self._set_file_formatter()
+            self.set_file_formatter()
             logging.getLogger().addHandler(self.file_handler)
 
-    def _set_file_formatter(self):
+    def set_file_formatter(self):
         if self.file_handler is not None:
             fmt_string = f"{self.run_id}|{self.sayn_project}|" + "%(asctime)s|"
 
@@ -76,5 +72,5 @@ class FileLogger:
             formatter = logging.Formatter(fmt_string, "%Y-%m-%d %H:%M:%S",)
             self.file_handler.setFormatter(formatter)
 
-    def _set_formatters(self):
-        self._set_file_formatter()
+    def set_formatters(self):
+        self.set_file_formatter()

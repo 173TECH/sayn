@@ -2,9 +2,8 @@ import re
 
 from sqlalchemy import create_engine
 
-from .database import Database
+from .database import Database, DatabaseError
 from ..utils import yaml
-from ..utils.ui import UI
 
 db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
 
@@ -87,8 +86,7 @@ class Redshift(Database):
                     ),
                 )
             except Exception as e:
-                UI().error(f"{e}")
-                return
+                raise DatabaseError(f"{e}")
 
             out_ddl["sorting"] = sorting.data
 
@@ -98,8 +96,7 @@ class Redshift(Database):
                     kwargs["distribution"], schema=yaml.Regex(r"even|all|key([^,]+)")
                 )
             except Exception as e:
-                UI().error(f"{e}")
-                return
+                raise DatabaseError(f"{e}")
 
             out_ddl["distribution"] = distribution.data
 
