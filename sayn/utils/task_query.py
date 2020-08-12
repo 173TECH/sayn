@@ -1,6 +1,6 @@
 import re
 
-from ..errors import TaskQueryError
+from ..core.errors import TaskQueryError
 
 #####################################
 # Task query interpretation functions

@@ -8,7 +8,7 @@ from pydantic import BaseModel, validator, ValidationError
 from ruamel.yaml import YAML
 from ruamel.yaml.error import MarkedYAMLError
 
-from ..errors import YamlParsingError, ConfigError
+from .errors import YamlParsingError, ConfigError
 from ..utils.misc import merge_dicts, merge_dict_list
 from ..utils.dag import dag_is_valid, upstream, topological_sort
 

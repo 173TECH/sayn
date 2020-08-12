@@ -1,7 +1,7 @@
-from .task import TaskRunner
+from . import Task
 
 
-class DummyTask(TaskRunner):
+class DummyTask(Task):
     def setup(self):
         self.logger.debug("Setting up Dummy Task")
         return self.ready()

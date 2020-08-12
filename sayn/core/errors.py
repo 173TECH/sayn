@@ -47,3 +47,7 @@ class DatabaseError(Exception):
 
 class TaskError(Exception):
     pass
+
+
+class TaskCreationError(TaskError):
+    pass

@@ -1,6 +1,6 @@
 from sqlalchemy.sql import or_, select
 
-from ..database import DatabaseError
+from ..core.errors import DatabaseError
 from .sql import SqlTask
 
 

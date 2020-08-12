@@ -2,16 +2,17 @@ from pathlib import Path
 
 from pydantic import BaseModel, FilePath
 
-from .task import TaskRunner
-from ..database import DatabaseError
+from . import Task
+from ..core.errors import DatabaseError
 
 
-class SqlTask(TaskRunner):
+class SqlTask(Task):
     class Cofig(BaseModel):
         file_name: FilePath
 
     def setup(self, **kwargs):
-        self.file_path = self.config.file_name
+        pass
+        # self.file_path = kwargsfile_name
 
     def run(self):
         pass
@@ -20,7 +21,7 @@ class SqlTask(TaskRunner):
         pass
 
 
-class SqlTaskRunner_old(TaskRunner):
+class SqlTaskRunner_old(Task):
     def setup(self):
         self.db = self.sayn_config.default_db
 

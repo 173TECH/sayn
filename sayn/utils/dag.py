@@ -1,6 +1,6 @@
 from .misc import reverse_dict, reverse_dict_inclusive
 
-from ..errors import DagCycleError, DagMissingParentsError
+from ..core.errors import DagCycleError, DagMissingParentsError
 
 
 def _has_missing_parents(dag):

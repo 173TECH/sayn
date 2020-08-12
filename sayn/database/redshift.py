@@ -2,8 +2,10 @@ import re
 
 from sqlalchemy import create_engine
 
-from .database import Database, DatabaseError
-from ..utils import yaml
+# TODO from ..core.errors import DatabaseError
+from .database import Database
+
+# TODO from ..utils import yaml
 
 db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
 
@@ -62,45 +64,48 @@ class Redshift(Database):
         self.setup_db(name, name_in_settings, db_type, engine)
 
     def validate_ddl(self, ddl, **kwargs):
-        out_ddl = super(self, Database).validate_ddl(ddl, **kwargs)
-        if out_ddl is None:
-            return
+        # TODO
+        pass
 
-        # Redshift specific ddl
-        column_names = [c["name"] for c in out_ddl["columns"]]
-        if "sorting" in kwargs:
-            try:
-                sorting = yaml.as_document(
-                    kwargs["sorting"],
-                    schema=yaml.Map(
-                        {
-                            yaml.Optional("type"): yaml.Enum(
-                                ["compound", "interleaved"]
-                            ),
-                            "columns": yaml.UniqueSeq(
-                                yaml.NotEmptyStr()
-                                if len(column_names) == 0
-                                else yaml.Enum(column_names)
-                            ),
-                        }
-                    ),
-                )
-            except Exception as e:
-                raise DatabaseError(f"{e}")
-
-            out_ddl["sorting"] = sorting.data
-
-        if "distribution" in kwargs:
-            try:
-                distribution = yaml.as_document(
-                    kwargs["distribution"], schema=yaml.Regex(r"even|all|key([^,]+)")
-                )
-            except Exception as e:
-                raise DatabaseError(f"{e}")
-
-            out_ddl["distribution"] = distribution.data
-
-        return out_ddl
+    #        out_ddl = super(self, Database).validate_ddl(ddl, **kwargs)
+    #        if out_ddl is None:
+    #            return
+    #
+    #        # Redshift specific ddl
+    #        column_names = [c["name"] for c in out_ddl["columns"]]
+    #        if "sorting" in kwargs:
+    #            try:
+    #                sorting = yaml.as_document(
+    #                    kwargs["sorting"],
+    #                    schema=yaml.Map(
+    #                        {
+    #                            yaml.Optional("type"): yaml.Enum(
+    #                                ["compound", "interleaved"]
+    #                            ),
+    #                            "columns": yaml.UniqueSeq(
+    #                                yaml.NotEmptyStr()
+    #                                if len(column_names) == 0
+    #                                else yaml.Enum(column_names)
+    #                            ),
+    #                        }
+    #                    ),
+    #                )
+    #            except Exception as e:
+    #                raise DatabaseError(f"{e}")
+    #
+    #            out_ddl["sorting"] = sorting.data
+    #
+    #        if "distribution" in kwargs:
+    #            try:
+    #                distribution = yaml.as_document(
+    #                    kwargs["distribution"], schema=yaml.Regex(r"even|all|key([^,]+)")
+    #                )
+    #            except Exception as e:
+    #                raise DatabaseError(f"{e}")
+    #
+    #            out_ddl["distribution"] = distribution.data
+    #
+    #        return out_ddl
 
     def _get_table_attributes(self, ddl):
         if "sorting" not in ddl and "distribution" not in ddl:

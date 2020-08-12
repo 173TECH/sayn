@@ -5,8 +5,40 @@ from datetime import date, timedelta
 import click
 
 # from ..config import Config, SaynConfigError
-from .scaffolding.start_project import sayn_init
-from .app import SaynApp
+from .utils.task_query import get_query
+from .scaffolding.init_project import sayn_init
+from .core.app import App
+from .core.config import read_project, read_dags, read_settings, get_tasks_dict
+
+
+class CliApp(App):
+    def __init__(
+        self,
+        debug=False,
+        include=list(),
+        exclude=list(),
+        profile=None,
+        full_load=False,
+        start_dt=None,
+        end_dt=None,
+    ):
+
+        super().__init__()
+
+        # Read the project configuration
+        self.project = read_project()
+        self.dags = read_dags(self.project.dags)
+        self.settings = read_settings()
+
+        # Set tasks and dag from it
+        tasks_dict = get_tasks_dict(self.project.presets, self.dags)
+        self.task_query = get_query(tasks_dict, include=include, exclude=exclude)
+        self.set_tasks(tasks_dict)
+
+        # Set settings and connections
+
+        # Set python environment
+
 
 click_debug = click.option(
     "--debug", "-d", is_flag=True, default=False, help="Include debug messages"
@@ -75,20 +107,18 @@ def init(sayn_project_name):
 @cli.command(help="Compile sql tasks.")
 @click_run_options
 def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
-    app = SaynApp(debug=debug)
-    app.setup(tasks, exclude, profile, full_load, start_dt, end_dt)
+    app = CliApp(debug, tasks, exclude, profile, full_load, start_dt, end_dt)
     app.compile()
 
 
 @cli.command(help="Run SAYN tasks.")
 @click_run_options
 def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
-    app = SaynApp(debug=debug)
-    app.setup(tasks, exclude, profile, full_load, start_dt, end_dt)
+    app = CliApp(debug, tasks, exclude, profile, full_load, start_dt, end_dt)
     app.run()
 
 
-@cli.command(help="Generate DAG image")
+@cli.command(help="Generate DAG image.")
 @click_debug
 @click_filter
 def dag_image(debug, tasks, exclude):

@@ -2,9 +2,11 @@ from pathlib import Path
 import importlib
 import sys
 
-from ..errors import PythonLoaderError
+from ..core.errors import PythonLoaderError
+from .singleton import singleton
 
 
+@singleton
 class PythonLoader:
     modules = list()
 
