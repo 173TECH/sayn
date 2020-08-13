@@ -57,7 +57,7 @@ class Task:
         elif isinstance(obj, str):
             return self.jinja_env.from_string(obj)
 
-    def compile_text(self, obj, **params):
+    def compile_obj(self, obj, **params):
         if isinstance(obj, Template):
             return obj.render(**params)
         else:

@@ -72,6 +72,7 @@ class TaskWrapper:
         logger,
         connections,
         default_db,
+        project_parameters,
         run_arguments,
     ):
         self.status = TaskStatus.SETTING_UP
@@ -109,10 +110,15 @@ class TaskWrapper:
             runner.dag = self.dag
             runner.tags = self.tags
             runner.run_arguments = run_arguments
+            env_arguments = {
+                "full_load": run_arguments["full_load"],
+                "start_dt": run_arguments["start_dt"].strftime("%Y-%m-%d"),
+                "end_dt": run_arguments["end_dt"].strftime("%Y-%m-%d"),
+            }
 
             # Process parameters
             # The project parameters go as they come
-            runner.project_parameters = deepcopy(run_arguments or dict())
+            runner.project_parameters = deepcopy(project_parameters or dict())
             # Create a jinja environment with the project parameters so that we
             # can use that to compile parameters and other properties
             jinja_env = Environment(
@@ -120,7 +126,9 @@ class TaskWrapper:
                 undefined=StrictUndefined,
                 keep_trailing_newline=True,
             )
-            jinja_env.globals.update(task=self, **runner.project_parameters)
+            jinja_env.globals.update(task=self)
+            jinja_env.globals.update(**env_arguments)
+            jinja_env.globals.update(**runner.project_parameters)
             task_parameters = task_info.get("parameters", dict())
             # Compile nested dictionary of parameters
             runner.task_parameters = map_nested(

@@ -118,7 +118,7 @@ class AutoSqlTask(SqlTask):
 
         # 0. Retrieve the select statement compiled with jinja
         try:
-            query = self.template.render(**self.parameters)
+            query = self.compile_obj(self.template)
         except Exception as e:
             raise TaskCreationError(f"Error compiling template\n{e}")
 

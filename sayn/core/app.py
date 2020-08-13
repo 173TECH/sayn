@@ -131,6 +131,7 @@ class App:
                 self.logger.get_task_logger(task_name),
                 self.connections,
                 self.default_db,
+                self.project_parameters,
                 self.run_arguments,
             )
 
