@@ -1,4 +1,5 @@
 from __future__ import annotations
+from datetime import datetime
 from typing import List, Dict, Any
 from copy import deepcopy
 
@@ -63,6 +64,9 @@ class TaskWrapper:
     in_query: bool = True
     runner: Task = None
     status: TaskStatus = TaskStatus.UNKNOWN
+
+    start_ts: None
+    end_ts: None
 
     def __init__(
         self,
@@ -191,8 +195,19 @@ class TaskWrapper:
         self._execute_task("compile")
 
     def _execute_task(self, command):
+        self.start_ts = datetime.now()
+        self.logger._report_event(
+            event=f"start_{command}", level="info", message="Started task"
+        )
         if self.in_query:
             if command == "run":
                 self.runner.run()
             else:
                 self.runner.compile()
+        self.end_ts = datetime.now()
+        self.logger._report_event(
+            event=f"finish_{command}",
+            level="success",
+            message="Finish task",
+            duration=self.end_ts - self.start_ts,
+        )

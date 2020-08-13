@@ -41,8 +41,8 @@ def is_unique(field_name, v):
 class Project(BaseModel):
     required_credentials: List[str]
     default_db: Optional[str]
-    parameters: Optional[Dict[str, Any]]
-    presets: Optional[Dict[str, Dict[str, Any]]]
+    parameters: Optional[Dict[str, Any]] = dict()
+    presets: Optional[Dict[str, Dict[str, Any]]] = dict()
     dags: List[str]
 
     @validator("required_credentials")
@@ -65,7 +65,7 @@ def read_project():
 
 
 class Dag(BaseModel):
-    presets: Optional[Dict[str, Dict[str, Any]]]
+    presets: Optional[Dict[str, Dict[str, Any]]] = dict()
     tasks: Dict[str, Dict[str, Any]]
 
 

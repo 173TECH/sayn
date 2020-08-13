@@ -173,9 +173,8 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 version = "7.1.2"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Cross-platform colored terminal text."
-marker = "sys_platform == \"win32\""
 name = "colorama"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
@@ -279,6 +278,17 @@ version = "8.2"
 
 [package.dependencies]
 pyreadline = "*"
+
+[[package]]
+category = "main"
+description = "Python humanize utilities"
+name = "humanize"
+optional = false
+python-versions = ">=3.5"
+version = "2.6.0"
+
+[package.extras]
+tests = ["freezegun", "pytest", "pytest-cov"]
 
 [[package]]
 category = "main"
@@ -1061,7 +1071,7 @@ postgresql = ["psycopg2"]
 snowflake = ["snowflake-connector-python", "snowflake-sqlalchemy"]
 
 [metadata]
-content-hash = "e436d396654caf952f65a3a93f3ddb6612d5b7be8260099077d54c9f73368db5"
+content-hash = "e217271fdf722b234650742643c7ecd378163687466523a5ec04e41345405f4f"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -1204,6 +1214,10 @@ graphviz = [
 humanfriendly = [
     {file = "humanfriendly-8.2-py2.py3-none-any.whl", hash = "sha256:e78960b31198511f45fd455534ae7645a6207d33e512d2e842c766d15d9c8080"},
     {file = "humanfriendly-8.2.tar.gz", hash = "sha256:bf52ec91244819c780341a3438d5d7b09f431d3f113a475147ac9b7b167a3d12"},
+]
+humanize = [
+    {file = "humanize-2.6.0-py3-none-any.whl", hash = "sha256:fd5b32945687443d5b8bc1e02fad027da1d293a9e963b3450122ad98ef534f21"},
+    {file = "humanize-2.6.0.tar.gz", hash = "sha256:8ee358ea6c23de896b9d1925ebe6a8504bb2ba7e98d5ccf4d07ab7f3b28f3819"},
 ]
 idna = [
     {file = "idna-2.9-py2.py3-none-any.whl", hash = "sha256:a068a21ceac8a4d63dbfd964670474107f541babbd2250d61922f029858365fa"},

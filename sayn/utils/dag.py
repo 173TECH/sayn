@@ -49,6 +49,8 @@ def dag_is_valid(dag):
 
 # DAG -> Sorted list
 def topological_sort(dag):
+    if len(dag) == 0:
+        return list()
     dag_is_valid(dag)
     topo_sorted = []
     pending = list(dag.keys())

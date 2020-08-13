@@ -10,6 +10,7 @@ from .utils.graphviz import plot_dag
 from .scaffolding.init_project import sayn_init
 from .core.app import App
 from .core.config import read_project, read_dags, read_settings, get_tasks_dict
+from .core.logger import ConsoleLogger
 
 
 class CliApp(App):
@@ -23,6 +24,7 @@ class CliApp(App):
         start_dt=date.today() - timedelta(days=1),
         end_dt=date.today() - timedelta(days=1),
     ):
+        self.logger.loggers = {"console": ConsoleLogger("debug")}
         self.set_run_arguments(
             debug=debug,
             full_load=full_load,
