@@ -1,10 +1,10 @@
-# TODO from itertools import groupby
+from itertools import groupby
 
 from sqlalchemy import MetaData, Table
 
 from ..core.errors import DatabaseError
 
-# TODO from ..utils import yaml
+from ..utils import yaml
 
 
 class Database:
@@ -104,26 +104,33 @@ class Database:
     # DDL validation methods
 
     def validate_ddl(self, ddl, **kwargs):
-        if "columns" not in ddl:
+        if ddl is None:
             columns = None
-        else:
-            columns = self.validate_columns(ddl.get("columns"), **kwargs)
-            if columns is None:
-                return
-
-        if "indexes" not in ddl:
             indexes = None
-        else:
-            indexes = self.validate_indexes(ddl.get("indexes"), **kwargs)
-            if indexes is None:
-                return
-
-        if "permissions" not in ddl:
             permissions = None
         else:
-            permissions = self.validate_permissions(ddl.get("permissions"), **kwargs)
-            if permissions is None:
-                return
+            if "columns" not in ddl:
+                columns = None
+            else:
+                columns = self.validate_columns(ddl.get("columns"), **kwargs)
+                if columns is None:
+                    return
+
+            if "indexes" not in ddl:
+                indexes = None
+            else:
+                indexes = self.validate_indexes(ddl.get("indexes"), **kwargs)
+                if indexes is None:
+                    return
+
+            if "permissions" not in ddl:
+                permissions = None
+            else:
+                permissions = self.validate_permissions(
+                    ddl.get("permissions"), **kwargs
+                )
+                if permissions is None:
+                    return
 
         return {
             "columns": columns,
@@ -145,44 +152,42 @@ class Database:
             list: A list of dictionaries with the column definition in a dict format or None if
             there was an error during validation
         """
-        # TODO
-        pass
 
-    #         try:
-    #             ddl = yaml.as_document(
-    #                 columns,
-    #                 schema=yaml.Seq(
-    #                     yaml.NotEmptyStr()
-    #                     | yaml.Map(
-    #                         {
-    #                             "name": yaml.NotEmptyStr(),
-    #                             yaml.Optional("type"): yaml.NotEmptyStr(),
-    #                             yaml.Optional("primary"): yaml.Bool(),
-    #                             yaml.Optional("not_null"): yaml.Bool(),
-    #                             yaml.Optional("unique"): yaml.Bool(),
-    #                         }
-    #                     )
-    #                 ),
-    #             )
-    #         except Exception as e:
-    #             raise DatabaseError(f"{e}")
-    #
-    #         ddl = [c if isinstance(c, dict) else {"name": c} for c in ddl.data]
-    #
-    #         duplicate_cols = [
-    #             k for k, v in groupby(sorted([c["name"] for c in ddl])) if len(list(v)) > 1
-    #         ]
-    #         if len(duplicate_cols) > 0:
-    #             raise DatabaseError(f"Duplicate columns found: {', '.join(duplicate_cols)}")
-    #
-    #         if kwargs.get("types_required"):
-    #             missing_type = [c["name"] for c in ddl if "type" not in c]
-    #             if len(missing_type) > 0:
-    #                 raise DatabaseError(
-    #                     f"Missing type for columns: {', '.join(missing_type)}"
-    #                 )
-    #
-    #         return ddl
+        try:
+            ddl = yaml.as_document(
+                columns,
+                schema=yaml.Seq(
+                    yaml.NotEmptyStr()
+                    | yaml.Map(
+                        {
+                            "name": yaml.NotEmptyStr(),
+                            yaml.Optional("type"): yaml.NotEmptyStr(),
+                            yaml.Optional("primary"): yaml.Bool(),
+                            yaml.Optional("not_null"): yaml.Bool(),
+                            yaml.Optional("unique"): yaml.Bool(),
+                        }
+                    )
+                ),
+            )
+        except Exception as e:
+            raise DatabaseError(f"{e}")
+
+        ddl = [c if isinstance(c, dict) else {"name": c} for c in ddl.data]
+
+        duplicate_cols = [
+            k for k, v in groupby(sorted([c["name"] for c in ddl])) if len(list(v)) > 1
+        ]
+        if len(duplicate_cols) > 0:
+            raise DatabaseError(f"Duplicate columns found: {', '.join(duplicate_cols)}")
+
+        if kwargs.get("types_required"):
+            missing_type = [c["name"] for c in ddl if "type" not in c]
+            if len(missing_type) > 0:
+                raise DatabaseError(
+                    f"Missing type for columns: {', '.join(missing_type)}"
+                )
+
+        return ddl
 
     def validate_indexes(self, indexes, **kwargs):
         """Validates the indexes definition for a task.
@@ -194,21 +199,19 @@ class Database:
             list: A dictionary with the index definition or None if there was
             an error during validation
         """
-        # TODO
-        pass
 
-    #        try:
-    #            ddl = yaml.as_document(
-    #                indexes,
-    #                schema=yaml.MapPattern(
-    #                    yaml.NotEmptyStr(),
-    #                    yaml.Map({"columns": yaml.UniqueSeq(yaml.NotEmptyStr())}),
-    #                ),
-    #            )
-    #        except Exception as e:
-    #            raise DatabaseError(f"{e}")
-    #
-    #        return ddl.data
+        try:
+            ddl = yaml.as_document(
+                indexes,
+                schema=yaml.MapPattern(
+                    yaml.NotEmptyStr(),
+                    yaml.Map({"columns": yaml.UniqueSeq(yaml.NotEmptyStr())}),
+                ),
+            )
+        except Exception as e:
+            raise DatabaseError(f"{e}")
+
+        return ddl.data
 
     def validate_permissions(self, permissions, **kwargs):
         """Validates the permissions definition for a task.
@@ -219,21 +222,19 @@ class Database:
         Returns:
             list: A dictionary with the grant list or None if there was an error during validation
         """
-        # TODO
-        pass
 
-    #         try:
-    #             ddl = yaml.as_document(
-    #                 permissions,
-    #                 schema=yaml.MapPattern(
-    #                     yaml.NotEmptyStr(),
-    #                     yaml.NotEmptyStr() | yaml.UniqueSeq(yaml.NotEmptyStr()),
-    #                 ),
-    #             )
-    #         except Exception as e:
-    #             raise DatabaseError(f"{e}")
-    #
-    #         return ddl.data
+        try:
+            ddl = yaml.as_document(
+                permissions,
+                schema=yaml.MapPattern(
+                    yaml.NotEmptyStr(),
+                    yaml.NotEmptyStr() | yaml.UniqueSeq(yaml.NotEmptyStr()),
+                ),
+            )
+        except Exception as e:
+            raise DatabaseError(f"{e}")
+
+        return ddl.data
 
     def refresh_metadata(self, only=None, schema=None):
         """Refreshes the sqlalchemy metadata object.

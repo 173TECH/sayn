@@ -23,6 +23,10 @@ class ConfigError(Exception):
     pass
 
 
+class CommandError(Exception):
+    pass
+
+
 class YamlParsingError(ConfigError):
     def __init__(self, problem, file, line):
         message = f"Error parsing {file}: {problem} on line {line}"

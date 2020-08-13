@@ -52,8 +52,9 @@ class AppLogger:
     tasks = list()
     current_task = None
 
-    def __init__(self, run_id, debug=False, log_file=None):
+    def __init__(self, run_id):
         self.run_id = run_id
+        self.stage = "setup"
         # self.loggers["console"] = ConsoleLogger(debug)
 
         # if log_file is not None:

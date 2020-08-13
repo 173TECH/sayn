@@ -1,45 +1,96 @@
+from pathlib import Path
+from typing import Optional, List, Dict, Any
+
+from pydantic import BaseModel, Field, FilePath, validator
+
+from ..core.errors import ConfigError, TaskCreationError
 from .sql import SqlTask
 
 
+class Destination(BaseModel):
+    tmp_schema: Optional[str]
+    db_schema: Optional[str] = Field(None, alias="schema")
+    table: str
+    _db_properties: List
+    _db_type: str
+
+    @validator("tmp_schema")
+    def can_use_tmp_schema(cls, v, values):
+        if v is not None:
+            raise ConfigError(
+                f'tmp_schema not supported for database of type {v["_db_type"]}'
+            )
+
+        return v
+
+
+class Config(BaseModel):
+
+    sql_folder: Path
+    file_name: FilePath
+    delete_key: Optional[str]
+    materialisation: str
+    destination: Destination
+    ddl: Optional[Dict[str, Any]]
+
+    @validator("file_name", pre=True)
+    def file_name_plus_folder(cls, v, values):
+        return Path(values["sql_folder"], v)
+
+    @validator("materialisation")
+    def incremental_has_delete_key(cls, v, values):
+        if v not in ("table", "view", "incremental"):
+            raise ConfigError(
+                'Accepted materialisations: "table", "view" and "incremental".'
+            )
+        elif v != "incremental" and values.get("delete_key") is not None:
+            raise ConfigError("delete_key is not valid for non-incremental loads.")
+        elif v == "incremental" and values.get("delete_key") is None:
+            raise ConfigError("delete_key is required for incremental materialisation.")
+        else:
+            return v
+
+
 class AutoSqlTask(SqlTask):
-    def setup(self):
-        self.db = self.sayn_config.default_db
+    def setup(self, **kwargs):
+        # TODO control this better
+        kwargs["destination"].update(
+            {
+                "_db_features": self.default_db.sql_features,
+                "_db_type": self.default_db.db_type,
+            }
+        )
+        self.config = Config(sql_folder=self.run_arguments["folders"]["sql"], **kwargs)
+        self.materialisation = self.config.materialisation
+        self.tmp_schema = self.config.destination.tmp_schema
+        self.schema = self.config.destination.db_schema
+        self.table = self.config.destination.table
+        self.tmp_table = f"sayn_tmp_{self.table}"
+        self.delete_key = self.config.delete_key
+        self.ddl = self.default_db.validate_ddl(self.config.ddl)
+        self.template = self.get_template(self.config.file_name)
 
-        status = self._setup_file_name()
-        if status != 0:  # TODO TaskStatus.READY:
-            return self.failed()
+        self.setup_sql()
 
-        self.template = self._get_query_template()
-        if self.template is None:
-            return self.failed()
+        return self.ready()
 
-        status = self._setup_materialisation()
-        if status != 0:  # TODO TaskStatus.READY:
-            return status
+    def run(self):
+        self.compiled = self.get_compiled_query()
+        return super().run()
 
-        status = self._setup_destination()
-        if status != 0:  # TODO TaskStatus.READY:
-            return status
+    def compile(self):
+        self.compiled = self.get_compiled_query()
+        return super().compile()
 
-        status = self._setup_ddl()
-        if status != 0:  # TODO TaskStatus.READY:
-            return status
-
-        status = self._setup_sql()
-        if status != 0:  # TODO TaskStatus.READY:
-            return status
-
-        return self._check_extra_fields()
-
-    def _get_compiled_query(self):
+    def get_compiled_query(self):
         if self.materialisation == "view":
             compiled = self.create_query
         # table | incremental when table does not exit or full load
         elif self.materialisation == "table" or (
             self.materialisation == "incremental"
             and (
-                not self.db.table_exists(self.table, self.schema)
-                or self.sayn_config.options["full_load"]
+                not self.default_db.table_exists(self.table, self.schema)
+                or self.project_config["full_load"]
             )
         ):
             compiled = f"{self.create_query}\n\n-- Move table\n{self.move_query}"
@@ -52,39 +103,9 @@ class AutoSqlTask(SqlTask):
 
         return compiled
 
-    def run(self):
-        self.compiled = self._get_compiled_query()
-        return super(AutoSqlTask, self).run()
-
-    def compile(self):
-        self.compiled = self._get_compiled_query()
-        return super(AutoSqlTask, self).compile()
-
     # Task property methods
 
-    def _setup_materialisation(self):
-        # Type of materialisation
-        self.materialisation = self._pop_property("materialisation")
-        if self.materialisation is None:
-            return self.failed(
-                '"materialisation" is a required field (values: table, incremental, view)'
-            )
-        elif not isinstance(self.materialisation, str) or self.materialisation not in (
-            "table",
-            "incremental",
-            "view",
-        ):
-            return self.failed(
-                'Accepted "materialisation" values: table, incremental, view)'
-            )
-        elif self.materialisation == "incremental":
-            self.delete_key = self._pop_property("delete_key")
-            if self.delete_key is None:
-                return self.failed("Incremental materialisation requires delete_key")
-
-        return  # TODO return TaskStatus.READY
-
-    def _setup_sql(self):
+    def setup_sql(self):
         # Autosql tasks are split in 4 queries depending on the materialisation
         # 1. Create: query to create and load data
         self.create_query = None
@@ -99,22 +120,22 @@ class AutoSqlTask(SqlTask):
         try:
             query = self.template.render(**self.parameters)
         except Exception as e:
-            return self.failed(f"Error compiling template\n{e}")
+            raise TaskCreationError(f"Error compiling template\n{e}")
 
         # 1. Create query
         if self.materialisation == "view":
             # Views just replace the current object if it exists
-            self.create_query = self.db.create_table_select(
+            self.create_query = self.default_db.create_table_select(
                 self.table, self.schema, query, replace=True, view=True
             )
         else:
             # We always load data into a temporary table
             if self.ddl.get("columns") is not None:
                 # create table with DDL and insert the output of the select
-                create_table_ddl = self.db.create_table_ddl(
+                create_table_ddl = self.default_db.create_table_ddl(
                     self.tmp_table, self.tmp_schema, self.ddl, replace=True
                 )
-                insert = self.db.insert(self.table, self.schema, query)
+                insert = self.default_db.insert(self.table, self.schema, query)
                 create_load = (
                     f"-- Create table\n"
                     f"{create_table_ddl}\n\n"
@@ -124,13 +145,13 @@ class AutoSqlTask(SqlTask):
 
             else:
                 # or create from the select if DDL not present
-                create_load = self.db.create_table_select(
+                create_load = self.default_db.create_table_select(
                     self.tmp_table, self.tmp_schema, query, replace=True, ddl=self.ddl
                 )
 
             # Add indexes if necessary
             if self.ddl.get("indexes") is not None:
-                indexes = "\n-- Create indexes\n" + self.db.create_indexes(
+                indexes = "\n-- Create indexes\n" + self.default_db.create_indexes(
                     self.tmp_table, self.tmp_schema, self.ddl
                 )
             else:
@@ -139,13 +160,13 @@ class AutoSqlTask(SqlTask):
             self.create_query = create_load + "\n" + indexes
 
         # 2. Move
-        self.move_query = self.db.move_table(
+        self.move_query = self.default_db.move_table(
             self.tmp_table, self.tmp_schema, self.table, self.schema, self.ddl
         )
 
         # 3. Merge
         if self.materialisation == "incremental":
-            self.merge_query = self.db.merge_tables(
+            self.merge_query = self.default_db.merge_tables(
                 self.tmp_table,
                 self.tmp_schema,
                 self.table,
@@ -155,8 +176,6 @@ class AutoSqlTask(SqlTask):
 
         # Permissions are always the same
         if self.ddl.get("permissions") is not None:
-            self.permissions_query = self.db.grant_permissions(
+            self.permissions_query = self.default_db.grant_permissions(
                 self.table, self.schema, self.ddl["permissions"]
             )
-
-        return  # TODO return TaskStatus.READY

@@ -41,12 +41,12 @@ class CopyTask(SqlTask):
         table_exists = self.db.table_exists(self.table, self.schema)
 
         # 1. create load
-        self._write_query(self.create_query, suffix="_create_load_table")
+        self.write_query(self.create_query, suffix="_create_load_table")
         self.db.execute(self.create_query)
 
         # 2. get last incremental value
         if table_exists and self.incremental_key is not None:
-            self._write_query(
+            self.write_query(
                 self.last_incremental_value_query, suffix="_last_incremental_value"
             )
             res = self.db.select(self.last_incremental_value_query)
@@ -60,7 +60,7 @@ class CopyTask(SqlTask):
         # 3. get data
         # Retrieve in streaming
         if last_incremental_value is None:
-            self._write_query(self.get_data_query, suffix="_get_data")
+            self.write_query(self.get_data_query, suffix="_get_data")
             data_iter = self.source_db.select_stream(self.get_data_query)
         else:
             query = self.get_data_query.where(
@@ -70,7 +70,7 @@ class CopyTask(SqlTask):
                     > last_incremental_value,
                 )
             )
-            self._write_query(query, suffix="_get_data")
+            self.write_query(query, suffix="_get_data")
             data_iter = self.source_db.select_stream(query)
 
         # Load in streaming
@@ -78,33 +78,33 @@ class CopyTask(SqlTask):
 
         # 4. finish
         if table_exists and self.incremental_key is not None:
-            self._write_query(f"{self.merge_query}", suffix="_merge")
+            self.write_query(f"{self.merge_query}", suffix="_merge")
             self.db.execute(self.merge_query)
         else:
-            self._write_query(f"{self.move_query}", suffix="_move")
+            self.write_query(f"{self.move_query}", suffix="_move")
             self.db.execute(self.move_query)
             if self.permissions_query is not None:
-                self._write_query(f"{self.permissions_query}", suffix="_permissions")
+                self.write_query(f"{self.permissions_query}", suffix="_permissions")
                 self.db.execute(self.permissions_query)
 
         return self.success()
 
     def compile(self):
-        self._write_query(self.create_query, suffix="_create_load_table")
+        self.write_query(self.create_query, suffix="_create_load_table")
         if self.incremental_key is not None:
-            self._write_query(
+            self.write_query(
                 self.last_incremental_value_query, suffix="_last_incremental_value"
             )
-            self._write_query(
+            self.write_query(
                 f"{self.get_data_query_all}{self.get_data_query_filter}",
                 suffix="_get_data",
             )
         else:
-            self._write_query(self.get_data_query_all, suffix="_get_data")
-        self._write_query(f"{self.move_query}", suffix="_move")
-        self._write_query(f"{self.merge_query}", suffix="_merge")
+            self.write_query(self.get_data_query_all, suffix="_get_data")
+        self.write_query(f"{self.move_query}", suffix="_move")
+        self.write_query(f"{self.merge_query}", suffix="_merge")
         if self.permissions_query is not None:
-            self._write_query(f"{self.permissions_query}", suffix="_permissions")
+            self.write_query(f"{self.permissions_query}", suffix="_permissions")
 
         return self.success()
 

@@ -1,11 +1,15 @@
+from __future__ import annotations
+from typing import List, Dict, Any
 from copy import deepcopy
 
 from jinja2 import Environment, BaseLoader, StrictUndefined
+from pydantic import ValidationError
 
 from ..core.errors import TaskCreationError
+from ..utils.misc import map_nested
 
 # from ..utils.python_loader import PythonLoader
-from . import TaskStatus
+from . import Task, TaskStatus
 from .dummy import DummyTask
 from .sql import SqlTask
 from .autosql import AutoSqlTask
@@ -18,17 +22,47 @@ _creators = {
     "copy": CopyTask,
 }
 
+_excluded_properties = (
+    "name",
+    "type",
+    "tags",
+    "dag",
+    "parents",
+    "parameters",
+    "class",
+    "preset",
+)
+
 
 class TaskWrapper:
-    name = None
-    dag = None
-    tags = list()
-    parents = list()
-    project_parameters = dict()
-    task_parameters = dict()
-    in_query = True
-    runner = None
-    status = TaskStatus.UNKNOWN
+    """Task wrapper managing the execution of tasks.
+
+    This class wraps a task runner (sayn.tasks.Task) and manages the lifetime of said task.
+    In a SAYN execution there will be 1 TaskWrapper per task in the project, whether the task
+    is to be executed or ignored based on the task query (`-t` and `-x` arguments to `sayn`).
+
+    Properties:
+      name (str): the name of the task
+      dag (str): the name of the dag file where the task was defined
+      tags (List[str]): list of tags declared for the task
+      parents (List[sayn.task_wrapper.TaskWrapper]): the list of parents to the current task
+      project_parameters (Dict[str, Any]): parameters defined at project level
+      task_parameters (Dict[str, Any]): parameters defined at task level
+      in_query (bool): whether the task is selected for execution based on the task query
+      runner (Task): the object that will do the actual work
+      status (TaskStatus): the current status of the task
+
+    """
+
+    name: str = None
+    dag: str = None
+    tags: List[str] = list()
+    parents: List[TaskWrapper] = list()
+    project_parameters: Dict[str, Any] = dict()
+    task_parameters: Dict[str, Any] = dict()
+    in_query: bool = True
+    runner: Task = None
+    status: TaskStatus = TaskStatus.UNKNOWN
 
     def __init__(
         self,
@@ -36,10 +70,11 @@ class TaskWrapper:
         parents,
         in_query,
         logger,
-        project_parameters,
         connections,
         default_db,
+        run_arguments,
     ):
+        self.status = TaskStatus.SETTING_UP
         self._info = task_info
 
         self.name = task_info["name"]
@@ -56,14 +91,7 @@ class TaskWrapper:
         if not in_query:
             self.status = TaskStatus.NOT_IN_QUERY
         else:
-            runner_config = {
-                k: v
-                for k, v in task_info.items()
-                if k
-                not in ("name", "type", "tags", "dag", "parents", "parameters", "class")
-            }
-            print(runner_config)
-
+            # Instantiate the Task runner object
             if self._type == "python":
                 # task_class = PythonLoader().get_class(
                 #     "sayn_python_tasks", task_info.get("class")
@@ -75,34 +103,88 @@ class TaskWrapper:
                 raise TaskCreationError(f'"{self._type}" is not a valid task type')
 
             runner = task_class()
+
+            # Add the basic properties
             runner.name = self.name
             runner.dag = self.dag
             runner.tags = self.tags
-            runner.project_parameters = deepcopy(project_parameters or dict())
-            runner.task_parameters = task_info.get("parameters", dict())
-            runner._default_db = default_db
-            runner.connections = connections
-            runner.logger = self.logger
+            runner.run_arguments = run_arguments
 
-            runner.jinja_env = Environment(
+            # Process parameters
+            # The project parameters go as they come
+            runner.project_parameters = deepcopy(run_arguments or dict())
+            # Create a jinja environment with the project parameters so that we
+            # can use that to compile parameters and other properties
+            jinja_env = Environment(
                 loader=BaseLoader,
                 undefined=StrictUndefined,
                 keep_trailing_newline=True,
             )
-            runner.jinja_env.globals.update(task=self, **runner.parameters)
+            jinja_env.globals.update(task=self, **runner.project_parameters)
+            task_parameters = task_info.get("parameters", dict())
+            # Compile nested dictionary of parameters
+            runner.task_parameters = map_nested(
+                task_parameters,
+                lambda x: jinja_env.from_string(x).render()
+                if isinstance(x, str)
+                else x,
+            )
+            # Add the task paramters to the jinja environment
+            jinja_env.globals.update(**runner.task_parameters)
+            runner.jinja_env = jinja_env
 
-            # TODO
-            # try:
-            #     runner.setup(**runner_config)
-            # except Exception as e:
-            #     raise TaskCreationError(f"{e}")
+            # Now we can compile the other properties
+            runner_config = {
+                k: v for k, v in task_info.items() if k not in _excluded_properties
+            }
+            runner_config = map_nested(
+                runner_config,
+                lambda x: runner.jinja_env.from_string(x).render()
+                if isinstance(x, str)
+                else x,
+            )
 
-            self.runner = runner
+            # Connections and logging
+            runner._default_db = default_db
+            runner.connections = connections
+            runner.logger = self.logger
+
+            # Run the setup stage for the runner
+            try:
+                runner.setup(**runner_config)
+                self.runner = runner
+                self.status = TaskStatus.READY
+            except ValidationError as e:
+                self.status = TaskStatus.FAILED
+                self.logger.error(f"Error setting up: {e}")
+            except Exception as e:
+                self.status = TaskStatus.FAILED
+                self.logger.error(f"Error setting up: {e}")
+                raise e
+
+    # TODO review
+    def should_run(self):
+        # Initially all tasks should run, except IgnoreTask
+        return True
+
+    # TODO review
+    def can_run(self):
+        if self.status != TaskStatus.READY:
+            return False
+        for p in self.parents:
+            if p.status not in (TaskStatus.IGNORED, TaskStatus.SUCCESS):
+                return False
+        return True
 
     def run(self):
-        if self.in_query:
-            self.logger.info(f"Running {self.name}...")
+        self._execute_task("run")
 
     def compile(self):
+        self._execute_task("compile")
+
+    def _execute_task(self, command):
         if self.in_query:
-            self.logger.info(f"Compiling {self.name}...")
+            if command == "run":
+                self.runner.run()
+            else:
+                self.runner.compile()

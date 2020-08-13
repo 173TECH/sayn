@@ -6,6 +6,7 @@ import click
 
 # from ..config import Config, SaynConfigError
 from .utils.task_query import get_query
+from .utils.graphviz import plot_dag
 from .scaffolding.init_project import sayn_init
 from .core.app import App
 from .core.config import read_project, read_dags, read_settings, get_tasks_dict
@@ -19,26 +20,33 @@ class CliApp(App):
         exclude=list(),
         profile=None,
         full_load=False,
-        start_dt=None,
-        end_dt=None,
+        start_dt=date.today() - timedelta(days=1),
+        end_dt=date.today() - timedelta(days=1),
     ):
-
-        super().__init__()
+        self.set_run_arguments(
+            debug=debug,
+            full_load=full_load,
+            start_dt=start_dt,
+            end_dt=end_dt,
+            profile=profile,
+        )
 
         # Read the project configuration
-        self.project = read_project()
-        self.dags = read_dags(self.project.dags)
-        self.settings = read_settings()
-
-        # Set tasks and dag from it
-        tasks_dict = get_tasks_dict(self.project.presets, self.dags)
-        self.task_query = get_query(tasks_dict, include=include, exclude=exclude)
-        self.set_tasks(tasks_dict)
-
-        # Set settings and connections
+        project = read_project()
+        dags = read_dags(project.dags)
+        self.set_project(project)
+        settings = read_settings()
+        self.set_settings(settings)
 
         # Set python environment
 
+        # Set tasks and dag from it
+        tasks_dict = get_tasks_dict(project.presets, dags)
+        task_query = get_query(tasks_dict, include=include, exclude=exclude)
+        self.set_tasks(tasks_dict, task_query)
+
+
+# Click arguments
 
 click_debug = click.option(
     "--debug", "-d", is_flag=True, default=False, help="Include debug messages"
@@ -68,15 +76,15 @@ def click_incremental(func):
     func = click.option(
         "--start-dt",
         "-s",
-        # type=click.DateTime(formats=["%Y-%m-%d"]),
-        default=str(date.today() + timedelta(days=-1)),
+        type=click.DateTime(formats=["%Y-%m-%d"]),
+        default=str(date.today() - timedelta(days=1)),
         help="For incremental loads, the start date",
     )(func)
     func = click.option(
         "--end-dt",
         "-e",
-        # type=click.DateTime(formats=["%Y-%m-%d"]),
-        default=str(date.today() + timedelta(days=-1)),
+        type=click.DateTime(formats=["%Y-%m-%d"]),
+        default=str(date.today() - timedelta(days=1)),
         help="For incremental loads, the end date",
     )(func)
     return func
@@ -122,19 +130,11 @@ def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 @click_debug
 @click_filter
 def dag_image(debug, tasks, exclude):
-    pass
-    # run_start_ts = datetime.now()
-    # run_id = (run_start_ts - datetime(1970, 1, 1)).total_seconds()
-
-    # ui = UI(run_id=run_id, debug=debug)
-    # ui._set_config(stage_name="setup")
-
-    # try:
-    #     Config()
-    #     ui._status_success("Config set.")
-    # except SaynConfigError as e:
-    #     ui._status_fail(f"{e}")
-    #     sys.exit(1)
-
-    # dag = Dag(tasks_query=tasks, exclude_query=exclude)
-    # dag.plot(folder="images", file_name="dag")
+    project = read_project()
+    dags = read_dags(project.dags)
+    tasks_dict = get_tasks_dict(project.presets, dags)
+    dag = {
+        task["name"]: [p for p in task.get("parents", list())]
+        for task in tasks_dict.values()
+    }
+    plot_dag(dag, "images", "dag")

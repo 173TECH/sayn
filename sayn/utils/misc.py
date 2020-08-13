@@ -56,3 +56,12 @@ def merge_dict_list(dict_list):
         into_dict = merge_dicts(into_dict, from_dict)
 
     return into_dict
+
+
+def map_nested(ob, func):
+    if isinstance(ob, dict):
+        return {k: map_nested(v, func) for k, v in ob.items()}
+    elif isinstance(ob, list):
+        return [map_nested(e) for e in ob]
+    else:
+        return func(ob)

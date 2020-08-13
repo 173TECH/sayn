@@ -8,9 +8,10 @@ from pydantic import BaseModel, validator, ValidationError
 from ruamel.yaml import YAML
 from ruamel.yaml.error import MarkedYAMLError
 
-from .errors import YamlParsingError, ConfigError
+from ..database.creator import create as create_db
 from ..utils.misc import merge_dicts, merge_dict_list
 from ..utils.dag import dag_is_valid, upstream, topological_sort
+from .errors import YamlParsingError, ConfigError
 
 RE_ENV_VAR_NAME = re.compile(r"SAYN_(?P<type>PARAMETER|CREDENTIAL)_(?P<name>.*)")
 
@@ -192,6 +193,18 @@ def read_settings():
         raise ConfigError(f"{e}")
     except Exception as e:
         raise e
+
+
+###############################
+# Connections functions
+###############################
+
+
+def get_connections(credentials):
+    return {
+        name: create_db(name, name, config) if config["type"] != "api" else config
+        for name, config in credentials.items()
+    }
 
 
 ###############################
