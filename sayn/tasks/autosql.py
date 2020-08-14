@@ -73,6 +73,8 @@ class AutoSqlTask(SqlTask):
         self.setup_sql()
         self.compiled = self.get_compiled_query()
 
+        self.set_run_steps(["write_query_on_disk", "execute_sql"])
+
         return self.ready()
 
     def get_compiled_query(self):

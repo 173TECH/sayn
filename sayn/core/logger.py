@@ -23,10 +23,10 @@ class TaskLogger:
         self._logger = logger
         self.task_name = task_name
 
-    def set_steps(self, steps):
+    def set_run_steps(self, steps):
         self.steps = steps
 
-    def set_current_step(self, step):
+    def start_step(self, step):
         if step not in self.steps:
             raise ValueError(
                 f"{step} not in defined steps. Use `self.logger.define_steps(list)` first."
@@ -38,6 +38,9 @@ class TaskLogger:
 
         self.current_step = step
         self._report_event(level="info", event="start_step", step=step)
+
+    def finish_step(self):
+        self.current_step = None
 
     def debug(self, message, step=None, details=None):
         self._report_event(level="debug", message=message, step=step, details=details)
@@ -140,6 +143,9 @@ class ConsoleDebugLogger(Logger):
                         if "step" in event
                         else f"{prefix}|{event['message']}"
                     )
+
+                    if "details" in event:
+                        out.append(f"{prefix}|{event['details']}")
 
                 out.append(f"{prefix}|{humanize.precisedelta(event['duration'])}")
                 return out

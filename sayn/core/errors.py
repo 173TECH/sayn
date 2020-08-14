@@ -53,5 +53,13 @@ class TaskError(Exception):
     pass
 
 
+class TaskExecutionError(Exception):
+    def __init__(self, message, details):
+        self.message = message
+        super().__init__(message)
+
+        self.details = details
+
+
 class TaskCreationError(TaskError):
     pass

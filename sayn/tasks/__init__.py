@@ -1,7 +1,10 @@
+from contextlib import contextmanager
 from enum import Enum
 from pathlib import Path
 
 from jinja2 import Template
+
+from ..core.errors import TaskExecutionError
 
 
 class TaskStatus(Enum):
@@ -50,6 +53,15 @@ class Task:
     def compile(self):
         raise NotImplementedError("Compile method not implemented")
 
+    def set_run_steps(self, steps):
+        self.logger.set_run_steps(steps)
+
+    @contextmanager
+    def step(self, step):
+        self.logger.start_step(step)
+        yield
+        self.logger.finish_step()
+
     # Jinja methods
     def get_template(self, obj):
         if isinstance(obj, Path):
@@ -91,14 +103,8 @@ class Task:
     def success(self):
         return TaskStatus.SUCCEEDED
 
-    def fail(self, messages=None):
-        if messages is not None:
-            if isinstance(messages, str):
-                messages = [messages]
-            for message in messages:
-                self.logger.error(message)
-
-        return TaskStatus.FAILED
+    def fail(self, message=None, details=None):
+        raise TaskExecutionError(message, details)
 
     def skip(self):
         return TaskStatus.SKIPPED

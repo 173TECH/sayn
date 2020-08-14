@@ -6,7 +6,7 @@ from copy import deepcopy
 from jinja2 import Environment, BaseLoader, StrictUndefined
 from pydantic import ValidationError
 
-from ..core.errors import TaskCreationError
+from ..core.errors import TaskCreationError, TaskExecutionError
 from ..utils.misc import map_nested
 
 # from ..utils.python_loader import PythonLoader
@@ -208,11 +208,16 @@ class TaskWrapper:
                 event="start_task", level="info",
             )
             message = None
+            details = None
             try:
                 if command == "run":
                     self.status = self.runner.run()
                 else:
                     self.status = self.runner.compile()
+            except TaskExecutionError as e:
+                message = e.message
+                details = e.details
+                self.status = TaskStatus.FAILED
             except Exception as e:
                 message = f"{e}"
                 self.status = TaskStatus.FAILED
@@ -222,5 +227,6 @@ class TaskWrapper:
                 event="finish_task",
                 level="success" if self.status == TaskStatus.SUCCEEDED else "error",
                 message=message,
+                details=details,
                 duration=self.end_ts - self.start_ts,
             )

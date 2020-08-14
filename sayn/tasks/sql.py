@@ -24,34 +24,28 @@ class SqlTask(Task):
         except Exception as e:
             raise TaskCreationError(f"Error compiling template\n{e}")
 
+        self.set_run_steps(["write_query_on_disk", "execute_sql"])
+
         return self.ready()
 
     def run(self):
-        self.logger.set_steps(["write_query_on_disk", "execute_sql"])
+        with self.step("write_query_on_disk"):
+            try:
+                self.write_compilation_output(self.compiled)
+            except Exception as e:
+                return self.fail(("Error saving query on disk", f"{e}"))
 
-        self.logger.set_current_step("write_query")
+        with self.step("execute_sql"):
+            self.logger.debug(self.compiled)
 
-        if self.name == "dim_fighters":
-            raise ValueError("adfadf")
-        try:
-            self.write_compilation_output(self.compiled)
-        except Exception as e:
-            return self.fail(("Error saving query on disk", f"{e}"))
-
-        self.logger.set_current_step("execute_sql")
-        self.logger.debug(self.compiled)
-
-        try:
-            self.default_db.execute(self.compiled)
-        except Exception as e:
-            return self.fail(("Error running query", f"{e}", f"Query: {self.compiled}"))
+            try:
+                self.default_db.execute(self.compiled)
+            except Exception as e:
+                return self.fail("Error running query", f"{e}")
 
         return self.success()
 
     def compile(self):
-        self.logger.set_steps(["write_query_on_disk"])
-        self.logger.set_current_step("write_query")
-
         try:
             self.write_compilation_output(self.compiled)
         except Exception as e:
