@@ -1,10 +1,9 @@
+from pathlib import Path
 from datetime import date, timedelta
-
-# import sys
 
 import click
 
-# from ..config import Config, SaynConfigError
+from .utils.python_loader import PythonLoader
 from .utils.task_query import get_query
 from .utils.graphviz import plot_dag
 from .scaffolding.init_project import sayn_init
@@ -43,6 +42,11 @@ class CliApp(App):
         self.set_settings(settings)
 
         # Set python environment
+        self.python_loader = PythonLoader()
+        if Path(self.run_arguments["folders"]["python"]).is_dir():
+            self.python_loader.register_module(
+                "python_tasks", self.run_arguments["folders"]["python"]
+            )
 
         # Set tasks and dag from it
         tasks_dict = get_tasks_dict(project.presets, dags)

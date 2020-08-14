@@ -6,7 +6,7 @@ from copy import deepcopy
 from jinja2 import Environment, BaseLoader, StrictUndefined
 from pydantic import ValidationError
 
-from ..core.errors import TaskCreationError, TaskExecutionError
+from ..core.errors import TaskCreationError, TaskExecutionError, ConfigError
 from ..utils.misc import map_nested
 
 # from ..utils.python_loader import PythonLoader
@@ -78,6 +78,7 @@ class TaskWrapper:
         default_db,
         project_parameters,
         run_arguments,
+        python_loader,
     ):
         self.status = TaskStatus.SETTING_UP
         self._info = task_info
@@ -98,10 +99,18 @@ class TaskWrapper:
         else:
             # Instantiate the Task runner object
             if self._type == "python":
-                # task_class = PythonLoader().get_class(
-                #     "sayn_python_tasks", task_info.get("class")
-                # )
-                task_class = DummyTask
+                if python_loader is None:
+                    raise ConfigError("No python folder found")
+                task_class = python_loader.get_class(
+                    "python_tasks", task_info.get("class")
+                )
+                if not issubclass(task_class, Task):
+                    import IPython
+
+                    IPython.embed()
+                    raise ConfigError(
+                        "Python tasks need to inherit from Task. Use `from sayn import Task`."
+                    )
             elif self._type in _creators:
                 task_class = _creators[self._type]
             else:

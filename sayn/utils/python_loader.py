@@ -3,10 +3,8 @@ import importlib
 import sys
 
 from ..core.errors import PythonLoaderError
-from .singleton import singleton
 
 
-@singleton
 class PythonLoader:
     modules = list()
 
@@ -37,9 +35,7 @@ class PythonLoader:
 
     def get_class(self, module_key, class_path):
         if f"sayn_{module_key}" not in self.modules:
-            raise PythonLoaderError(
-                f"{module_key.capitalize()} module  not registered registered"
-            )
+            raise PythonLoaderError(f"{module_key} module  not registered registered")
 
         module_str = ".".join(class_path.split(".")[:-1])
         class_name = class_path.split(".")[-1]

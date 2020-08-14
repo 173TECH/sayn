@@ -41,6 +41,8 @@ class App:
 
     connections = dict()
 
+    python_loader = None
+
     def set_run_arguments(self, **kwargs):
         self.run_arguments.update(kwargs)
 
@@ -134,6 +136,7 @@ class App:
                 self.default_db,
                 self.project_parameters,
                 self.run_arguments,
+                self.python_loader,
             )
 
         self.logger.set_tasks(tasks_in_query)
