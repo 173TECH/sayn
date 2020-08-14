@@ -23,7 +23,7 @@ class CopyTask(SqlTask):
         status = self._setup_ddl(type_required=False)
         if self.ddl is None or self.ddl.get("columns") is None:
             # TODO full copy of table when ddl not specified
-            return self.failed("DDL is required for copy tasks")
+            return self.fail("DDL is required for copy tasks")
 
         status = self._setup_table_columns()
         if status != 0:  # TODO TaskStatus.READY:
@@ -116,7 +116,7 @@ class CopyTask(SqlTask):
         self.incremental_key = self._pop_property("incremental_key")
 
         if (self.delete_key is None) != (self.incremental_key is None):
-            return self.failed(
+            return self.fail(
                 'Incremental copy requires both "delete_key" and "incremental_key"'
             )
 
@@ -130,14 +130,14 @@ class CopyTask(SqlTask):
         if self.source_schema is not None and isinstance(self.source_schema, str):
             self.source_schema = self.compile_property(self.source_schema)
         else:
-            return self.failed('Optional property "schema" must be a string')
+            return self.fail('Optional property "schema" must be a string')
 
         if (
             set(source.keys()) != set(["db", "table"])
             or source["db"] is None
             or source["table"] is None
         ):
-            return self.failed(
+            return self.fail(
                 'Source requires "table" and "db" fields. Optional field: "schema".'
             )
         else:
@@ -145,7 +145,7 @@ class CopyTask(SqlTask):
             self.source_table = self.compile_property(source.pop("table"))
 
         if source_db_name not in self.sayn_config.dbs:
-            return self.failed(
+            return self.fail(
                 f'{source_db_name} is not a valid vallue for "db" in "source"'
             )
         else:
@@ -162,10 +162,10 @@ class CopyTask(SqlTask):
                 required_existing=True,
             )
         except DatabaseError as e:
-            return self.failed(f"{e}")
+            return self.fail(f"{e}")
 
         if self.source_table_def is None or not self.source_table_def.exists():
-            return self.failed(
+            return self.fail(
                 (
                     f"Table \"{self.source_schema+'.' if self.source_schema is not None else ''}{self.source_table}\""
                     f" does not exists or columns don't match with DDL specification"

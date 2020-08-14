@@ -71,16 +71,9 @@ class AutoSqlTask(SqlTask):
         self.template = self.get_template(self.config.file_name)
 
         self.setup_sql()
+        self.compiled = self.get_compiled_query()
 
         return self.ready()
-
-    def run(self):
-        self.compiled = self.get_compiled_query()
-        return super().run()
-
-    def compile(self):
-        self.compiled = self.get_compiled_query()
-        return super().compile()
 
     def get_compiled_query(self):
         if self.materialisation == "view":

@@ -27,29 +27,34 @@ class SqlTask(Task):
         return self.ready()
 
     def run(self):
-        self.logger.debug("Writting query on disk")
+        self.logger.set_steps(["write_query_on_disk", "execute_sql"])
 
+        self.logger.set_current_step("write_query")
+
+        if self.name == "dim_fighters":
+            raise ValueError("adfadf")
         try:
             self.write_compilation_output(self.compiled)
         except Exception as e:
-            return self.failed(("Error saving query on disk", f"{e}"))
+            return self.fail(("Error saving query on disk", f"{e}"))
 
-        self.logger.debug("Running SQL")
+        self.logger.set_current_step("execute_sql")
         self.logger.debug(self.compiled)
 
         try:
             self.default_db.execute(self.compiled)
         except Exception as e:
-            return self.failed(
-                ("Error running query", f"{e}", f"Query: {self.compiled}")
-            )
+            return self.fail(("Error running query", f"{e}", f"Query: {self.compiled}"))
 
         return self.success()
 
     def compile(self):
+        self.logger.set_steps(["write_query_on_disk"])
+        self.logger.set_current_step("write_query")
+
         try:
             self.write_compilation_output(self.compiled)
         except Exception as e:
-            return self.failed(("Error saving query on disk", f"{e}"))
+            return self.fail(("Error saving query on disk", f"{e}"))
 
         return self.success()

@@ -162,7 +162,7 @@ class App:
         succeeded = [
             name
             for name, task in tasks_to_run.items()
-            if task.status == TaskStatus.SUCCESS
+            if task.status == TaskStatus.SUCCEEDED
         ]
         skipped = [
             name

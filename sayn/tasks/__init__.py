@@ -9,7 +9,7 @@ class TaskStatus(Enum):
     SETTING_UP = 0
     READY = 1
     EXECUTING = 2
-    SUCCESS = 3
+    SUCCEEDED = 3
     FAILED = 4
     SKIPPED = 5
     IGNORED = 6
@@ -89,9 +89,9 @@ class Task:
         return TaskStatus.EXECUTING
 
     def success(self):
-        return TaskStatus.SUCCESS
+        return TaskStatus.SUCCEEDED
 
-    def failed(self, messages=None):
+    def fail(self, messages=None):
         if messages is not None:
             if isinstance(messages, str):
                 messages = [messages]
@@ -100,5 +100,5 @@ class Task:
 
         return TaskStatus.FAILED
 
-    def skipped(self):
+    def skip(self):
         return TaskStatus.SKIPPED

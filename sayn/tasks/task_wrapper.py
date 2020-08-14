@@ -181,7 +181,7 @@ class TaskWrapper:
         if self.status != TaskStatus.READY:
             return False
         for p in self.parents:
-            if p.status not in (TaskStatus.IGNORED, TaskStatus.SUCCESS):
+            if p.status not in (TaskStatus.IGNORED, TaskStatus.SUCCEEDED):
                 return False
         return True
 
@@ -211,7 +211,6 @@ class TaskWrapper:
             try:
                 if command == "run":
                     self.status = self.runner.run()
-                    raise ValueError("adfadf")
                 else:
                     self.status = self.runner.compile()
             except Exception as e:
@@ -221,7 +220,7 @@ class TaskWrapper:
             self.end_ts = datetime.now()
             self.logger._report_event(
                 event="finish_task",
-                level="success" if self.status == TaskStatus.SUCCESS else "error",
+                level="success" if self.status == TaskStatus.SUCCEEDED else "error",
                 message=message,
                 duration=self.end_ts - self.start_ts,
             )

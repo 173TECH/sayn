@@ -23,21 +23,21 @@ class TaskLogger:
         self._logger = logger
         self.task_name = task_name
 
-    def define_steps(self, steps):
+    def set_steps(self, steps):
         self.steps = steps
 
     def set_current_step(self, step):
-        if step not in self.step:
+        if step not in self.steps:
             raise ValueError(
                 f"{step} not in defined steps. Use `self.logger.define_steps(list)` first."
             )
         elif self.current_step is not None:
-            self._logger._report_event(
+            self._report_event(
                 level="info", event="finish_step", step=self.current_step
             )
 
         self.current_step = step
-        self._logger._report_event(level="info", event="start_step", step=step)
+        self._report_event(level="info", event="start_step", step=step)
 
     def debug(self, message, step=None, details=None):
         self._report_event(level="debug", message=message, step=step, details=details)
@@ -59,6 +59,8 @@ class TaskLogger:
             event["event"] = "unknown"
         event["context"] = "task"
         event["task"] = self.task_name
+        if self.current_step is not None:
+            event["step"] = self.current_step
         self._logger.report_event(event)
 
 
@@ -94,9 +96,12 @@ class ConsoleDebugLogger(Logger):
     def report_event(self, event):
         if self.levels.index(event["level"]) > self.levels.index(self.level):
             return
+        style = self.get_colours(event)
         prefix = self.get_prefix(event)
         lines = self.get_lines(event)
-        style = self.get_colours(event)
+        # TODO testing
+        if self.level == "debug":
+            self.print(f"{event}", style)
 
         for line in lines:
             self.print(f"{prefix}|{line}", style)
@@ -123,18 +128,25 @@ class ConsoleDebugLogger(Logger):
                     event["task"],
                 )
             )
+
             if event["event"] == "start_task":
                 return [f"{prefix}|Starting."]
+
             elif event["event"] == "finish_task":
+                out = list()
                 if event["level"] == "error":
-                    return [
-                        f"{prefix}|{event['message']}",
-                        f"{prefix}|{event['duration']}",
-                    ]
-                else:
-                    return [f"{prefix}|{event['duration']}"]
+                    out.append(
+                        f"{prefix}|On step {event['step']}: {event['message']}"
+                        if "step" in event
+                        else f"{prefix}|{event['message']}"
+                    )
+
+                out.append(f"{prefix}|{humanize.precisedelta(event['duration'])}")
+                return out
+
             elif event["event"] == "cannot_run":
                 return [f"{prefix}|SKIPPING"]
+
         elif event["event"] == "execution_finished":
             prefix = f"{event['level'].upper()}|"
             out = [
