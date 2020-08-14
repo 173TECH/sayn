@@ -55,7 +55,7 @@ class TaskLogger:
         event = {k: v for k, v in kwargs.items() if v is not None}
         if "event" not in event and "message" in event:
             event["event"] = "message"
-        else:
+        elif "event" not in event:
             event["event"] = "unknown"
         event["ts"] = datetime.now()
         self._logger.report_event(event)
@@ -75,7 +75,7 @@ class ConsoleLogger(Logger):
         "project_git_commit": {},
         "project_name": {},
         "ts": {"include": "prefix"},
-        "level": {"include": "prefix", "transform": lambda x: x.upper()[:3]},
+        "level": {"include": "prefix", "transform": lambda x: x.upper()},
         "stage": {"include": "prefix"},
         "event": {"include": "prefix"},
         "message": {"include": "details"},
@@ -101,7 +101,9 @@ class ConsoleLogger(Logger):
                 elif conf.get("include") == "details":
                     details_fields.append(value)
 
-        self.print(f"{'|'.join(prefix_fields)}|{'|'.join(details_fields)}", style)
+        for field in details_fields:
+            for line in field.split("\n"):
+                self.print(f"{'|'.join(prefix_fields)}|{line}", style)
 
     def get_colours(self, event):
         if event["level"] == "success":
