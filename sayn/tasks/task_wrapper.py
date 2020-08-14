@@ -105,9 +105,6 @@ class TaskWrapper:
                     "python_tasks", task_info.get("class")
                 )
                 if not issubclass(task_class, Task):
-                    import IPython
-
-                    IPython.embed()
                     raise ConfigError(
                         "Python tasks need to inherit from Task. Use `from sayn import Task`."
                     )
@@ -181,7 +178,6 @@ class TaskWrapper:
             except Exception as e:
                 self.status = TaskStatus.FAILED
                 self.logger.error(f"Error setting up: {e}")
-                raise e
 
     def should_run(self):
         return self.in_query
