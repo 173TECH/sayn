@@ -34,23 +34,8 @@ class AutoSqlTask(SqlTask):
         return self._check_extra_fields()
 
     def _get_compiled_query(self):
-        schema_table_names = self.db.inspector.get_table_names(schema=self.schema)
-        schema_view_names = self.db.inspector.get_view_names(schema=self.schema)
         if self.materialisation == "view":
             compiled = self.create_query
-            # in case materialisation changed from table to view, prepend drop query with relevant drop statement
-            if self.table in schema_table_names:
-                UI().warning(
-                    "Object {model} used to be a table. Replacing with a view.".format(
-                        model=self.table
-                    )
-                )
-                compiled = (
-                    "/*DROP TABLE before DROP VIEW as object state change*/\n\n"
-                    + self.db.drop_table(self.table, self.schema)
-                    + "\n\n"
-                    + compiled
-                )
         # table | incremental when table does not exit or full load
         elif self.materialisation == "table" or (
             self.materialisation == "incremental"
@@ -60,21 +45,6 @@ class AutoSqlTask(SqlTask):
             )
         ):
             compiled = f"{self.create_query}\n\n-- Move table\n{self.move_query}"
-
-            # in case materialisation changed from view to table, prepend drop query with relevant drop statement
-            if self.materialisation == "table":
-                if self.table in schema_view_names:
-                    UI().warning(
-                        "Object {model} used to be a view. Replacing with a table.".format(
-                            model=self.table
-                        )
-                    )
-                    compiled = (
-                        "/*DROP VIEW before DROP TABLE as object state change*/\n\n"
-                        + self.db.drop_table(self.table, self.schema, view=True)
-                        + "\n\n"
-                        + compiled
-                    )
 
         # incremental in remaining cases
         else:
