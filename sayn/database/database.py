@@ -1,6 +1,7 @@
 from itertools import groupby
 
 from sqlalchemy import MetaData, Table
+from sqlalchemy.engine import reflection
 
 from ..utils import yaml
 from ..utils.ui import UI
@@ -33,6 +34,7 @@ class Database:
         self.db_type = db_type
         self.engine = engine
         self.metadata = MetaData(self.engine)
+        self.inspector = reflection.Inspector.from_engine(engine)
 
     # API
 
