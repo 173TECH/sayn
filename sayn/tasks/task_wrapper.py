@@ -174,12 +174,9 @@ class TaskWrapper:
                 self.logger.error(f"Error setting up: {e}")
                 raise e
 
-    # TODO review
     def should_run(self):
-        # Initially all tasks should run, except IgnoreTask
-        return True
+        return self.in_query
 
-    # TODO review
     def can_run(self):
         if self.status != TaskStatus.READY:
             return False
@@ -196,18 +193,35 @@ class TaskWrapper:
 
     def _execute_task(self, command):
         self.start_ts = datetime.now()
-        self.logger._report_event(
-            event=f"start_{command}", level="info", message="Started task"
-        )
-        if self.in_query:
-            if command == "run":
-                self.runner.run()
-            else:
-                self.runner.compile()
-        self.end_ts = datetime.now()
-        self.logger._report_event(
-            event=f"finish_{command}",
-            level="success",
-            message="Finish task",
-            duration=self.end_ts - self.start_ts,
-        )
+        if not self.in_query:
+            self.logger._report_event(
+                event="ignored_task", level="debug",
+            )
+            self.status = TaskStatus.IGNORED
+        elif not self.can_run():
+            self.logger._report_event(
+                event="cannot_run", level="warning",
+            )
+            self.status = TaskStatus.SKIPPED
+        else:
+            self.logger._report_event(
+                event="start_task", level="info",
+            )
+            message = None
+            try:
+                if command == "run":
+                    self.status = self.runner.run()
+                    raise ValueError("adfadf")
+                else:
+                    self.status = self.runner.compile()
+            except Exception as e:
+                message = f"{e}"
+                self.status = TaskStatus.FAILED
+
+            self.end_ts = datetime.now()
+            self.logger._report_event(
+                event="finish_task",
+                level="success" if self.status == TaskStatus.SUCCESS else "error",
+                message=message,
+                duration=self.end_ts - self.start_ts,
+            )

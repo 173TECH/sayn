@@ -1,6 +1,7 @@
 from datetime import datetime, date, timedelta
 from uuid import UUID, uuid4
 
+from ..tasks import TaskStatus
 from ..tasks.task_wrapper import TaskWrapper
 from ..utils.dag import query as dag_query, topological_sort
 from .config import get_connections
@@ -12,7 +13,7 @@ run_id = uuid4()
 
 class App:
     run_id: UUID = run_id
-    run_start_ts = datetime.now()
+    start_ts = datetime.now()
     logger = AppLogger(run_id)
 
     run_arguments = {
@@ -147,9 +148,45 @@ class App:
 
     def _execute_dag(self, command):
         self.logger.set_stage(command)
-        for task_name, task in self.tasks.items():
-            self.logger.set_current_task(task_name)
+        tasks_to_run = {
+            name: task for name, task in self.tasks.items() if task.should_run()
+        }
+        self.logger.set_tasks(list(tasks_to_run.keys()))
+        for task_name, task in tasks_to_run.items():
             if command == "run":
                 task.run()
             else:
                 task.compile()
+
+        self.logger.set_stage("summary")
+        succeeded = [
+            name
+            for name, task in tasks_to_run.items()
+            if task.status == TaskStatus.SUCCESS
+        ]
+        skipped = [
+            name
+            for name, task in tasks_to_run.items()
+            if task.status == TaskStatus.SKIPPED
+        ]
+        failed = [
+            name
+            for name, task in tasks_to_run.items()
+            if task.status == TaskStatus.FAILED
+        ]
+        self.logger.report_event(
+            {
+                "event": "execution_finished",
+                "command": command,
+                "context": "app",
+                "duration": datetime.now() - self.start_ts,
+                "level": "failed"
+                if len(failed) > 0
+                else "warning"
+                if len(skipped) > 0
+                else "success",
+                "succeeded": succeeded,
+                "skipped": skipped,
+                "failed": failed,
+            }
+        )
