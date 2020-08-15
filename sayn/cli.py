@@ -9,7 +9,7 @@ from .utils.graphviz import plot_dag
 from .scaffolding.init_project import sayn_init
 from .core.app import App
 from .core.config import read_project, read_dags, read_settings, get_tasks_dict
-from .core.logger import ConsoleDebugLogger
+from .core.console_logger import ConsoleDebugLogger
 
 
 class CliApp(App):
@@ -26,32 +26,34 @@ class CliApp(App):
         self.logger.loggers = {
             "console": ConsoleDebugLogger("debug" if debug else "info")
         }
-        self.set_run_arguments(
-            debug=debug,
-            full_load=full_load,
-            start_dt=start_dt,
-            end_dt=end_dt,
-            profile=profile,
-        )
 
-        # Read the project configuration
-        project = read_project()
-        dags = read_dags(project.dags)
-        self.set_project(project)
-        settings = read_settings()
-        self.set_settings(settings)
-
-        # Set python environment
-        self.python_loader = PythonLoader()
-        if Path(self.run_arguments["folders"]["python"]).is_dir():
-            self.python_loader.register_module(
-                "python_tasks", self.run_arguments["folders"]["python"]
+        with self.logger.stage("setup"):
+            self.set_run_arguments(
+                debug=debug,
+                full_load=full_load,
+                start_dt=start_dt,
+                end_dt=end_dt,
+                profile=profile,
             )
 
-        # Set tasks and dag from it
-        tasks_dict = get_tasks_dict(project.presets, dags)
-        task_query = get_query(tasks_dict, include=include, exclude=exclude)
-        self.set_tasks(tasks_dict, task_query)
+            # Read the project configuration
+            project = read_project()
+            dags = read_dags(project.dags)
+            self.set_project(project)
+            settings = read_settings()
+            self.set_settings(settings)
+
+            # Set python environment
+            self.python_loader = PythonLoader()
+            if Path(self.run_arguments["folders"]["python"]).is_dir():
+                self.python_loader.register_module(
+                    "python_tasks", self.run_arguments["folders"]["python"]
+                )
+
+            # Set tasks and dag from it
+            tasks_dict = get_tasks_dict(project.presets, dags)
+            task_query = get_query(tasks_dict, include=include, exclude=exclude)
+            self.set_tasks(tasks_dict, task_query)
 
 
 # Click arguments

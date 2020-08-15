@@ -179,15 +179,19 @@ class TaskWrapper:
                 self.status = TaskStatus.FAILED
                 self.logger.error(f"Error setting up: {e}")
 
+        self.logger.current_step = None
+
     def should_run(self):
         return self.in_query
 
     def can_run(self):
         if self.status != TaskStatus.READY:
             return False
+
         for p in self.parents:
             if p.status not in (TaskStatus.IGNORED, TaskStatus.SUCCEEDED):
                 return False
+
         return True
 
     def run(self):

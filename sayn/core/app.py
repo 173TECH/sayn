@@ -38,6 +38,7 @@ class App:
     dag = dict()
 
     task_query = list()
+    tasks_to_run = dict()
 
     connections = dict()
 
@@ -124,6 +125,7 @@ class App:
         }
 
         tasks_in_query = dag_query(self.dag, self.task_query)
+        self.logger.set_tasks(tasks_in_query)
 
         for task_name, task in self._tasks_dict.items():
             self.logger.set_current_task(task_name)
@@ -139,8 +141,6 @@ class App:
                 self.python_loader,
             )
 
-        self.logger.set_tasks(tasks_in_query)
-
     # Commands
 
     def run(self):
@@ -150,46 +150,41 @@ class App:
         self._execute_dag("compile")
 
     def _execute_dag(self, command):
-        self.logger.set_stage(command)
-        tasks_to_run = {
-            name: task for name, task in self.tasks.items() if task.should_run()
-        }
-        self.logger.set_tasks(list(tasks_to_run.keys()))
-        for task_name, task in tasks_to_run.items():
-            if command == "run":
-                task.run()
-            else:
-                task.compile()
+        with self.logger.stage(command):
+            for task_name, task in self.tasks.items():
+                if task.in_query:
+                    if command == "run":
+                        task.run()
+                    else:
+                        task.compile()
 
-        self.logger.set_stage("summary")
-        succeeded = [
-            name
-            for name, task in tasks_to_run.items()
-            if task.status == TaskStatus.SUCCEEDED
-        ]
-        skipped = [
-            name
-            for name, task in tasks_to_run.items()
-            if task.status == TaskStatus.SKIPPED
-        ]
-        failed = [
-            name
-            for name, task in tasks_to_run.items()
-            if task.status == TaskStatus.FAILED
-        ]
-        self.logger.report_event(
-            {
-                "event": "execution_finished",
-                "command": command,
-                "context": "app",
-                "duration": datetime.now() - self.start_ts,
-                "level": "failed"
+        with self.logger.stage("summary"):
+            succeeded = [
+                name
+                for name, task in self.tasks.items()
+                if task.in_query and task.status == TaskStatus.SUCCEEDED
+            ]
+            skipped = [
+                name
+                for name, task in self.tasks.items()
+                if task.in_query and task.status == TaskStatus.SKIPPED
+            ]
+            failed = [
+                name
+                for name, task in self.tasks.items()
+                if task.in_query and task.status == TaskStatus.FAILED
+            ]
+            self.logger.report_event(
+                event="execution_finished",
+                command=command,
+                context="app",
+                duration=datetime.now() - self.start_ts,
+                level="failed"
                 if len(failed) > 0
                 else "warning"
                 if len(skipped) > 0
                 else "success",
-                "succeeded": succeeded,
-                "skipped": skipped,
-                "failed": failed,
-            }
-        )
+                succeeded=succeeded,
+                skipped=skipped,
+                failed=failed,
+            )

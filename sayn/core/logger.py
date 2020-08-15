@@ -1,11 +1,9 @@
+from contextlib import contextmanager
 from pathlib import Path
 from datetime import datetime
 import subprocess
 
-from colorama import init, Fore, Style
-import humanize
-
-init(autoreset=True)
+from ..tasks.logger import TaskLogger
 
 try:
     from importlib import metadata
@@ -13,191 +11,9 @@ except ImportError:
     import importlib_metadata as metadata
 
 
-class TaskLogger:
-    _logger = None
-    _task_name = None
-    steps = list()
-    current_step = None
-
-    def __init__(self, logger, task_name):
-        self._logger = logger
-        self.task_name = task_name
-
-    def set_run_steps(self, steps):
-        self.steps = steps
-
-    def start_step(self, step):
-        if step not in self.steps:
-            raise ValueError(
-                f"{step} not in defined steps. Use `self.logger.define_steps(list)` first."
-            )
-        elif self.current_step is not None:
-            self._report_event(
-                level="info", event="finish_step", step=self.current_step
-            )
-
-        self.current_step = step
-        self._report_event(level="info", event="start_step", step=step)
-
-    def finish_step(self):
-        self.current_step = None
-
-    def debug(self, message, step=None, details=None):
-        self._report_event(level="debug", message=message, step=step, details=details)
-
-    def info(self, message, step=None, details=None):
-        self._report_event(level="info", message=message, step=step, details=details)
-
-    def warning(self, message, step=None, details=None):
-        self._report_event(level="warning", message=message, step=step, details=details)
-
-    def error(self, message, step=None, details=None):
-        self._report_event(level="error", message=message, step=step, details=details)
-
-    def _report_event(self, **kwargs):
-        event = {k: v for k, v in kwargs.items() if v is not None}
-        if "event" not in event and "message" in event:
-            event["event"] = "message"
-        elif "event" not in event:
-            event["event"] = "unknown"
-        event["context"] = "task"
-        event["task"] = self.task_name
-        if self.current_step is not None:
-            event["step"] = self.current_step
-        self._logger.report_event(event)
-
-
 class Logger:
-    def report_event(self, event):
+    def report_event(self, **event):
         raise NotImplementedError()
-
-
-class ConsoleDebugLogger(Logger):
-    level = "debug"
-    levels = ("success", "error", "warning", "info", "debug")
-    fields = {
-        "run_id": {"include": "prefix"},
-        "project_name": {"include": "prefix"},
-        "sayn_version": {},
-        "project_git_commit": {},
-        "ts": {"include": "prefix"},
-        "stage": {"include": "prefix"},
-        "level": {"include": "details", "transform": lambda x: x.upper()},
-        "event": {},
-        "task": {},
-        "message": {"include": "details"},
-        "details": {},
-        "duration": {
-            "include": "details",
-            "transform": lambda x: f'Took {humanize.precisedelta(x, minimum_unit="seconds")}',
-        },
-    }
-
-    def __init__(self, level):
-        self.level = level
-
-    def report_event(self, event):
-        if self.levels.index(event["level"]) > self.levels.index(self.level):
-            return
-        style = self.get_colours(event)
-        prefix = self.get_prefix(event)
-        lines = self.get_lines(event)
-        # TODO testing
-        if self.level == "debug":
-            self.print(f"{event}", style)
-
-        for line in lines:
-            self.print(f"{prefix}|{line}", style)
-
-    def get_prefix(self, event):
-        prefix_fields = list()
-        for field, conf in self.fields.items():
-            if conf.get("include") != "prefix":
-                continue
-            if len(conf) > 0 and field in event:
-                value = f'{conf.get("transform", lambda x: x)(event[field])}'
-                prefix_fields.append(value)
-
-        return f"{'|'.join(prefix_fields)}"
-
-    def get_lines(self, event):
-        if event["context"] == "task":
-            prefix = "|".join(
-                (
-                    f"({event['task_order']}/{event['total_tasks']})"
-                    if event["stage"] != "setup"
-                    else "",
-                    "INFO" if event["level"] == "success" else event["level"].upper(),
-                    event["task"],
-                )
-            )
-
-            if event["event"] == "start_task":
-                return [f"{prefix}|Starting."]
-
-            elif event["event"] == "finish_task":
-                out = list()
-                if event["level"] == "error":
-                    out.append(
-                        f"{prefix}|On step {event['step']}: {event['message']}"
-                        if "step" in event
-                        else f"{prefix}|{event['message']}"
-                    )
-
-                    if "details" in event:
-                        out.append(f"{prefix}|{event['details']}")
-
-                out.append(f"{prefix}|{humanize.precisedelta(event['duration'])}")
-                return out
-
-            elif event["event"] == "cannot_run":
-                return [f"{prefix}|SKIPPING"]
-
-        elif event["event"] == "execution_finished":
-            prefix = f"{event['level'].upper()}|"
-            out = [
-                ". ".join(
-                    (
-                        f"{prefix}Process finished",
-                        f"Total tasks: {len(event['succeeded']+event['skipped']+event['failed'])}",
-                        f"Success: {len(event['succeeded'])}",
-                        f"Failed {len(event['failed'])}",
-                        f"Skipped {len(event['skipped'])}.",
-                    )
-                )
-            ]
-
-            for status in ("succeeded", "failed", "skipped"):
-                if len(event[status]) > 0:
-                    out.append(
-                        (
-                            f"The following tasks "
-                            f"{'were ' if status == 'skipped' else ''}{status}: "
-                            f"{', '.join(event[status])}"
-                        )
-                    )
-
-            out.append(
-                f"{event['command'].capitalize()} took {humanize.precisedelta(event['duration'])}"
-            )
-            return out
-
-        return list()
-
-    def get_colours(self, event):
-        if event["level"] == "success":
-            return Fore.GREEN
-        elif event["level"] == "error":
-            return Fore.RED
-        elif event["level"] == "warning":
-            return Fore.YELLOW
-        elif event["level"] == "debug":
-            return Style.DIM
-        else:
-            return Style.RESET_ALL
-
-    def print(self, line, style):
-        print(style + line)
 
 
 class AppLogger:
@@ -213,7 +29,7 @@ class AppLogger:
 
     def __init__(self, run_id, loggers=dict()):
         self.run_id = run_id
-        self.stage = "setup"
+        self.current_stage = "setup"
         self.loggers = loggers
         try:
             self.project_git_commit = (
@@ -229,8 +45,21 @@ class AppLogger:
         #         run_id=run_id, debug=debug, log_file=log_file
         #     )
 
-    def set_stage(self, stage):
-        self.stage = stage
+    def start_stage(self, stage):
+        self.current_stage = stage
+        self.report_event(level="info", context="app", event="start_stage", stage=stage)
+
+    def finish_current_stage(self):
+        self.report_event(
+            level="info", context="app", event="finish_stage", stage=self.current_stage,
+        )
+        self.current_stage = None
+
+    @contextmanager
+    def stage(self, stage):
+        self.start_stage(stage)
+        yield
+        self.finish_current_stage()
 
     def set_tasks(self, tasks):
         self.tasks = tasks
@@ -241,13 +70,10 @@ class AppLogger:
     def get_task_logger(self, task_name):
         return TaskLogger(self, task_name)
 
-    def report_event(self, event):
+    def report_event(self, **event):
         if event["context"] == "task":
-            if event["task"] != self.current_task:
-                self.current_task_n = self.tasks.index(event["task"]) + 1
-
             event["total_tasks"] = len(self.tasks)
-            event["task_order"] = self.current_task_n
+            event["task_order"] = self.tasks.index(event["task"]) + 1
 
         if "event" not in event:
             event["event"] = "unknown"
@@ -263,7 +89,7 @@ class AppLogger:
         event.update(
             dict(
                 run_id=self.run_id,
-                stage=self.stage,
+                stage=self.current_stage,
                 sayn_version=self.sayn_version,
                 project_git_commit=self.project_git_commit,
                 project_name=self.project_name,
@@ -272,4 +98,4 @@ class AppLogger:
         )
 
         for logger in self.loggers.values():
-            logger.report_event(event)
+            logger.report_event(**event)

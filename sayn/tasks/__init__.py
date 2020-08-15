@@ -60,7 +60,7 @@ class Task:
     def step(self, step):
         self.logger.start_step(step)
         yield
-        self.logger.finish_step()
+        self.logger.finish_current_step()
 
     # Jinja methods
     def get_template(self, obj):
