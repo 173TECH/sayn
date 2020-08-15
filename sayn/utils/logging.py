@@ -1,17 +1,21 @@
+from pathlib import Path
+import logging
+
 from colorama import init, Fore, Style
 import humanize
 
-from .logger import Logger
 
 init(autoreset=True)
 
 
-class ConsoleDebugLogger(Logger):
+class LogFormatter:
     level = "debug"
+    unattended = False
+
     levels = ("success", "error", "warning", "info", "debug")
     fields = {
-        "run_id": {"include": "prefix"},
-        "project_name": {"include": "prefix"},
+        "run_id": {"include": "prefix", "unattended": True},
+        "project_name": {"include": "prefix", "unattended": True},
         "sayn_version": {},
         "project_git_commit": {},
         "ts": {"include": "prefix"},
@@ -27,26 +31,38 @@ class ConsoleDebugLogger(Logger):
         },
     }
 
-    def __init__(self, level):
+    def __init__(self, level, unattended):
         self.level = level
+        self.unattended = unattended
 
-    def report_event(self, **event):
+    def get_lines(self, **event):
         if self.levels.index(event["level"]) > self.levels.index(self.level):
             return
-        style = self.get_colours(event)
         prefix = self.get_prefix(event)
-        lines = self.get_lines(**event)
-        # TODO testing
-        if self.level == "debug" and len(lines) == 0:
-            self.print(f"{event}", style)
 
-        for line in lines:
-            self.print(f"{prefix}|{line}", style)
+        lines = list()
+        if event["context"] == "app":
+            lines = self.get_app_lines(**event)
+
+        elif event["context"] == "task":
+            lines = self.get_task_lines(**event)
+
+        if self.level == "debug" and len(lines) == 0:
+            # TODO testing logging code. Should never execute.
+            yield f"{event}"
+        else:
+            for line in lines:
+                if self.unattended:
+                    yield f"{prefix}|" + line.replace("\n", "\\n")
+                else:
+                    yield f"{prefix}|{line}"
 
     def get_prefix(self, event):
         prefix_fields = list()
         for field, conf in self.fields.items():
             if conf.get("include") != "prefix":
+                continue
+            elif conf.get("unattended") and not self.unattended:
                 continue
             if len(conf) > 0 and field in event:
                 value = f'{conf.get("transform", lambda x: x)(event[field])}'
@@ -54,21 +70,12 @@ class ConsoleDebugLogger(Logger):
 
         return f"{'|'.join(prefix_fields)}"
 
-    def get_lines(self, event, context, stage, level, **kwargs):
-        if context == "app":
-            return self.get_app_lines(event, context, stage, level, **kwargs)
-
-        elif context == "task":
-            return self.get_task_lines(event, context, stage, level, **kwargs)
-
-        return list()
-
     def get_app_lines(self, event, context, stage, level, **kwargs):
         if event == "start_stage":
-            return [f"DEBUG|Starting {stage} stage"]
+            return [f"{level.upper()}|Starting {stage} stage"]
 
         elif event == "finish_stage":
-            return [f"DEBUG|Finished {stage} stage"]
+            return [f"{level.upper()}|Finished {stage} stage"]
 
         elif event == "execution_finished":
             prefix = f"{level.upper()}|"
@@ -135,13 +142,27 @@ class ConsoleDebugLogger(Logger):
             return [f"{prefix}|Settings steps: {', '.join(kwargs['steps'])}"]
 
         elif event == "start_step":
-            return [f"{prefix}|Starting steps: {kwargs['step']}"]
+            return [f"{prefix}|Starting step: {kwargs['step']}"]
 
         elif event == "finish_step":
             return [f"{prefix}|Finished step: {kwargs['step']}"]
 
         elif event == "message":
             return [f"{prefix}|{kwargs['message']}"]
+
+
+class Logger:
+    def report_event(self, **event):
+        raise NotImplementedError()
+
+
+class ConsoleDebugLogger(Logger):
+    formatter = LogFormatter("debug", False)
+
+    def report_event(self, **event):
+        style = self.get_colours(event)
+        for line in self.formatter.get_lines(**event):
+            self.print(line, style)
 
     def get_colours(self, event):
         if event["level"] == "success":
@@ -157,3 +178,33 @@ class ConsoleDebugLogger(Logger):
 
     def print(self, line, style):
         print(style + line)
+
+
+class ConsoleLogger(ConsoleDebugLogger):
+    formatter = LogFormatter("info", False)
+
+
+class FileLogger(Logger):
+    formatter = LogFormatter("debug", True)
+    logger = None
+
+    def __init__(self, folder):
+        formatter = logging.Formatter("%(message)s")
+
+        log_file = Path(folder, "sayn.log")
+        if not log_file.parent.exists():
+            log_file.parent.mkdir(parents=True)
+
+        handler = logging.FileHandler(log_file)
+        handler.setLevel(logging.DEBUG)
+        handler.setFormatter(formatter)
+
+        logger = logging.getLogger(__name__)
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+
+        self.logger = logger
+
+    def report_event(self, **event):
+        for line in self.formatter.get_lines(**event):
+            self.logger.debug(line)

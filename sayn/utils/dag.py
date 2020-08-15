@@ -109,6 +109,6 @@ def query(dag, query=list()):
         if operand["operation"] == "include":
             to_include = to_include.union(tasks)
         else:
-            to_include -= tasks
+            to_include -= set(tasks)
 
     return [n for n in topo_sort if n in to_include]

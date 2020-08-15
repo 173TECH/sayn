@@ -6,7 +6,7 @@ from ..tasks.task_wrapper import TaskWrapper
 from ..utils.dag import query as dag_query, topological_sort
 from .config import get_connections
 from .errors import CommandError, ConfigError
-from .logger import AppLogger
+from .event_tracker import EventTracker
 
 run_id = uuid4()
 
@@ -14,7 +14,7 @@ run_id = uuid4()
 class App:
     run_id: UUID = run_id
     start_ts = datetime.now()
-    logger = AppLogger(run_id)
+    tracker = EventTracker(run_id)
 
     run_arguments = {
         "folders": {
@@ -125,15 +125,15 @@ class App:
         }
 
         tasks_in_query = dag_query(self.dag, self.task_query)
-        self.logger.set_tasks(tasks_in_query)
+        self.tracker.set_tasks(tasks_in_query)
 
         for task_name, task in self._tasks_dict.items():
-            self.logger.set_current_task(task_name)
+            self.tracker.set_current_task(task_name)
             self.tasks[task_name] = TaskWrapper(
                 task,
                 [self.tasks[p] for p in task.get("parents", list())],
                 task_name in tasks_in_query,
-                self.logger.get_task_logger(task_name),
+                self.tracker.get_task_logger(task_name),
                 self.connections,
                 self.default_db,
                 self.project_parameters,
@@ -150,7 +150,7 @@ class App:
         self._execute_dag("compile")
 
     def _execute_dag(self, command):
-        with self.logger.stage(command):
+        with self.tracker.stage(command):
             for task_name, task in self.tasks.items():
                 if task.in_query:
                     if command == "run":
@@ -158,7 +158,7 @@ class App:
                     else:
                         task.compile()
 
-        with self.logger.stage("summary"):
+        with self.tracker.stage("summary"):
             succeeded = [
                 name
                 for name, task in self.tasks.items()
@@ -174,7 +174,7 @@ class App:
                 for name, task in self.tasks.items()
                 if task.in_query and task.status == TaskStatus.FAILED
             ]
-            self.logger.report_event(
+            self.tracker.report_event(
                 event="execution_finished",
                 command=command,
                 context="app",

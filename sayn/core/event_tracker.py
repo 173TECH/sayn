@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 import subprocess
 
-from ..tasks.logger import TaskLogger
+from ..tasks.task_logger import TaskLogger
 
 try:
     from importlib import metadata
@@ -11,15 +11,11 @@ except ImportError:
     import importlib_metadata as metadata
 
 
-class Logger:
-    def report_event(self, **event):
-        raise NotImplementedError()
-
-
-class AppLogger:
-    loggers = dict()
+class EventTracker:
+    loggers = list()
     stage = None
     run_id = None
+    current_stage = None
     tasks = list()
     current_task = None
     current_task_n = 0
@@ -27,9 +23,8 @@ class AppLogger:
     project_git_commit = None
     project_name = Path(".").absolute().name
 
-    def __init__(self, run_id, loggers=dict()):
+    def __init__(self, run_id, loggers=list()):
         self.run_id = run_id
-        self.current_stage = "setup"
         self.loggers = loggers
         try:
             self.project_git_commit = (
@@ -44,6 +39,9 @@ class AppLogger:
         #     self.loggers["file"] = FileLogger(
         #         run_id=run_id, debug=debug, log_file=log_file
         #     )
+
+    def register_logger(self, logger):
+        self.loggers.append(logger)
 
     def start_stage(self, stage):
         self.current_stage = stage
@@ -97,5 +95,5 @@ class AppLogger:
             )
         )
 
-        for logger in self.loggers.values():
+        for logger in self.loggers:
             logger.report_event(**event)
