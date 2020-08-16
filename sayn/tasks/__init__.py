@@ -8,15 +8,14 @@ from ..core.errors import TaskExecutionError
 
 
 class TaskStatus(Enum):
-    UNKNOWN = -1
-    SETTING_UP = 0
-    READY = 1
-    EXECUTING = 2
-    SUCCEEDED = 3
-    FAILED = 4
-    SKIPPED = 5
-    IGNORED = 6
-    NOT_IN_QUERY = 7
+    UNKNOWN = "unknown"
+    SETTING_UP = "setting_up"
+    READY = "ready"
+    EXECUTING = "executing"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+    SKIPPED = "skipped"
+    NOT_IN_QUERY = "not_in_query"
 
 
 class Task:

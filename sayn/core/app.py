@@ -1,9 +1,11 @@
+from contextlib import contextmanager
 from datetime import datetime, date, timedelta
 from uuid import UUID, uuid4
 
 from ..tasks import TaskStatus
 from ..tasks.task_wrapper import TaskWrapper
 from ..utils.dag import query as dag_query, topological_sort
+from ..utils.misc import group_list
 from .config import get_connections
 from .errors import CommandError, ConfigError
 from .event_tracker import EventTracker
@@ -141,6 +143,35 @@ class App:
                 self.python_loader,
             )
 
+    # Utilities
+    @contextmanager
+    def stage(self, stage):
+        start_ts = datetime.now()
+        self.tracker.start_stage(stage)
+
+        try:
+            yield
+        except Exception as e:
+            # TODO control these errors
+            import IPython
+
+            IPython.embed()
+            raise e
+
+        task_statuses = group_list(
+            [(task.status.value, name) for name, task in self.tasks.items()]
+        )
+        if len(set(task_statuses.keys()) - set(("ready", "not_in_query"))) > 0:
+            if "ready" in task_statuses:
+                level = "warning"
+            else:
+                level = "error"
+        else:
+            level = "info"
+        self.tracker.finish_current_stage(
+            level, task_statuses, datetime.now() - start_ts
+        )
+
     # Commands
 
     def run(self):
@@ -150,7 +181,7 @@ class App:
         self._execute_dag("compile")
 
     def _execute_dag(self, command):
-        with self.tracker.stage(command):
+        with self.stage(command):
             for task_name, task in self.tasks.items():
                 if task.in_query:
                     if command == "run":
@@ -158,7 +189,7 @@ class App:
                     else:
                         task.compile()
 
-        with self.tracker.stage("summary"):
+        with self.stage("summary"):
             succeeded = [
                 name
                 for name, task in self.tasks.items()
@@ -174,16 +205,19 @@ class App:
                 for name, task in self.tasks.items()
                 if task.in_query and task.status == TaskStatus.FAILED
             ]
+            if len(succeeded) > 0:
+                if len(failed) > 0 or len(skipped) > 0:
+                    level = "warning"
+                else:
+                    level = "success"
+            else:
+                level = "error"
             self.tracker.report_event(
+                level=level,
                 event="execution_finished",
                 command=command,
                 context="app",
                 duration=datetime.now() - self.start_ts,
-                level="failed"
-                if len(failed) > 0
-                else "warning"
-                if len(skipped) > 0
-                else "success",
                 succeeded=succeeded,
                 skipped=skipped,
                 failed=failed,

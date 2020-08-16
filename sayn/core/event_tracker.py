@@ -1,4 +1,3 @@
-from contextlib import contextmanager
 from pathlib import Path
 from datetime import datetime
 import subprocess
@@ -47,23 +46,22 @@ class EventTracker:
         self.current_stage = stage
         self.report_event(level="info", context="app", event="start_stage", stage=stage)
 
-    def finish_current_stage(self):
+    def finish_current_stage(self, level, task_statuses, duration):
         self.report_event(
-            level="info", context="app", event="finish_stage", stage=self.current_stage,
+            context="app",
+            event="finish_stage",
+            level=level,
+            stage=self.current_stage,
+            task_statuses=task_statuses,
+            duration=duration,
         )
         self.current_stage = None
-
-    @contextmanager
-    def stage(self, stage):
-        self.start_stage(stage)
-        yield
-        self.finish_current_stage()
 
     def set_tasks(self, tasks):
         self.tasks = tasks
 
-    def set_current_task(self, task):
-        self.current_task = task
+    def set_current_task(self, task_name):
+        self.current_task = task_name
 
     def get_task_logger(self, task_name):
         return TaskLogger(self, task_name)

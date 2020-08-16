@@ -29,7 +29,7 @@ class CliApp(App):
             self.tracker.register_logger(ConsoleLogger())
         self.tracker.register_logger(FileLogger(self.run_arguments["folders"]["logs"]))
 
-        with self.tracker.stage("setup"):
+        with self.stage("setup"):
             self.set_run_arguments(
                 debug=debug,
                 full_load=full_load,

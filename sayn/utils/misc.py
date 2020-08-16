@@ -65,3 +65,10 @@ def map_nested(ob, func):
         return [map_nested(e) for e in ob]
     else:
         return func(ob)
+
+
+def group_list(items):
+    return {
+        k: [vv[1] for vv in v]
+        for k, v in groupby(sorted(items, key=lambda x: x[0]), lambda x: x[0])
+    }

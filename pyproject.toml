@@ -30,6 +30,7 @@ pyyaml = "^5.3.1"
 pydantic = "^1.6.1"
 colorama = "^0.4.3"
 humanize = "^2.6.0"
+halo = "^0.0.30"
 
 [tool.poetry.extras]
 all = ["graphviz", "psycopg2", "snowflake-connector-python", "snowflake-sqlalchemy", "pymysql"]

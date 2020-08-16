@@ -1,3 +1,5 @@
+# TODO Module using strictyaml. To be removed once dbs are migrated to pydantic
+
 from strictyaml import (
     Bool,
     Map,

@@ -96,6 +96,8 @@ class TaskWrapper:
 
         if not in_query:
             self.status = TaskStatus.NOT_IN_QUERY
+        elif not self.can_run():
+            self.status = TaskStatus.SKIPPED
         else:
             # Instantiate the Task runner object
             if self._type == "python":
@@ -182,14 +184,18 @@ class TaskWrapper:
         self.logger.current_step = None
 
     def should_run(self):
-        return self.in_query
+        return self.status == TaskStatus.NOT_IN_QUERY
 
     def can_run(self):
-        if self.status != TaskStatus.READY:
+        if self.status not in (TaskStatus.SETTING_UP, TaskStatus.READY):
             return False
 
         for p in self.parents:
-            if p.status not in (TaskStatus.IGNORED, TaskStatus.SUCCEEDED):
+            if p.status not in (
+                TaskStatus.NOT_IN_QUERY,
+                TaskStatus.READY,
+                TaskStatus.SUCCEEDED,
+            ):
                 return False
 
         return True
@@ -203,10 +209,11 @@ class TaskWrapper:
     def _execute_task(self, command):
         self.start_ts = datetime.now()
         if not self.in_query:
+            # TODO review this as it should never happend
             self.logger._report_event(
                 event="ignored_task", level="debug",
             )
-            self.status = TaskStatus.IGNORED
+            self.status = TaskStatus.NOT_IN_QUERY
         elif not self.can_run():
             self.logger._report_event(
                 event="cannot_run", level="warning",

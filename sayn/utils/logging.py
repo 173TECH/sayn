@@ -2,6 +2,7 @@ from pathlib import Path
 import logging
 
 from colorama import init, Fore, Style
+from halo import Halo
 import humanize
 
 
@@ -180,8 +181,95 @@ class ConsoleDebugLogger(Logger):
         print(style + line)
 
 
-class ConsoleLogger(ConsoleDebugLogger):
-    formatter = LogFormatter("info", False)
+class ConsoleLogger(Logger):
+    # TODO refactor log formatter so that it's more useful here
+    # formatter = LogFormatter("info", False)
+    spinner = None
+    text = None
+
+    def report_event(self, level, event, stage, **kwargs):
+        if event == "start_stage" and stage != "summary":
+            self.spinner = Halo(spinner="dots")
+            self.spinner.start(stage)
+
+        elif event == "finish_stage" and stage == "setup":
+            if level == "error":
+                self.spinner.fail(
+                    "\n    ".join(
+                        (
+                            f"{Fore.RED}{stage.capitalize()} ({humanize.precisedelta(kwargs['duration'])}):",
+                            f"{Fore.RED}Some tasks failed during setup: {', '.join(kwargs['task_statuses']['failed'])}",
+                            "",
+                        )
+                    )
+                )
+            elif level == "warning":
+                self.spinner.warn(
+                    "\n    ".join(
+                        (
+                            f"{Fore.YELLOW}{stage.capitalize()} ({humanize.precisedelta(kwargs['duration'])}):",
+                            f"{Fore.RED}Some tasks failed during setup: {', '.join(kwargs['task_statuses']['failed'])}",
+                            f"{Fore.YELLOW}Some tasks will be skipped: {', '.join(kwargs['task_statuses']['skipped'])}",
+                            "",
+                        )
+                    )
+                )
+            else:
+                self.spinner.succeed(
+                    f"{stage.capitalize()} ({humanize.precisedelta(kwargs['duration'])})"
+                )
+
+        elif event == "start_task":
+            self.spinner.text = f"{stage.capitalize()}: {kwargs['task']}"
+
+        elif event == "finish_task":
+            if level == "error":
+                self.spinner.fail(
+                    f"{stage.capitalize()}: {kwargs['task']} ({humanize.precisedelta(kwargs['duration'])})"
+                )
+            elif level == "warning":
+                self.spinner.warn(
+                    f"{stage.capitalize()}: {kwargs['task']} ({humanize.precisedelta(kwargs['duration'])})"
+                )
+            else:
+                self.spinner.succeed(
+                    f"{stage.capitalize()}: {kwargs['task']} ({humanize.precisedelta(kwargs['duration'])})"
+                )
+
+        elif event == "execution_finished":
+            out = [
+                ". ".join(
+                    (
+                        ""
+                        f"Process finished ({humanize.precisedelta(kwargs['duration'])})",
+                        f"Total tasks: {len(kwargs['succeeded']+kwargs['skipped']+kwargs['failed'])}",
+                        f"Success: {len(kwargs['succeeded'])}",
+                        f"Failed {len(kwargs['failed'])}",
+                        f"Skipped {len(kwargs['skipped'])}.",
+                    )
+                )
+            ]
+
+            for status in ("succeeded", "failed", "skipped"):
+                if len(kwargs[status]) > 0:
+                    out.append(
+                        (
+                            f"  The following tasks "
+                            f"{'were ' if status == 'skipped' else ''}{status}: "
+                            f"{', '.join(kwargs[status])}"
+                        )
+                    )
+
+            colour = (
+                Fore.GREEN
+                if level == "succeeded"
+                else Fore.YELLOW
+                if level == "warning"
+                else Fore.RED
+            )
+            print()
+            for line in out:
+                print(f"{colour}{line}")
 
 
 class FileLogger(Logger):
