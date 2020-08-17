@@ -221,7 +221,7 @@ class Dag:
             f"Process finished. Total tasks: {ntasks}. Success: {len(success)}. Failed {len(failed)}. Skipped {len(skipped)}."
         )
         if len(success) > 0:
-            recap_str.append(f"The following tasks succeded: {', '.join(success)}")
+            recap_str.append(f"The following tasks succeeded: {', '.join(success)}")
         if len(failed) > 0:
             recap_str.append(f"The following tasks failed: {', '.join(failed)}")
         if len(skipped) > 0:
