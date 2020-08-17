@@ -24,6 +24,7 @@ class Database:
     # Supported sql_features
     #   - CREATE IF NOT EXISTS
     #   - CREATE TABLE NO PARENTHESES
+    #   - INSERT TABLE NO PARENTHESES
     #   - DROP CASCADE
     #   - NO SET SCHEMA
 
