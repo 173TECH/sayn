@@ -262,7 +262,7 @@ class ConsoleLogger(Logger):
 
             colour = (
                 Fore.GREEN
-                if level == "succeeded"
+                if level == "success"
                 else Fore.YELLOW
                 if level == "warning"
                 else Fore.RED
