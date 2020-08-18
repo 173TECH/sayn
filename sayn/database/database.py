@@ -302,13 +302,13 @@ class Database:
         Returns:
             str: A SQL script for the CREATE...AS
         """
-        table_name = table
+        # table_name = table
         table = f"{schema+'.' if schema else ''}{table}"
         table_or_view = "VIEW" if view else "TABLE"
 
         q = ""
-        if replace:
-            q += self.drop_table(table_name, schema, view) + "\n"
+        # if replace:
+        #    q += self.drop_table(table_name, schema, view) + "\n"
         if_not_exists = (
             " IF NOT EXISTS" if "CREATE IF NOT EXISTS" in self.sql_features else ""
         )
@@ -345,8 +345,8 @@ class Database:
         )
 
         q = ""
-        if replace:
-            q += self.drop_table(table_name, schema) + "\n"
+        # if replace:
+        #    q += self.drop_table(table_name, schema) + "\n"
         if_not_exists = (
             " IF NOT EXISTS" if "CREATE IF NOT EXISTS" in self.sql_features else ""
         )
@@ -475,7 +475,7 @@ class Database:
         Returns:
             str: A SQL script for moving the table
         """
-        drop = self.drop_table(dst_table, dst_schema)
+        # drop = self.drop_table(dst_table, dst_schema)
         rename = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{src_table} RENAME TO {dst_table};"
         if dst_schema is not None and dst_schema != src_schema:
             change_schema = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{dst_table} SET SCHEMA {dst_schema};"
@@ -496,7 +496,7 @@ class Database:
                         f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx} RENAME TO {dst_table}_{idx};"
                     )
 
-        return "\n".join([drop, rename, change_schema] + idx_alter)
+        return "\n".join([rename, change_schema] + idx_alter)
 
     def merge_tables(self, src_table, src_schema, dst_table, dst_schema, delete_key):
         """Returns SQL to merge data in incremental loads.

@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from .sql import SqlTask
 from .task import TaskStatus
 from ..utils.ui import UI
@@ -55,12 +57,67 @@ class AutoSqlTask(SqlTask):
 
         return compiled
 
+    def _get_compiled_query_bis(self):
+        compiled = ""
+        for stage, query in self.query_plan.items():
+            compiled += "/*" + stage + "*/" + "\n\n" + query + "\n\n"
+
+        return compiled
+
     def run(self):
-        self.compiled = self._get_compiled_query()
-        return super(AutoSqlTask, self).run()
+        UI().debug("Writting query on disk")
+
+        # the compile will be different than what runs in case of table / view exception
+        self.compiled = self._get_compiled_query_bis()
+        self._write_query(self.compiled)
+        if self.status == TaskStatus.FAILED:
+            return self.failed()
+
+        UI().debug("Running SQL")
+        UI().debug(self.compiled)
+
+        for stage, query in self.query_plan.items():
+            print(stage)
+            if "drop" in stage:
+                print(query)
+                # we have 2 levels of try except to catch if there was a state change between table / view
+                try:
+                    self.db.execute(query)
+                except:
+                    print("EXCEPTION")
+                    try:
+                        if self.materialisation == "view":
+                            new_drop_query = self.db.drop_table(
+                                self.table, self.schema, view=False
+                            )
+                        elif self.materialisation == "table":
+                            new_drop_query = self.db.drop_table(
+                                self.table, self.schema, view=True
+                            )
+                        else:
+                            pass
+                        self.query_plan[stage] = new_drop_query
+                        self.db.execute(new_drop_query)
+                    except Exception as e2:
+                        return self.failed(
+                            (
+                                "Error running query",
+                                f"{e2}",
+                                f"Query: {self.query_plan[stage]}",
+                            )
+                        )
+            else:
+                try:
+                    self.db.execute(query)
+                except Exception as e:
+                    return self.failed(
+                        ("Error running query", f"{e}", f"Query: {query}")
+                    )
+
+        return self.success()
 
     def compile(self):
-        self.compiled = self._get_compiled_query()
+        self.compiled = self._get_compiled_query_bis()
         return super(AutoSqlTask, self).compile()
 
     # Task property methods
@@ -88,6 +145,17 @@ class AutoSqlTask(SqlTask):
         return TaskStatus.READY
 
     def _setup_sql(self):
+        # creates the query plan and stores it into an ordered dict
+        # the available stages are:
+        # tmp_drop: drop table at tmp destination
+        # tmp_create: create tmp table
+        # tmp_insert: insert data into tmp_table
+        # drop: drop table / view at final destination
+        # create: create view at final destination
+        # move: transfer table to final destination
+        # merge: merge into table
+        # indexes: add / alter indexes
+        self.query_plan = OrderedDict()
         # Autosql tasks are split in 4 queries depending on the materialisation
         # 1. Create: query to create and load data
         self.create_query = None
@@ -107,7 +175,10 @@ class AutoSqlTask(SqlTask):
         # 1. Create query
         if self.materialisation == "view":
             # Views just replace the current object if it exists
-            self.create_query = self.db.create_table_select(
+            self.query_plan["drop"] = self.db.drop_table(
+                self.table, self.schema, view=True
+            )
+            self.query_plan["create"] = self.db.create_table_select(
                 self.table, self.schema, query, replace=True, view=True
             )
         else:
@@ -132,41 +203,45 @@ class AutoSqlTask(SqlTask):
                         return TaskStatus.FAILED
 
                 # create table with DDL and insert the output of the select
-                create_table_ddl = self.db.create_table_ddl(
+                self.query_plan["tmp_drop"] = self.db.drop_table(
+                    self.tmp_table, self.tmp_schema
+                )
+                self.query_plan["tmp_create"] = self.db.create_table_ddl(
                     self.tmp_table, self.tmp_schema, self.ddl, replace=True
                 )
 
                 # we need to reshape the query to ensure that the columns are always in the right order
-                insert = self.db.insert(
+                self.query_plan["tmp_insert"] = self.db.insert(
                     self.tmp_table, self.tmp_schema, query, columns=ddl_column_names
                 )
-                create_load = (
-                    f"-- Create table\n"
-                    f"{create_table_ddl}\n\n"
-                    f"-- Load data\n"
-                    f"{insert}\n\n"
-                )
+                # create_load = (
+                #    f"-- Create table\n"
+                #    f"{create_table_ddl}\n\n"
+                #    f"-- Load data\n"
+                #    f"{insert}\n\n"
+                # )
 
             else:
                 # or create from the select if DDL not present
-                create_load = self.db.create_table_select(
+                self.query_plan["tmp_drop"] = self.db.drop_table(
+                    self.tmp_table, self.tmp_schema
+                )
+                self.query_plan["tmp_create"] = self.db.create_table_select(
                     self.tmp_table, self.tmp_schema, query, replace=True, ddl=self.ddl
                 )
 
             # Add indexes if necessary
             if self.ddl.get("indexes") is not None:
-                indexes = "\n-- Create indexes\n" + self.db.create_indexes(
+                self.query_plan["indexes"] = self.db.create_indexes(
                     self.tmp_table, self.tmp_schema, self.ddl
                 )
-            else:
-                indexes = ""
-
-            self.create_query = create_load + "\n" + indexes
 
         # 2. Move
-        self.move_query = self.db.move_table(
-            self.tmp_table, self.tmp_schema, self.table, self.schema, self.ddl
-        )
+        if self.materialisation == "table":
+            self.query_plan["drop"] = self.db.drop_table(self.table, self.schema)
+            self.query_plan["move"] = self.db.move_table(
+                self.tmp_table, self.tmp_schema, self.table, self.schema, self.ddl
+            )
 
         # 3. Merge
         if self.materialisation == "incremental":
