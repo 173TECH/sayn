@@ -148,7 +148,6 @@ class Dag:
         progress = "(" + str(tcounter) + "/" + str(ntasks) + ")"
         ui = UI()
         ui._set_config(stage_name="run", task_name=task.name, progress=progress)
-        ui.info("Starting.")
         task_start_ts = datetime.now()
         if task.status != TaskStatus.READY:
             task.failed()

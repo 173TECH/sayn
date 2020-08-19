@@ -52,8 +52,7 @@ class AutoSqlTask(SqlTask):
         self.compile()
 
         # Execution
-        UI().debug("Running SQL")
-        UI().debug(self.select_query)
+        UI().debug("Executing AutoSQL...")
 
         if self.materialisation == "view":
             self._exeplan_drop(self.table, self.schema, view=True)
@@ -119,19 +118,20 @@ class AutoSqlTask(SqlTask):
 
     def _pre_run_checks(self):
         # if incremental load and columns not in same order than ddl columns -> stop
-        ddl_column_names = [c["name"] for c in self.ddl.get("columns")]
-        if (
-            self.materialisation == "incremental"
-            and self.sayn_config.options["full_load"] is False
-            and self.db.table_exists(self.table, self.schema)
-        ):
-            table_column_names = [
-                c.name for c in self.db.get_table(self.table, self.schema).columns
-            ]
-            if ddl_column_names != table_column_names:
-                UI().error(
-                    "ABORTING: DDL columns in task settings are not in similar order than table columns. Please do a full load of the table."
-                )
+        if self.ddl.get("columns") is not None:
+            ddl_column_names = [c["name"] for c in self.ddl.get("columns")]
+            if (
+                self.materialisation == "incremental"
+                and self.sayn_config.options["full_load"] is False
+                and self.db.table_exists(self.table, self.schema)
+            ):
+                table_column_names = [
+                    c.name for c in self.db.get_table(self.table, self.schema).columns
+                ]
+                if ddl_column_names != table_column_names:
+                    UI().error(
+                        "ABORTING: DDL columns in task settings are not in similar order than table columns. Please do a full load of the table."
+                    )
                 return TaskStatus.FAILED
 
         return TaskStatus.READY
@@ -148,6 +148,11 @@ class AutoSqlTask(SqlTask):
     # Task property methods - EXECUTION
 
     def _exeplan_drop(self, table, schema, view=False):
+        UI().debug(
+            "Dropping {name}...".format(
+                name=schema + "." if schema is not None else "" + table
+            )
+        )
         stop = False
         try:
             drop1 = self.db.drop_table(table, schema, view=view)
@@ -164,6 +169,12 @@ class AutoSqlTask(SqlTask):
                 pass
 
     def _exeplan_create(self, table, schema, select, view=False, ddl=dict()):
+        UI().debug(
+            "Creating {table_or_view} {name}...".format(
+                table_or_view="view" if view is True else "table",
+                name=schema + "." if schema is not None else "" + table,
+            )
+        )
         if ddl.get("columns") is None:
             create = self.db.create_table_select(table, schema, select, view=view)
             self.db.execute(create)
@@ -177,19 +188,40 @@ class AutoSqlTask(SqlTask):
             self.db.execute(insert)
 
     def _exeplan_move(self, src_table, src_schema, dst_table, dst_schema, ddl):
+        UI().debug(
+            "Moving table {src_name} to {dst_name}...".format(
+                src_name=src_schema + "." if src_schema is not None else "" + src_table,
+                dst_name=dst_schema + "." if dst_schema is not None else "" + dst_table,
+            )
+        )
         move = self.db.move_table(src_table, src_schema, dst_table, dst_schema, ddl)
         self.db.execute(move)
 
     def _exeplan_merge(self, tmp_table, tmp_schema, table, schema, delete_key):
+        UI().debug(
+            "Merging into table {name}...".format(
+                name=schema + "." if schema is not None else "" + table
+            )
+        )
         merge = self.db.merge_tables(tmp_table, tmp_schema, table, schema, delete_key)
         self.db.execute(merge)
 
     def _exeplan_create_indexes(self, table, schema, ddl):
         if self.ddl.get("indexes") is not None:
+            UI().debug(
+                "Creating indexes on table {name}...".format(
+                    name=schema + "." if schema is not None else "" + table
+                )
+            )
             indexes = self.db.create_indexes(table, schema, ddl)
             self.db.execute(indexes)
 
     def _exeplan_set_permissions(self, table, schema, ddl):
         if ddl.get("permissions") is not None:
+            UI().debug(
+                "Setting permissions on {name}...".format(
+                    name=schema + "." if schema is not None else "" + table
+                )
+            )
             permissions = self.db.grant_permissions(table, schema, ddl["permissions"])
             self.db.execute(permissions)
