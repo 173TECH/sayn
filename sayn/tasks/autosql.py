@@ -86,6 +86,7 @@ class AutoSqlTask(SqlTask):
                 self.schema,
                 self.delete_key,
             )
+            self._exeplan_drop(self.tmp_table, self.tmp_schema)
 
         # permissions
         self._exeplan_set_permissions(self.table, self.schema, self.ddl)

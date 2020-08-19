@@ -517,5 +517,4 @@ class Database:
             f"                WHERE {src}.{delete_key} = {dst}.{delete_key});"
         )
         insert = f"INSERT INTO {dst} SELECT * FROM {src};"
-        drop = self.drop_table(src_table, src_schema)
-        return "\n".join((delete, insert, drop))
+        return "\n".join((delete, insert))
