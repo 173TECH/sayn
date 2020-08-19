@@ -32,31 +32,27 @@ class AutoSqlTask(SqlTask):
             return status
 
         status = self._pre_run_checks()
+        print(status)
         if status != TaskStatus.READY:
             return status
-        print(status)
 
-        status = self._setup_select()
+        status = self._setup_query()
         if status != TaskStatus.READY:
             return status
 
         return self._check_extra_fields()
 
-    def compile(self):
-        self.compiled = self.select_query
-        return super(AutoSqlTask, self).compile()
-
     def run(self):
         # Compilation
-        UI().debug("Writting query on disk")
+        UI().debug("Writting query on disk...")
         self.compile()
 
         # Execution
-        UI().debug("Executing AutoSQL...")
+        UI().debug("Executing AutoSQL task...")
 
         if self.materialisation == "view":
             self._exeplan_drop(self.table, self.schema, view=True)
-            self._exeplan_create(self.table, self.schema, self.select_query, view=True)
+            self._exeplan_create(self.table, self.schema, self.sql_query, view=True)
         elif self.materialisation == "table" or (
             self.materialisation == "incremental"
             and (
@@ -66,7 +62,7 @@ class AutoSqlTask(SqlTask):
         ):
             self._exeplan_drop(self.tmp_table, self.tmp_schema)
             self._exeplan_create(
-                self.tmp_table, self.tmp_schema, self.select_query, ddl=self.ddl
+                self.tmp_table, self.tmp_schema, self.sql_query, ddl=self.ddl
             )
             self._exeplan_create_indexes(self.tmp_table, self.tmp_schema, self.ddl)
             self._exeplan_drop(self.table, self.schema)
@@ -76,7 +72,7 @@ class AutoSqlTask(SqlTask):
         else:  # incremental not full refresh or incremental table exists
             self._exeplan_drop(self.tmp_table, self.tmp_schema)
             self._exeplan_create(
-                self.tmp_table, self.tmp_schema, self.select_query, ddl=self.ddl
+                self.tmp_table, self.tmp_schema, self.sql_query, ddl=self.ddl
             )
             self._exeplan_merge(
                 self.tmp_table,
@@ -132,16 +128,7 @@ class AutoSqlTask(SqlTask):
                     UI().error(
                         "ABORTING: DDL columns in task settings are not in similar order than table columns. Please do a full load of the table."
                     )
-                return TaskStatus.FAILED
-
-        return TaskStatus.READY
-
-    def _setup_select(self):
-        # Retrieve the select statement compiled with jinja
-        try:
-            self.select_query = self.template.render(**self.parameters)
-        except Exception as e:
-            return self.failed(f"Error compiling template\n{e}")
+                    return TaskStatus.FAILED
 
         return TaskStatus.READY
 

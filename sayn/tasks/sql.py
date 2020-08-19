@@ -17,35 +17,33 @@ class SqlTask(Task):
         if self.template is None:
             return self.failed()
 
-        try:
-            self.compiled = self.template.render(**self.parameters)
-        except Exception as e:
-            return self.failed(f"Error compiling template\n{e}")
+        status = self._setup_query()
+        if status != TaskStatus.READY:
+            return status
 
         return self._check_extra_fields()
 
     def run(self):
-        UI().debug("Writting query on disk")
+        UI().debug("Writting query on disk...")
 
-        self._write_query(self.compiled)
+        self._write_query(self.sql_query)
         if self.status == TaskStatus.FAILED:
             return self.failed()
 
-        UI().debug("Running SQL")
-        UI().debug(self.compiled)
+        UI().debug("Executing SQL task...")
 
         try:
-            self.db.execute(self.compiled)
+            self.db.execute(self.sql_query)
         except Exception as e:
             return self.failed(
-                ("Error running query", f"{e}", f"Query: {self.compiled}")
+                ("Error running query", f"{e}", f"Query: {self.sql_query}")
             )
 
         return self.success()
 
     def compile(self):
         try:
-            self._write_query(self.compiled)
+            self._write_query(self.sql_query)
         except Exception as e:
             return self.failed(("Error saving query on disk", f"{e}"))
 
@@ -127,6 +125,15 @@ class SqlTask(Task):
         else:
             self.ddl = dict()
             return TaskStatus.READY
+
+    def _setup_query(self):
+        # Retrieve the select statement compiled with jinja
+        try:
+            self.sql_query = self.template.render(**self.parameters)
+        except Exception as e:
+            return self.failed(f"Error compiling template\n{e}")
+
+        return TaskStatus.READY
 
     # Utility methods
 
