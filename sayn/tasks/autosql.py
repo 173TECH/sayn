@@ -6,6 +6,8 @@ from ..utils.ui import UI
 
 
 class AutoSqlTask(SqlTask):
+    # CORE
+
     def setup(self):
         self.db = self.sayn_config.default_db
 
@@ -29,98 +31,33 @@ class AutoSqlTask(SqlTask):
         if status != TaskStatus.READY:
             return status
 
-        status = self._setup_sql()
+        status = self._pre_run_checks()
+        if status != TaskStatus.READY:
+            return status
+        print(status)
+
+        status = self._setup_select()
         if status != TaskStatus.READY:
             return status
 
         return self._check_extra_fields()
 
-    def _get_compiled_query(self):
-        if self.materialisation == "view":
-            compiled = self.create_query
-        # table | incremental when table does not exit or full load
-        elif self.materialisation == "table" or (
-            self.materialisation == "incremental"
-            and (
-                not self.db.table_exists(self.table, self.schema)
-                or self.sayn_config.options["full_load"]
-            )
-        ):
-            compiled = f"{self.create_query}\n\n-- Move table\n{self.move_query}"
-
-        # incremental in remaining cases
-        else:
-            compiled = f"{self.create_query}\n\n-- Merge table\n{self.merge_query}"
-
-        if self.permissions_query is not None:
-            compiled += f"\n-- Grant permissions\n{self.permissions_query}"
-
-        return compiled
-
-    def _get_compiled_query_bis(self):
-        compiled = ""
-        for stage, query in self.query_plan.items():
-            compiled += "/*" + stage + "*/" + "\n\n" + query + "\n\n"
-
-        return compiled
+    def compile(self):
+        self.compiled = self.select_query
+        return super(AutoSqlTask, self).compile()
 
     def run(self):
         UI().debug("Writting query on disk")
-
-        # the compile will be different than what runs in case of table / view exception
-        self.compiled = self._get_compiled_query_bis()
-        self._write_query(self.compiled)
-        if self.status == TaskStatus.FAILED:
-            return self.failed()
+        self.compile()
 
         UI().debug("Running SQL")
-        UI().debug(self.compiled)
+        UI().debug(self.select_query)
 
-        for stage, query in self.query_plan.items():
-            print(stage)
-            if "drop" in stage:
-                print(query)
-                # we have 2 levels of try except to catch if there was a state change between table / view
-                try:
-                    self.db.execute(query)
-                except:
-                    print("EXCEPTION")
-                    try:
-                        if self.materialisation == "view":
-                            new_drop_query = self.db.drop_table(
-                                self.table, self.schema, view=False
-                            )
-                        elif self.materialisation == "table":
-                            new_drop_query = self.db.drop_table(
-                                self.table, self.schema, view=True
-                            )
-                        else:
-                            pass
-                        self.query_plan[stage] = new_drop_query
-                        self.db.execute(new_drop_query)
-                    except Exception as e2:
-                        return self.failed(
-                            (
-                                "Error running query",
-                                f"{e2}",
-                                f"Query: {self.query_plan[stage]}",
-                            )
-                        )
-            else:
-                try:
-                    self.db.execute(query)
-                except Exception as e:
-                    return self.failed(
-                        ("Error running query", f"{e}", f"Query: {query}")
-                    )
+        self.exeplan()
 
         return self.success()
 
-    def compile(self):
-        self.compiled = self._get_compiled_query_bis()
-        return super(AutoSqlTask, self).compile()
-
-    # Task property methods
+    # Task property methods - SETUP
 
     def _setup_materialisation(self):
         # Type of materialisation
@@ -144,108 +81,111 @@ class AutoSqlTask(SqlTask):
 
         return TaskStatus.READY
 
-    def _setup_sql(self):
-        # creates the query plan and stores it into an ordered dict
-        # the available stages are:
-        # tmp_drop: drop table at tmp destination
-        # tmp_create: create tmp table
-        # tmp_insert: insert data into tmp_table
-        # drop: drop table / view at final destination
-        # create: create view at final destination
-        # move: transfer table to final destination
-        # merge: merge into table
-        # indexes: add / alter indexes
-        self.query_plan = OrderedDict()
-        # Autosql tasks are split in 4 queries depending on the materialisation
-        # 1. Create: query to create and load data
-        self.create_query = None
-        # 2. Move: query to moves the tmp table to the target one
-        self.move_query = None
-        # 3. Merge: query to merge data into the target object
-        self.merge_query = None
-        # 4. Permissions: grants permissions if necessary
-        self.permissions_query = None
+    def _pre_run_checks(self):
+        # if incremental load and columns not in same order than ddl columns -> stop
+        ddl_column_names = [c["name"] for c in self.ddl.get("columns")]
+        if (
+            self.materialisation == "incremental"
+            and self.sayn_config.options["full_load"] is False
+            and self.db.table_exists(self.table, self.schema)
+        ):
+            table_column_names = [
+                c.name for c in self.db.get_table(self.table, self.schema).columns
+            ]
+            if ddl_column_names != table_column_names:
+                UI().error(
+                    "ABORTING: DDL columns in task settings are not in similar order than table columns. Please do a full load of the table."
+                )
+                return TaskStatus.FAILED
 
-        # 0. Retrieve the select statement compiled with jinja
+        return TaskStatus.READY
+
+    def _setup_select(self):
+        # Retrieve the select statement compiled with jinja
         try:
-            query = self.template.render(**self.parameters)
+            self.select_query = self.template.render(**self.parameters)
         except Exception as e:
             return self.failed(f"Error compiling template\n{e}")
 
-        # 1. Create query
-        if self.materialisation == "view":
-            # Views just replace the current object if it exists
-            self.query_plan["drop"] = self.db.drop_table(
-                self.table, self.schema, view=True
-            )
-            self.query_plan["create"] = self.db.create_table_select(
-                self.table, self.schema, query, replace=True, view=True
-            )
+        print(self.select_query)
+
+        return TaskStatus.READY
+
+    # Task property methods - EXECUTION
+
+    def _exeplan_drop(self, table, schema, view=False):
+        stop = False
+        try:
+            drop1 = self.db.drop_table(table, schema, view=view)
+            self.db.execute(drop1)
+            stop = True
+        except:
+            pass
+
+        if stop is False:
+            try:
+                drop2 = self.db.drop_table(table, schema, view=not view)
+                self.db.execute(drop2)
+            except:
+                pass
+
+    def _exeplan_create(self, table, schema, select, view=False, ddl=dict()):
+        if ddl.get("columns") is None:
+            create = self.db.create_table_select(table, schema, select, view=view)
+            self.db.execute(create)
         else:
-            # We always load data into a temporary table
-            if self.ddl.get("columns") is not None:
-                ddl_column_names = [c["name"] for c in self.ddl.get("columns")]
+            ddl_column_names = [c["name"] for c in ddl.get("columns")]
+            # create table with DDL and insert the output of the select
+            create = self.db.create_table_ddl(table, schema, ddl)
+            self.db.execute(create)
+            # we need to reshape the query to ensure that the columns are always in the right order
+            insert = self.db.insert(table, schema, select, columns=ddl_column_names)
+            self.db.execute(insert)
 
-                # if incremental load and columns not in same order than ddl columns -> stop
-                if (
-                    self.materialisation == "incremental"
-                    and self.sayn_config.options["full_load"] is False
-                    and self.db.table_exists(self.table, self.schema)
-                ):
-                    table_column_names = [
-                        c.name
-                        for c in self.db.get_table(self.table, self.schema).columns
-                    ]
-                    if ddl_column_names != table_column_names:
-                        UI().error(
-                            "ABORTING: DDL columns in task settings are not in similar order than table columns. Please do a full load of the table."
-                        )
-                        return TaskStatus.FAILED
+    def _exeplan_move(self, src_table, src_schema, dst_table, dst_schema, ddl):
+        move = self.db.move_table(src_table, src_schema, dst_table, dst_schema, ddl)
+        self.db.execute(move)
 
-                # create table with DDL and insert the output of the select
-                self.query_plan["tmp_drop"] = self.db.drop_table(
-                    self.tmp_table, self.tmp_schema
-                )
-                self.query_plan["tmp_create"] = self.db.create_table_ddl(
-                    self.tmp_table, self.tmp_schema, self.ddl, replace=True
-                )
+    def _exeplan_merge(self, tmp_table, tmp_schema, table, schema, delete_key):
+        merge = self.db.merge_tables(tmp_table, tmp_schema, table, schema, delete_key)
+        self.db.execute(merge)
 
-                # we need to reshape the query to ensure that the columns are always in the right order
-                self.query_plan["tmp_insert"] = self.db.insert(
-                    self.tmp_table, self.tmp_schema, query, columns=ddl_column_names
-                )
-                # create_load = (
-                #    f"-- Create table\n"
-                #    f"{create_table_ddl}\n\n"
-                #    f"-- Load data\n"
-                #    f"{insert}\n\n"
-                # )
+    def _exeplan_create_indexes(self, table, schema, ddl):
+        if self.ddl.get("indexes") is not None:
+            indexes = self.db.create_indexes(table, schema, ddl)
+            self.db.execute(indexes)
 
-            else:
-                # or create from the select if DDL not present
-                self.query_plan["tmp_drop"] = self.db.drop_table(
-                    self.tmp_table, self.tmp_schema
-                )
-                self.query_plan["tmp_create"] = self.db.create_table_select(
-                    self.tmp_table, self.tmp_schema, query, replace=True, ddl=self.ddl
-                )
+    def _exeplan_set_permissions(self, table, schema, ddl):
+        if ddl.get("permissions") is not None:
+            permissions = self.db.grant_permissions(table, schema, ddl["permissions"])
+            self.db.execute(permissions)
 
-            # Add indexes if necessary
-            if self.ddl.get("indexes") is not None:
-                self.query_plan["indexes"] = self.db.create_indexes(
-                    self.tmp_table, self.tmp_schema, self.ddl
-                )
-
-        # 2. Move
-        if self.materialisation == "table":
-            self.query_plan["drop"] = self.db.drop_table(self.table, self.schema)
-            self.query_plan["move"] = self.db.move_table(
+    def exeplan(self):
+        if self.materialisation == "view":
+            self._exeplan_drop(self.table, self.schema, view=True)
+            self._exeplan_create(self.table, self.schema, self.select_query, view=True)
+        elif self.materialisation == "table" or (
+            self.materialisation == "incremental"
+            and (
+                self.sayn_config.options["full_load"] is True
+                or self.db.table_exists(self.table, self.schema) is False
+            )
+        ):
+            self._exeplan_drop(self.tmp_table, self.tmp_schema)
+            self._exeplan_create(
+                self.tmp_table, self.tmp_schema, self.select_query, ddl=self.ddl
+            )
+            self._exeplan_create_indexes(self.tmp_table, self.tmp_schema, self.ddl)
+            self._exeplan_drop(self.table, self.schema)
+            self._exeplan_move(
                 self.tmp_table, self.tmp_schema, self.table, self.schema, self.ddl
             )
-
-        # 3. Merge
-        if self.materialisation == "incremental":
-            self.merge_query = self.db.merge_tables(
+        else:  # incremental not full refresh or incremental table exists
+            self._exeplan_drop(self.tmp_table, self.tmp_schema)
+            self._exeplan_create(
+                self.tmp_table, self.tmp_schema, self.select_query, ddl=self.ddl
+            )
+            self._exeplan_merge(
                 self.tmp_table,
                 self.tmp_schema,
                 self.table,
@@ -253,10 +193,5 @@ class AutoSqlTask(SqlTask):
                 self.delete_key,
             )
 
-        # Permissions are always the same
-        if self.ddl.get("permissions") is not None:
-            self.permissions_query = self.db.grant_permissions(
-                self.table, self.schema, self.ddl["permissions"]
-            )
-
-        return TaskStatus.READY
+        # permissions
+        self._exeplan_set_permissions(self.table, self.schema, self.ddl)
