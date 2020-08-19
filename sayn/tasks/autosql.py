@@ -6,7 +6,7 @@ from ..utils.ui import UI
 
 
 class AutoSqlTask(SqlTask):
-    # CORE
+    # Core
 
     def setup(self):
         self.db = self.sayn_config.default_db
@@ -47,13 +47,48 @@ class AutoSqlTask(SqlTask):
         return super(AutoSqlTask, self).compile()
 
     def run(self):
+        # Compilation
         UI().debug("Writting query on disk")
         self.compile()
 
+        # Execution
         UI().debug("Running SQL")
         UI().debug(self.select_query)
 
-        self.exeplan()
+        if self.materialisation == "view":
+            self._exeplan_drop(self.table, self.schema, view=True)
+            self._exeplan_create(self.table, self.schema, self.select_query, view=True)
+        elif self.materialisation == "table" or (
+            self.materialisation == "incremental"
+            and (
+                self.sayn_config.options["full_load"] is True
+                or self.db.table_exists(self.table, self.schema) is False
+            )
+        ):
+            self._exeplan_drop(self.tmp_table, self.tmp_schema)
+            self._exeplan_create(
+                self.tmp_table, self.tmp_schema, self.select_query, ddl=self.ddl
+            )
+            self._exeplan_create_indexes(self.tmp_table, self.tmp_schema, self.ddl)
+            self._exeplan_drop(self.table, self.schema)
+            self._exeplan_move(
+                self.tmp_table, self.tmp_schema, self.table, self.schema, self.ddl
+            )
+        else:  # incremental not full refresh or incremental table exists
+            self._exeplan_drop(self.tmp_table, self.tmp_schema)
+            self._exeplan_create(
+                self.tmp_table, self.tmp_schema, self.select_query, ddl=self.ddl
+            )
+            self._exeplan_merge(
+                self.tmp_table,
+                self.tmp_schema,
+                self.table,
+                self.schema,
+                self.delete_key,
+            )
+
+        # permissions
+        self._exeplan_set_permissions(self.table, self.schema, self.ddl)
 
         return self.success()
 
@@ -107,8 +142,6 @@ class AutoSqlTask(SqlTask):
         except Exception as e:
             return self.failed(f"Error compiling template\n{e}")
 
-        print(self.select_query)
-
         return TaskStatus.READY
 
     # Task property methods - EXECUTION
@@ -159,39 +192,3 @@ class AutoSqlTask(SqlTask):
         if ddl.get("permissions") is not None:
             permissions = self.db.grant_permissions(table, schema, ddl["permissions"])
             self.db.execute(permissions)
-
-    def exeplan(self):
-        if self.materialisation == "view":
-            self._exeplan_drop(self.table, self.schema, view=True)
-            self._exeplan_create(self.table, self.schema, self.select_query, view=True)
-        elif self.materialisation == "table" or (
-            self.materialisation == "incremental"
-            and (
-                self.sayn_config.options["full_load"] is True
-                or self.db.table_exists(self.table, self.schema) is False
-            )
-        ):
-            self._exeplan_drop(self.tmp_table, self.tmp_schema)
-            self._exeplan_create(
-                self.tmp_table, self.tmp_schema, self.select_query, ddl=self.ddl
-            )
-            self._exeplan_create_indexes(self.tmp_table, self.tmp_schema, self.ddl)
-            self._exeplan_drop(self.table, self.schema)
-            self._exeplan_move(
-                self.tmp_table, self.tmp_schema, self.table, self.schema, self.ddl
-            )
-        else:  # incremental not full refresh or incremental table exists
-            self._exeplan_drop(self.tmp_table, self.tmp_schema)
-            self._exeplan_create(
-                self.tmp_table, self.tmp_schema, self.select_query, ddl=self.ddl
-            )
-            self._exeplan_merge(
-                self.tmp_table,
-                self.tmp_schema,
-                self.table,
-                self.schema,
-                self.delete_key,
-            )
-
-        # permissions
-        self._exeplan_set_permissions(self.table, self.schema, self.ddl)
