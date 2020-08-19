@@ -49,7 +49,7 @@ class SqlTask(Task):
 
         return self.success()
 
-    # Task property methods
+    # Task property methods - SETUP
 
     def _setup_file_name(self):
         # file_name pointint to the code for the sql task
@@ -134,6 +134,88 @@ class SqlTask(Task):
             return self.failed(f"Error compiling template\n{e}")
 
         return TaskStatus.READY
+
+    # Task property methods - EXECUTION
+
+    def _exeplan_drop(self, table, schema, view=False):
+        UI().debug(
+            "Dropping {name}...".format(
+                name=f"{'' if schema is None else schema +'.'}{table}"
+            )
+        )
+        stop = False
+        try:
+            drop1 = self.db.drop_table(table, schema, view=view)
+            self.db.execute(drop1)
+            stop = True
+        except:
+            pass
+
+        if stop is False:
+            try:
+                drop2 = self.db.drop_table(table, schema, view=not view)
+                self.db.execute(drop2)
+            except:
+                pass
+
+    def _exeplan_create(self, table, schema, select=None, view=False, ddl=dict()):
+        UI().debug(
+            "Creating {table_or_view} {name}...".format(
+                table_or_view="view" if view is True else "table",
+                name=f"{'' if schema is None else schema +'.'}{table}",
+            )
+        )
+        if ddl.get("columns") is None:
+            create = self.db.create_table_select(table, schema, select, view=view)
+            self.db.execute(create)
+        else:
+            ddl_column_names = [c["name"] for c in ddl.get("columns")]
+            # create table with DDL and insert the output of the select
+            create = self.db.create_table_ddl(table, schema, ddl)
+            self.db.execute(create)
+            if select is not None:
+                # we need to reshape the query to ensure that the columns are always in the right order
+                insert = self.db.insert(table, schema, select, columns=ddl_column_names)
+                self.db.execute(insert)
+
+    def _exeplan_create_indexes(self, table, schema, ddl=dict()):
+        if ddl.get("indexes") is not None:
+            UI().debug(
+                "Creating indexes on table {name}...".format(
+                    name=f"{'' if self.schema is None else self.schema +'.'}{self.table}"
+                )
+            )
+            indexes = self.db.create_indexes(table, schema, ddl)
+            self.db.execute(indexes)
+
+    def _exeplan_move(self, src_table, src_schema, dst_table, dst_schema, ddl=dict()):
+        UI().debug(
+            "Moving table {src_name} to {dst_name}...".format(
+                src_name=f"{'' if src_schema is None else src_schema +'.'}{src_table}",
+                dst_name=f"{'' if dst_schema is None else dst_schema +'.'}{dst_table}",
+            )
+        )
+        move = self.db.move_table(src_table, src_schema, dst_table, dst_schema, ddl)
+        self.db.execute(move)
+
+    def _exeplan_merge(self, tmp_table, tmp_schema, table, schema, delete_key):
+        UI().debug(
+            "Merging into table {name}...".format(
+                name=f"{'' if schema is None else schema +'.'}{table}"
+            )
+        )
+        merge = self.db.merge_tables(tmp_table, tmp_schema, table, schema, delete_key)
+        self.db.execute(merge)
+
+    def _exeplan_set_permissions(self, table, schema, ddl=dict()):
+        if ddl.get("permissions") is not None:
+            UI().debug(
+                "Setting permissions on {name}...".format(
+                    name=f"{'' if schema is None else schema +'.'}{table}"
+                )
+            )
+            permissions = self.db.grant_permissions(table, schema, ddl["permissions"])
+            self.db.execute(permissions)
 
     # Utility methods
 
