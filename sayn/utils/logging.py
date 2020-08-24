@@ -48,7 +48,7 @@ class LogFormatter:
         elif event["context"] == "task":
             lines = self.get_task_lines(**event)
 
-        if self.level == "debug" and len(lines) == 0:
+        if self.level == "debug" and (lines is None or len(lines) == 0):
             # TODO testing logging code. Should never execute.
             yield f"{event}"
         else:

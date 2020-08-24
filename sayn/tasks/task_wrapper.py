@@ -6,7 +6,7 @@ from copy import deepcopy
 from jinja2 import Environment, BaseLoader, StrictUndefined
 from pydantic import ValidationError
 
-from ..core.errors import TaskCreationError, TaskExecutionError, ConfigError
+from ..core.errors import Result
 from ..utils.misc import map_nested
 
 # from ..utils.python_loader import PythonLoader
@@ -68,7 +68,7 @@ class TaskWrapper:
     start_ts: None
     end_ts: None
 
-    def __init__(
+    def setup(
         self,
         task_info,
         parents,
@@ -80,6 +80,33 @@ class TaskWrapper:
         run_arguments,
         python_loader,
     ):
+        def error(kind, code, details):
+            self.status = TaskStatus.SETUP_FAILED
+            self.logger.current_step = None
+            self.logger._report_event(
+                event="error", error={"kind": kind, "code": code, "details": details}
+            )
+            return Result.Err(kind=kind, code=code, details=details)
+
+        def failed(result):
+            self.status = TaskStatus.SETUP_FAILED
+            self.logger.current_step = None
+            self.logger._report_event(
+                event="error",
+                error={k: result.error[k] for k in ("kind", "code", "error")},
+            )
+            return result
+
+        def setup_result(runner, result):
+            if not isinstance(result, Result):
+                return error("task_setup", "missing_result", {"result": result})
+            elif result.is_err:
+                return failed(result)
+            else:
+                self.runner = runner
+                self.status = TaskStatus.READY
+                return Result.Ok()
+
         self.status = TaskStatus.SETTING_UP
         self._info = task_info
 
@@ -89,6 +116,8 @@ class TaskWrapper:
         self._type = task_info.get("type")
         self.tags = task_info.get("tags", list())
         self.parents = parents
+
+        self.task_parameters = task_info.get("parameters", dict())
 
         self.logger = logger
 
@@ -101,87 +130,110 @@ class TaskWrapper:
         else:
             # Instantiate the Task runner object
             if self._type == "python":
-                if python_loader is None:
-                    raise ConfigError("No python folder found")
-                task_class = python_loader.get_class(
-                    "python_tasks", task_info.get("class")
-                )
-                if not issubclass(task_class, Task):
-                    raise ConfigError(
-                        "Python tasks need to inherit from Task. Use `from sayn import Task`."
-                    )
+                result = python_loader.get_class("python_tasks", task_info.get("class"))
+                if result.is_err:
+                    return failed(result)
+                else:
+                    task_class = result.value
+
             elif self._type in _creators:
                 task_class = _creators[self._type]
+
             else:
-                raise TaskCreationError(f'"{self._type}" is not a valid task type')
+                return error("task_config", "invalid_task_type", {"type": self._type})
 
-            runner = task_class()
-
-            # Add the basic properties
-            runner.name = self.name
-            runner.dag = self.dag
-            runner.tags = self.tags
-            runner.run_arguments = run_arguments
-            env_arguments = {
-                "full_load": run_arguments["full_load"],
-                "start_dt": run_arguments["start_dt"].strftime("%Y-%m-%d"),
-                "end_dt": run_arguments["end_dt"].strftime("%Y-%m-%d"),
-            }
-
-            # Process parameters
-            # The project parameters go as they come
-            runner.project_parameters = deepcopy(project_parameters or dict())
-            # Create a jinja environment with the project parameters so that we
-            # can use that to compile parameters and other properties
-            jinja_env = Environment(
-                loader=BaseLoader,
-                undefined=StrictUndefined,
-                keep_trailing_newline=True,
+            result = self.create_runner(
+                task_class,
+                {k: v for k, v in task_info.items() if k not in _excluded_properties},
+                run_arguments,
+                project_parameters,
+                default_db,
+                connections,
             )
-            jinja_env.globals.update(task=self)
-            jinja_env.globals.update(**env_arguments)
-            jinja_env.globals.update(**runner.project_parameters)
-            task_parameters = task_info.get("parameters", dict())
-            # Compile nested dictionary of parameters
+            if result.is_ok:
+                runner, runner_config = result.value
+            else:
+                return self.setup_failed(result)
+
+            # Run the setup stage for the runner
+            try:
+                return setup_result(runner, runner.setup(**runner_config))
+            except ValidationError as e:
+                return failed("task_config", "validation_error", {"errors": e.errors()})
+            # TODO add other exceptions like db
+            except Exception as e:
+                return failed("task_config", "unhandled_exception", {"exception": e})
+
+    def create_runner(
+        self,
+        task_class,
+        runner_config,
+        run_arguments,
+        project_parameters,
+        default_db,
+        connections,
+    ):
+        runner = task_class()
+
+        # Add the basic properties
+        runner.name = self.name
+        runner.dag = self.dag
+        runner.tags = self.tags
+        runner.run_arguments = run_arguments
+        env_arguments = {
+            "full_load": run_arguments["full_load"],
+            "start_dt": run_arguments["start_dt"].strftime("%Y-%m-%d"),
+            "end_dt": run_arguments["end_dt"].strftime("%Y-%m-%d"),
+        }
+
+        # Process parameters
+        # The project parameters go as they come
+        runner.project_parameters = deepcopy(project_parameters or dict())
+
+        # Create a jinja environment with the project parameters so that we
+        # can use that to compile parameters and other properties
+        jinja_env = Environment(
+            loader=BaseLoader, undefined=StrictUndefined, keep_trailing_newline=True,
+        )
+        jinja_env.globals.update(task=self)
+        jinja_env.globals.update(**env_arguments)
+        jinja_env.globals.update(**runner.project_parameters)
+        # Compile nested dictionary of parameters
+        try:
             runner.task_parameters = map_nested(
-                task_parameters,
+                self.task_parameters,
                 lambda x: jinja_env.from_string(x).render()
                 if isinstance(x, str)
                 else x,
             )
-            # Add the task paramters to the jinja environment
-            jinja_env.globals.update(**runner.task_parameters)
-            runner.jinja_env = jinja_env
+        except Exception as e:
+            return Result.Err(
+                module="tasks", error_code="compile_task_parameters", exception=e
+            )
 
-            # Now we can compile the other properties
-            runner_config = {
-                k: v for k, v in task_info.items() if k not in _excluded_properties
-            }
+        # Add the task paramters to the jinja environment
+        jinja_env.globals.update(**runner.task_parameters)
+        runner.jinja_env = jinja_env
+
+        # Now we can compile the other properties
+        try:
             runner_config = map_nested(
                 runner_config,
                 lambda x: runner.jinja_env.from_string(x).render()
                 if isinstance(x, str)
                 else x,
             )
+        except Exception as e:
+            return Result.Err(
+                module="tasks", error_code="compile_task_properties", exception=e
+            )
 
-            # Connections and logging
-            runner._default_db = default_db
-            runner.connections = connections
-            runner.logger = self.logger
+        # Connections and logging
+        runner._default_db = default_db
+        runner.connections = connections
+        runner.logger = self.logger
 
-            # Run the setup stage for the runner
-            try:
-                runner.setup(**runner_config)
-                self.runner = runner
-                self.status = TaskStatus.READY
-            except ValidationError as e:
-                self.status = TaskStatus.FAILED
-                self.logger.error(f"Error setting up: {e}")
-            except Exception as e:
-                self.status = TaskStatus.FAILED
-                self.logger.error(f"Error setting up: {e}")
-
-        self.logger.current_step = None
+        return Result.Ok((runner, runner_config))
 
     def should_run(self):
         return self.status == TaskStatus.NOT_IN_QUERY
@@ -211,7 +263,7 @@ class TaskWrapper:
         if not self.in_query:
             # TODO review this as it should never happend
             self.logger._report_event(
-                event="ignored_task", level="debug",
+                event="finish_task", level="error", message="Task not in query"
             )
             self.status = TaskStatus.NOT_IN_QUERY
         elif not self.can_run():
@@ -230,10 +282,6 @@ class TaskWrapper:
                     self.status = self.runner.run()
                 else:
                     self.status = self.runner.compile()
-            except TaskExecutionError as e:
-                message = e.message
-                details = e.details
-                self.status = TaskStatus.FAILED
             except Exception as e:
                 message = f"{e}"
                 self.status = TaskStatus.FAILED

@@ -7,7 +7,7 @@ from ..tasks.task_wrapper import TaskWrapper
 from ..utils.dag import query as dag_query, topological_sort
 from ..utils.misc import group_list
 from .config import get_connections
-from .errors import CommandError, ConfigError
+from .errors import Result
 from .event_tracker import EventTracker
 
 run_id = uuid4()
@@ -62,8 +62,10 @@ class App:
         # Get parameters and credentials from yaml
         if settings.yaml is not None:
             if profile_name is not None and profile_name not in settings.yaml.profiles:
-                raise CommandError(
-                    f'Profile "{profile_name}" not defined in settings.yaml.'
+                return Result.Err(
+                    module="app",
+                    error_code="wrong_profile",
+                    message=f'Profile "{profile_name}" not defined in settings.yaml.',
                 )
 
             profile_name = profile_name or settings.yaml.default_profile
@@ -86,8 +88,11 @@ class App:
         # Validate the given parameters
         error_items = set(parameters.keys()) - set(self.project_parameters.keys())
         if error_items:
-            raise ConfigError(
-                f"Some parameters are not accepted by this project: {', '.join(error_items)}"
+            return Result.Err(
+                module="app",
+                error_code="wrong_parameters",
+                parameters=error_items,
+                message=f"Some parameters are not accepted by this project: {', '.join(error_items)}",
             )
 
         self.project_parameters.update(parameters)
@@ -95,24 +100,37 @@ class App:
         # Validate credentials
         error_items = set(credentials.keys()) - set(self.credentials.keys())
         if error_items:
-            raise ConfigError(
-                f"Some credentials are not accepted by this project: {', '.join(error_items)}"
+            return Result.Err(
+                module="app",
+                error_code="wrong_credentials",
+                credentials=error_items,
+                message=f"Some credentials are not accepted by this project: {', '.join(error_items)}",
             )
 
         error_items = set(self.credentials.keys()) - set(credentials.keys())
         if error_items:
-            raise ConfigError(f"Some credentials are missing: {', '.join(error_items)}")
+            return Result.Err(
+                module="app",
+                error_code="missing_credentials",
+                credentials=error_items,
+                message=f"Some credentials are missing: {', '.join(error_items)}",
+            )
 
         error_items = [n for n, v in credentials.items() if "type" not in v]
         if error_items:
-            raise ConfigError(
-                f"Some credentials are missing a type: {', '.join(error_items)}"
+            return Result.Err(
+                module="app",
+                error_code="missing_credential_type",
+                credentials=error_items,
+                message=f"Some credentials are missing a type: {', '.join(error_items)}",
             )
 
         self.credentials.update(credentials)
 
         # Create connections
         self.connections = get_connections(self.credentials)
+
+        return Result.Ok()
 
     def set_tasks(self, tasks, task_query):
         self.task_query = task_query
@@ -131,7 +149,8 @@ class App:
 
         for task_name, task in self._tasks_dict.items():
             self.tracker.set_current_task(task_name)
-            self.tasks[task_name] = TaskWrapper(
+            self.tasks[task_name] = TaskWrapper()
+            result = self.tasks[task_name].setup(
                 task,
                 [self.tasks[p] for p in task.get("parents", list())],
                 task_name in tasks_in_query,
@@ -142,6 +161,8 @@ class App:
                 self.run_arguments,
                 self.python_loader,
             )
+            if result.is_err:
+                pass
 
     # Utilities
     @contextmanager

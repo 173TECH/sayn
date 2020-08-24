@@ -67,7 +67,10 @@ class EventTracker:
         return TaskLogger(self, task_name)
 
     def report_event(self, **event):
-        if event["context"] == "task":
+        if "context" not in event:
+            event["context"] = "app"
+
+        elif event["context"] == "task":
             event["total_tasks"] = len(self.tasks)
             event["task_order"] = self.tasks.index(event["task"]) + 1
 
@@ -95,3 +98,6 @@ class EventTracker:
 
         for logger in self.loggers:
             logger.report_event(**event)
+
+    def report_error(self, error):
+        self.report_event(event="error", level="error", **error)

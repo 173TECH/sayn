@@ -3,7 +3,6 @@ from pathlib import Path
 from pydantic import BaseModel, FilePath, validator
 
 from . import Task
-from ..core.errors import TaskCreationError
 
 
 class Config(BaseModel):
@@ -22,7 +21,7 @@ class SqlTask(Task):
         try:
             self.compiled = self.compile_obj(self.config.file_name)
         except Exception as e:
-            raise TaskCreationError(f"Error compiling template\n{e}")
+            return self.fail(message=f"Error compiling template\n{e}")
 
         self.set_run_steps(["write_query_on_disk", "execute_sql"])
 

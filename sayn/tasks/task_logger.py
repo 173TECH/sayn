@@ -19,6 +19,7 @@ class TaskLogger:
             )
         elif self.current_step is not None:
             self._report_event(
+                level="info",
                 event="finish_step",
                 step=self.current_step,
                 step_order=self.steps.index(self.current_step)
@@ -35,7 +36,26 @@ class TaskLogger:
             else None,
         )
 
-    def finish_current_step(self):
+    def finish_current_step(self, exception=None):
+        if exception is not None:
+            self._report_event(
+                level="error",
+                event="finish_step",
+                step=self.current_step,
+                step_order=self.steps.index(self.current_step)
+                if len(self.steps) > 0
+                else None,
+                details=f"{exception}",
+            )
+        else:
+            self._report_event(
+                level="info",
+                event="finish_step",
+                step=self.current_step,
+                step_order=self.steps.index(self.current_step)
+                if len(self.steps) > 0
+                else None,
+            )
         self.current_step = None
 
     def debug(self, message, step=None, details=None):

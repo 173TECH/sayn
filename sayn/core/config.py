@@ -11,30 +11,36 @@ from ruamel.yaml.error import MarkedYAMLError
 from ..database.creator import create as create_db
 from ..utils.misc import merge_dicts, merge_dict_list
 from ..utils.dag import dag_is_valid, upstream, topological_sort
-from .errors import YamlParsingError, ConfigError
+from .errors import Result
 
 RE_ENV_VAR_NAME = re.compile(r"SAYN_(?P<type>PARAMETER|CREDENTIAL)_(?P<name>.*)")
 
 
 def read_yaml_file(filename):
-    yaml = YAML()
-
     try:
         contents = Path(filename).read_text()
     except:
-        raise ConfigError(f"{filename} not found or could not be read")
+        return Result.Err(
+            module="read_yaml_file", error_code="read_file", filename=filename,
+        )
 
     try:
-        parsed = yaml.load(contents)
+        parsed = YAML().load(contents)
     except MarkedYAMLError as e:
-        raise YamlParsingError(e.problem, "project.yaml", e.problem_mark.line + 1)
+        return Result.Err(
+            module="read_yaml_file",
+            error_code="yaml_parse",
+            error=e.problem,
+            filename=filename,
+            lineno=e.problem_mark.line + 1,
+        )
 
-    return parsed
+    return Result.Ok(parsed)
 
 
 def is_unique(field_name, v):
     if len(set(v)) != len(v):
-        raise ConfigError(f"Duplicate values found in {field_name}")
+        raise ValueError(f"Duplicate values found in {field_name}")
     return v
 
 
@@ -56,12 +62,23 @@ class Project(BaseModel):
     @validator("default_db")
     def default_db_exists(cls, v, values, **kwargs):
         if v not in values["required_credentials"]:
-            raise ConfigError(f'default_db value "{v}" not in required_credentials')
+            raise ValueError(f'default_db value "{v}" not in required_credentials')
         return v
 
 
 def read_project():
-    return Project(**read_yaml_file(Path("project.yaml")))
+    result = read_yaml_file(Path("project.yaml"))
+    if result.is_err:
+        return result
+
+    try:
+        project = Project(**result.value)
+    except ValidationError as e:
+        return Result.Err(
+            module="read_project", error_code="validation_error", errors=e.errors()
+        )
+
+    return Result.Ok(project)
 
 
 class Dag(BaseModel):
@@ -70,7 +87,15 @@ class Dag(BaseModel):
 
 
 def read_dags(dags):
-    return {name: Dag(**read_yaml_file(Path("dags", f"{name}.yaml"))) for name in dags}
+    out = dict()
+    for name in dags:
+        result = read_yaml_file(Path("dags", f"{name}.yaml"))
+        if result.is_err:
+            return result
+        else:
+            out[name] = Dag(**result.value)
+
+    return Result.Ok(out)
 
 
 class Settings(BaseModel):
@@ -90,14 +115,14 @@ class Settings(BaseModel):
         @validator("profiles")
         def yaml_credentials(cls, v, values, **kwargs):
             if v is None:
-                raise ConfigError("No profiles defined in settings.yaml.")
+                raise ValueError("No profiles defined in settings.yaml.")
             for profile_name, profile in v.items():
                 for project_name, settings_name in profile.credentials.items():
                     if "credentials" not in values:
-                        raise ConfigError("No credentials defined in settings.yaml.")
+                        raise ValueError("No credentials defined in settings.yaml.")
 
                     if settings_name not in values["credentials"]:
-                        raise ConfigError(
+                        raise ValueError(
                             f'"{settings_name}" in profile "{profile_name}" not declared in credentials.'
                         )
 
@@ -112,16 +137,16 @@ class Settings(BaseModel):
                 return v
 
             if v is None and len(values["profiles"]) > 1:
-                raise ConfigError(
+                raise ValueError(
                     'Can\'t determine default profile. Use "default_profile" to specify it.'
                 )
             elif v is None:
                 return list(values["profiles"].keys())[0]
 
             if "profiles" not in values:
-                raise ConfigError("No profiles defined in settings.yaml.")
+                raise ValueError("No profiles defined in settings.yaml.")
             elif v not in values["profiles"].keys():
-                raise ConfigError(f'default_profile "{v}" not in the profiles map.')
+                raise ValueError(f'default_profile "{v}" not in the profiles map.')
 
             return v
 
@@ -129,7 +154,7 @@ class Settings(BaseModel):
             profile_name = profile_name or self.default_profile
 
             if profile_name not in self.profiles:
-                raise ConfigError(f'Profile "{profile_name}" not in settings.yaml.')
+                raise ValueError(f'Profile "{profile_name}" not in settings.yaml.')
 
             return {
                 "parameters": self.profiles[profile_name].parameters,
@@ -146,7 +171,11 @@ class Settings(BaseModel):
 
     def get_settings(self, profile_name=None):
         if profile_name is not None and self.yaml is None:
-            raise ConfigError("No settings.yaml file found.")
+            return Result.Err(
+                module="get_settings",
+                error_code="missing_settings_yaml",
+                message="No settings.yaml file found.",
+            )
         elif self.yaml is not None:
             out = self.yaml.get_profile_info(profile_name)
         else:
@@ -160,7 +189,7 @@ class Settings(BaseModel):
             if self.environment.credentials is not None:
                 out["credentials"].update(self.environment.credentials)
 
-        return out
+        return Result.Ok(out)
 
 
 def read_settings():
@@ -180,19 +209,25 @@ def read_settings():
 
     filepath = Path("settings.yaml")
     if filepath.exists():
-        settings_yaml = read_yaml_file(filepath)
+        result = read_yaml_file(filepath)
+        if result.is_err:
+            return result
+        else:
+            settings_yaml = result.value
     else:
         settings_yaml = None
 
     try:
         if settings_yaml is not None:
-            return Settings(yaml=settings_yaml, environment=environment)
+            return Result.Ok(Settings(yaml=settings_yaml, environment=environment))
         else:
-            return Settings(environment=environment)
+            return Result.Ok(Settings(environment=environment))
     except ValidationError as e:
-        raise ConfigError(f"{e}")
+        return Result.Err(
+            module="read_settings", error_code="validation_error", message=f"{e}"
+        )
     except Exception as e:
-        raise e
+        return Result.Err(module="read_settings", error_code="unknow", message=f"{e}")
 
 
 ###############################
@@ -298,12 +333,17 @@ def get_task_dict(task, task_name, dag_name, presets):
             f"{dag_name}:{preset_name}", presets.get(f"sayn_global:{preset_name}")
         )
         if preset is None:
-            raise ConfigError(
-                f'Preset "{preset_name}" referenced by task "{task_name}" in dag "{dag_name}" not declared'
+            return Result.Err(
+                module="get_task_dict",
+                error_code="missing_preset",
+                dag=dag_name,
+                task=task_name,
+                preset=preset_name,
+                message=f'Preset "{preset_name}" referenced by task "{task_name}" in dag "{dag_name}" not declared',
             )
         task = merge_dicts(preset, task)
 
-    return dict(task, name=task_name, dag=dag_name)
+    return Result.Ok(dict(task, name=task_name, dag=dag_name))
 
 
 def get_tasks_dict(global_presets, dags):
@@ -315,8 +355,19 @@ def get_tasks_dict(global_presets, dags):
     """
     presets = get_presets(global_presets, dags)
 
-    return {
-        task_name: get_task_dict(task, task_name, dag_name, presets)
-        for dag_name, dag in dags.items()
-        for task_name, task in dag.tasks.items()
-    }
+    errors = dict()
+    tasks = dict()
+    for dag_name, dag in dags.items():
+        for task_name, task in dag.tasks.items():
+            result = get_task_dict(task, task_name, dag_name, presets)
+            if result.is_ok:
+                tasks[task_name] = result.value
+            else:
+                errors[task_name] = result.error
+
+    if len(errors) > 0:
+        return Result.Err(
+            module="get_tasks_dict", error_code="task_parsing_error", errors=errors
+        )
+    else:
+        return Result.Ok(tasks)

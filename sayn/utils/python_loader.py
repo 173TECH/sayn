@@ -2,19 +2,19 @@ from pathlib import Path
 import importlib
 import sys
 
-from ..core.errors import PythonLoaderError
+from ..core.errors import Result
 
 
 class PythonLoader:
     modules = list()
 
-    def register_module(self, key, folder):
-        if f"sayn_{key}" in self.modules:
-            raise PythonLoaderError(f"{key.capitalize()} module already registered")
+    def has_module(self, key):
+        return key in self.modules
 
+    def register_module(self, key, folder):
         path = Path(folder, "__init__.py")
         if not path.is_file():
-            raise PythonLoaderError(f"Missing file: {path.fullname}")
+            return Result.Err("python_loader", "missing_init_py", {"path": path})
 
         loader = importlib.machinery.SourceFileLoader(
             key, str(Path(folder, "__init__.py"))
@@ -27,15 +27,21 @@ class PythonLoader:
         try:
             loader.exec_module(m)
         except Exception as e:
-            raise PythonLoaderError(
-                f"Error importing python module {self.python_path.absolute}, {e}"
+            return Result.Err(
+                "python_loader",
+                "exec_module_exception",
+                {"module_key": key, "exception": e},
             )
 
         self.modules.append(f"sayn_{key}")
 
+        return Result.Ok()
+
     def get_class(self, module_key, class_path):
         if f"sayn_{module_key}" not in self.modules:
-            raise PythonLoaderError(f"{module_key} module  not registered registered")
+            return Result.Err(
+                "python_loader", "module_not_registered", {"module_key": module_key}
+            )
 
         module_str = ".".join(class_path.split(".")[:-1])
         class_name = class_path.split(".")[-1]
@@ -44,18 +50,28 @@ class PythonLoader:
             try:
                 task_module = importlib.import_module(f"sayn_{module_key}.{module_str}")
             except Exception as e:
-                raise PythonLoaderError(f'Error loading module "{module_str}", {e}')
+                return Result.Err(
+                    "python_loader",
+                    "load_class_exception",
+                    {"module_key": module_key, "exception": e},
+                )
         else:
             task_module = importlib.import_module(f"sayn_{module_key}")
 
         try:
             klass = getattr(task_module, class_name)
-        except Exception as e:
-            module_file_name = (
-                module_str.replace(".", "/") if len(module_str) > 0 else "__init__"
-            )
-            raise PythonLoaderError(
-                f'Error importing class "{class_path}" found in "python/{module_file_name}.py", {e}'
+        except:
+            # module_file_name = (
+            #     module_str.replace(".", "/") if len(module_str) > 0 else "__init__"
+            # )
+            return Result.Err(
+                "python_loader",
+                "missing_class",
+                {
+                    "module_key": module_key,
+                    "module_path": module_str,
+                    "class": class_name,
+                },
             )
 
-        return klass
+        return Result.Ok(klass)

@@ -1,3 +1,26 @@
+class Result:
+    is_ok = False
+    value = None
+    error = None
+
+    def __init__(self, is_ok, value, error):
+        self.is_ok = is_ok
+        self.value = value
+        self.error = error
+
+    @classmethod
+    def Err(cls, kind, code, details):
+        return cls(False, None, {"kind": kind, "code": code, "details": details})
+
+    @classmethod
+    def Ok(cls, value=None):
+        return cls(True, value, None)
+
+    @property
+    def is_err(self):
+        return not self.is_ok
+
+
 class DagMissingParentsError(Exception):
     def __init__(self, missing):
         message = "Some referenced tasks are missing: " + ", ".join(
@@ -23,10 +46,6 @@ class ConfigError(Exception):
     pass
 
 
-class CommandError(Exception):
-    pass
-
-
 class YamlParsingError(ConfigError):
     def __init__(self, problem, file, line):
         message = f"Error parsing {file}: {problem} on line {line}"
@@ -37,29 +56,9 @@ class YamlParsingError(ConfigError):
         self.line = line
 
 
-class PythonLoaderError(Exception):
-    pass
-
-
-class TaskQueryError(Exception):
-    pass
-
-
 class DatabaseError(Exception):
     pass
 
 
-class TaskError(Exception):
-    pass
-
-
-class TaskExecutionError(Exception):
-    def __init__(self, message, details):
-        self.message = message
-        super().__init__(message)
-
-        self.details = details
-
-
-class TaskCreationError(TaskError):
+class TaskCreationError(Exception):
     pass

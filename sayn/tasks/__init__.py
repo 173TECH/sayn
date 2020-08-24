@@ -4,18 +4,22 @@ from pathlib import Path
 
 from jinja2 import Template
 
-from ..core.errors import TaskExecutionError
+from ..core.errors import Result
 
 
 class TaskStatus(Enum):
-    UNKNOWN = "unknown"
+    NOT_IN_QUERY = "not_in_query"
+
     SETTING_UP = "setting_up"
     READY = "ready"
+    SETUP_FAILED = "setup_failed"
+
     EXECUTING = "executing"
     SUCCEEDED = "succeeded"
     FAILED = "failed"
     SKIPPED = "skipped"
-    NOT_IN_QUERY = "not_in_query"
+
+    UNKNOWN = "unknown"
 
 
 class Task:
@@ -58,8 +62,12 @@ class Task:
     @contextmanager
     def step(self, step):
         self.logger.start_step(step)
-        yield
-        self.logger.finish_current_step()
+        try:
+            yield
+            self.logger.finish_current_step()
+        except Exception as e:
+            self.logger.finish_current_step(e)
+            raise e
 
     # Jinja methods
     def get_template(self, obj):
@@ -90,20 +98,13 @@ class Task:
 
     # Status methods
 
-    def setting_up(self):
-        return TaskStatus.SETTING_UP
-
     def ready(self):
-        return TaskStatus.READY
-
-    def executing(self):
-        return TaskStatus.EXECUTING
+        return Result.Ok()
 
     def success(self):
-        return TaskStatus.SUCCEEDED
+        return Result.Ok()
 
     def fail(self, message=None, details=None):
-        raise TaskExecutionError(message, details)
-
-    def skip(self):
-        return TaskStatus.SKIPPED
+        return Result.Err(
+            module="tasks", error_code="task_fail", message=message, details=details
+        )

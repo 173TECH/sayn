@@ -1,6 +1,6 @@
 import re
 
-from ..core.errors import TaskQueryError
+from ..core.errors import Result
 
 #####################################
 # Task query interpretation functions
@@ -21,7 +21,12 @@ def _get_query_component(tasks, query):
     tasks = {k: {"dag": v["dag"], "tags": v.get("tags")} for k, v in tasks.items()}
     match = RE_TASK_QUERY.match(query)
     if match is None:
-        raise TaskQueryError(f'Incorrect task query syntax "{query}"')
+        return Result.Err(
+            module="task_query",
+            error_code="incorrect_syntax",
+            query=query,
+            message=f'Incorrect task query syntax "{query}"',
+        )
     else:
         match_components = match.groupdict()
 
@@ -29,7 +34,12 @@ def _get_query_component(tasks, query):
             tag = match_components["tag"]
             relevant_tasks = {k: v for k, v in tasks.items() if tag in v.get("tags")}
             if len(relevant_tasks) == 0:
-                raise TaskQueryError(f'Undefined tag "{tag}"')
+                return Result.Err(
+                    module="task_query",
+                    error_code="undefined_tag",
+                    tag=tag,
+                    message=f'Undefined tag "{tag}"',
+                )
             return [
                 {"task": task, "upstream": False, "downstream": False}
                 for task, value in relevant_tasks.items()
@@ -39,7 +49,12 @@ def _get_query_component(tasks, query):
             dag = match_components["dag"]
             relevant_tasks = {k: v for k, v in tasks.items() if dag == v.get("dag")}
             if len(relevant_tasks) == 0:
-                raise TaskQueryError(f'Undefined dag "{dag}"')
+                return Result.Err(
+                    module="task_query",
+                    error_code="undefined_dag",
+                    dag=dag,
+                    message=f'Undefined dag "{dag}"',
+                )
             return [
                 {"task": task, "upstream": False, "downstream": False}
                 for task, value in relevant_tasks.items()
@@ -48,7 +63,12 @@ def _get_query_component(tasks, query):
         if match_components.get("task") is not None:
             task = match_components["task"]
             if task not in tasks:
-                raise TaskQueryError(f'Undefined task "{task}"')
+                return Result.Err(
+                    module="task_query",
+                    error_code="undefined_task",
+                    task=task,
+                    message=f'Undefined task "{task}"',
+                )
             return [
                 {
                     "task": task,
@@ -62,14 +82,23 @@ def get_query(tasks, include=list(), exclude=list()):
     overlap = set(include).intersection(set(exclude))
     if len(overlap) > 0:
         overlap = ", ".join(overlap)
-        raise TaskQueryError(f'Overlap between include and exclude for "{overlap}"')
+        return Result.Err(
+            module="task_query",
+            error_code="query_overlap",
+            overlap=overlap,
+            message=f'Overlap between include and exclude for "{overlap}"',
+        )
 
-    output = [
-        dict(comp, operation=operation)
-        for operation, components in (("include", include), ("exclude", exclude))
-        for q in components
-        for comp in _get_query_component(tasks, q)
-    ]
+    output = list()
+    for operation, components in (("include", include), ("exclude", exclude)):
+        for q in components:
+            result = _get_query_component(tasks, q)
+            if result.is_err:
+                return result
+            else:
+                components = result.value
+            for comp in components:
+                output.append(dict(comp, operation=operation))
 
     # simplify the queries by unifying upstream/downstream
     include = dict()
@@ -86,8 +115,10 @@ def get_query(tasks, include=list(), exclude=list()):
                 "downstream": operand["downstream"],
             }
 
-    return [
-        dict(flags, task=task, operation=operation)
-        for operation, operands in (("include", include), ("exclude", exclude))
-        for task, flags in operands.items()
-    ]
+    return Result.Ok(
+        [
+            dict(flags, task=task, operation=operation)
+            for operation, operands in (("include", include), ("exclude", exclude))
+            for task, flags in operands.items()
+        ]
+    )

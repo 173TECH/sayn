@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import date, timedelta
+import sys
 
 import click
 
@@ -10,6 +11,7 @@ from .utils.logging import ConsoleLogger, ConsoleDebugLogger, FileLogger
 from .scaffolding.init_project import sayn_init
 from .core.app import App
 from .core.config import read_project, read_dags, read_settings, get_tasks_dict
+from .core.errors import Result
 
 
 class CliApp(App):
@@ -39,23 +41,40 @@ class CliApp(App):
             )
 
             # Read the project configuration
-            project = read_project()
-            dags = read_dags(project.dags)
+            project = self.handle_result(read_project())
+            dags = self.handle_result(read_dags(project.dags))
             self.set_project(project)
-            settings = read_settings()
-            self.set_settings(settings)
+            settings = self.handle_result(read_settings())
+            self.handle_result(self.set_settings(settings))
 
             # Set python environment
             self.python_loader = PythonLoader()
             if Path(self.run_arguments["folders"]["python"]).is_dir():
-                self.python_loader.register_module(
-                    "python_tasks", self.run_arguments["folders"]["python"]
+                self.handle_result(
+                    self.python_loader.register_module(
+                        "python_tasks", self.run_arguments["folders"]["python"]
+                    )
                 )
 
             # Set tasks and dag from it
-            tasks_dict = get_tasks_dict(project.presets, dags)
-            task_query = get_query(tasks_dict, include=include, exclude=exclude)
+            tasks_dict = self.handle_result(get_tasks_dict(project.presets, dags))
+            task_query = self.handle_result(
+                get_query(tasks_dict, include=include, exclude=exclude)
+            )
             self.set_tasks(tasks_dict, task_query)
+
+    def handle_result(self, result):
+        if result is None or not isinstance(result, Result):
+            raise ValueError("adfadf")
+            self.tracker.report_error(
+                {"error_code": "unhandled_error", "result": result}
+            )
+            sys.exit()
+        elif result.is_err:
+            self.tracker.report_error(result.error)
+            sys.exit()
+        else:
+            return result.value
 
 
 # Click arguments
