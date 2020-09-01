@@ -69,7 +69,6 @@ class AutoSqlTask(SqlTask):
             self._exeplan_create(
                 self.tmp_table, self.tmp_schema, select=self.sql_query, ddl=self.ddl
             )
-            # introspect table to get column names and ensure load
             self._exeplan_merge(
                 self.tmp_table,
                 self.tmp_schema,
