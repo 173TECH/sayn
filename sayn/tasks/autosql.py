@@ -29,10 +29,6 @@ class AutoSqlTask(SqlTask):
         if status != TaskStatus.READY:
             return status
 
-        status = self._pre_run_checks()
-        if status != TaskStatus.READY:
-            return status
-
         status = self._setup_query()
         if status != TaskStatus.READY:
             return status
@@ -73,12 +69,14 @@ class AutoSqlTask(SqlTask):
             self._exeplan_create(
                 self.tmp_table, self.tmp_schema, select=self.sql_query, ddl=self.ddl
             )
+            # introspect table to get column names and ensure load
             self._exeplan_merge(
                 self.tmp_table,
                 self.tmp_schema,
                 self.table,
                 self.schema,
                 self.delete_key,
+                ddl=self.ddl,
             )
             self._exeplan_drop(self.tmp_table, self.tmp_schema)
 
@@ -108,25 +106,5 @@ class AutoSqlTask(SqlTask):
             self.delete_key = self._pop_property("delete_key")
             if self.delete_key is None:
                 return self.failed("Incremental materialisation requires delete_key")
-
-        return TaskStatus.READY
-
-    def _pre_run_checks(self):
-        # if incremental load and columns not in same order than ddl columns -> stop
-        if self.ddl.get("columns") is not None:
-            ddl_column_names = [c["name"] for c in self.ddl.get("columns")]
-            if (
-                self.materialisation == "incremental"
-                and self.sayn_config.options["full_load"] is False
-                and self.db.table_exists(self.table, self.schema)
-            ):
-                table_column_names = [
-                    c.name for c in self.db.get_table(self.table, self.schema).columns
-                ]
-                if ddl_column_names != table_column_names:
-                    UI().error(
-                        "ABORTING: DDL columns in task settings are not in similar order than table columns. Please do a full load of the table."
-                    )
-                    return TaskStatus.FAILED
 
         return TaskStatus.READY

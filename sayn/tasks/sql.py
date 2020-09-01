@@ -198,13 +198,18 @@ class SqlTask(Task):
         move = self.db.move_table(src_table, src_schema, dst_table, dst_schema, ddl)
         self.db.execute(move)
 
-    def _exeplan_merge(self, tmp_table, tmp_schema, table, schema, delete_key):
+    def _exeplan_merge(
+        self, tmp_table, tmp_schema, table, schema, delete_key, ddl=dict()
+    ):
         UI().debug(
             "Merging into table {name}...".format(
                 name=f"{'' if schema is None else schema +'.'}{table}"
             )
         )
-        merge = self.db.merge_tables(tmp_table, tmp_schema, table, schema, delete_key)
+        columns = [c["name"] for c in ddl.get("columns")]
+        merge = self.db.merge_tables(
+            tmp_table, tmp_schema, table, schema, delete_key, columns=columns
+        )
         self.db.execute(merge)
 
     def _exeplan_set_permissions(self, table, schema, ddl=dict()):
