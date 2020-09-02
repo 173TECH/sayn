@@ -427,7 +427,7 @@ class Database:
             table (str): The target table name
             schema (str): The target schema or None
             select (str): The SELECT statement to issue
-            columns (list): The list of column names specified in DDL
+            columns (list): The list of column names specified in DDL. If provided, the insert will be reordered based on this order
 
         Returns:
             str: A SQL script for the INSERT statement
@@ -437,11 +437,14 @@ class Database:
         # we reshape the insert statement to avoid conflict if columns are not specified in same order between query and dag file
         if columns is not None:
             select = "SELECT i." + "\n, i.".join(columns) + f"\n\nFROM ({select}) AS i"
+            columns = "(" + ", ".join(columns) + ")"
+        else:
+            columns = ""
 
         if "INSERT TABLE NO PARENTHESES" in self.sql_features:
-            insert = f"INSERT INTO {table} \n{select}\n;"
+            insert = f"INSERT INTO {table} {columns} \n{select}\n;"
         else:
-            insert = f"INSERT INTO {table} (\n{select}\n);"
+            insert = f"INSERT INTO {table} {columns} (\n{select}\n);"
 
         return insert
 
@@ -488,7 +491,9 @@ class Database:
 
         return "\n".join([rename, change_schema] + idx_alter)
 
-    def merge_tables(self, src_table, src_schema, dst_table, dst_schema, delete_key):
+    def merge_tables(
+        self, src_table, src_schema, dst_table, dst_schema, delete_key, columns=None
+    ):
         """Returns SQL to merge data in incremental loads.
 
         Note:
@@ -503,6 +508,7 @@ class Database:
             dst_table (str): The target table name
             dst_schema (str): The target schema or None
             delete_key (str): The column name to use for deleting records from the target table
+            columns (list): The list of column names specified in DDL. If provided, the insert will be reordered based on this order
 
         Returns:
             str: A SQL script for moving the table
@@ -516,5 +522,7 @@ class Database:
             f"                 FROM {src}\n"
             f"                WHERE {src}.{delete_key} = {dst}.{delete_key});"
         )
-        insert = f"INSERT INTO {dst} SELECT * FROM {src};"
+
+        select = f"SELECT * FROM {src}"
+        insert = self.insert(dst_table, dst_schema, select, columns=columns)
         return "\n".join((delete, insert))
