@@ -15,7 +15,7 @@ run_id = uuid4()
 
 class App:
     run_id: UUID = run_id
-    start_ts = datetime.now()
+    times = {"global": {"start": datetime.now(), "end": None}}
     tracker = EventTracker(run_id)
 
     run_arguments = {
@@ -63,9 +63,7 @@ class App:
         if settings.yaml is not None:
             if profile_name is not None and profile_name not in settings.yaml.profiles:
                 return Result.Err(
-                    module="app",
-                    error_code="wrong_profile",
-                    message=f'Profile "{profile_name}" not defined in settings.yaml.',
+                    "app_command", "wrong_profile", {"profile": profile_name}
                 )
 
             profile_name = profile_name or settings.yaml.default_profile
@@ -165,50 +163,55 @@ class App:
                 pass
 
     # Utilities
-    @contextmanager
-    def stage(self, stage):
-        start_ts = datetime.now()
-        self.tracker.start_stage(stage)
+    # @contextmanager
+    # def stage(self, stage):
+    #     self.times[stage]["start"] = datetime.now()
+    #     self.tracker.start_stage(stage)
 
-        try:
-            yield
-        except Exception as e:
-            # TODO control these errors
-            import IPython
+    #     try:
+    #         yield
+    #     except Exception as e:
+    #         self.report_app_error(Result.Exc(e).error)
+    #         return
 
-            IPython.embed()
-            raise e
-
-        task_statuses = group_list(
-            [(task.status.value, name) for name, task in self.tasks.items()]
-        )
-        if len(set(task_statuses.keys()) - set(("ready", "not_in_query"))) > 0:
-            if "ready" in task_statuses:
-                level = "warning"
-            else:
-                level = "error"
-        else:
-            level = "info"
-        self.tracker.finish_current_stage(
-            level, task_statuses, datetime.now() - start_ts
-        )
+    #     task_statuses = group_list(
+    #         [(task.status.value, name) for name, task in self.tasks.items()]
+    #     )
+    #     if len(set(task_statuses.keys()) - set(("ready", "not_in_query"))) > 0:
+    #         if "ready" in task_statuses:
+    #             level = "warning"
+    #         else:
+    #             level = "error"
+    #     else:
+    #         level = "info"
+    #     self.tracker.finish_current_stage(
+    #         level, task_statuses, datetime.now() - start_ts
+    #     )
 
     # Commands
 
     def run(self):
-        self._execute_dag("run")
+        self.execute_dag("run")
 
     def compile(self):
-        self._execute_dag("compile")
+        self.execute_dag("compile")
 
-    def _execute_dag(self, command):
-        with self.stage(command):
-            for task_name, task in self.tasks.items():
-                if task.in_query:
-                    if command == "run":
-                        task.run()
-                    else:
-                        task.compile()
+    def execute_dag(self, command):
+        self.times[command] = {"start": datetime.now(), "end": None}
+        tasks = {k: v for k, v in self.tasks.items() if v.in_query}
+        self.tracker.start_stage(command, details={"tasks": list(tasks.keys())})
+
+        for task_name, task in tasks.items():
+            if task.in_query:
+                if command == "run":
+                    task.run()
+                else:
+                    task.compile()
+
+        self.times[command]["end"] = datetime.now()
+        self.tracker.finish_current_stage(
+            self.times[command]["end"] - self.times[command]["start"]
+        )
 
         with self.stage("summary"):
             succeeded = [
@@ -243,3 +246,12 @@ class App:
                 skipped=skipped,
                 failed=failed,
             )
+
+    def report_start_app(self):
+        pass
+
+    def report_start_setup(self):
+        pass
+
+    def report_finish_setup(self, result):
+        pass

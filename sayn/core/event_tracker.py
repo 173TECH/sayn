@@ -42,15 +42,16 @@ class EventTracker:
     def register_logger(self, logger):
         self.loggers.append(logger)
 
-    def start_stage(self, stage):
+    def start_stage(self, stage, details=None):
         self.current_stage = stage
-        self.report_event(level="info", context="app", event="start_stage", stage=stage)
+        self.report_event(
+            context="app", event="start_stage", stage=stage, details=details,
+        )
 
-    def finish_current_stage(self, level, task_statuses, duration):
+    def finish_current_stage(self, duration, task_statuses, details):
         self.report_event(
             context="app",
             event="finish_stage",
-            level=level,
             stage=self.current_stage,
             task_statuses=task_statuses,
             duration=duration,

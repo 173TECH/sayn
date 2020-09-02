@@ -4,7 +4,6 @@ from typing import List, Dict, Any
 from copy import deepcopy
 
 from jinja2 import Environment, BaseLoader, StrictUndefined
-from pydantic import ValidationError
 
 from ..core.errors import Result
 from ..utils.misc import map_nested
@@ -65,8 +64,7 @@ class TaskWrapper:
     runner: Task = None
     status: TaskStatus = TaskStatus.UNKNOWN
 
-    start_ts: None
-    end_ts: None
+    times: Dict[datetime] = dict()
 
     def setup(
         self,
@@ -81,31 +79,41 @@ class TaskWrapper:
         python_loader,
     ):
         def error(kind, code, details):
-            self.status = TaskStatus.SETUP_FAILED
-            self.logger.current_step = None
-            self.logger._report_event(
-                event="error", error={"kind": kind, "code": code, "details": details}
-            )
-            return Result.Err(kind=kind, code=code, details=details)
+            return failed(Result.Err(kind=kind, code=code, details=details))
 
         def failed(result):
             self.status = TaskStatus.SETUP_FAILED
             self.logger.current_step = None
-            self.logger._report_event(
-                event="error",
-                error={k: result.error[k] for k in ("kind", "code", "error")},
-            )
-            return result
+            return self.report_finish_stage("setup", result)
 
-        def setup_result(runner, result):
-            if not isinstance(result, Result):
-                return error("task_setup", "missing_result", {"result": result})
-            elif result.is_err:
-                return failed(result)
-            else:
-                self.runner = runner
-                self.status = TaskStatus.READY
-                return Result.Ok()
+        def setup_runner(runner, runner_config):
+            try:
+                result = runner.setup(**runner_config)
+
+            except Exception as e:
+                result = Result.Exc(e)
+
+            finally:
+                if not isinstance(result, Result):
+                    return error(
+                        "task_result", "missing_result_error", {"result": result}
+                    )
+                elif result.is_err:
+                    return failed(result)
+                else:
+                    self.runner = runner
+                    self.status = TaskStatus.READY
+                    self.times["setup"]["end"] = datetime.now()
+                    duration = self.times["setup"]["end"] - self.times["setup"]["start"]
+                    self.logger._report_event(
+                        event="finish_task_stage",
+                        status=self.status,
+                        duration=duration,
+                    )
+                    return self.report_finish_stage("setup", Result.Ok())
+
+        self.logger = logger
+        self.report_start_stage("setup")
 
         self.status = TaskStatus.SETTING_UP
         self._info = task_info
@@ -119,8 +127,6 @@ class TaskWrapper:
 
         self.task_parameters = task_info.get("parameters", dict())
 
-        self.logger = logger
-
         self.in_query = in_query
 
         if not in_query:
@@ -129,9 +135,12 @@ class TaskWrapper:
             self.status = TaskStatus.SKIPPED
         else:
             # Instantiate the Task runner object
+
+            # First get the class to use
             if self._type == "python":
                 result = python_loader.get_class("python_tasks", task_info.get("class"))
                 if result.is_err:
+                    # TODO should probably add the context here
                     return failed(result)
                 else:
                     task_class = result.value
@@ -140,8 +149,11 @@ class TaskWrapper:
                 task_class = _creators[self._type]
 
             else:
-                return error("task_config", "invalid_task_type", {"type": self._type})
+                return error(
+                    "task_type", "invalid_task_type_error", {"type": self._type}
+                )
 
+            # Call the object creation method
             result = self.create_runner(
                 task_class,
                 {k: v for k, v in task_info.items() if k not in _excluded_properties},
@@ -155,14 +167,8 @@ class TaskWrapper:
             else:
                 return self.setup_failed(result)
 
-            # Run the setup stage for the runner
-            try:
-                return setup_result(runner, runner.setup(**runner_config))
-            except ValidationError as e:
-                return failed("task_config", "validation_error", {"errors": e.errors()})
-            # TODO add other exceptions like db
-            except Exception as e:
-                return failed("task_config", "unhandled_exception", {"exception": e})
+            # Run the setup stage for the runner and return the results
+            return setup_runner(runner, runner_config)
 
     def create_runner(
         self,
@@ -207,9 +213,7 @@ class TaskWrapper:
                 else x,
             )
         except Exception as e:
-            return Result.Err(
-                module="tasks", error_code="compile_task_parameters", exception=e
-            )
+            return Result.Exc(e, where="compile_task_parameters")
 
         # Add the task paramters to the jinja environment
         jinja_env.globals.update(**runner.task_parameters)
@@ -224,9 +228,7 @@ class TaskWrapper:
                 else x,
             )
         except Exception as e:
-            return Result.Err(
-                module="tasks", error_code="compile_task_properties", exception=e
-            )
+            return Result.Exc(e, where="compile_task_properties")
 
         # Connections and logging
         runner._default_db = default_db
@@ -253,44 +255,53 @@ class TaskWrapper:
         return True
 
     def run(self):
-        self._execute_task("run")
+        return self.execute_task("run")
 
     def compile(self):
-        self._execute_task("compile")
+        return self.execute_task("compile")
 
-    def _execute_task(self, command):
-        self.start_ts = datetime.now()
+    def execute_task(self, command):
+        self.report_start_stage(command)
         if not self.in_query:
-            # TODO review this as it should never happend
-            self.logger._report_event(
-                event="finish_task", level="error", message="Task not in query"
-            )
+            # TODO review this as it should never happend if running sayn cli
             self.status = TaskStatus.NOT_IN_QUERY
+            return self.report_finish_stage(
+                command, Result.Err("execution", "task_not_in_query", None)
+            )
         elif not self.can_run():
-            self.logger._report_event(
-                event="cannot_run", level="warning",
-            )
             self.status = TaskStatus.SKIPPED
-        else:
-            self.logger._report_event(
-                event="start_task", level="info",
+            # TODO add more detail like the parents that failed
+            return self.report_finish_stage(
+                command, Result.Err("execution", "cannot_run_task", None)
             )
-            message = None
-            details = None
+        else:
             try:
                 if command == "run":
-                    self.status = self.runner.run()
+                    result = self.runner.run()
                 else:
-                    self.status = self.runner.compile()
+                    result = self.runner.compile()
             except Exception as e:
-                message = f"{e}"
-                self.status = TaskStatus.FAILED
+                result = Result.Exc(e)
 
-            self.end_ts = datetime.now()
+            return self.report_finish_stage(command, result)
+
+    def report_start_stage(self, stage):
+        self.times[stage] = {"start": datetime.now(), "end": None}
+        self.logger._report_event(event="start_task_stage")
+
+    def report_finish_stage(self, stage, result):
+        self.times[stage]["end"] = datetime.now()
+        duration = self.times[stage]["end"] - self.times[stage]["start"]
+        if result.is_err:
             self.logger._report_event(
-                event="finish_task",
-                level="success" if self.status == TaskStatus.SUCCEEDED else "error",
-                message=message,
-                details=details,
-                duration=self.end_ts - self.start_ts,
+                event="finish_task_stage",
+                status=self.status,
+                error=result.error,
+                duration=duration,
             )
+        else:
+            self.logger._report_event(
+                event="finish_task_stage", status=self.status, duration=duration
+            )
+
+        return result

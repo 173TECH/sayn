@@ -161,6 +161,9 @@ class ConsoleDebugLogger(Logger):
     formatter = LogFormatter("debug", False)
 
     def report_event(self, **event):
+        # TODO
+        print(event)
+        return
         style = self.get_colours(event)
         for line in self.formatter.get_lines(**event):
             self.print(line, style)
@@ -294,5 +297,7 @@ class FileLogger(Logger):
         self.logger = logger
 
     def report_event(self, **event):
+        # TODO
+        return
         for line in self.formatter.get_lines(**event):
             self.logger.debug(line)

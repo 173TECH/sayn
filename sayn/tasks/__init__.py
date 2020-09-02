@@ -48,16 +48,40 @@ class Task:
     # Task lifetime methods
 
     def setup(self):
-        raise NotImplementedError("Setup method not implemented")
+        raise NotImplementedError("SAYN task", self.__class.__name__, "setup")
 
     def run(self):
-        raise NotImplementedError("Run method not implemented")
+        raise NotImplementedError("SAYN task", self.__class.__name__, "run")
 
     def compile(self):
-        raise NotImplementedError("Compile method not implemented")
+        raise NotImplementedError("SAYN task", self.__class.__name__, "compile")
+
+    # Status methods
+
+    def ready(self):
+        """Returned on successful setup
+        """
+        return Result.Ok()
+
+    def success(self):
+        """Returned on successful execution
+        """
+        return Result.Ok()
+
+    def fail(self, details=None):
+        """Returned on failure in any stage
+        """
+        return Result.Err("tasks", "task_fail", details)
+
+    # Steps operations
 
     def set_run_steps(self, steps):
         self.logger.set_run_steps(steps)
+
+    # TODO complete the itersteps method
+    # def itersteps(self, iterator):
+    #     for element in iterator:
+    #         yield element
 
     @contextmanager
     def step(self, step):
@@ -95,16 +119,3 @@ class Task:
             path.unlink()
 
         path.write_text(str(content))
-
-    # Status methods
-
-    def ready(self):
-        return Result.Ok()
-
-    def success(self):
-        return Result.Ok()
-
-    def fail(self, message=None, details=None):
-        return Result.Err(
-            module="tasks", error_code="task_fail", message=message, details=details
-        )

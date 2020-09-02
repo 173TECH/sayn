@@ -59,16 +59,28 @@ class TaskLogger:
         self.current_step = None
 
     def debug(self, message, step=None, details=None):
-        self._report_event(level="debug", message=message, step=step, details=details)
+        self._report_event(
+            event="message", level="debug", message=message, step=step, details=details
+        )
 
     def info(self, message, step=None, details=None):
-        self._report_event(level="info", message=message, step=step, details=details)
+        self._report_event(
+            event="message", level="info", message=message, step=step, details=details
+        )
 
     def warning(self, message, step=None, details=None):
-        self._report_event(level="warning", message=message, step=step, details=details)
+        self._report_event(
+            event="message",
+            level="warning",
+            message=message,
+            step=step,
+            details=details,
+        )
 
     def error(self, message, step=None, details=None):
-        self._report_event(level="error", message=message, step=step, details=details)
+        self._report_event(
+            event="message", level="error", message=message, step=step, details=details
+        )
 
     def _report_event(self, **event):
         event = {k: v for k, v in event.items() if v is not None}
@@ -80,6 +92,4 @@ class TaskLogger:
         event["task"] = self.task_name
         if self.current_step is not None:
             event["step"] = self.current_step
-        if "level" not in event:
-            event["level"] = "debug"
         self._logger.report_event(**event)

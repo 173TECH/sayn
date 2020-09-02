@@ -70,14 +70,11 @@ class AutoSqlTask(SqlTask):
         self.ddl = self.default_db.validate_ddl(self.config.ddl)
         self.template = self.get_template(self.config.file_name)
 
-        self.setup_sql()
-        self.compiled = self.get_compiled_query()
-
-        self.set_run_steps(["write_query_on_disk", "execute_sql"])
-
         return self.ready()
 
     def run(self):
+        self.set_run_steps(["write_query_on_disk", "execute_sql"])
+
         # Compilation
         self.logger.debug("Writting query on disk...")
         self.compile()

@@ -20,22 +20,12 @@ def read_yaml_file(filename):
     try:
         contents = Path(filename).read_text()
     except:
-        return Result.Err(
-            module="read_yaml_file", error_code="read_file", filename=filename,
-        )
+        return Result.Err("parsing", "read_file_error", {"filename": filename})
 
     try:
-        parsed = YAML().load(contents)
+        return Result.Ok(YAML().load(contents))
     except MarkedYAMLError as e:
-        return Result.Err(
-            module="read_yaml_file",
-            error_code="yaml_parse",
-            error=e.problem,
-            filename=filename,
-            lineno=e.problem_mark.line + 1,
-        )
-
-    return Result.Ok(parsed)
+        return Result.Exp(e, filename=filename)
 
 
 def is_unique(field_name, v):
@@ -72,13 +62,9 @@ def read_project():
         return result
 
     try:
-        project = Project(**result.value)
+        return Result.Ok(Project(**result.value))
     except ValidationError as e:
-        return Result.Err(
-            module="read_project", error_code="validation_error", errors=e.errors()
-        )
-
-    return Result.Ok(project)
+        return Result.Exp(e, where="read_project")
 
 
 class Dag(BaseModel):
@@ -159,8 +145,8 @@ class Settings(BaseModel):
             return {
                 "parameters": self.profiles[profile_name].parameters,
                 "credentials": {
-                    project_name: self.credentials[settings_name]
-                    for project_name, settings_name in self.profiles[
+                    cred_project_name: self.credentials[cred_settings_name]
+                    for cred_project_name, cred_settings_name in self.profiles[
                         profile_name
                     ].credentials.items()
                 },
@@ -171,11 +157,7 @@ class Settings(BaseModel):
 
     def get_settings(self, profile_name=None):
         if profile_name is not None and self.yaml is None:
-            return Result.Err(
-                module="get_settings",
-                error_code="missing_settings_yaml",
-                message="No settings.yaml file found.",
-            )
+            return Result.Err("get_settings", "missing_settings_yaml", None)
         elif self.yaml is not None:
             out = self.yaml.get_profile_info(profile_name)
         else:
@@ -223,11 +205,7 @@ def read_settings():
         else:
             return Result.Ok(Settings(environment=environment))
     except ValidationError as e:
-        return Result.Err(
-            module="read_settings", error_code="validation_error", message=f"{e}"
-        )
-    except Exception as e:
-        return Result.Err(module="read_settings", error_code="unknow", message=f"{e}")
+        return Result.Exc(e, where="settings_reading")
 
 
 ###############################
@@ -334,12 +312,9 @@ def get_task_dict(task, task_name, dag_name, presets):
         )
         if preset is None:
             return Result.Err(
-                module="get_task_dict",
-                error_code="missing_preset",
-                dag=dag_name,
-                task=task_name,
-                preset=preset_name,
-                message=f'Preset "{preset_name}" referenced by task "{task_name}" in dag "{dag_name}" not declared',
+                "get_task_dict",
+                "missing_preset",
+                {"dag": dag_name, "task": task_name, "preset": preset_name},
             )
         task = merge_dicts(preset, task)
 
@@ -366,8 +341,6 @@ def get_tasks_dict(global_presets, dags):
                 errors[task_name] = result.error
 
     if len(errors) > 0:
-        return Result.Err(
-            module="get_tasks_dict", error_code="task_parsing_error", errors=errors
-        )
+        return Result.Err("get_tasks_dict", "task_parsing_error", {"errors": errors})
     else:
         return Result.Ok(tasks)

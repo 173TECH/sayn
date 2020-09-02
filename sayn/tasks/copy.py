@@ -2,7 +2,6 @@ from sqlalchemy import or_, select
 
 from ..core.errors import DatabaseError
 from .sql import SqlTask
-from ..utils.ui import UI
 from . import TaskStatus
 
 
@@ -62,9 +61,6 @@ class CopyTask(SqlTask):
         return self.success()
 
     def compile(self):
-        # no compilation for copy
-        pass
-
         return self.success()
 
     # Task property methods - SETUP
@@ -146,7 +142,7 @@ class CopyTask(SqlTask):
         full_table_name = (
             f"{'' if self.schema is None else self.schema +'.'}{self.table}"
         )
-        UI().debug(
+        self.logger.debug(
             "Getting last {incremental_key} value from table {name}...".format(
                 incremental_key=self.incremental_key, name=full_table_name
             )
@@ -167,7 +163,7 @@ class CopyTask(SqlTask):
         return last_incremental_value
 
     def _exeplan_stream_data(self, last_incremental_value):
-        UI().debug("Streaming data...")
+        self.logger.debug("Streaming data...")
         # Select stream
         get_data_query = select(
             [self.source_table_def.c[c["name"]] for c in self.ddl["columns"]]

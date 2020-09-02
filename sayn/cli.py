@@ -25,53 +25,65 @@ class CliApp(App):
         start_dt=date.today() - timedelta(days=1),
         end_dt=date.today() - timedelta(days=1),
     ):
+        # STARTING APP: register loggers and set cli arguments in the App object
         if debug:
             self.tracker.register_logger(ConsoleDebugLogger())
         else:
             self.tracker.register_logger(ConsoleLogger())
         self.tracker.register_logger(FileLogger(self.run_arguments["folders"]["logs"]))
 
-        with self.stage("setup"):
-            self.set_run_arguments(
-                debug=debug,
-                full_load=full_load,
-                start_dt=start_dt,
-                end_dt=end_dt,
-                profile=profile,
-            )
+        self.set_run_arguments(
+            debug=debug,
+            full_load=full_load,
+            start_dt=start_dt,
+            end_dt=end_dt,
+            profile=profile,
+        )
+        self.report_start_app()
 
-            # Read the project configuration
-            project = self.handle_result(read_project())
-            dags = self.handle_result(read_dags(project.dags))
-            self.set_project(project)
-            settings = self.handle_result(read_settings())
-            self.handle_result(self.set_settings(settings))
+        # SETUP THE APP: read project config and settings, interpret cli arguments and setup the dag
+        self.report_start_setup()
 
-            # Set python environment
-            self.python_loader = PythonLoader()
-            if Path(self.run_arguments["folders"]["python"]).is_dir():
-                self.handle_result(
-                    self.python_loader.register_module(
-                        "python_tasks", self.run_arguments["folders"]["python"]
-                    )
+        # Read the project configuration
+        project = self.handle_result(read_project())
+        dags = self.handle_result(read_dags(project.dags))
+        self.set_project(project)
+        settings = self.handle_result(read_settings())
+        self.handle_result(self.set_settings(settings))
+
+        # Set python environment
+        self.python_loader = PythonLoader()
+        if Path(self.run_arguments["folders"]["python"]).is_dir():
+            self.handle_result(
+                self.python_loader.register_module(
+                    "python_tasks", self.run_arguments["folders"]["python"]
                 )
-
-            # Set tasks and dag from it
-            tasks_dict = self.handle_result(get_tasks_dict(project.presets, dags))
-            task_query = self.handle_result(
-                get_query(tasks_dict, include=include, exclude=exclude)
             )
-            self.set_tasks(tasks_dict, task_query)
+
+        # Set tasks and dag from it
+        tasks_dict = self.handle_result(get_tasks_dict(project.presets, dags))
+        task_query = self.handle_result(
+            get_query(tasks_dict, include=include, exclude=exclude)
+        )
+        self.set_tasks(tasks_dict, task_query)
+
+        self.report_finish_setup(Result.Ok())
 
     def handle_result(self, result):
+        """Interpret the result of setup opreations returning the value if `result.is_ok`.
+
+        Setup errors from the cli result in execution abort.
+
+        Args:
+          result (sayn.errors.Result): The result of a setup operation
+        """
         if result is None or not isinstance(result, Result):
-            raise ValueError("adfadf")
-            self.tracker.report_error(
-                {"error_code": "unhandled_error", "result": result}
+            self.report_finish_setup(
+                Result.Err("app_setup", "unhandled_error", {"result": result})
             )
             sys.exit()
         elif result.is_err:
-            self.tracker.report_error(result.error)
+            self.report_finish_setup(result)
             sys.exit()
         else:
             return result.value
