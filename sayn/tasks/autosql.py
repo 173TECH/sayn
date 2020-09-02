@@ -114,6 +114,7 @@ class AutoSqlTask(SqlTask):
                 self.table,
                 self.schema,
                 self.delete_key,
+                ddl=self.ddl,
             )
             self._exeplan_drop(self.tmp_table, self.tmp_schema)
 

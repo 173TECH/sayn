@@ -74,8 +74,10 @@ There are three SAYN parameters which you can use for autosql tasks in increment
 
 You can define the following DDL parameters in the `autosql` task definition:
 
-* indexes
-* primary_key
+* indexes: the indexes to add on the table.
+* primary_key: this should be added in the indexes section using the `primary_key` name for the index.
+* columns: the list of columns as well as their type. If used, SAYN will enforce the types specified.
+* permissions: the permissions you want to give to each role. You should map each role to the rights you want to grant separated by commas (e.g. SELECT, DELETE).
 
 !!! example "autosql with DDL"
     ```yaml
@@ -98,5 +100,7 @@ You can define the following DDL parameters in the `autosql` task definition:
           idx1:
             columns:
               - column1
+      permissions:
+        role_name: SELECT
     ...
     ```

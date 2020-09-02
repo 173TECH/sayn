@@ -99,13 +99,16 @@ class SqlTask(Task):
                 dst_name=f"{'' if dst_schema is None else dst_schema +'.'}{dst_table}",
             )
         )
-        self.default_db.move_table(
-            src_table, src_schema, dst_table, dst_schema, ddl, execute=True
-        )
+        move = self.db.move_table(src_table, src_schema, dst_table, dst_schema, ddl)
+        self.db.execute(move)
 
-    def _exeplan_merge(self, tmp_table, tmp_schema, table, schema, delete_key):
+    def _exeplan_merge(
+        self, tmp_table, tmp_schema, table, schema, delete_key, ddl=dict()
+    ):
         self.logger.debug(
-            f"Merging into table {'' if schema is None else schema +'.'}{table}..."
+            "Merging into table {name}...".format(
+                name=f"{'' if schema is None else schema +'.'}{table}"
+            )
         )
         self.default_db.merge_tables(
             tmp_table, tmp_schema, table, schema, delete_key, execute=True
