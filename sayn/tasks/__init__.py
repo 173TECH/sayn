@@ -45,6 +45,10 @@ class Task:
     def default_db(self):
         return self.connections[self._default_db]
 
+    @property
+    def db(self):
+        return self.connections[self._default_db]
+
     # Task lifetime methods
 
     def setup(self):
@@ -78,20 +82,11 @@ class Task:
     def set_run_steps(self, steps):
         self.logger.set_run_steps(steps)
 
-    # TODO complete the itersteps method
-    # def itersteps(self, iterator):
-    #     for element in iterator:
-    #         yield element
-
-    @contextmanager
-    def step(self, step):
+    def start_step(self, step):
         self.logger.start_step(step)
-        try:
-            yield
-            self.logger.finish_current_step()
-        except Exception as e:
-            self.logger.finish_current_step(e)
-            raise e
+
+    def finish_current_step(self, result):
+        self.logger.finish_current_step(result)
 
     # Jinja methods
     def get_template(self, obj):

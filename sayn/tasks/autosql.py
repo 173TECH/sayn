@@ -1,10 +1,9 @@
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Dict, Any, List, Optional
 
 from pydantic import BaseModel, Field, FilePath, validator
 
 from .sql import SqlTask
-from . import TaskStatus
 
 
 class Destination(BaseModel):
@@ -25,7 +24,6 @@ class Destination(BaseModel):
 
 
 class Config(BaseModel):
-
     sql_folder: Path
     file_name: FilePath
     delete_key: Optional[str]
@@ -52,15 +50,15 @@ class Config(BaseModel):
 
 
 class AutoSqlTask(SqlTask):
-    def setup(self, **kwargs):
+    def setup(self, **config):
         # TODO control this better
-        kwargs["destination"].update(
+        config["destination"].update(
             {
                 "_db_features": self.default_db.sql_features,
                 "_db_type": self.default_db.db_type,
             }
         )
-        self.config = Config(sql_folder=self.run_arguments["folders"]["sql"], **kwargs)
+        self.config = Config(sql_folder=self.run_arguments["folders"]["sql"], **config)
         self.materialisation = self.config.materialisation
         self.tmp_schema = self.config.destination.tmp_schema
         self.schema = self.config.destination.db_schema
@@ -70,75 +68,31 @@ class AutoSqlTask(SqlTask):
         self.ddl = self.default_db.validate_ddl(self.config.ddl)
         self.template = self.get_template(self.config.file_name)
 
+        try:
+            self.sql_query = self.compile_obj(self.template)
+        except Exception as e:
+            return self.fail(message=f"Error compiling template\n{e}")
+
         return self.ready()
 
     def run(self):
-        self.set_run_steps(["write_query_on_disk", "execute_sql"])
+        steps = ["write_query_on_disk"]
 
-        # Compilation
-        self.logger.debug("Writting query on disk...")
-        self.compile()
+        if self.materialisation == "view":  # View
+            steps.extend(["drop", "create_view"])
 
-        # Execution
-        self.logger.debug("Executing AutoSQL task...")
-
-        if self.materialisation == "view":
-            self._exeplan_drop(self.table, self.schema, view=True)
-            self._exeplan_create(
-                self.table, self.schema, select=self.sql_query, view=True
-            )
-        elif self.materialisation == "table" or (
+        elif (
             self.materialisation == "incremental"
-            and (
-                self.sayn_config.options["full_load"] is True
-                or self.db.table_exists(self.table, self.schema) is False
-            )
-        ):
-            self._exeplan_drop(self.tmp_table, self.tmp_schema)
-            self._exeplan_create(
-                self.tmp_table, self.tmp_schema, select=self.sql_query, ddl=self.ddl
-            )
-            self._exeplan_create_indexes(self.tmp_table, self.tmp_schema, ddl=self.ddl)
-            self._exeplan_drop(self.table, self.schema)
-            self._exeplan_move(
-                self.tmp_table, self.tmp_schema, self.table, self.schema, ddl=self.ddl
-            )
-        else:  # incremental not full refresh or incremental table exists
-            self._exeplan_drop(self.tmp_table, self.tmp_schema)
-            self._exeplan_create(
-                self.tmp_table, self.tmp_schema, select=self.sql_query, ddl=self.ddl
-            )
-            self._exeplan_merge(
-                self.tmp_table,
-                self.tmp_schema,
-                self.table,
-                self.schema,
-                self.delete_key,
-                ddl=self.ddl,
-            )
-            self._exeplan_drop(self.tmp_table, self.tmp_schema)
+            and not self.run_arguments["full_load"]
+            and self.default_db.table_exists(self.table, self.schema)
+        ):  # Incremental load
+            steps.extend(["drop_tmp", "create_tmp_ddl", "merge", "drop_tmp"])
 
-        # permissions
-        self._exeplan_set_permissions(self.table, self.schema, ddl=self.ddl)
+        else:  # Full load
+            steps.extend(
+                ["drop_tmp", "create_tmp_ddl", "create_indexes", "drop", "move"]
+            )
 
-        return self.success()
+        steps.append("set_permissions")
 
-    def _pre_run_checks(self):
-        # if incremental load and columns not in same order than ddl columns -> stop
-        if self.ddl.get("columns") is not None:
-            ddl_column_names = [c["name"] for c in self.ddl.get("columns")]
-            if (
-                self.materialisation == "incremental"
-                and self.sayn_config.options["full_load"] is False
-                and self.db.table_exists(self.table, self.schema)
-            ):
-                table_column_names = [
-                    c.name for c in self.db.get_table(self.table, self.schema).columns
-                ]
-                if ddl_column_names != table_column_names:
-                    self.logger.error(
-                        "ABORTING: DDL columns in task settings are not in similar order than table columns. Please do a full load of the table."
-                    )
-                    return TaskStatus.FAILED
-
-        return TaskStatus.READY
+        return self.execute_steps(steps)

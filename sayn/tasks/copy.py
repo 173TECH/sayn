@@ -1,114 +1,79 @@
-from sqlalchemy import or_, select
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, Field, validator
 
 from ..core.errors import DatabaseError
 from .sql import SqlTask
-from . import TaskStatus
 
 
-class CopyTask(SqlTask):
-    def setup(self):
-        self.db = self.sayn_config.default_db
+class Source(BaseModel):
+    db: str
+    db_schema: Optional[str] = Field(None, alias="schema")
+    table: str
+    _db_properties: List
+    _db_type: str
 
-        status = self._setup_source()
-        if status != 0:  # TODO TaskStatus.READY:
-            return status
 
-        status = self._setup_destination()
-        if status != 0:  # TODO TaskStatus.READY:
-            return status
+class Destination(BaseModel):
+    tmp_schema: Optional[str]
+    db_schema: Optional[str] = Field(None, alias="schema")
+    table: str
+    _db_properties: List
+    _db_type: str
 
-        status = self._setup_incremental()
-        if status != 0:  # TODO TaskStatus.READY:
-            return status
-
-        status = self._setup_ddl(type_required=False)
-        if self.ddl is None or self.ddl.get("columns") is None:
-            # TODO full copy of table when ddl not specified
-            return self.fail("DDL is required for copy tasks")
-
-        status = self._setup_table_columns()
-        if status != TaskStatus.READY:
-            return status
-
-        return self.ready()
-
-    def run(self):
-        # Create placeholder for tmp data
-        self._exeplan_drop(self.tmp_table, self.tmp_schema)
-        self._exeplan_create(self.tmp_table, self.tmp_schema, ddl=self.ddl)
-        self._exeplan_create_indexes(self.tmp_table, self.tmp_schema, ddl=self.ddl)
-
-        # Check the last incremental value and load into tmp table
-        liv = self._exeplan_get_last_incremental_value()
-        self._exeplan_stream_data(liv)
-
-        # Final transfer from tmp to dst
-        if liv is None:  # table does not exist or no incremental value
-            self._exeplan_move(
-                self.tmp_table, self.tmp_schema, self.table, self.schema, ddl=self.ddl
+    @validator("tmp_schema")
+    def can_use_tmp_schema(cls, v, values):
+        if v is not None:
+            raise ValueError(
+                f'tmp_schema not supported for database of type {v["_db_type"]}'
             )
-            self._exeplan_set_permissions(self.table, self.schema, ddl=self.ddl)
-        else:
-            self._exeplan_merge(
-                self.tmp_table,
-                self.tmp_schema,
-                self.table,
-                self.schema,
-                self.delete_key,
-            )
-            self._exeplan_drop(self.tmp_table, self.tmp_schema)
 
-        return self.success()
+        return v
 
-    def compile(self):
-        return self.success()
 
-    # Task property methods - SETUP
+class Config(BaseModel):
+    source: Source
+    destination: Destination
+    ddl: Optional[Dict[str, Any]]
+    incremental_key: Optional[str]
+    delete_key: Optional[str]
 
-    def _setup_incremental(self):
-        # Type of materialisation
-        self.delete_key = self._pop_property("delete_key")
-        self.incremental_key = self._pop_property("incremental_key")
-
-        if (self.delete_key is None) != (self.incremental_key is None):
-            return self.fail(
+    @validator("incremental_key", always=True)
+    def incremental_validation(cls, v, values):
+        if (v is None) != (values.get("delete_key") is None):
+            raise ValueError(
                 'Incremental copy requires both "delete_key" and "incremental_key"'
             )
 
-        return  # TODO return TaskStatus.READY
 
-    def _setup_source(self):
-        # Source property indicating the table this will create
-        source = self._pop_property("source", default={"schema": None})
+class CopyTask(SqlTask):
+    def setup(self, **config):
+        config["source"].update(
+            {
+                "_db_features": self.default_db.sql_features,
+                "_db_type": self.default_db.db_type,
+            }
+        )
+        config["destination"].update(
+            {
+                "_db_features": self.default_db.sql_features,
+                "_db_type": self.default_db.db_type,
+            }
+        )
+        self.config = Config(sql_folder=self.run_arguments["folders"]["sql"], **config)
 
-        self.source_schema = source.pop("schema", None)
-        if self.source_schema is not None and isinstance(self.source_schema, str):
-            self.source_schema = self.compile_property(self.source_schema)
-        else:
-            return self.fail('Optional property "schema" must be a string')
+        self.source_db = self.connections[self.config.source.db]
+        self.source_schema = self.config.source.db_schema
+        self.source_table = self.config.source.table
 
-        if (
-            set(source.keys()) != set(["db", "table"])
-            or source["db"] is None
-            or source["table"] is None
-        ):
-            return self.fail(
-                'Source requires "table" and "db" fields. Optional field: "schema".'
-            )
-        else:
-            source_db_name = self.compile_property(source.pop("db"))
-            self.source_table = self.compile_property(source.pop("table"))
+        self.tmp_schema = self.config.destination.tmp_schema
+        self.schema = self.config.destination.db_schema
+        self.table = self.config.destination.table
 
-        if source_db_name not in self.sayn_config.dbs:
-            return self.fail(
-                f'{source_db_name} is not a valid vallue for "db" in "source"'
-            )
-        else:
-            self.source_db = self.sayn_config.dbs[source_db_name]
+        self.delete_key = self.config.delete_key
+        self.incremental_key = self.config.incremental_key
+        self.ddl = self.default_db.validate_ddl(self.config.ddl)
 
-        return  # TODO return TaskStatus.READY
-
-    def _setup_table_columns(self):
         try:
             self.source_table_def = self.source_db.get_table(
                 self.source_table,
@@ -132,53 +97,18 @@ class CopyTask(SqlTask):
             if "type" not in column:
                 column["type"] = self.source_table_def.columns[
                     column["name"]
-                ].type.compile(dialect=self.db.engine.dialect)
+                ].type.compile(dialect=self.default_db.engine.dialect)
 
-        return  # TODO return TaskStatus.READY
+        return self.ready()
 
-    # Task property methods - EXECUTION
-
-    def _exeplan_get_last_incremental_value(self):
-        full_table_name = (
-            f"{'' if self.schema is None else self.schema +'.'}{self.table}"
-        )
-        self.logger.debug(
-            "Getting last {incremental_key} value from table {name}...".format(
-                incremental_key=self.incremental_key, name=full_table_name
-            )
-        )
-
-        table_exists = self.db.table_exists(self.table, self.schema)
-
-        if table_exists is True and self.incremental_key is not None:
-            last_incremental_value_query = f"SELECT MAX({self.incremental_key}) AS value FROM {full_table_name} WHERE {self.incremental_key} IS NOT NULL"
-            res = self.db.select(last_incremental_value_query)
-            if len(res) == 1:
-                last_incremental_value = res[0]["value"]
-            else:
-                last_incremental_value = None
+    def run(self):
+        steps = ["drop_tmp", "create_tmp", "create_indexes", "load_data"]
+        if self.default_db.table_exists(self.table, self.schema):
+            steps.extend(["merge", "drop_tmp"])
         else:
-            last_incremental_value = None
+            steps.extend(["move", "set_permissions"])
 
-        return last_incremental_value
+        return self.execute_steps(steps)
 
-    def _exeplan_stream_data(self, last_incremental_value):
-        self.logger.debug("Streaming data...")
-        # Select stream
-        get_data_query = select(
-            [self.source_table_def.c[c["name"]] for c in self.ddl["columns"]]
-        )
-        if last_incremental_value is None:
-            data_iter = self.source_db.select_stream(get_data_query)
-        else:
-            query = get_data_query.where(
-                or_(
-                    self.source_table_def.c[self.incremental_key].is_(None),
-                    self.source_table_def.c[self.incremental_key]
-                    > last_incremental_value,
-                )
-            )
-            data_iter = self.source_db.select_stream(query)
-
-        # Load
-        self.db.load_data_stream(self.tmp_table, self.tmp_schema, data_iter)
+    def compile(self):
+        return self.success()
