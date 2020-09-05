@@ -2,7 +2,8 @@ import logging
 
 from sqlalchemy import create_engine
 
-from .database import Database
+from ..core.errors import Ok
+from . import Database
 
 db_parameters = [
     "account",
@@ -43,10 +44,16 @@ class Snowflake(Database):
         conn.connection.commit()
         conn.connection.close()
 
-    def move_table(self, src_table, src_schema, dst_table, dst_schema, ddl):
+    def move_table(
+        self, src_table, src_schema, dst_table, dst_schema, ddl, execute=False
+    ):
         drop = (
             f"DROP TABLE IF EXISTS {dst_schema+'.' if dst_schema else ''}{dst_table};"
         )
         rename = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{src_table} RENAME TO {dst_schema+'.' if dst_schema else ''}{dst_table};"
+        q = "\n".join((drop, rename))
 
-        return "\n".join((drop, rename))
+        if execute:
+            self.execute(q)
+
+        return Ok(q)
