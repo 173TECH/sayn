@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 
-from .database import Database
+from . import Database
 
 db_parameters = ["host", "user", "password", "port", "database"]
 

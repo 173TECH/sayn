@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 
 from ..core.errors import Err, Exc, Ok
-from .database import Database
+from . import Database
 
 db_parameters = ["database"]
 

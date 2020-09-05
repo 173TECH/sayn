@@ -8,7 +8,7 @@ from pydantic import BaseModel, validator
 
 # TODO from ..core.errors import DatabaseError
 from ..utils.misc import group_list
-from .database import Database
+from . import Database
 
 db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
 
