@@ -4,7 +4,7 @@ from pathlib import Path
 
 from jinja2 import Template
 
-from ..core.errors import Err, Ok
+from ..core.errors import Err, Exc, Ok
 
 
 class TaskStatus(Enum):
@@ -85,7 +85,7 @@ class Task:
     def start_step(self, step):
         self.logger.start_step(step)
 
-    def finish_current_step(self, result):
+    def finish_current_step(self, result=Ok()):
         self.logger.finish_current_step(result)
 
     @contextmanager
@@ -101,15 +101,36 @@ class Task:
     # Jinja methods
     def get_template(self, obj):
         if isinstance(obj, Path):
-            return self.jinja_env.from_string(obj.read_text())
+            try:
+                template = obj.read_text()
+            except Exception as e:
+                return Err(
+                    "tasks", "get_template_error", {"file_path": obj, "exception": e}
+                )
         elif isinstance(obj, str):
-            return self.jinja_env.from_string(obj)
+            template = str
+        else:
+            return Err("tasks", "get_template_error", {"obj": obj})
+
+        try:
+            return Ok(self.jinja_env.from_string(template))
+        except Exception as e:
+            return Exc(e, template=template)
 
     def compile_obj(self, obj, **params):
         if isinstance(obj, Template):
-            return obj.render(**params)
+            template = obj
         else:
-            return self.get_template(obj).render(**params)
+            result = self.get_template(obj)
+            if result.is_err:
+                return result
+            else:
+                template = result.value
+
+        try:
+            return Ok(template.render(**params))
+        except Exception as e:
+            return Exc(e, template=template, params=params)
 
     def write_compilation_output(self, content, suffix=None):
         path = Path(

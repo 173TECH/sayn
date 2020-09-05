@@ -3,7 +3,7 @@ from typing import Dict, Any, List, Optional
 
 from pydantic import BaseModel, Field, FilePath, validator
 
-from ..core.errors import SaynValidationError
+from ..core.errors import SaynValidationError, Exc, Ok
 from .sql import SqlTask
 
 
@@ -55,26 +55,39 @@ class AutoSqlTask(SqlTask):
                 "_db_type": self.default_db.db_type,
             }
         )
-        self.config = Config(sql_folder=self.run_arguments["folders"]["sql"], **config)
+        try:
+            self.config = Config(
+                sql_folder=self.run_arguments["folders"]["sql"], **config
+            )
+        except Exception as e:
+            return Exc(e)
+
         self.materialisation = self.config.materialisation
         self.tmp_schema = self.config.destination.tmp_schema
         self.schema = self.config.destination.db_schema
         self.table = self.config.destination.table
         self.tmp_table = f"sayn_tmp_{self.table}"
         self.delete_key = self.config.delete_key
+
         result = self.default_db.validate_ddl(self.config.ddl)
         if result.is_err:
             return result
         else:
             self.ddl = result.value
-        self.template = self.get_template(self.config.file_name)
 
-        try:
-            self.sql_query = self.compile_obj(self.template)
-        except Exception as e:
-            return self.fail(message=f"Error compiling template\n{e}")
+        result = self.get_template(self.config.file_name)
+        if result.is_err:
+            return result
+        else:
+            self.template = result.value
 
-        return self.ready()
+        result = self.compile_obj(self.template)
+        if result.is_err:
+            return result
+        else:
+            self.sql_query = result.value
+
+        return Ok()
 
     def run(self):
         steps = ["write_query_on_disk"]

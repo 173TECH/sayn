@@ -3,7 +3,7 @@ from pathlib import Path
 from pydantic import BaseModel, FilePath, validator
 from sqlalchemy import or_, select
 
-from ..core.errors import Err, Ok, Result
+from ..core.errors import Err, Ok
 from . import Task
 
 
@@ -20,12 +20,13 @@ class SqlTask(Task):
     def setup(self, file_name):
         self.config = Config(sql_folder=self.run_arguments["folders"]["sql"])
 
-        try:
-            self.sql_query = self.compile_obj(self.config.file_name)
-        except Exception as e:
-            return self.fail(message=f"Error compiling template\n{e}")
+        result = self.compile_obj(self.config.file_name)
+        if result.is_err:
+            return result
+        else:
+            self.sql_query = result.value
 
-        return self.ready()
+        return Ok()
 
     def run(self):
         return self.execute_steps(["write_query_on_disk", "execute_sql"])
@@ -39,8 +40,6 @@ class SqlTask(Task):
         for step in steps:
             self.start_step(step)
             result = self.execute_step(step)
-            if not isinstance(result, Result):
-                print(step)
             self.finish_current_step(result)
             if result.is_err:
                 return result
@@ -75,7 +74,7 @@ class SqlTask(Task):
             return self.create_view(self.table, self.schema, self.sql_query)
 
         elif step == "create_indexes":
-            return self.create_select(self.table, self.schema, self.sql_query, self.ddl)
+            return self.create_indexes(self.table, self.schema, self.ddl)
 
         elif step == "merge":
             return self.merge(

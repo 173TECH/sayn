@@ -1,8 +1,14 @@
+from datetime import datetime
+
+from ..core.errors import Ok
+
+
 class TaskLogger:
     _logger = None
     _task_name = None
     steps = list()
     current_step = None
+    current_step_start_ts = None
 
     def __init__(self, logger, task_name):
         self._logger = logger
@@ -13,50 +19,37 @@ class TaskLogger:
         self.steps = steps
 
     def start_step(self, step):
-        if len(self.steps) > 0 and step not in self.steps:
-            raise ValueError(
-                f"{step} not in defined steps. Use `self.logger.set_run_steps(list)` first."
-            )
-        elif self.current_step is not None:
-            self._report_event(
-                level="info",
-                event="finish_step",
-                step=self.current_step,
-                step_order=self.steps.index(self.current_step)
-                if len(self.steps) > 0
-                else None,
-            )
+        self.finish_current_step()
 
         self.current_step = step
-        self._report_event(
-            event="start_step",
-            step=step,
-            step_order=self.steps.index(self.current_step)
-            if len(self.steps) > 0
-            else None,
+        self.current_step_start_ts = datetime.now()
+
+        step_order = (
+            self.steps.index(self.current_step)
+            if self.current_step in self.steps
+            else None
         )
 
-    def finish_current_step(self, exception=None):
-        if exception is not None:
+        self._report_event(event="start_step", step=step, step_order=step_order)
+
+    def finish_current_step(self, result=Ok()):
+        if self.current_step is not None:
+            step_order = (
+                self.steps.index(self.current_step)
+                if self.current_step in self.steps
+                else None
+            )
+            duration = self.current_step_start_ts - datetime.now()
+
             self._report_event(
-                level="error",
                 event="finish_step",
                 step=self.current_step,
-                step_order=self.steps.index(self.current_step)
-                if len(self.steps) > 0
-                else None,
-                details=f"{exception}",
+                step_order=step_order,
+                result=result,
+                duration=duration,
             )
-        else:
-            self._report_event(
-                level="info",
-                event="finish_step",
-                step=self.current_step,
-                step_order=self.steps.index(self.current_step)
-                if len(self.steps) > 0
-                else None,
-            )
-        self.current_step = None
+            self.current_step = None
+            self.current_step_start_ts = None
 
     def debug(self, message, step=None, details=None):
         self._report_event(

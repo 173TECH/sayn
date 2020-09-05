@@ -1,5 +1,5 @@
 from collections import Counter
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, validator
 from sqlalchemy import MetaData, Table
@@ -9,20 +9,24 @@ from ..core.errors import Err, Exc, Ok
 from ..utils.misc import group_list
 
 
+class DatabaseError(Exception):
+    pass
+
+
 class DDL(BaseModel):
     class Column(BaseModel):
         name: str
         type: str
-        primary: Optional[bool]
-        not_null: Optional[bool]
-        unique: Optional[bool]
+        primary: Optional[bool] = False
+        not_null: Optional[bool] = False
+        unique: Optional[bool] = False
 
     class Index(BaseModel):
         columns: List[str]
 
-    columns: Optional[List[Column]]
-    indexes: Dict[str, Index]
-    permissions: Dict[str, str]
+    columns: Optional[List[Union[str, Column]]] = list()
+    indexes: Optional[Dict[str, Index]] = dict()
+    permissions: Optional[Dict[str, str]] = dict()
 
     @validator("columns")
     def columns_unique(cls, v, values):
@@ -52,6 +56,15 @@ class DDL(BaseModel):
                 raise ValueError(f"Some indexes refer to missing columns: {cols_msg}")
 
         return v
+
+    def get_ddl(self):
+        return {
+            "columns": [
+                {"name": c} if isinstance(c, str) else c.dict() for c in self.columns
+            ],
+            "indexes": {k: v.dict() for k, v in self.indexes.items()},
+            "permissions": {k: v.dict() for k, v in self.permissions.items()},
+        }
 
 
 class Database:
@@ -91,17 +104,17 @@ class Database:
         Args:
             script (sql): The SQL script to execute
         """
-        with self.engine.connect().execution_options(autocommit=True) as connection:
-            try:
+        try:
+            with self.engine.connect().execution_options(autocommit=True) as connection:
                 result = Ok(connection.execute(script))
-            except Exception as e:
-                result = Err(
-                    "database_error",
-                    "sql_execution_error",
-                    {"exception": e, "db": self.name, "script": script},
-                )
-            finally:
-                return result
+        except Exception as e:
+            result = Err(
+                "database_error",
+                "sql_execution_error",
+                {"exception": e, "db": self.name, "script": script},
+            )
+        finally:
+            return result
 
     def select(self, query, **params):
         """Executes the query and returns a list of dictionaries with the data.
@@ -158,14 +171,14 @@ class Database:
         with self.engine.connect().execution_options(autocommit=True) as connection:
             connection.execute(table_def.insert().values(data))
 
-    # DDL validation methods
-
     def validate_ddl(self, ddl):
-        default_dict = {"columns": list(), "indexes": dict(), "permissions": dict()}
         if ddl is None:
-            return Ok(default_dict)
+            return Ok(DDL().get_ddl())
         else:
-            return Ok(dict(**default_dict, **DDL(**ddl).dict()))
+            try:
+                return Ok(DDL(**ddl).get_ddl())
+            except Exception as e:
+                return Exc(e, db=self.name, type=self.db_type)
 
     def refresh_metadata(self, only=None, schema=None):
         """Refreshes the sqlalchemy metadata object.
@@ -189,8 +202,10 @@ class Database:
         Returns:
             sqlalchemy.Table: A table object from sqlalchemy
         """
-        # TODO control exceptions
-        table_def = Table(table, self.metadata, schema=schema, extend_existing=True)
+        try:
+            table_def = Table(table, self.metadata, schema=schema, extend_existing=True)
+        except Exception as e:
+            return Exc(e)
 
         if table_def.exists():
             self.refresh_metadata(only=[table], schema=schema)
@@ -204,8 +219,8 @@ class Database:
 
     def table_exists(self, table, schema, with_columns=None):
         table_def = self.get_table(table, schema, columns=with_columns)
-        if table_def is not None:
-            return table_def.exists()
+        if table_def.is_ok:
+            return table_def.value.exists()
         else:
             return False
 
@@ -335,7 +350,7 @@ class Database:
         if execute:
             self.execute(q)
 
-        return q
+        return Ok(q)
 
     def drop_table(self, table, schema, view=False, execute=False):
         """Returns a DROP statement.
