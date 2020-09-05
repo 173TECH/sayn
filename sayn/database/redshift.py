@@ -1,13 +1,61 @@
+from collections import Counter
 import re
+from typing import Dict, List, Optional
 
 from sqlalchemy import create_engine
 
+from pydantic import BaseModel, validator
+
 # TODO from ..core.errors import DatabaseError
+from ..utils.misc import group_list
 from .database import Database
 
-# TODO from ..utils import yaml
-
 db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
+
+
+class DDL(BaseModel):
+    class Column(BaseModel):
+        name: str
+        type: str
+        primary: Optional[bool]
+        not_null: Optional[bool]
+        unique: Optional[bool]
+
+    class Index(BaseModel):
+        columns: List[str]
+
+    columns: Optional[List[Column]]
+    indexes: Dict[str, Index]
+    permissions: Dict[str, str]
+
+    @validator("columns")
+    def columns_unique(cls, v, values):
+        print(v)
+        dupes = {k for k, v in Counter([e.name for e in v]) if v > 1}
+        if len(dupes) > 0:
+            raise ValueError(f"Duplicate columns: {','.join(dupes)}")
+        else:
+            return v
+
+    @validator("indexes")
+    def index_columns_exists(cls, v, values):
+        cols = [c.name for c in values["columns"]]
+        if len(cols) > 0:
+            missing_cols = group_list(
+                [
+                    (index_name, index_column)
+                    for index_name, index in v.items()
+                    for index_column in index.columns
+                    if index_column not in cols
+                ]
+            )
+            if len(missing_cols) > 0:
+                cols_msg = ";".join(
+                    [f"On {i}: {','.join(c)}" for i, c in missing_cols.items()]
+                )
+                raise ValueError(f"Some indexes refer to missing columns: {cols_msg}")
+
+        return v
 
 
 class Redshift(Database):
@@ -63,7 +111,7 @@ class Redshift(Database):
         engine = create_engine("postgresql://", **settings)
         self.setup_db(name, name_in_settings, db_type, engine)
 
-    def validate_ddl(self, ddl, **kwargs):
+    def validate_ddl(self, ddl):
         # TODO
         pass
 

@@ -150,23 +150,6 @@ class SqlTask(Task):
 
         return Ok()
 
-    def get_last_incremental_value(self, table, schema, incremental_key):
-        if incremental_key is None or not self.default_db.table_exists(table, schema):
-            return None
-
-        else:
-            res = self.default_db.select(
-                (
-                    f"SELECT MAX({incremental_key}) AS value\n"
-                    f"FROM {'' if schema is None else schema +'.'}{table}\n"
-                    f"WHERE {incremental_key} IS NOT NULL"
-                )
-            )
-            if len(res) == 1:
-                return res[0]["value"]
-            else:
-                return None
-
     def load_data(
         self,
         source_table_def,
@@ -178,9 +161,21 @@ class SqlTask(Task):
         incremental_key,
         ddl,
     ):
-        last_incremental_value = self.get_last_incremental_value(
-            table, schema, incremental_key
-        )
+        # Get the incremental value
+        if incremental_key is None or not self.default_db.table_exists(table, schema):
+            last_incremental_value = None
+        else:
+            res = self.default_db.select(
+                (
+                    f"SELECT MAX({incremental_key}) AS value\n"
+                    f"FROM {'' if schema is None else schema +'.'}{table}\n"
+                    f"WHERE {incremental_key} IS NOT NULL"
+                )
+            )
+            if len(res) == 1:
+                last_incremental_value = res[0]["value"]
+            else:
+                last_incremental_value = None
 
         # Select stream
         get_data_query = select([source_table_def.c[c["name"]] for c in ddl["columns"]])
