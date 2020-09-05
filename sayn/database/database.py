@@ -1,10 +1,57 @@
-from itertools import groupby
+from collections import Counter
+from typing import Dict, List, Optional
 
+from pydantic import BaseModel, validator
 from sqlalchemy import MetaData, Table
 
-from ..core.errors import DatabaseError
+from ..core.errors import Err, Exc, Ok
 
-from ..utils import yaml
+from ..utils.misc import group_list
+
+
+class DDL(BaseModel):
+    class Column(BaseModel):
+        name: str
+        type: str
+        primary: Optional[bool]
+        not_null: Optional[bool]
+        unique: Optional[bool]
+
+    class Index(BaseModel):
+        columns: List[str]
+
+    columns: Optional[List[Column]]
+    indexes: Dict[str, Index]
+    permissions: Dict[str, str]
+
+    @validator("columns")
+    def columns_unique(cls, v, values):
+        print(v)
+        dupes = {k for k, v in Counter([e.name for e in v]) if v > 1}
+        if len(dupes) > 0:
+            raise ValueError(f"Duplicate columns: {','.join(dupes)}")
+        else:
+            return v
+
+    @validator("indexes")
+    def index_columns_exists(cls, v, values):
+        cols = [c.name for c in values["columns"]]
+        if len(cols) > 0:
+            missing_cols = group_list(
+                [
+                    (index_name, index_column)
+                    for index_name, index in v.items()
+                    for index_column in index.columns
+                    if index_column not in cols
+                ]
+            )
+            if len(missing_cols) > 0:
+                cols_msg = ";".join(
+                    [f"On {i}: {','.join(c)}" for i, c in missing_cols.items()]
+                )
+                raise ValueError(f"Some indexes refer to missing columns: {cols_msg}")
+
+        return v
 
 
 class Database:
@@ -45,7 +92,16 @@ class Database:
             script (sql): The SQL script to execute
         """
         with self.engine.connect().execution_options(autocommit=True) as connection:
-            connection.execute(script)
+            try:
+                result = Ok(connection.execute(script))
+            except Exception as e:
+                result = Err(
+                    "database_error",
+                    "sql_execution_error",
+                    {"exception": e, "db": self.name, "script": script},
+                )
+            finally:
+                return result
 
     def select(self, query, **params):
         """Executes the query and returns a list of dictionaries with the data.
@@ -104,138 +160,12 @@ class Database:
 
     # DDL validation methods
 
-    def validate_ddl(self, ddl, **kwargs):
+    def validate_ddl(self, ddl):
+        default_dict = {"columns": list(), "indexes": dict(), "permissions": dict()}
         if ddl is None:
-            columns = None
-            indexes = None
-            permissions = None
+            return Ok(default_dict)
         else:
-            if "columns" not in ddl:
-                columns = None
-            else:
-                columns = self.validate_columns(ddl.get("columns"), **kwargs)
-                if columns is None:
-                    return
-
-            if "indexes" not in ddl:
-                indexes = None
-            else:
-                indexes = self.validate_indexes(ddl.get("indexes"), **kwargs)
-                if indexes is None:
-                    return
-
-            if "permissions" not in ddl:
-                permissions = None
-            else:
-                permissions = self.validate_permissions(
-                    ddl.get("permissions"), **kwargs
-                )
-                if permissions is None:
-                    return
-
-        return {
-            "columns": columns,
-            "indexes": indexes,
-            "permissions": permissions,
-        }
-
-    def validate_columns(self, columns, **kwargs):
-        """Validates the columns definition for a task.
-
-        A column definition can be in the formats:
-         * str: indicates the column name
-         * dict: specificies name, type and other properties supported by the database driver
-
-        Args:
-            columns (list): A list of column definitions
-
-        Returns:
-            list: A list of dictionaries with the column definition in a dict format or None if
-            there was an error during validation
-        """
-
-        try:
-            ddl = yaml.as_document(
-                columns,
-                schema=yaml.Seq(
-                    yaml.NotEmptyStr()
-                    | yaml.Map(
-                        {
-                            "name": yaml.NotEmptyStr(),
-                            yaml.Optional("type"): yaml.NotEmptyStr(),
-                            yaml.Optional("primary"): yaml.Bool(),
-                            yaml.Optional("not_null"): yaml.Bool(),
-                            yaml.Optional("unique"): yaml.Bool(),
-                        }
-                    )
-                ),
-            )
-        except Exception as e:
-            raise DatabaseError(f"{e}")
-
-        ddl = [c if isinstance(c, dict) else {"name": c} for c in ddl.data]
-
-        duplicate_cols = [
-            k for k, v in groupby(sorted([c["name"] for c in ddl])) if len(list(v)) > 1
-        ]
-        if len(duplicate_cols) > 0:
-            raise DatabaseError(f"Duplicate columns found: {', '.join(duplicate_cols)}")
-
-        if kwargs.get("types_required"):
-            missing_type = [c["name"] for c in ddl if "type" not in c]
-            if len(missing_type) > 0:
-                raise DatabaseError(
-                    f"Missing type for columns: {', '.join(missing_type)}"
-                )
-
-        return ddl
-
-    def validate_indexes(self, indexes, **kwargs):
-        """Validates the indexes definition for a task.
-
-        Args:
-            indexes (dict): A dictionary of indexes with the column list
-
-        Returns:
-            list: A dictionary with the index definition or None if there was
-            an error during validation
-        """
-
-        try:
-            ddl = yaml.as_document(
-                indexes,
-                schema=yaml.MapPattern(
-                    yaml.NotEmptyStr(),
-                    yaml.Map({"columns": yaml.UniqueSeq(yaml.NotEmptyStr())}),
-                ),
-            )
-        except Exception as e:
-            raise DatabaseError(f"{e}")
-
-        return ddl.data
-
-    def validate_permissions(self, permissions, **kwargs):
-        """Validates the permissions definition for a task.
-
-        Args:
-            permissions (dict): A dictionary in the role -> grant format
-
-        Returns:
-            list: A dictionary with the grant list or None if there was an error during validation
-        """
-
-        try:
-            ddl = yaml.as_document(
-                permissions,
-                schema=yaml.MapPattern(
-                    yaml.NotEmptyStr(),
-                    yaml.NotEmptyStr() | yaml.UniqueSeq(yaml.NotEmptyStr()),
-                ),
-            )
-        except Exception as e:
-            raise DatabaseError(f"{e}")
-
-        return ddl.data
+            return Ok(dict(**default_dict, **DDL(**ddl).dict()))
 
     def refresh_metadata(self, only=None, schema=None):
         """Refreshes the sqlalchemy metadata object.
@@ -246,7 +176,7 @@ class Database:
         """
         self.metadata.reflect(only=only, schema=schema, extend_existing=True)
 
-    def get_table(self, table, schema, columns=None, required_existing=False):
+    def get_table(self, table, schema):
         """Create a SQLAlchemy Table object.
 
         Args:
@@ -259,31 +189,18 @@ class Database:
         Returns:
             sqlalchemy.Table: A table object from sqlalchemy
         """
+        # TODO control exceptions
         table_def = Table(table, self.metadata, schema=schema, extend_existing=True)
 
         if table_def.exists():
             self.refresh_metadata(only=[table], schema=schema)
-            if columns is not None:
-                cols_in_table = set([c.name for c in table_def.columns])
-                cols_requested = set(
-                    [c.name if not isinstance(c, str) else c for c in columns]
-                )
-
-                if len(cols_requested - cols_in_table) > 0:
-                    raise DatabaseError(
-                        f"Missing columns \"{', '.join(cols_requested - cols_in_table)}\" in table \"{table_def.name}\""
-                    )
-
-                if len(cols_in_table - cols_requested) > 0:
-                    for column in cols_in_table - cols_requested:
-                        table_def._columns.remove(table_def.columns[column])
-        elif required_existing:
-            return
-        elif columns is not None:
-            for column in columns:
-                table_def.append_column(column.copy())
-
-        return table_def
+            return Ok(table_def)
+        else:
+            return Err(
+                "database_error",
+                "table_not_exists",
+                {"db": self.name, "table": table, "schema": schema},
+            )
 
     def table_exists(self, table, schema, with_columns=None):
         table_def = self.get_table(table, schema, columns=with_columns)
@@ -294,7 +211,9 @@ class Database:
 
     # ETL steps return SQL code ready for execution
 
-    def create_table_select(self, table, schema, select, view=False, ddl=dict()):
+    def create_table_select(
+        self, table, schema, select, view=False, ddl=dict(), execute=False
+    ):
         """Returns SQL code for a create table from a select statment.
 
         Args:
@@ -318,9 +237,12 @@ class Database:
         else:
             q += f"CREATE {table_or_view}{if_not_exists} {table} AS (\n{select}\n);"
 
-        return q
+        if execute:
+            self.execute(q)
 
-    def create_table_ddl(self, table, schema, ddl):
+        return Ok(q)
+
+    def create_table_ddl(self, table, schema, ddl, execute=False):
         """Returns SQL code for a create table from a select statment.
 
         Args:
@@ -350,9 +272,12 @@ class Database:
         )
         q += f"CREATE TABLE{if_not_exists} {table} (\n      {columns}\n);"
 
-        return q
+        if execute:
+            self.execute(q)
 
-    def create_indexes(self, table, schema, ddl):
+        return Ok(q)
+
+    def create_indexes(self, table, schema, ddl, execute=False):
         """Returns SQL to create indexes from ddl.
 
         Args:
@@ -384,9 +309,12 @@ class Database:
             ]
         )
 
-        return q
+        if execute:
+            self.execute(q)
 
-    def grant_permissions(self, table, schema, ddl):
+        return Ok(q)
+
+    def grant_permissions(self, table, schema, ddl, execute=False):
         """Returns a set of GRANT statments.
 
         Args:
@@ -397,14 +325,19 @@ class Database:
         Returns:
             str: A SQL script for the GRANT statements
         """
-        return "\n".join(
+        q = "\n".join(
             [
                 f"GRANT {priv} ON {schema+'.' if schema else ''}{table} TO \"{role}\";"
                 for role, priv in ddl.items()
             ]
         )
 
-    def drop_table(self, table, schema, view=False):
+        if execute:
+            self.execute(q)
+
+        return q
+
+    def drop_table(self, table, schema, view=False, execute=False):
         """Returns a DROP statement.
 
         Args:
@@ -425,9 +358,12 @@ class Database:
         else:
             q += ";"
 
-        return q
+        if execute:
+            self.execute(q)
 
-    def insert(self, table, schema, select, columns=None):
+        return Ok(q)
+
+    def insert(self, table, schema, select, columns=None, execute=False):
         """Returns an INSERT statment from a SELECT query.
 
         Args:
@@ -449,13 +385,18 @@ class Database:
             columns = ""
 
         if "INSERT TABLE NO PARENTHESES" in self.sql_features:
-            insert = f"INSERT INTO {table} {columns} \n{select}\n;"
+            q = f"INSERT INTO {table} {columns} \n{select}\n;"
         else:
-            insert = f"INSERT INTO {table} {columns} (\n{select}\n);"
+            q = f"INSERT INTO {table} {columns} (\n{select}\n);"
 
-        return insert
+        if execute:
+            self.execute(q)
 
-    def move_table(self, src_table, src_schema, dst_table, dst_schema, ddl):
+        return Ok(q)
+
+    def move_table(
+        self, src_table, src_schema, dst_table, dst_schema, ddl, execute=False
+    ):
         """Returns SQL code to rename a table and change schema.
 
         Note:
@@ -496,10 +437,22 @@ class Database:
                         f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx} RENAME TO {dst_table}_{idx};"
                     )
 
-        return "\n".join([rename, change_schema] + idx_alter)
+        q = "\n".join([rename, change_schema] + idx_alter)
+
+        if execute:
+            self.execute(q)
+
+        return Ok(q)
 
     def merge_tables(
-        self, src_table, src_schema, dst_table, dst_schema, delete_key, columns=None
+        self,
+        src_table,
+        src_schema,
+        dst_table,
+        dst_schema,
+        delete_key,
+        columns=None,
+        execute=False,
     ):
         """Returns SQL to merge data in incremental loads.
 
@@ -532,4 +485,9 @@ class Database:
 
         select = f"SELECT * FROM {src}"
         insert = self.insert(dst_table, dst_schema, select, columns=columns)
-        return "\n".join((delete, insert))
+        q = "\n".join((delete, insert))
+
+        if execute:
+            self.execute(q)
+
+        return Ok(q)

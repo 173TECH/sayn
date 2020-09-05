@@ -5,7 +5,7 @@ from copy import deepcopy
 
 from jinja2 import Environment, BaseLoader, StrictUndefined
 
-from ..core.errors import Result
+from ..core.errors import Result, Ok
 from ..utils.misc import map_nested
 
 # from ..utils.python_loader import PythonLoader
@@ -131,8 +131,10 @@ class TaskWrapper:
 
         if not in_query:
             self.status = TaskStatus.NOT_IN_QUERY
+            return Ok()
         elif not self.can_run():
             self.status = TaskStatus.SKIPPED
+            return Ok()
         else:
             # Instantiate the Task runner object
 

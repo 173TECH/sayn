@@ -2,8 +2,12 @@ from pydantic import ValidationError
 from ruamel.yaml.error import MarkedYAMLError
 
 
+class SaynValidationError(ValueError):
+    pass
+
+
 def mk_error(cls, kind, code, details):
-    return cls(False, None, kind, code, details)
+    return cls(False, None, {"kind": kind, "code": code, "details": details})
 
 
 class Result:
@@ -15,6 +19,12 @@ class Result:
         self.is_ok = is_ok
         self.value = value
         self.error = error
+
+    def __repr__(self):
+        if self.is_ok:
+            return f"Result.Ok: {self.value.__repr__()}"
+        else:
+            return f"Result.Err: {self.error.__repr__()}"
 
     @classmethod
     def Ok(cls, value=None):
@@ -69,6 +79,9 @@ class Result:
         else:
             # Unhandled exception
 
+            import IPython
+
+            IPython.embed()
             return mk_error(
                 cls, "exception", "unhandled_exception", {"exception": exc},
             )
@@ -84,6 +97,20 @@ class Result:
           errors (List[Result]): a list of results
         """
         pass
+
+
+def Ok(value=None):
+    """Creates an OK result"""
+    return Result(True, value, None)
+
+
+def Err(kind, code, details):
+    """Creates an Error result"""
+    return Result(False, None, {"kind": kind, "code": code, "details": details})
+
+
+def Exc(exc, **kwargs):
+    return Result.Exc(exc, **kwargs)
 
 
 class DagMissingParentsError(Exception):

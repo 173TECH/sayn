@@ -4,7 +4,7 @@ from pathlib import Path
 
 from jinja2 import Template
 
-from ..core.errors import Result
+from ..core.errors import Err, Ok
 
 
 class TaskStatus(Enum):
@@ -65,17 +65,17 @@ class Task:
     def ready(self):
         """Returned on successful setup
         """
-        return Result.Ok()
+        return Ok()
 
     def success(self):
         """Returned on successful execution
         """
-        return Result.Ok()
+        return Ok()
 
     def fail(self, details=None):
         """Returned on failure in any stage
         """
-        return Result.Err("tasks", "task_fail", details)
+        return Err("tasks", "task_fail", details)
 
     # Steps operations
 
@@ -87,6 +87,16 @@ class Task:
 
     def finish_current_step(self, result):
         self.logger.finish_current_step(result)
+
+    @contextmanager
+    def step(self, step):
+        self.logger.start_step(step)
+        try:
+            yield
+            self.logger.finish_current_step()
+        except Exception as e:
+            self.logger.finish_current_step(e)
+            raise e
 
     # Jinja methods
     def get_template(self, obj):
@@ -114,3 +124,5 @@ class Task:
             path.unlink()
 
         path.write_text(str(content))
+
+        return Ok()

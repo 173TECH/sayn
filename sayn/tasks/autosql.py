@@ -3,6 +3,7 @@ from typing import Dict, Any, List, Optional
 
 from pydantic import BaseModel, Field, FilePath, validator
 
+from ..core.errors import SaynValidationError
 from .sql import SqlTask
 
 
@@ -16,9 +17,7 @@ class Destination(BaseModel):
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
         if v is not None:
-            raise ValueError(
-                f'tmp_schema not supported for database of type {v["_db_type"]}'
-            )
+            raise SaynValidationError("tmp_schema_not_supported", v["_db_type"])
 
         return v
 
@@ -38,13 +37,11 @@ class Config(BaseModel):
     @validator("materialisation")
     def incremental_has_delete_key(cls, v, values):
         if v not in ("table", "view", "incremental"):
-            raise ValueError(
-                'Accepted materialisations: "table", "view" and "incremental".'
-            )
+            raise SaynValidationError("invalidid_materialisation", v)
         elif v != "incremental" and values.get("delete_key") is not None:
-            raise ValueError("delete_key is not valid for non-incremental loads.")
+            raise SaynValidationError("incremental_spec_error", "delete_key")
         elif v == "incremental" and values.get("delete_key") is None:
-            raise ValueError("delete_key is required for incremental materialisation.")
+            raise SaynValidationError("non_incremental_spec_error", "delete_key")
         else:
             return v
 
@@ -65,7 +62,11 @@ class AutoSqlTask(SqlTask):
         self.table = self.config.destination.table
         self.tmp_table = f"sayn_tmp_{self.table}"
         self.delete_key = self.config.delete_key
-        self.ddl = self.default_db.validate_ddl(self.config.ddl)
+        result = self.default_db.validate_ddl(self.config.ddl)
+        if result.is_err:
+            return result
+        else:
+            self.ddl = result.value
         self.template = self.get_template(self.config.file_name)
 
         try:

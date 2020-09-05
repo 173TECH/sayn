@@ -2,7 +2,6 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field, validator
 
-from ..core.errors import DatabaseError
 from .sql import SqlTask
 
 
@@ -74,26 +73,32 @@ class CopyTask(SqlTask):
         self.incremental_key = self.config.incremental_key
         self.ddl = self.default_db.validate_ddl(self.config.ddl)
 
-        try:
-            self.source_table_def = self.source_db.get_table(
-                self.source_table,
-                self.source_schema,
-                columns=[c["name"] for c in self.ddl["columns"]],
-                required_existing=True,
-            )
-        except DatabaseError as e:
-            return self.fail(f"{e}")
+        result = self.source_db.get_table(
+            self.source_table,
+            self.source_schema,
+            # columns=[c["name"] for c in self.ddl["columns"]],
+            # required_existing=True,
+        )
+        if result.is_err:
+            return self.failed(result)
 
-        if self.source_table_def is None or not self.source_table_def.exists():
-            return self.fail(
-                (
-                    f"Table \"{self.source_schema+'.' if self.source_schema is not None else ''}{self.source_table}\""
-                    f" does not exists or columns don't match with DDL specification"
-                )
-            )
+        self.source_table_def = result.value
 
         # Fill up column types from the source table
         for column in self.ddl["columns"]:
+            if column.get("name") not in self.source_table_def.columns:
+                return self.failed(
+                    "database_error",
+                    "source_table_missing_column",
+                    {
+                        "db": self.source_db.name,
+                        "table": self.source_table,
+                        "schema": self.source_schema,
+                        "column": column.get("name"),
+                    },
+                )
+
+            # TODO check for incorrect column types
             if "type" not in column:
                 column["type"] = self.source_table_def.columns[
                     column["name"]
