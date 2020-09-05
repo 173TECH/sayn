@@ -51,10 +51,7 @@ class SqlTask(Task):
             return self.default_db.execute(self.sql_query)
 
         elif step == "write_query_on_disk":
-            try:
-                return self.write_compilation_output(self.sql_query)
-            except Exception as e:
-                return Err("task_error", "save_to_disk_error", {"exception": e})
+            return self.write_compilation_output(self.sql_query)
 
         elif step == "drop_tmp":
             return self.drop(self.tmp_table, self.tmp_schema)
@@ -68,31 +65,44 @@ class SqlTask(Task):
             )
 
         elif step == "create_tmp_ddl":
-            return self.create_ddl(self.tmp_table, self.tmp_schema, self.ddl)
+            return self.default_db.create_table_ddl(
+                self.table, self.schema, self.ddl, execute=True
+            )
 
         elif step == "create_view":
-            return self.create_view(self.table, self.schema, self.sql_query)
+            return self.default_db.create_table_select(
+                self.table, self.schema, self.sql_query, view=True, execute=True
+            )
 
         elif step == "create_indexes":
-            return self.create_indexes(self.table, self.schema, self.ddl)
+            return self.default_db.create_indexes(
+                self.table, self.schema, self.ddl, execute=True
+            )
 
         elif step == "merge":
-            return self.merge(
+            return self.default_db.merge_tables(
                 self.tmp_table,
                 self.tmp_schema,
                 self.table,
                 self.schema,
                 self.delete_key,
-                self.ddl,
+                execute=True,
             )
 
         elif step == "move":
-            return self.move(
-                self.tmp_table, self.tmp_schema, self.table, self.schema, self.ddl,
+            return self.default_db.move_table(
+                self.tmp_table,
+                self.tmp_schema,
+                self.table,
+                self.schema,
+                self.ddl,
+                execute=True,
             )
 
         elif step == "set_permissions":
-            return self.set_permissions(self.table, self.schema, self.ddl)
+            return self.default_db.grant_permissions(
+                self.table, self.schema, self.ddl["permissions"], execute=True
+            )
 
         elif step == "load_data":
             return self.load_data(
@@ -122,12 +132,7 @@ class SqlTask(Task):
         except:
             pass
 
-        return self.success()
-
-    def create_view(self, table, schema, select):
-        return self.default_db.create_table_select(
-            table, schema, select, view=True, execute=True
-        )
+        return Ok()
 
     def create_select(self, table, schema, select, ddl):
         if ddl.get("columns") is None:
@@ -135,63 +140,32 @@ class SqlTask(Task):
                 table, schema, select, view=False, execute=True
             )
         else:
-            ddl_column_names = [c["name"] for c in ddl.get("columns")]
             # create table with DDL and insert the output of the select
             self.default_db.create_table_ddl(table, schema, ddl, execute=True)
-            if select is not None:
-                # we need to reshape the query to ensure that the columns are always in the right order
-                self.default_db.insert(
-                    table, schema, select, columns=ddl_column_names, execute=True
-                )
 
-        return self.success()
-
-    def create_ddl(self, table, schema, ddl):
-        return self.default_db.create_table_ddl(table, schema, ddl, execute=True)
-
-    def create_indexes(self, table, schema, ddl):
-        if ddl.get("indexes") is not None:
-            return self.default_db.create_indexes(table, schema, ddl, execute=True)
-        else:
-            return self.success()
-
-    def move(self, src_table, src_schema, dst_table, dst_schema, ddl):
-        return self.default_db.move_table(
-            src_table, src_schema, dst_table, dst_schema, ddl, execute=True
-        )
-
-    def merge(self, tmp_table, tmp_schema, table, schema, delete_key, ddl):
-        return self.default_db.merge_tables(
-            tmp_table, tmp_schema, table, schema, delete_key, execute=True
-        )
-
-    def set_permissions(self, table, schema, ddl):
-        if ddl.get("permissions") is not None:
-            return self.default_db.grant_permissions(
-                table, schema, ddl["permissions"], execute=True
+            ddl_column_names = [c["name"] for c in ddl.get("columns")]
+            self.default_db.insert(
+                table, schema, select, columns=ddl_column_names, execute=True
             )
-        else:
-            return self.success()
+
+        return Ok()
 
     def get_last_incremental_value(self, table, schema, incremental_key):
-        full_table_name = f"{'' if schema is None else schema +'.'}{table}"
-        table_exists = self.default_db.table_exists(table, schema)
+        if incremental_key is None or not self.default_db.table_exists(table, schema):
+            return None
 
-        if table_exists is True and incremental_key is not None:
-            last_incremental_value_query = (
-                f"SELECT MAX({incremental_key}) AS value"
-                f"FROM {full_table_name}"
-                f"WHERE {incremental_key} IS NOT NULL"
-            )
-            res = self.default_db.select(last_incremental_value_query)
-            if len(res) == 1:
-                last_incremental_value = res[0]["value"]
-            else:
-                last_incremental_value = None
         else:
-            last_incremental_value = None
-
-        return last_incremental_value
+            res = self.default_db.select(
+                (
+                    f"SELECT MAX({incremental_key}) AS value\n"
+                    f"FROM {'' if schema is None else schema +'.'}{table}\n"
+                    f"WHERE {incremental_key} IS NOT NULL"
+                )
+            )
+            if len(res) == 1:
+                return res[0]["value"]
+            else:
+                return None
 
     def load_data(
         self,

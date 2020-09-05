@@ -171,6 +171,39 @@ class Database:
         with self.engine.connect().execution_options(autocommit=True) as connection:
             connection.execute(table_def.insert().values(data))
 
+        return Ok(len(data))
+
+    def load_data_stream(self, table, schema, data_iter):
+        loaded = 0
+        buffer = list()
+        for i, record in enumerate(data_iter):
+            if i % 100000 == 0:
+                if len(buffer) > 0:
+                    result = self.load_data(table, schema, buffer)
+                    if result.is_err:
+                        return result
+                    else:
+                        loaded += result.value
+                buffer = list()
+
+            buffer.append(record)
+
+        if len(buffer) > 0:
+            result = self.load_data(table, schema, buffer)
+            if result.is_err:
+                return result
+            else:
+                loaded += result.value
+
+        if i != loaded:
+            return Err(
+                "database",
+                "load_data_missing_records",
+                {"loaded": loaded, "expected": i},
+            )
+
+        return Ok(loaded)
+
     def validate_ddl(self, ddl):
         if ddl is None:
             return Ok(DDL().get_ddl())

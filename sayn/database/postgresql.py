@@ -2,6 +2,7 @@ import csv
 import io
 from sqlalchemy import create_engine
 
+from ..core.errors import Ok
 from .database import Database
 
 db_parameters = ["host", "user", "password", "port", "dbname"]
@@ -23,31 +24,17 @@ class Postgresql(Database):
         engine = create_engine("postgresql://", **settings)
         self.setup_db(name, name_in_settings, db_type, engine)
 
-    def load_data_stream(self, table, schema, data_iter):
-        def flush(connection, cursor, buffer):
-            copy_sql = (
-                f"COPY {full_table_name} FROM STDIN " "CSV DELIMITER ',' QUOTE '\"'"
-            )
-            buffer.seek(0)
+    def load_data(self, table, schema, data):
+        full_table_name = f"{'' if schema is None else schema + '.'}{table}"
+        copy_sql = f"COPY {full_table_name} FROM STDIN " "CSV DELIMITER ',' QUOTE '\"'"
+
+        buffer = io.StringIO()
+        writer = csv.DictWriter(buffer, fieldnames=data[0].keys())
+        writer.writerows(data)
+        buffer.seek(0)
+        connection = self.engine.connect().connection
+        with connection.cursor() as cursor:
             cursor.copy_expert(copy_sql, buffer)
             connection.commit()
 
-        full_table_name = f"{'' if schema is None else schema + '.'}{table}"
-        connection = self.engine.connect().connection
-        with connection.cursor() as cursor:
-            buffer = None
-            writer = None
-            has_rows = False
-            for i, record in enumerate(data_iter):
-                if i % 100000 == 0:
-                    if has_rows:
-                        flush(connection, cursor, buffer)
-                    buffer = io.StringIO()
-                    writer = csv.DictWriter(buffer, fieldnames=record.keys(),)
-                    has_rows = False
-
-                writer.writerow(record)
-                has_rows = True
-
-            if has_rows:
-                flush(connection, cursor, buffer)
+        return Ok(len(data))
