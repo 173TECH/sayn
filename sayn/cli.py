@@ -11,7 +11,9 @@ from .utils.logging import ConsoleLogger, ConsoleDebugLogger, FileLogger
 from .scaffolding.init_project import sayn_init
 from .core.app import App
 from .core.config import read_project, read_dags, read_settings, get_tasks_dict
-from .core.errors import Err, Ok, Result
+from .core.errors import Err, Result
+
+yesterday = date.today() - timedelta(days=1)
 
 
 class CliApp(App):
@@ -22,27 +24,28 @@ class CliApp(App):
         exclude=list(),
         profile=None,
         full_load=False,
-        start_dt=date.today() - timedelta(days=1),
-        end_dt=date.today() - timedelta(days=1),
+        start_dt=yesterday,
+        end_dt=yesterday,
     ):
         # STARTING APP: register loggers and set cli arguments in the App object
+        loggers = list()
         if debug:
-            self.tracker.register_logger(ConsoleDebugLogger())
+            loggers.append(ConsoleDebugLogger())
         else:
-            self.tracker.register_logger(ConsoleLogger())
-        self.tracker.register_logger(FileLogger(self.run_arguments["folders"]["logs"]))
+            loggers.append(ConsoleLogger())
+        loggers.append(FileLogger(self.run_arguments["folders"]["logs"]))
 
-        self.set_run_arguments(
+        self.start_app(
+            loggers,
             debug=debug,
             full_load=full_load,
             start_dt=start_dt,
             end_dt=end_dt,
             profile=profile,
         )
-        self.report_start_app()
 
         # SETUP THE APP: read project config and settings, interpret cli arguments and setup the dag
-        self.report_start_setup()
+        self.tracker.start_stage("setup")
 
         # Read the project configuration
         project = self.handle_result(read_project())
@@ -67,7 +70,9 @@ class CliApp(App):
         )
         self.handle_result(self.set_tasks(tasks_dict, task_query))
 
-        self.report_finish_setup(Ok())
+        self.tracker.finish_current_stage(
+            tasks={k: v.status for k, v in self.tasks.items()}
+        )
 
     def handle_result(self, result):
         """Interpret the result of setup opreations returning the value if `result.is_ok`.
@@ -78,10 +83,12 @@ class CliApp(App):
           result (sayn.errors.Result): The result of a setup operation
         """
         if result is None or not isinstance(result, Result):
-            self.report_finish_setup(Err("app_setup", "unhandled_error", result=result))
+            self.tracker.finish_current_stage(
+                error=Err("app_setup", "unhandled_error", result=result)
+            )
             sys.exit()
         elif result.is_err:
-            self.report_finish_setup(result)
+            self.report_finish_setup(error=result)
             sys.exit()
         else:
             return result.value
@@ -118,14 +125,14 @@ def click_incremental(func):
         "--start-dt",
         "-s",
         type=click.DateTime(formats=["%Y-%m-%d"]),
-        default=str(date.today() - timedelta(days=1)),
+        default=str(yesterday),
         help="For incremental loads, the start date",
     )(func)
     func = click.option(
         "--end-dt",
         "-e",
         type=click.DateTime(formats=["%Y-%m-%d"]),
-        default=str(date.today() - timedelta(days=1)),
+        default=str(yesterday),
         help="For incremental loads, the end date",
     )(func)
     return func

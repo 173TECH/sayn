@@ -1,7 +1,6 @@
 from datetime import datetime, date, timedelta
 from uuid import UUID, uuid4
 
-from ..tasks import TaskStatus
 from ..tasks.task_wrapper import TaskWrapper
 from ..utils.dag import query as dag_query, topological_sort
 from .config import get_connections
@@ -13,8 +12,8 @@ run_id = uuid4()
 
 class App:
     run_id: UUID = run_id
-    times = {"global": {"start": datetime.now(), "end": None}}
-    tracker = EventTracker(run_id)
+    app_start_ts = datetime.now()
+    tracker = None  # TODO create a default event tracker EventTracker(run_id)
 
     run_arguments = {
         "folders": {
@@ -43,9 +42,6 @@ class App:
     connections = dict()
 
     python_loader = None
-
-    def set_run_arguments(self, **kwargs):
-        self.run_arguments.update(kwargs)
 
     def set_project(self, project):
         self.project_parameters.update(project.parameters or dict())
@@ -130,49 +126,28 @@ class App:
         self.tracker.set_tasks(tasks_in_query)
 
         for task_name, task in self._tasks_dict.items():
-            self.tracker.set_current_task(task_name)
+            task_tracker = self.tracker.get_task_logger(task_name)
+            task_tracker._report_event("start_stage")
+            start_ts = datetime.now()
+
             self.tasks[task_name] = TaskWrapper()
             result = self.tasks[task_name].setup(
                 task,
                 [self.tasks[p] for p in task.get("parents", list())],
                 task_name in tasks_in_query,
-                self.tracker.get_task_logger(task_name),
+                task_tracker,
                 self.connections,
                 self.default_db,
                 self.project_parameters,
                 self.run_arguments,
                 self.python_loader,
             )
-            if result.is_err:
-                pass
+
+            task_tracker._report_event(
+                "finish_stage", duration=datetime.now() - start_ts, result=result
+            )
 
         return Ok()
-
-    # Utilities
-    # @contextmanager
-    # def stage(self, stage):
-    #     self.times[stage]["start"] = datetime.now()
-    #     self.tracker.start_stage(stage)
-
-    #     try:
-    #         yield
-    #     except Exception as e:
-    #         self.report_app_error(Exc(e).error)
-    #         return
-
-    #     task_statuses = group_list(
-    #         [(task.status.value, name) for name, task in self.tasks.items()]
-    #     )
-    #     if len(set(task_statuses.keys()) - set(("ready", "not_in_query"))) > 0:
-    #         if "ready" in task_statuses:
-    #             level = "warning"
-    #         else:
-    #             level = "error"
-    #     else:
-    #         level = "info"
-    #     self.tracker.finish_current_stage(
-    #         level, task_statuses, datetime.now() - start_ts
-    #     )
 
     # Commands
 
@@ -183,61 +158,34 @@ class App:
         self.execute_dag("compile")
 
     def execute_dag(self, command):
-        self.times[command] = {"start": datetime.now(), "end": None}
+        # Execution of relevant tasks
         tasks = {k: v for k, v in self.tasks.items() if v.in_query}
-        self.tracker.start_stage(command, details={"tasks": list(tasks.keys())})
+        self.tracker.start_stage(command, tasks=list(tasks.keys()))
 
         for task_name, task in tasks.items():
+            task.logger._report_event("start_stage")
+            start_ts = datetime.now()
             if task.in_query:
                 if command == "run":
-                    task.run()
+                    result = task.run()
                 else:
-                    task.compile()
-
-        self.times[command]["end"] = datetime.now()
-        self.tracker.finish_current_stage(
-            self.times[command]["end"] - self.times[command]["start"]
-        )
-
-        with self.stage("summary"):
-            succeeded = [
-                name
-                for name, task in self.tasks.items()
-                if task.in_query and task.status == TaskStatus.SUCCEEDED
-            ]
-            skipped = [
-                name
-                for name, task in self.tasks.items()
-                if task.in_query and task.status == TaskStatus.SKIPPED
-            ]
-            failed = [
-                name
-                for name, task in self.tasks.items()
-                if task.in_query and task.status == TaskStatus.FAILED
-            ]
-            if len(succeeded) > 0:
-                if len(failed) > 0 or len(skipped) > 0:
-                    level = "warning"
-                else:
-                    level = "success"
-            else:
-                level = "error"
-            self.tracker.report_event(
-                level=level,
-                event="execution_finished",
-                command=command,
-                context="app",
-                duration=datetime.now() - self.start_ts,
-                succeeded=succeeded,
-                skipped=skipped,
-                failed=failed,
+                    result = task.compile()
+            task.logger._report_event(
+                "finish_stage", duration=datetime.now() - start_ts, result=result
             )
 
-    def report_start_app(self):
-        pass
+        self.tracker.finish_current_stage(tasks={k: v.status for k, v in tasks.items()})
 
-    def report_start_setup(self):
-        pass
+        self.finish_app()
 
-    def report_finish_setup(self, result):
-        pass
+    def start_app(self, loggers, **run_arguments):
+        self.tracker = EventTracker(self.run_id, loggers, run_arguments=run_arguments)
+        self.run_arguments.update(run_arguments)
+
+    def finish_app(self):
+        duration = datetime.now() - self.app_start_ts
+        self.tracker.report_event(
+            event="finish_app",
+            duration=duration,
+            tasks={k: v.status for k, v in self.tasks.items()},
+        )

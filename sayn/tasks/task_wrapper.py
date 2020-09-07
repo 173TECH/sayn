@@ -64,8 +64,6 @@ class TaskWrapper:
     runner: Task = None
     status: TaskStatus = TaskStatus.UNKNOWN
 
-    times: Dict[datetime] = dict()
-
     def setup(
         self,
         task_info,
@@ -78,13 +76,10 @@ class TaskWrapper:
         run_arguments,
         python_loader,
     ):
-        def error(kind, code, **details):
-            return failed(Err(kind, code, **details))
-
         def failed(result):
             self.status = TaskStatus.SETUP_FAILED
             self.logger.current_step = None
-            return self.report_finish_stage("setup", result)
+            return result
 
         def setup_runner(runner, runner_config):
             try:
@@ -95,23 +90,17 @@ class TaskWrapper:
 
             finally:
                 if not isinstance(result, Result):
-                    return error("task_result", "missing_result_error", result=result)
+                    return failed(
+                        Err("task_result", "missing_result_error", result=result)
+                    )
                 elif result.is_err:
                     return failed(result)
                 else:
                     self.runner = runner
                     self.status = TaskStatus.READY
-                    self.times["setup"]["end"] = datetime.now()
-                    duration = self.times["setup"]["end"] - self.times["setup"]["start"]
-                    self.logger._report_event(
-                        event="finish_task_stage",
-                        status=self.status,
-                        duration=duration,
-                    )
-                    return self.report_finish_stage("setup", Ok())
+                    return Ok()
 
         self.logger = logger
-        self.report_start_stage("setup")
 
         self.status = TaskStatus.SETTING_UP
         self._info = task_info
@@ -149,7 +138,9 @@ class TaskWrapper:
                 task_class = _creators[self._type]
 
             else:
-                return error("task_type", "invalid_task_type_error", type=self._type)
+                return failed(
+                    Err("task_type", "invalid_task_type_error", type=self._type)
+                )
 
             # Call the object creation method
             result = self.create_runner(
@@ -259,19 +250,14 @@ class TaskWrapper:
         return self.execute_task("compile")
 
     def execute_task(self, command):
-        self.report_start_stage(command)
         if not self.in_query:
             # TODO review this as it should never happend if running sayn cli
             self.status = TaskStatus.NOT_IN_QUERY
-            return self.report_finish_stage(
-                command, Err("execution", "task_not_in_query")
-            )
+            return Err("execution", "task_not_in_query")
         elif not self.can_run():
             self.status = TaskStatus.SKIPPED
             # TODO add more detail like the parents that failed
-            return self.report_finish_stage(
-                command, Err("execution", "cannot_run_task")
-            )
+            return Err("execution", "cannot_run_task")
         else:
             try:
                 if command == "run":
@@ -281,25 +267,4 @@ class TaskWrapper:
             except Exception as e:
                 result = Exc(e)
 
-            return self.report_finish_stage(command, result)
-
-    def report_start_stage(self, stage):
-        self.times[stage] = {"start": datetime.now(), "end": None}
-        self.logger._report_event(event="start_task_stage")
-
-    def report_finish_stage(self, stage, result):
-        self.times[stage]["end"] = datetime.now()
-        duration = self.times[stage]["end"] - self.times[stage]["start"]
-        if result.is_err:
-            self.logger._report_event(
-                event="finish_task_stage",
-                status=self.status,
-                error=result.error,
-                duration=duration,
-            )
-        else:
-            self.logger._report_event(
-                event="finish_task_stage", status=self.status, duration=duration
-            )
-
-        return result
+            return result
