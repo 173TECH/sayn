@@ -16,6 +16,25 @@ class TaskLogger:
         self._task_name = task_name
         self._task_order = task_order
 
+    def _report_event(self, event, **details):
+        # Cleanup details
+        details["event"] = event
+        details["context"] = "task"
+
+        details["task"] = self._task_name
+        details["task_order"] = self._task_order
+
+        details["step"] = self._current_step
+        details["step_order"] = (
+            self._steps.index(self._current_step)
+            if self._current_step in self._steps
+            else None
+        )
+
+        details = {k: v for k, v in details.items() if v is not None}
+
+        self._logger.report_event(**details)
+
     def set_run_steps(self, steps):
         self._report_event("set_run_steps", steps=steps)
         self._steps = steps
@@ -49,22 +68,3 @@ class TaskLogger:
 
     def error(self, message, **details):
         self._report_event("message", level="error", message=message, **details)
-
-    def _report_event(self, event, **details):
-        # Cleanup details
-        details["event"] = event
-        details["context"] = "task"
-
-        details["task"] = self._task_name
-        details["task_order"] = self._task_order
-
-        details["step"] = self._current_step
-        details["step_order"] = (
-            self._steps.index(self._current_step)
-            if self._current_step in self._steps
-            else None
-        )
-
-        details = {k: v for k, v in details.items() if v is not None}
-
-        self._logger.report_event(**details)
