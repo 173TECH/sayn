@@ -6,37 +6,37 @@ from ..core.errors import Ok
 class TaskLogger:
     _logger = None
     _task_name = None
-    task_order = None
-    steps = list()
-    current_step = None
-    current_step_start_ts = None
+    _task_order = None
+    _steps = list()
+    _current_step = None
+    _current_step_start_ts = None
 
     def __init__(self, logger, task_name, task_order):
         self._logger = logger
-        self.task_name = task_name
-        self.task_order = task_order
+        self._task_name = task_name
+        self._task_order = task_order
 
     def set_run_steps(self, steps):
         self._report_event("set_run_steps", steps=steps)
-        self.steps = steps
+        self._steps = steps
 
     def start_step(self, step):
         self.finish_current_step()
 
-        self.current_step = step
-        self.current_step_start_ts = datetime.now()
+        self._current_step = step
+        self._current_step_start_ts = datetime.now()
 
         self._report_event("start_step")
 
     def finish_current_step(self, result=Ok()):
-        if self.current_step is not None:
-            duration = self.current_step_start_ts - datetime.now()
+        if self._current_step is not None:
+            duration = self._current_step_start_ts - datetime.now()
 
             self._report_event(
                 "finish_step", duration=duration, result=result,
             )
-            self.current_step = None
-            self.current_step_start_ts = None
+            self._current_step = None
+            self._current_step_start_ts = None
 
     def debug(self, message, **details):
         self._report_event("message", level="debug", message=message, **details)
@@ -55,13 +55,13 @@ class TaskLogger:
         details["event"] = event
         details["context"] = "task"
 
-        details["task"] = self.task_name
-        details["task_order"] = self.task_order
+        details["task"] = self._task_name
+        details["task_order"] = self._task_order
 
-        details["step"] = self.current_step
+        details["step"] = self._current_step
         details["step_order"] = (
-            self.steps.index(self.current_step)
-            if self.current_step in self.steps
+            self._steps.index(self._current_step)
+            if self._current_step in self._steps
             else None
         )
 
