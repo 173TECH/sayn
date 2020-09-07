@@ -119,10 +119,22 @@ class TaskWrapper:
         if not in_query:
             self.status = TaskStatus.NOT_IN_QUERY
             return Ok()
-        elif not self.can_run():
-            self.status = TaskStatus.SKIPPED
-            return Ok()
         else:
+            # Check the parents are in a good state
+            failed_parents = {
+                p.name: p.status
+                for p in self.parents
+                if p.status
+                not in (
+                    TaskStatus.NOT_IN_QUERY,
+                    TaskStatus.READY,
+                    TaskStatus.SUCCEEDED,
+                )
+            }
+            if len(failed_parents) > 0:
+                self.status = TaskStatus.SKIPPED
+                return Err("setup", "parent_errors", failed_parents=failed_parents)
+
             # Instantiate the Task runner object
 
             # First get the class to use
@@ -229,20 +241,6 @@ class TaskWrapper:
     def should_run(self):
         return self.status == TaskStatus.NOT_IN_QUERY
 
-    def can_run(self):
-        if self.status not in (TaskStatus.SETTING_UP, TaskStatus.READY):
-            return False
-
-        for p in self.parents:
-            if p.status not in (
-                TaskStatus.NOT_IN_QUERY,
-                TaskStatus.READY,
-                TaskStatus.SUCCEEDED,
-            ):
-                return False
-
-        return True
-
     def run(self):
         return self.execute_task("run")
 
@@ -254,11 +252,22 @@ class TaskWrapper:
             # TODO review this as it should never happend if running sayn cli
             self.status = TaskStatus.NOT_IN_QUERY
             return Err("execution", "task_not_in_query")
-        elif not self.can_run():
-            self.status = TaskStatus.SKIPPED
-            # TODO add more detail like the parents that failed
-            return Err("execution", "cannot_run_task")
+        elif self.status not in (TaskStatus.SETTING_UP, TaskStatus.READY):
+            return Err("execution", "setup_error", status=self.status)
         else:
+            failed_parents = {
+                p.name: p.status
+                for p in self.parents
+                if p.status
+                not in (
+                    TaskStatus.NOT_IN_QUERY,
+                    TaskStatus.READY,
+                    TaskStatus.SUCCEEDED,
+                )
+            }
+            if len(failed_parents) > 0:
+                return Err("execution", "parent_errors", failed_parents=failed_parents)
+
             try:
                 if command == "run":
                     result = self.runner.run()

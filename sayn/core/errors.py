@@ -37,7 +37,7 @@ class Result:
         if self.is_ok:
             return f"Result.Ok: {self.value.__repr__()}"
         else:
-            return f"Result.Err: {self.error.__repr__()}"
+            return f"Result.Err ({self.error.kind}::{self.error.code}): {self.error.details.__repr__()}"
 
     @property
     def is_err(self):
