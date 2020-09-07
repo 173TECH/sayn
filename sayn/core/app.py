@@ -5,7 +5,7 @@ from ..tasks import TaskStatus
 from ..tasks.task_wrapper import TaskWrapper
 from ..utils.dag import query as dag_query, topological_sort
 from .config import get_connections
-from .errors import Result
+from .errors import Err, Ok
 from .event_tracker import EventTracker
 
 run_id = uuid4()
@@ -60,9 +60,7 @@ class App:
         # Get parameters and credentials from yaml
         if settings.yaml is not None:
             if profile_name is not None and profile_name not in settings.yaml.profiles:
-                return Result.Err(
-                    "app_command", "wrong_profile", {"profile": profile_name}
-                )
+                return Err("app_command", "wrong_profile", profile=profile_name)
 
             profile_name = profile_name or settings.yaml.default_profile
 
@@ -84,49 +82,29 @@ class App:
         # Validate the given parameters
         error_items = set(parameters.keys()) - set(self.project_parameters.keys())
         if error_items:
-            return Result.Err(
-                module="app",
-                error_code="wrong_parameters",
-                parameters=error_items,
-                message=f"Some parameters are not accepted by this project: {', '.join(error_items)}",
-            )
+            return Err("app", "wrong_parameters", parameters=error_items,)
 
         self.project_parameters.update(parameters)
 
         # Validate credentials
         error_items = set(credentials.keys()) - set(self.credentials.keys())
         if error_items:
-            return Result.Err(
-                module="app",
-                error_code="wrong_credentials",
-                credentials=error_items,
-                message=f"Some credentials are not accepted by this project: {', '.join(error_items)}",
-            )
+            return Err("app", "wrong_credentials", credentials=error_items,)
 
         error_items = set(self.credentials.keys()) - set(credentials.keys())
         if error_items:
-            return Result.Err(
-                module="app",
-                error_code="missing_credentials",
-                credentials=error_items,
-                message=f"Some credentials are missing: {', '.join(error_items)}",
-            )
+            return Err("app", "missing_credentials", credentials=error_items,)
 
         error_items = [n for n, v in credentials.items() if "type" not in v]
         if error_items:
-            return Result.Err(
-                module="app",
-                error_code="missing_credential_type",
-                credentials=error_items,
-                message=f"Some credentials are missing a type: {', '.join(error_items)}",
-            )
+            return Err("app", "missing_credential_type", credentials=error_items,)
 
         self.credentials.update(credentials)
 
         # Create connections
         self.connections = get_connections(self.credentials)
 
-        return Result.Ok()
+        return Ok()
 
     def set_tasks(self, tasks, task_query):
         self.task_query = task_query
@@ -136,11 +114,19 @@ class App:
             for task in tasks.values()
         }
 
+        topo_sort = topological_sort(self.dag)
+        if topo_sort.is_err:
+            return topo_sort
+
         self._tasks_dict = {
-            task_name: tasks[task_name] for task_name in topological_sort(self.dag)
+            task_name: tasks[task_name] for task_name in topo_sort.value
         }
 
-        tasks_in_query = dag_query(self.dag, self.task_query)
+        result = dag_query(self.dag, self.task_query)
+        if result.is_err:
+            return result
+        else:
+            tasks_in_query = result.value
         self.tracker.set_tasks(tasks_in_query)
 
         for task_name, task in self._tasks_dict.items():
@@ -160,6 +146,8 @@ class App:
             if result.is_err:
                 pass
 
+        return Ok()
+
     # Utilities
     # @contextmanager
     # def stage(self, stage):
@@ -169,7 +157,7 @@ class App:
     #     try:
     #         yield
     #     except Exception as e:
-    #         self.report_app_error(Result.Exc(e).error)
+    #         self.report_app_error(Exc(e).error)
     #         return
 
     #     task_statuses = group_list(

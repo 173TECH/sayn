@@ -117,7 +117,7 @@ class SqlTask(Task):
             )
 
         else:
-            return Err("task_execution", "unknown_step", {"step": step})
+            return Err("task_execution", "unknown_step", step=step)
 
     # SQL execution steps methods
 

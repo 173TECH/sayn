@@ -9,10 +9,6 @@ from ..core.errors import Err, Exc, Ok
 from ..utils.misc import group_list
 
 
-class DatabaseError(Exception):
-    pass
-
-
 class DDL(BaseModel):
     class Column(BaseModel):
         name: str
@@ -106,12 +102,15 @@ class Database:
         """
         try:
             with self.engine.connect().execution_options(autocommit=True) as connection:
-                result = Ok(connection.execute(script))
+                connection.execute(script)
+            result = Ok()
         except Exception as e:
             result = Err(
                 "database_error",
                 "sql_execution_error",
-                {"exception": e, "db": self.name, "script": script},
+                exception=e,
+                db=self.name,
+                script=script,
             )
         finally:
             return result
@@ -197,9 +196,7 @@ class Database:
 
         if i != loaded:
             return Err(
-                "database",
-                "load_data_missing_records",
-                {"loaded": loaded, "expected": i},
+                "database", "load_data_missing_records", loaded=loaded, expected=i,
             )
 
         return Ok(loaded)
@@ -247,7 +244,9 @@ class Database:
             return Err(
                 "database_error",
                 "table_not_exists",
-                {"db": self.name, "table": table, "schema": schema},
+                db=self.name,
+                table=table,
+                schema=schema,
             )
 
     def table_exists(self, table, schema, with_columns=None):

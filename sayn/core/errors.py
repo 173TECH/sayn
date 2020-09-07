@@ -1,3 +1,5 @@
+from typing import Any, Dict
+
 from pydantic import ValidationError
 from ruamel.yaml.error import MarkedYAMLError
 
@@ -6,85 +8,36 @@ class SaynValidationError(ValueError):
     pass
 
 
-def mk_error(cls, kind, code, details):
-    return cls(False, None, {"kind": kind, "code": code, "details": details})
+class Error:
+    kind: str
+    code: str
+    details: Dict = dict()
+
+    def __init__(self, kind, code, details):
+        self.kind = kind
+        self.code = code
+        self.details = details
 
 
 class Result:
-    is_ok = False
-    value = None
-    error = None
 
-    def __init__(self, is_ok, value, error):
-        self.is_ok = is_ok
-        self.value = value
-        self.error = error
+    is_ok: bool = False
+    value: Any = None
+    error: Error = None
+
+    def __init__(self, value: Any = None, error: Error = None):
+        if error is not None:
+            self.is_ok = False
+            self.error = error
+        else:
+            self.is_ok = True
+            self.value = value
 
     def __repr__(self):
         if self.is_ok:
             return f"Result.Ok: {self.value.__repr__()}"
         else:
             return f"Result.Err: {self.error.__repr__()}"
-
-    @classmethod
-    def Ok(cls, value=None):
-        """Creates an OK result"""
-        return cls(True, value, None)
-
-    @classmethod
-    def Err(cls, kind, code, details):
-        """Creates an Error result"""
-        return cls(False, None, {"kind": kind, "code": code, "details": details})
-
-    @classmethod
-    def Exc(cls, exc, **kwargs):
-        """Creates an Error result from an exception"""
-        if isinstance(exc, MarkedYAMLError):
-            # Ruamel error
-            # TODO check that it's controlled from sayn.core.config
-            return mk_error(
-                cls,
-                "parsing",
-                "yaml_parse",
-                dict(
-                    **kwargs,
-                    **{"error": exc.problem, "line": exc.problem_mark.line + 1},
-                ),
-            )
-
-        elif isinstance(exc, ValidationError):
-            # Pydantic error
-            return mk_error(
-                cls, "parsing", "validation_error", {"errors": exc.errors()},
-            )
-
-        elif isinstance(exc, NotImplementedError) and exc.args[0] == "SAYN task":
-            # Missing implementation for SAYN command
-            return mk_error(
-                cls,
-                "exception",
-                "not_implemented",
-                {"class": exc.args[1], "method": exc.args[2]},
-            )
-        elif isinstance(exc, NotImplementedError):
-            # Other missing method
-            return mk_error(
-                cls, "exception", "unknown_not_implemented", {"exception": exc},
-            )
-
-        # TODO add other exceptions like:
-        #   - DB errors
-        #   - Jinja
-
-        else:
-            # Unhandled exception
-
-            import IPython
-
-            IPython.embed()
-            return mk_error(
-                cls, "exception", "unhandled_exception", {"exception": exc},
-            )
 
     @property
     def is_err(self):
@@ -101,46 +54,61 @@ class Result:
 
 def Ok(value=None):
     """Creates an OK result"""
-    return Result(True, value, None)
+    return Result(value=value)
 
 
-def Err(kind, code, details):
+def Err(kind, code, **details):
     """Creates an Error result"""
-    return Result(False, None, {"kind": kind, "code": code, "details": details})
+    return Result(error=Error(kind, code, details))
 
 
 def Exc(exc, **kwargs):
-    return Result.Exc(exc, **kwargs)
-
-
-class DagMissingParentsError(Exception):
-    def __init__(self, missing):
-        message = "Some referenced tasks are missing: " + ", ".join(
-            [
-                f'"{parent}" referenced by ({", ".join(children)})'
-                for parent, children in missing.items()
-            ]
+    """Creates an Error result from an exception"""
+    if isinstance(exc, MarkedYAMLError):
+        # Ruamel error
+        # TODO check that it's controlled from sayn.core.config
+        return Result(
+            error=Error(
+                "parsing",
+                "yaml_parse",
+                dict(
+                    **kwargs,
+                    **{"error": exc.problem, "line": exc.problem_mark.line + 1},
+                ),
+            )
         )
-        super(DagMissingParentsError, self).__init__(message)
 
-        self.missing = missing
+    elif isinstance(exc, ValidationError):
+        # Pydantic error
+        return Result(
+            error=Error("parsing", "validation_error", {"errors": exc.errors()})
+        )
 
+    elif isinstance(exc, NotImplementedError) and exc.args[0] == "SAYN task":
+        # Missing implementation for SAYN command
+        return Result(
+            error=Error(
+                "exception",
+                "not_implemented",
+                {"class": exc.args[1], "method": exc.args[2]},
+            )
+        )
+    elif isinstance(exc, NotImplementedError):
+        # Other missing method
+        return Result(
+            error=Error("exception", "unknown_not_implemented", {"exception": exc})
+        )
 
-class DagCycleError(Exception):
-    def __init__(self, cycle):
-        message = f"Cycle found in the DAG {' -> '.join(cycle)}"
-        super(DagCycleError, self).__init__(message)
+    # TODO add other exceptions like:
+    #   - DB errors
+    #   - Jinja
 
-        self.cycle = cycle
+    else:
+        # Unhandled exception
 
+        import IPython
 
-class ConfigError(Exception):
-    pass
-
-
-class DatabaseError(Exception):
-    pass
-
-
-class TaskCreationError(Exception):
-    pass
+        IPython.embed()
+        return Result(
+            error=Error("exception", "unhandled_exception", {"exception": exc})
+        )

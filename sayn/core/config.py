@@ -10,8 +10,8 @@ from ruamel.yaml.error import MarkedYAMLError
 
 from ..database.creator import create as create_db
 from ..utils.misc import merge_dicts, merge_dict_list
-from ..utils.dag import dag_is_valid, upstream, topological_sort
-from .errors import Result
+from ..utils.dag import upstream, topological_sort
+from .errors import Err, Exc, Ok
 
 RE_ENV_VAR_NAME = re.compile(r"SAYN_(?P<type>PARAMETER|CREDENTIAL)_(?P<name>.*)")
 
@@ -20,12 +20,12 @@ def read_yaml_file(filename):
     try:
         contents = Path(filename).read_text()
     except:
-        return Result.Err("parsing", "read_file_error", {"filename": filename})
+        return Err("parsing", "read_file_error", filename=filename)
 
     try:
-        return Result.Ok(YAML().load(contents))
+        return Ok(YAML().load(contents))
     except MarkedYAMLError as e:
-        return Result.Exp(e, filename=filename)
+        return Exc(e, filename=filename)
 
 
 def is_unique(field_name, v):
@@ -62,9 +62,9 @@ def read_project():
         return result
 
     try:
-        return Result.Ok(Project(**result.value))
+        return Ok(Project(**result.value))
     except ValidationError as e:
-        return Result.Exp(e, where="read_project")
+        return Exc(e, where="read_project")
 
 
 class Dag(BaseModel):
@@ -81,7 +81,7 @@ def read_dags(dags):
         else:
             out[name] = Dag(**result.value)
 
-    return Result.Ok(out)
+    return Ok(out)
 
 
 class Settings(BaseModel):
@@ -157,7 +157,7 @@ class Settings(BaseModel):
 
     def get_settings(self, profile_name=None):
         if profile_name is not None and self.yaml is None:
-            return Result.Err("get_settings", "missing_settings_yaml", None)
+            return Err("get_settings", "missing_settings_yaml")
         elif self.yaml is not None:
             out = self.yaml.get_profile_info(profile_name)
         else:
@@ -171,7 +171,7 @@ class Settings(BaseModel):
             if self.environment.credentials is not None:
                 out["credentials"].update(self.environment.credentials)
 
-        return Result.Ok(out)
+        return Ok(out)
 
 
 def read_settings():
@@ -201,11 +201,11 @@ def read_settings():
 
     try:
         if settings_yaml is not None:
-            return Result.Ok(Settings(yaml=settings_yaml, environment=environment))
+            return Ok(Settings(yaml=settings_yaml, environment=environment))
         else:
-            return Result.Ok(Settings(environment=environment))
+            return Ok(Settings(environment=environment))
     except ValidationError as e:
-        return Result.Exc(e, where="settings_reading")
+        return Exc(e, where="settings_reading")
 
 
 ###############################
@@ -281,19 +281,21 @@ def get_presets(global_presets, dags):
 
     # 1.3. The preset references represent a dag that we need to validate, ensuring
     #      there are no cycles and that all references exists
-    dag_is_valid(presets_dag)
+    topo_sort = topological_sort(presets_dag)
+    if topo_sort.is_err:
+        return topo_sort
 
     # 1.4. Merge the presets with the reference preset, so that we have 1 dictionary
     #      per preset a task could reference
     presets = {
         name: merge_dict_list(
-            [presets_info[p] for p in upstream(presets_dag, name)]
+            [presets_info[p] for p in upstream(presets_dag, name).value]
             + [presets_info[name]]
         )
-        for name in topological_sort(presets_dag)
+        for name in topo_sort.value
     }
 
-    return presets
+    return Ok(presets)
 
 
 def get_task_dict(task, task_name, dag_name, presets):
@@ -311,14 +313,16 @@ def get_task_dict(task, task_name, dag_name, presets):
             f"{dag_name}:{preset_name}", presets.get(f"sayn_global:{preset_name}")
         )
         if preset is None:
-            return Result.Err(
+            return Err(
                 "get_task_dict",
                 "missing_preset",
-                {"dag": dag_name, "task": task_name, "preset": preset_name},
+                dag=dag_name,
+                task=task_name,
+                preset=preset_name,
             )
         task = merge_dicts(preset, task)
 
-    return Result.Ok(dict(task, name=task_name, dag=dag_name))
+    return Ok(dict(task, name=task_name, dag=dag_name))
 
 
 def get_tasks_dict(global_presets, dags):
@@ -341,6 +345,6 @@ def get_tasks_dict(global_presets, dags):
                 errors[task_name] = result.error
 
     if len(errors) > 0:
-        return Result.Err("get_tasks_dict", "task_parsing_error", {"errors": errors})
+        return Err("get_tasks_dict", "task_parsing_error", errors=errors)
     else:
-        return Result.Ok(tasks)
+        return Ok(tasks)

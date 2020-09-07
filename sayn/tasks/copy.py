@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field, validator
 
+from ..core.errors import Err
 from .sql import SqlTask
 
 
@@ -80,22 +81,20 @@ class CopyTask(SqlTask):
             # required_existing=True,
         )
         if result.is_err:
-            return self.failed(result)
+            return result
 
         self.source_table_def = result.value
 
         # Fill up column types from the source table
         for column in self.ddl["columns"]:
             if column.get("name") not in self.source_table_def.columns:
-                return self.failed(
+                return Err(
                     "database_error",
                     "source_table_missing_column",
-                    {
-                        "db": self.source_db.name,
-                        "table": self.source_table,
-                        "schema": self.source_schema,
-                        "column": column.get("name"),
-                    },
+                    db=self.source_db.name,
+                    table=self.source_table,
+                    schema=self.source_schema,
+                    column=column.get("name"),
                 )
 
             # TODO check for incorrect column types

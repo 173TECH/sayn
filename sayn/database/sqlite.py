@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 
-from ..core.errors import Err, Exc, Ok
+from ..core.errors import Err, Ok
 from . import Database
 
 db_parameters = ["database"]
@@ -24,12 +24,15 @@ class Sqlite(Database):
     def execute(self, script):
         with self.engine.connect().execution_options(autocommit=True) as connection:
             try:
-                result = Ok(connection.connection.executescript(script))
+                connection.connection.executescript(script)
+                result = Ok()
             except Exception as e:
                 result = Err(
                     "database_error",
                     "sql_execution_error",
-                    {"exception": e, "db": self.name, "script": script},
+                    exception=e,
+                    db=self.name,
+                    script=script,
                 )
             finally:
                 return result

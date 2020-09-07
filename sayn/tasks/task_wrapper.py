@@ -5,7 +5,7 @@ from copy import deepcopy
 
 from jinja2 import Environment, BaseLoader, StrictUndefined
 
-from ..core.errors import Result, Ok
+from ..core.errors import Err, Exc, Ok, Result
 from ..utils.misc import map_nested
 
 # from ..utils.python_loader import PythonLoader
@@ -78,8 +78,8 @@ class TaskWrapper:
         run_arguments,
         python_loader,
     ):
-        def error(kind, code, details):
-            return failed(Result.Err(kind=kind, code=code, details=details))
+        def error(kind, code, **details):
+            return failed(Err(kind, code, **details))
 
         def failed(result):
             self.status = TaskStatus.SETUP_FAILED
@@ -91,13 +91,11 @@ class TaskWrapper:
                 result = runner.setup(**runner_config)
 
             except Exception as e:
-                result = Result.Exc(e)
+                result = Exc(e)
 
             finally:
                 if not isinstance(result, Result):
-                    return error(
-                        "task_result", "missing_result_error", {"result": result}
-                    )
+                    return error("task_result", "missing_result_error", result=result)
                 elif result.is_err:
                     return failed(result)
                 else:
@@ -110,7 +108,7 @@ class TaskWrapper:
                         status=self.status,
                         duration=duration,
                     )
-                    return self.report_finish_stage("setup", Result.Ok())
+                    return self.report_finish_stage("setup", Ok())
 
         self.logger = logger
         self.report_start_stage("setup")
@@ -151,9 +149,7 @@ class TaskWrapper:
                 task_class = _creators[self._type]
 
             else:
-                return error(
-                    "task_type", "invalid_task_type_error", {"type": self._type}
-                )
+                return error("task_type", "invalid_task_type_error", type=self._type)
 
             # Call the object creation method
             result = self.create_runner(
@@ -215,7 +211,7 @@ class TaskWrapper:
                 else x,
             )
         except Exception as e:
-            return Result.Exc(e, where="compile_task_parameters")
+            return Exc(e, where="compile_task_parameters")
 
         # Add the task paramters to the jinja environment
         jinja_env.globals.update(**runner.task_parameters)
@@ -230,14 +226,14 @@ class TaskWrapper:
                 else x,
             )
         except Exception as e:
-            return Result.Exc(e, where="compile_task_properties")
+            return Exc(e, where="compile_task_properties")
 
         # Connections and logging
         runner._default_db = default_db
         runner.connections = connections
         runner.logger = self.logger
 
-        return Result.Ok((runner, runner_config))
+        return Ok((runner, runner_config))
 
     def should_run(self):
         return self.status == TaskStatus.NOT_IN_QUERY
@@ -268,13 +264,13 @@ class TaskWrapper:
             # TODO review this as it should never happend if running sayn cli
             self.status = TaskStatus.NOT_IN_QUERY
             return self.report_finish_stage(
-                command, Result.Err("execution", "task_not_in_query", None)
+                command, Err("execution", "task_not_in_query")
             )
         elif not self.can_run():
             self.status = TaskStatus.SKIPPED
             # TODO add more detail like the parents that failed
             return self.report_finish_stage(
-                command, Result.Err("execution", "cannot_run_task", None)
+                command, Err("execution", "cannot_run_task")
             )
         else:
             try:
@@ -283,7 +279,7 @@ class TaskWrapper:
                 else:
                     result = self.runner.compile()
             except Exception as e:
-                result = Result.Exc(e)
+                result = Exc(e)
 
             return self.report_finish_stage(command, result)
 

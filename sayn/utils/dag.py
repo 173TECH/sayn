@@ -1,14 +1,14 @@
 from .misc import reverse_dict, reverse_dict_inclusive
 
-from ..core.errors import DagCycleError, DagMissingParentsError
+from ..core.errors import Err, Ok
 
 
 def _has_missing_parents(dag):
     rev = reverse_dict(dag)
     missing = {p: c for p, c in rev.items() if p not in dag}
     if len(missing) > 0:
-        raise DagMissingParentsError(missing)
-    return False
+        return Err("dag", "missing_parents", missing=missing)
+    return Ok(False)
 
 
 def _is_cyclic_helper(dag, node, visited, stack, breadcrumbs):
@@ -17,15 +17,19 @@ def _is_cyclic_helper(dag, node, visited, stack, breadcrumbs):
 
     for parent in dag[node]:
         if parent == node:
-            raise DagCycleError([node, parent])
+            return Err("dag", "cycle_error", path=[node, parent])
         elif not visited[parent]:
-            res = _is_cyclic_helper(dag, parent, visited, stack, breadcrumbs + [parent])
-            if res is not None:
-                raise DagCycleError(res)
+            result = _is_cyclic_helper(
+                dag, parent, visited, stack, breadcrumbs + [parent]
+            )
+            if result.is_err:
+                return result
         elif stack[parent]:
-            raise DagCycleError(breadcrumbs + [parent])
+            return Err("dag", "cycle_error", path=breadcrumbs + [parent])
 
     stack[node] = False
+
+    return Ok()
 
 
 def _is_cyclic(dag):
@@ -33,25 +37,31 @@ def _is_cyclic(dag):
     stack = {n: False for n in dag.keys()}
     for node, parents in dag.items():
         if not visited[node]:
-            res = _is_cyclic_helper(dag, node, visited, stack, [node])
-            if res is not None:
-                return res
+            result = _is_cyclic_helper(dag, node, visited, stack, [node])
+            if result.is_err:
+                return result
 
-    return True
+    return Ok(True)
 
 
 def dag_is_valid(dag):
-    _has_missing_parents(dag)
-    _is_cyclic(dag)
+    result = _has_missing_parents(dag)
+    if result.is_err:
+        return result
+    result = _is_cyclic(dag)
+    if result.is_err:
+        return result
 
-    return True
+    return Ok()
 
 
 # DAG -> Sorted list
 def topological_sort(dag):
     if len(dag) == 0:
-        return list()
-    dag_is_valid(dag)
+        return Ok(list())
+    result = dag_is_valid(dag)
+    if result.is_err:
+        return result
     topo_sorted = []
     pending = list(dag.keys())
     current = 0
@@ -60,7 +70,7 @@ def topological_sort(dag):
             topo_sorted.append(pending.pop(current))
 
             if len(pending) == 0:
-                return topo_sorted
+                return Ok(topo_sorted)
         else:
             current += 1
 
@@ -82,13 +92,15 @@ def upstream(dag, node):
             to_include.append(current)
             queue.extend(dag[current])
 
-    return to_include
+    return Ok(to_include)
 
 
 def query(dag, query=list()):
-    topo_sort = topological_sort(dag)
+    result = topological_sort(dag)
     if len(query) == 0:
-        return topo_sort
+        return Ok(result.value)
+    else:
+        topo_sort = result.value
 
     query = sorted(query, key=lambda x: 0 if x["operation"] == "include" else 1)
     to_include = set()
@@ -101,9 +113,15 @@ def query(dag, query=list()):
         else:
             tasks = [key[0]]
             if key[1]:
-                tasks.extend(upstream(dag, key[0]))
+                result = upstream(dag, key[0])
+                if result.is_err:
+                    return result
+                tasks.extend(result.value)
             if key[2]:
-                tasks.extend(downstream(dag, key[0]))
+                result = downstream(dag, key[0])
+                if result.is_err:
+                    return result
+                tasks.extend(result.value)
             query_cache[key] = tasks
 
         if operand["operation"] == "include":
@@ -111,4 +129,4 @@ def query(dag, query=list()):
         else:
             to_include -= set(tasks)
 
-    return [n for n in topo_sort if n in to_include]
+    return Ok([n for n in topo_sort if n in to_include])

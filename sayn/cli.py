@@ -11,7 +11,7 @@ from .utils.logging import ConsoleLogger, ConsoleDebugLogger, FileLogger
 from .scaffolding.init_project import sayn_init
 from .core.app import App
 from .core.config import read_project, read_dags, read_settings, get_tasks_dict
-from .core.errors import Result
+from .core.errors import Err, Ok, Result
 
 
 class CliApp(App):
@@ -65,9 +65,9 @@ class CliApp(App):
         task_query = self.handle_result(
             get_query(tasks_dict, include=include, exclude=exclude)
         )
-        self.set_tasks(tasks_dict, task_query)
+        self.handle_result(self.set_tasks(tasks_dict, task_query))
 
-        self.report_finish_setup(Result.Ok())
+        self.report_finish_setup(Ok())
 
     def handle_result(self, result):
         """Interpret the result of setup opreations returning the value if `result.is_ok`.
@@ -78,11 +78,12 @@ class CliApp(App):
           result (sayn.errors.Result): The result of a setup operation
         """
         if result is None or not isinstance(result, Result):
-            self.report_finish_setup(
-                Result.Err("app_setup", "unhandled_error", {"result": result})
-            )
+            self.report_finish_setup(Err("app_setup", "unhandled_error", result=result))
             sys.exit()
         elif result.is_err:
+            import IPython
+
+            IPython.embed()
             self.report_finish_setup(result)
             sys.exit()
         else:

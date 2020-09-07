@@ -72,10 +72,10 @@ class Task:
         """
         return Ok()
 
-    def fail(self, details=None):
+    def fail(self, msg):
         """Returned on failure in any stage
         """
-        return Err("tasks", "task_fail", details)
+        return Err("tasks", "task_fail", message=msg)
 
     # Steps operations
 
@@ -104,13 +104,11 @@ class Task:
             try:
                 template = obj.read_text()
             except Exception as e:
-                return Err(
-                    "tasks", "get_template_error", {"file_path": obj, "exception": e}
-                )
+                return Err("tasks", "get_template_error", file_path=obj, exception=e)
         elif isinstance(obj, str):
             template = str
         else:
-            return Err("tasks", "get_template_error", {"obj": obj})
+            return Err("tasks", "get_template_error", obj=obj)
 
         try:
             return Ok(self.jinja_env.from_string(template))

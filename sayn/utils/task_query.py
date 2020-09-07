@@ -1,6 +1,6 @@
 import re
 
-from ..core.errors import Result
+from ..core.errors import Err, Ok
 
 #####################################
 # Task query interpretation functions
@@ -21,12 +21,7 @@ def _get_query_component(tasks, query):
     tasks = {k: {"dag": v["dag"], "tags": v.get("tags")} for k, v in tasks.items()}
     match = RE_TASK_QUERY.match(query)
     if match is None:
-        return Result.Err(
-            module="task_query",
-            error_code="incorrect_syntax",
-            query=query,
-            message=f'Incorrect task query syntax "{query}"',
-        )
+        return Err("task_query", "incorrect_syntax", query=query,)
     else:
         match_components = match.groupdict()
 
@@ -34,12 +29,7 @@ def _get_query_component(tasks, query):
             tag = match_components["tag"]
             relevant_tasks = {k: v for k, v in tasks.items() if tag in v.get("tags")}
             if len(relevant_tasks) == 0:
-                return Result.Err(
-                    module="task_query",
-                    error_code="undefined_tag",
-                    tag=tag,
-                    message=f'Undefined tag "{tag}"',
-                )
+                return Err("task_query", "undefined_tag", tag=tag,)
             return [
                 {"task": task, "upstream": False, "downstream": False}
                 for task, value in relevant_tasks.items()
@@ -49,12 +39,7 @@ def _get_query_component(tasks, query):
             dag = match_components["dag"]
             relevant_tasks = {k: v for k, v in tasks.items() if dag == v.get("dag")}
             if len(relevant_tasks) == 0:
-                return Result.Err(
-                    module="task_query",
-                    error_code="undefined_dag",
-                    dag=dag,
-                    message=f'Undefined dag "{dag}"',
-                )
+                return Err("task_query", "undefined_dag", dag=dag,)
             return [
                 {"task": task, "upstream": False, "downstream": False}
                 for task, value in relevant_tasks.items()
@@ -63,12 +48,7 @@ def _get_query_component(tasks, query):
         if match_components.get("task") is not None:
             task = match_components["task"]
             if task not in tasks:
-                return Result.Err(
-                    module="task_query",
-                    error_code="undefined_task",
-                    task=task,
-                    message=f'Undefined task "{task}"',
-                )
+                return Err("task_query", "undefined_task", task=task,)
             return [
                 {
                     "task": task,
@@ -82,12 +62,7 @@ def get_query(tasks, include=list(), exclude=list()):
     overlap = set(include).intersection(set(exclude))
     if len(overlap) > 0:
         overlap = ", ".join(overlap)
-        return Result.Err(
-            module="task_query",
-            error_code="query_overlap",
-            overlap=overlap,
-            message=f'Overlap between include and exclude for "{overlap}"',
-        )
+        return Err("task_query", "query_overlap", overlap=overlap,)
 
     output = list()
     for operation, components in (("include", include), ("exclude", exclude)):
@@ -115,7 +90,7 @@ def get_query(tasks, include=list(), exclude=list()):
                 "downstream": operand["downstream"],
             }
 
-    return Result.Ok(
+    return Ok(
         [
             dict(flags, task=task, operation=operation)
             for operation, operands in (("include", include), ("exclude", exclude))
