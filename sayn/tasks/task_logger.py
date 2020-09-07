@@ -51,28 +51,40 @@ class TaskLogger:
             self.current_step = None
             self.current_step_start_ts = None
 
-    def debug(self, message, step=None, details=None):
-        self._report_event(
-            event="message", level="debug", message=message, step=step, details=details
-        )
-
-    def info(self, message, step=None, details=None):
-        self._report_event(
-            event="message", level="info", message=message, step=step, details=details
-        )
-
-    def warning(self, message, step=None, details=None):
+    def debug(self, message, details=None):
         self._report_event(
             event="message",
-            level="warning",
+            level="debug",
+            step=self.step,
             message=message,
-            step=step,
             details=details,
         )
 
-    def error(self, message, step=None, details=None):
+    def info(self, message, details=None):
         self._report_event(
-            event="message", level="error", message=message, step=step, details=details
+            event="message",
+            level="info",
+            step=self.step,
+            message=message,
+            details=details,
+        )
+
+    def warning(self, message, details=None):
+        self._report_event(
+            event="message",
+            level="warning",
+            step=self.step,
+            message=message,
+            details=details,
+        )
+
+    def error(self, message, details=None):
+        self._report_event(
+            event="message",
+            level="error",
+            step=self.step,
+            message=message,
+            details=details,
         )
 
     def _report_event(self, **event):

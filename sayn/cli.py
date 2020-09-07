@@ -81,9 +81,6 @@ class CliApp(App):
             self.report_finish_setup(Err("app_setup", "unhandled_error", result=result))
             sys.exit()
         elif result.is_err:
-            import IPython
-
-            IPython.embed()
             self.report_finish_setup(result)
             sys.exit()
         else:

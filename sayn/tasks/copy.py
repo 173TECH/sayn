@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field, validator
 
-from ..core.errors import Err
+from ..core.errors import Err, Ok
 from .sql import SqlTask
 
 
@@ -103,7 +103,7 @@ class CopyTask(SqlTask):
                     column["name"]
                 ].type.compile(dialect=self.default_db.engine.dialect)
 
-        return self.ready()
+        return Ok()
 
     def run(self):
         steps = ["drop_tmp", "create_tmp", "create_indexes", "load_data"]
@@ -115,4 +115,4 @@ class CopyTask(SqlTask):
         return self.execute_steps(steps)
 
     def compile(self):
-        return self.success()
+        return Ok()

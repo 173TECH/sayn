@@ -21,9 +21,9 @@ class LoadData(PythonTask):
             self.logger.error(e)
 
         if err:
-            return self.failed()
+            return self.fail()
         else:
-            return self.ready()
+            return self.success()
 
     def run(self):
 

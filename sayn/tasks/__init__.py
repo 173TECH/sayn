@@ -62,11 +62,6 @@ class Task:
 
     # Status methods
 
-    def ready(self):
-        """Returned on successful setup
-        """
-        return Ok()
-
     def success(self):
         """Returned on successful execution
         """
@@ -77,7 +72,7 @@ class Task:
         """
         return Err("tasks", "task_fail", message=msg)
 
-    # Steps operations
+    # Logging methods
 
     def set_run_steps(self, steps):
         self.logger.set_run_steps(steps)
@@ -87,6 +82,18 @@ class Task:
 
     def finish_current_step(self, result=Ok()):
         self.logger.finish_current_step(result)
+
+    def debug(self, message, details=None):
+        self.logger.debug(message, details)
+
+    def info(self, message, details=None):
+        self.logger.info(message, details)
+
+    def warning(self, message, details=None):
+        self.logger.warning(message, details)
+
+    def error(self, message, details=None):
+        self.logger.error(message, details)
 
     @contextmanager
     def step(self, step):
@@ -99,6 +106,7 @@ class Task:
             raise e
 
     # Jinja methods
+
     def get_template(self, obj):
         if isinstance(obj, Path):
             try:
