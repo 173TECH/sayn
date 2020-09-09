@@ -29,7 +29,6 @@ pymysql = { version = "^0.9.3", optional = true }
 pyyaml = "^5.3.1"
 pydantic = "^1.6.1"
 colorama = "^0.4.3"
-humanize = "^2.6.0"
 halo = "^0.0.30"
 
 [tool.poetry.extras]

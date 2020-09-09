@@ -50,7 +50,7 @@ class TaskLogger:
 
     def finish_current_step(self, result=Ok()):
         if self._current_step is not None:
-            duration = self._current_step_start_ts - datetime.now()
+            duration = datetime.now() - self._current_step_start_ts
 
             self._report_event(
                 "finish_step", duration=duration, result=result,

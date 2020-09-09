@@ -3,13 +3,10 @@ import logging
 
 from colorama import init, Fore, Style
 from halo import Halo
-import humanize
 
-from .misc import group_list
+from .misc import group_list, humanize
 
 init(autoreset=True)
-
-sduration = lambda x: humanize.naturaldelta(x, minimum_unit="milliseconds")
 
 
 class LogFormatter:
@@ -31,7 +28,7 @@ class LogFormatter:
         "details": {},
         "duration": {
             "include": "details",
-            "transform": lambda x: f"Took {sduration(x)}",
+            "transform": lambda x: f"Took {humanize(x)}",
         },
     }
 
@@ -106,7 +103,7 @@ class LogFormatter:
                     )
 
             out.append(
-                f"{kwargs['command'].capitalize()} took {sduration(kwargs['duration'])}"
+                f"{kwargs['command'].capitalize()} took {humanize(kwargs['duration'])}"
             )
             return out
 
@@ -136,7 +133,7 @@ class LogFormatter:
                 if "details" in kwargs:
                     out.append(f"{prefix}|{kwargs['details']}")
 
-            out.append(f"{prefix}|{sduration(kwargs['duration'])}")
+            out.append(f"{prefix}|{humanize(kwargs['duration'])}")
             return out
 
         elif event == "cannot_run":
@@ -231,7 +228,7 @@ class ConsoleDebugLogger(Logger):
             else:
                 print(
                     Fore.GREEN
-                    + f"{stage.capitalize()} finished successfully in {sduration(duration)}"
+                    + f"{stage.capitalize()} finished successfully in {humanize(duration)}"
                 )
                 print(
                     "    Tasks executed: "
@@ -261,7 +258,7 @@ class ConsoleDebugLogger(Logger):
         if details["result"].is_ok:
             print(
                 Fore.GREEN
-                + f"    Finish {stage} for {task} ({sduration(details['duration'])})"
+                + f"    Finish {stage} for {task} ({humanize(details['duration'])})"
             )
         else:
             self.print_unhandled("finish_stage", "task", stage, details)
@@ -283,7 +280,7 @@ class ConsoleDebugLogger(Logger):
         if details["result"].is_ok:
             print(
                 Fore.GREEN
-                + f"    Finish step {step} for {task} ({sduration(details['duration'])})"
+                + f"    Finish step {step} for {task} ({humanize(details['duration'])})"
             )
         else:
             self.print_unhandled("finish_step", "task", stage, details)
@@ -316,7 +313,7 @@ class ConsoleDebugLogger(Logger):
                 print(
                     Fore.RED
                     if len(errors) > 0
-                    else Fore.GREEN + f"Execution took {sduration(details['duration'])}"
+                    else Fore.GREEN + f"Execution took {humanize(details['duration'])}"
                 )
 
             elif event == "start_stage":
@@ -404,7 +401,7 @@ class ConsoleLogger(Logger):
                 self.spinner.fail(
                     "\n    ".join(
                         (
-                            f"{Fore.RED}{stage.capitalize()} ({sduration(kwargs['duration'])}):",
+                            f"{Fore.RED}{stage.capitalize()} ({humanize(kwargs['duration'])}):",
                             f"{Fore.RED}Some tasks failed during setup: {', '.join(kwargs['task_statuses']['failed'])}",
                             "",
                         )
@@ -414,7 +411,7 @@ class ConsoleLogger(Logger):
                 self.spinner.warn(
                     "\n    ".join(
                         (
-                            f"{Fore.YELLOW}{stage.capitalize()} ({sduration(kwargs['duration'])}):",
+                            f"{Fore.YELLOW}{stage.capitalize()} ({humanize(kwargs['duration'])}):",
                             f"{Fore.RED}Some tasks failed during setup: {', '.join(kwargs['task_statuses']['failed'])}",
                             f"{Fore.YELLOW}Some tasks will be skipped: {', '.join(kwargs['task_statuses']['skipped'])}",
                             "",
@@ -423,7 +420,7 @@ class ConsoleLogger(Logger):
                 )
             else:
                 self.spinner.succeed(
-                    f"{stage.capitalize()} ({sduration(kwargs['duration'])})"
+                    f"{stage.capitalize()} ({humanize(kwargs['duration'])})"
                 )
 
         elif event == "start_task":
@@ -432,22 +429,22 @@ class ConsoleLogger(Logger):
         elif event == "finish_task":
             if level == "error":
                 self.spinner.fail(
-                    f"{stage.capitalize()}: {kwargs['task']} ({sduration(kwargs['duration'])})"
+                    f"{stage.capitalize()}: {kwargs['task']} ({humanize(kwargs['duration'])})"
                 )
             elif level == "warning":
                 self.spinner.warn(
-                    f"{stage.capitalize()}: {kwargs['task']} ({sduration(kwargs['duration'])})"
+                    f"{stage.capitalize()}: {kwargs['task']} ({humanize(kwargs['duration'])})"
                 )
             else:
                 self.spinner.succeed(
-                    f"{stage.capitalize()}: {kwargs['task']} ({sduration(kwargs['duration'])})"
+                    f"{stage.capitalize()}: {kwargs['task']} ({humanize(kwargs['duration'])})"
                 )
 
         elif event == "execution_finished":
             out = [
                 ". ".join(
                     (
-                        "" f"Process finished ({sduration(kwargs['duration'])})",
+                        "" f"Process finished ({humanize(kwargs['duration'])})",
                         f"Total tasks: {len(kwargs['succeeded']+kwargs['skipped']+kwargs['failed'])}",
                         f"Success: {len(kwargs['succeeded'])}",
                         f"Failed {len(kwargs['failed'])}",

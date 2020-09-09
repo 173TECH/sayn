@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from copy import deepcopy
 from itertools import groupby
 
@@ -72,3 +73,32 @@ def group_list(items):
         k: [vv[1] for vv in v]
         for k, v in groupby(sorted(items, key=lambda x: x[0]), lambda x: x[0])
     }
+
+
+# String functions
+
+
+def humanize(obj):
+    if isinstance(obj, timedelta):
+        secs = obj.total_seconds()
+        mins = secs / 60.0
+        hours = mins / 60.0
+
+        if hours > 1.0:
+            r = str(round(hours, 1))
+            return f"{r if r[-1] != '0' else r[:-2]}h"
+
+        if mins > 1.0:
+            r = str(round(mins, 1))
+            return f"{r if r[-1] != '0' else r[:-2]}m"
+
+        elif secs > 1.0:
+            r = str(round(secs, 1))
+            return f"{r if r[-1] != '0' else r[:-2]}s"
+
+        else:
+            msecs = secs * 1000.0
+            r = str(round(msecs, 1))
+            return f"{r if r[-1] != '0' else r[:-2]}ms"
+    else:
+        return obj
