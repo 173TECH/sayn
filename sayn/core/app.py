@@ -179,6 +179,8 @@ class App:
         self.finish_app()
 
     def start_app(self, loggers, **run_arguments):
+        run_arguments["start_dt"] = run_arguments["start_dt"].date()
+        run_arguments["end_dt"] = run_arguments["end_dt"].date()
         self.tracker = EventTracker(self.run_id, loggers, run_arguments=run_arguments)
         self.run_arguments.update(run_arguments)
 

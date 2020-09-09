@@ -17,7 +17,6 @@ class TaskLogger:
         self._task_order = task_order
 
     def _report_event(self, event, **details):
-        # Cleanup details
         details["event"] = event
         details["context"] = "task"
 
@@ -26,11 +25,13 @@ class TaskLogger:
 
         details["step"] = self._current_step
         details["step_order"] = (
-            self._steps.index(self._current_step)
+            self._steps.index(self._current_step) + 1
             if self._current_step in self._steps
             else None
         )
+        details["total_steps"] = len(self._steps)
 
+        # Cleanup details
         details = {k: v for k, v in details.items() if v is not None}
 
         self._logger.report_event(**details)

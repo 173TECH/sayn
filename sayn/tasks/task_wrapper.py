@@ -273,7 +273,9 @@ class TaskWrapper:
                     result = self.runner.run()
                 else:
                     result = self.runner.compile()
+                self.status = TaskStatus.SUCCEEDED
             except Exception as e:
+                self.status = TaskStatus.FAILED
                 result = Exc(e)
 
             return result

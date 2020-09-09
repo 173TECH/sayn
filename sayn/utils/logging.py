@@ -5,8 +5,11 @@ from colorama import init, Fore, Style
 from halo import Halo
 import humanize
 
+from .misc import group_list
 
 init(autoreset=True)
+
+sduration = lambda x: humanize.naturaldelta(x, minimum_unit="milliseconds")
 
 
 class LogFormatter:
@@ -28,7 +31,7 @@ class LogFormatter:
         "details": {},
         "duration": {
             "include": "details",
-            "transform": lambda x: f'Took {humanize.precisedelta(x, minimum_unit="seconds")}',
+            "transform": lambda x: f"Took {sduration(x)}",
         },
     }
 
@@ -103,7 +106,7 @@ class LogFormatter:
                     )
 
             out.append(
-                f"{kwargs['command'].capitalize()} took {humanize.precisedelta(kwargs['duration'])}"
+                f"{kwargs['command'].capitalize()} took {sduration(kwargs['duration'])}"
             )
             return out
 
@@ -133,7 +136,7 @@ class LogFormatter:
                 if "details" in kwargs:
                     out.append(f"{prefix}|{kwargs['details']}")
 
-            out.append(f"{prefix}|{humanize.precisedelta(kwargs['duration'])}")
+            out.append(f"{prefix}|{sduration(kwargs['duration'])}")
             return out
 
         elif event == "cannot_run":
@@ -160,13 +163,214 @@ class Logger:
 class ConsoleDebugLogger(Logger):
     formatter = LogFormatter("debug", False)
 
-    def report_event(self, **event):
-        # TODO
-        print(event)
-        return
-        style = self.get_colours(event)
-        for line in self.formatter.get_lines(**event):
-            self.print(line, style)
+    def print_unhandled(self, event, context, stage, details):
+        ignored = (
+            "project_git_commit",
+            "sayn_version",
+            "project_name",
+            "ts",
+            "run_id",
+            "task",
+            "task_order",
+            "total_tasks",
+        )
+        ctx = details["task"] if context == "task" else context
+        print(
+            f"Unhandled: {ctx}::{stage}::{event}:",
+            {k: v for k, v in details.items() if k not in ignored},
+        )
+
+    # App context
+
+    def print_app_start_stage(self, stage, details):
+        if stage == "setup":
+            print("Setting up...")
+        elif stage in ("run", "compile"):
+            print(
+                Style.BRIGHT
+                + f"Starting {stage} at {details['ts'].strftime('%H:%M:%S')}..."
+            )
+        else:
+            self.print_unhandled("start_stage", "app", stage, details)
+
+    def print_app_finish_stage(self, stage, details):
+        tasks = group_list([(v.value, t) for t, v in details["tasks"].items()])
+        failed = tasks.get("failed", list())
+        succeeded = tasks.get("ready", list()) + tasks.get("succeeded", list())
+        skipped = tasks.get("skipped", list())
+        duration = details["duration"]
+
+        if stage == "setup":
+            if len(failed) > 0:
+                print(Fore.RED + f"Some tasks failed during setup: {', '.join(failed)}")
+            if len(skipped) > 0:
+                print(Fore.YELLOW + f"Some tasks will be skipped: {', '.join(skipped)}")
+            if len(succeeded) > 0:
+                print(
+                    "Will run these tasks: " + Style.BRIGHT + f"{', '.join(succeeded)}"
+                )
+
+            print()
+
+        elif stage in ("run", "compile"):
+            if len(failed) > 0 or len(skipped) > 0:
+                print(
+                    Fore.RED
+                    + f"There were some errors during {stage} (took {duration})"
+                )
+                if len(failed) > 0:
+                    print(
+                        Fore.RED
+                        + f"    Failed tasks: {Fore.BRIGHT + ', '.join(failed)}"
+                    )
+                if len(skipped) > 0:
+                    print(
+                        Fore.YELLOW
+                        + f"    Skipped tasks: {Fore.BRIGHT + ', '.join(skipped)}"
+                    )
+            else:
+                print(
+                    Fore.GREEN
+                    + f"{stage.capitalize()} finished successfully in {sduration(duration)}"
+                )
+                print(
+                    "    Tasks executed: "
+                    + Style.BRIGHT
+                    + f"{Style.BRIGHT + ', '.join(succeeded)}"
+                )
+
+        else:
+            self.print_unhandled("finish_stage", "app", stage, details)
+
+    # Task context
+
+    def print_task_start_stage(self, stage, task, task_order, total_tasks, details):
+        if stage == "setup":
+            print(
+                f"  Setting up {Style.BRIGHT + task + Style.RESET_ALL} ({task_order}/{total_tasks})..."
+            )
+        elif stage in ("run", "compile"):
+            print(
+                f"  Starting {Style.BRIGHT + task + Style.RESET_ALL} "
+                f"({task_order}/{total_tasks}) at {details['ts'].strftime('%H:%M:%S')}..."
+            )
+        else:
+            self.print_unhandled("start_stage", "task", stage, details)
+
+    def print_task_finish_stage(self, stage, task, task_order, total_tasks, details):
+        if details["result"].is_ok:
+            print(
+                Fore.GREEN
+                + f"    Finish {stage} for {task} ({sduration(details['duration'])})"
+            )
+        else:
+            self.print_unhandled("finish_stage", "task", stage, details)
+
+    def print_task_start_step(
+        self, stage, task, step, step_order, total_steps, details
+    ):
+        if stage in ("run", "compile"):
+            print(
+                f"    Starting {Style.BRIGHT + step + Style.RESET_ALL} "
+                f"({step_order}/{total_steps}) at {details['ts'].strftime('%H:%M:%S')}..."
+            )
+        else:
+            self.print_unhandled("start_step", "task", stage, details)
+
+    def print_task_finish_step(
+        self, stage, task, step, step_order, total_steps, details
+    ):
+        if details["result"].is_ok:
+            print(
+                Fore.GREEN
+                + f"    Finish step {step} for {task} ({sduration(details['duration'])})"
+            )
+        else:
+            self.print_unhandled("finish_step", "task", stage, details)
+
+    def report_event(self, context, event, stage, **details):
+        if context == "app":
+            if event == "start_app":
+                debug = "(debug)" if details["run_arguments"]["debug"] else ""
+                dt_range = (
+                    f"{details['run_arguments']['start_dt']} - {details['run_arguments']['end_dt']}"
+                    if not details["run_arguments"]["full_load"]
+                    else "Full Load"
+                )
+                print(f"Starting sayn {debug}")
+                print(f"   Run ID: {details['run_id']}")
+                print(f"   Project: {details['project_name']}")
+                print(f"   Sayn version: {details['sayn_version']}")
+                if details["project_git_commit"] is not None:
+                    print(f"   Git commit: {details['project_git_commit']}")
+                print(f"   Period: {dt_range}")
+                print(
+                    f"   {'Profile: ' + (details['run_arguments'].get('profile') or 'Default')}"
+                )
+                print("")
+
+            elif event == "finish_app":
+                errors = details["tasks"].get("failed", list()) + details["tasks"].get(
+                    "skipped", list()
+                )
+                print(
+                    Fore.RED
+                    if len(errors) > 0
+                    else Fore.GREEN + f"Execution took {sduration(details['duration'])}"
+                )
+
+            elif event == "start_stage":
+                self.print_app_start_stage(stage, details)
+
+            elif event == "finish_stage":
+                self.print_app_finish_stage(stage, details)
+
+            else:
+                self.print_unhandled(event, context, stage, details)
+
+        elif context == "task":
+            task = details["task"]
+            task_order = details["task_order"]
+            total_tasks = details["total_tasks"]
+
+            if event == "set_run_steps":
+                print(f"    Steps to run: {Style.BRIGHT + ', '.join(details['steps'])}")
+
+            elif event == "start_stage":
+                self.print_task_start_stage(
+                    stage, task, task_order, total_tasks, details
+                )
+
+            elif event == "finish_stage":
+                self.print_task_finish_stage(
+                    stage, task, task_order, total_tasks, details
+                )
+
+            elif event == "start_step":
+                self.print_task_start_step(
+                    stage,
+                    task,
+                    details["step"],
+                    details["step_order"],
+                    details["total_steps"],
+                    details,
+                )
+
+            elif event == "finish_step":
+                self.print_task_finish_step(
+                    stage,
+                    task,
+                    details["step"],
+                    details["step_order"],
+                    details["total_steps"],
+                    details,
+                )
+
+            else:
+                self.print_unhandled(event, context, stage, details)
+
+        else:
+            self.print_unhandled(event, context, stage, details)
 
     def get_colours(self, event):
         if event["level"] == "success":
@@ -200,7 +404,7 @@ class ConsoleLogger(Logger):
                 self.spinner.fail(
                     "\n    ".join(
                         (
-                            f"{Fore.RED}{stage.capitalize()} ({humanize.precisedelta(kwargs['duration'])}):",
+                            f"{Fore.RED}{stage.capitalize()} ({sduration(kwargs['duration'])}):",
                             f"{Fore.RED}Some tasks failed during setup: {', '.join(kwargs['task_statuses']['failed'])}",
                             "",
                         )
@@ -210,7 +414,7 @@ class ConsoleLogger(Logger):
                 self.spinner.warn(
                     "\n    ".join(
                         (
-                            f"{Fore.YELLOW}{stage.capitalize()} ({humanize.precisedelta(kwargs['duration'])}):",
+                            f"{Fore.YELLOW}{stage.capitalize()} ({sduration(kwargs['duration'])}):",
                             f"{Fore.RED}Some tasks failed during setup: {', '.join(kwargs['task_statuses']['failed'])}",
                             f"{Fore.YELLOW}Some tasks will be skipped: {', '.join(kwargs['task_statuses']['skipped'])}",
                             "",
@@ -219,7 +423,7 @@ class ConsoleLogger(Logger):
                 )
             else:
                 self.spinner.succeed(
-                    f"{stage.capitalize()} ({humanize.precisedelta(kwargs['duration'])})"
+                    f"{stage.capitalize()} ({sduration(kwargs['duration'])})"
                 )
 
         elif event == "start_task":
@@ -228,23 +432,22 @@ class ConsoleLogger(Logger):
         elif event == "finish_task":
             if level == "error":
                 self.spinner.fail(
-                    f"{stage.capitalize()}: {kwargs['task']} ({humanize.precisedelta(kwargs['duration'])})"
+                    f"{stage.capitalize()}: {kwargs['task']} ({sduration(kwargs['duration'])})"
                 )
             elif level == "warning":
                 self.spinner.warn(
-                    f"{stage.capitalize()}: {kwargs['task']} ({humanize.precisedelta(kwargs['duration'])})"
+                    f"{stage.capitalize()}: {kwargs['task']} ({sduration(kwargs['duration'])})"
                 )
             else:
                 self.spinner.succeed(
-                    f"{stage.capitalize()}: {kwargs['task']} ({humanize.precisedelta(kwargs['duration'])})"
+                    f"{stage.capitalize()}: {kwargs['task']} ({sduration(kwargs['duration'])})"
                 )
 
         elif event == "execution_finished":
             out = [
                 ". ".join(
                     (
-                        ""
-                        f"Process finished ({humanize.precisedelta(kwargs['duration'])})",
+                        "" f"Process finished ({sduration(kwargs['duration'])})",
                         f"Total tasks: {len(kwargs['succeeded']+kwargs['skipped']+kwargs['failed'])}",
                         f"Success: {len(kwargs['succeeded'])}",
                         f"Failed {len(kwargs['failed'])}",
