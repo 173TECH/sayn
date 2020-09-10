@@ -232,6 +232,8 @@ class ConsoleDebugLogger(Logger):
         self.print(
             self.fmt.task_stage_finish(stage, task, task_order, total_tasks, details)
         )
+        if stage in ("run", "compile"):
+            print()
 
     def task_set_steps(self, details):
         self.print(self.fmt.task_set_steps(details))
@@ -310,12 +312,15 @@ class ConsoleDebugLogger(Logger):
             self.unhandled(event, context, stage, details)
 
     def print(self, s):
+        prefix = "  " * self.current_indent
         if isinstance(s, str):
-            print("  " * self.current_indent + s)
-        elif isinstance(s, list):
-            print("  " * self.current_indent + s[0])
-            for l in s[1:]:
-                print("  " * self.current_indent + f"  {l}")
+            s = [s]
+
+        if isinstance(s, list):
+            print(f"{prefix}{s[0]}")
+            for e in s[1:]:
+                for l in e.split("\n"):
+                    print(f"{prefix}  {l}")
         else:
             raise ValueError("error in logging print")
 
