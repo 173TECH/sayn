@@ -3,6 +3,7 @@ import logging
 
 from colorama import init, Fore, Style
 from halo import Halo
+from log_symbols import LogSymbols
 
 from .misc import group_list, humanize
 
@@ -198,14 +199,13 @@ class ConsoleDebugLogger(Logger):
         duration = details["duration"]
 
         if stage == "setup":
+            print("Finished setup:")
             if len(failed) > 0:
-                print(Fore.RED + f"Some tasks failed during setup: {', '.join(failed)}")
+                print(Fore.RED + f"  Failed tasks: {', '.join(failed)}")
             if len(skipped) > 0:
-                print(Fore.YELLOW + f"Some tasks will be skipped: {', '.join(skipped)}")
+                print(Fore.YELLOW + f"  Tasks to skip: {', '.join(skipped)}")
             if len(succeeded) > 0:
-                print(
-                    "Will run these tasks: " + Style.BRIGHT + f"{', '.join(succeeded)}"
-                )
+                print("  Tasks to run: " + Style.BRIGHT + f"{', '.join(succeeded)}")
 
             print()
 
@@ -244,12 +244,14 @@ class ConsoleDebugLogger(Logger):
     def print_task_start_stage(self, stage, task, task_order, total_tasks, details):
         if stage == "setup":
             print(
-                f"  Setting up {Style.BRIGHT + task + Style.RESET_ALL} ({task_order}/{total_tasks})..."
+                f"  [{task_order}/{total_tasks}] {Style.BRIGHT + task + Style.RESET_ALL}"
             )
         elif stage in ("run", "compile"):
             print(
-                f"  Starting {Style.BRIGHT + task + Style.RESET_ALL} "
-                f"({task_order}/{total_tasks}) at {details['ts'].strftime('%H:%M:%S')}..."
+                Style.BRIGHT
+                + f"  [{task_order}/{total_tasks}] {task} "
+                + Style.RESET_ALL
+                + f"(started at {details['ts'].strftime('%H:%M')})"
             )
         else:
             self.print_unhandled("start_stage", "task", stage, details)
@@ -258,7 +260,8 @@ class ConsoleDebugLogger(Logger):
         if details["result"].is_ok:
             print(
                 Fore.GREEN
-                + f"    Finish {stage} for {task} ({humanize(details['duration'])})"
+                + f"   ✔ Finished {stage} for {Style.BRIGHT + task + Style.RESET_ALL} "
+                + f"({humanize(details['duration'])})"
             )
         else:
             self.print_unhandled("finish_stage", "task", stage, details)
@@ -267,10 +270,11 @@ class ConsoleDebugLogger(Logger):
         self, stage, task, step, step_order, total_steps, details
     ):
         if stage in ("run", "compile"):
-            print(
-                f"    Starting {Style.BRIGHT + step + Style.RESET_ALL} "
-                f"({step_order}/{total_steps}) at {details['ts'].strftime('%H:%M:%S')}..."
-            )
+            pass
+            # print(
+            #     f"    Starting {Style.BRIGHT + step + Style.RESET_ALL} "
+            #     f"({step_order}/{total_steps}) at {details['ts'].strftime('%H:%M')}..."
+            # )
         else:
             self.print_unhandled("start_step", "task", stage, details)
 
@@ -280,7 +284,12 @@ class ConsoleDebugLogger(Logger):
         if details["result"].is_ok:
             print(
                 Fore.GREEN
-                + f"    Finish step {step} for {task} ({humanize(details['duration'])})"
+                + "    "
+                + f"[{details['ts'].strftime('%H:%M')}] "
+                + f"[{step_order}/{total_steps}] "
+                + "✔ "
+                + f"{Style.BRIGHT + step + Style.RESET_ALL} "
+                + f"({humanize(details['duration'])})"
             )
         else:
             self.print_unhandled("finish_step", "task", stage, details)
@@ -290,7 +299,7 @@ class ConsoleDebugLogger(Logger):
             if event == "start_app":
                 debug = "(debug)" if details["run_arguments"]["debug"] else ""
                 dt_range = (
-                    f"{details['run_arguments']['start_dt']} - {details['run_arguments']['end_dt']}"
+                    f"{details['run_arguments']['start_dt']} to {details['run_arguments']['end_dt']}"
                     if not details["run_arguments"]["full_load"]
                     else "Full Load"
                 )
@@ -304,16 +313,18 @@ class ConsoleDebugLogger(Logger):
                 print(
                     f"   {'Profile: ' + (details['run_arguments'].get('profile') or 'Default')}"
                 )
-                print("")
+                print()
 
             elif event == "finish_app":
                 errors = details["tasks"].get("failed", list()) + details["tasks"].get(
                     "skipped", list()
                 )
+                print()
                 print(
                     Fore.RED
                     if len(errors) > 0
-                    else Fore.GREEN + f"Execution took {humanize(details['duration'])}"
+                    else Fore.GREEN
+                    + f"Execution of SAYN took {humanize(details['duration'])}"
                 )
 
             elif event == "start_stage":
@@ -331,7 +342,7 @@ class ConsoleDebugLogger(Logger):
             total_tasks = details["total_tasks"]
 
             if event == "set_run_steps":
-                print(f"    Steps to run: {Style.BRIGHT + ', '.join(details['steps'])}")
+                print(f"    Run Steps: {Style.BRIGHT + ', '.join(details['steps'])}")
 
             elif event == "start_stage":
                 self.print_task_start_stage(

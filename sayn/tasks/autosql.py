@@ -90,23 +90,24 @@ class AutoSqlTask(SqlTask):
         return Ok()
 
     def run(self):
-        steps = ["write_query_on_disk"]
+        steps = ["Write Query"]
 
         if self.materialisation == "view":  # View
-            steps.extend(["drop", "create_view"])
+            steps.extend(["Cleanup", "Create View"])
 
         elif (
             self.materialisation == "incremental"
             and not self.run_arguments["full_load"]
             and self.default_db.table_exists(self.table, self.schema)
         ):  # Incremental load
-            steps.extend(["drop_tmp", "create_tmp_ddl", "merge", "drop_tmp"])
+            steps.extend(["Cleanup", "Create Temp", "Merge", "Drop Temp"])
 
         else:  # Full load
             steps.extend(
-                ["drop_tmp", "create_tmp_ddl", "create_indexes", "drop", "move"]
+                ["Cleanup", "Create Temp", "Create Indexes", "Drop Target", "Move"]
             )
 
-        steps.append("set_permissions")
+        if "permissions" in self.ddl:
+            steps.append("Grant Permissions")
 
         return self.execute_steps(steps)

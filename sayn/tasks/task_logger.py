@@ -32,7 +32,7 @@ class TaskLogger:
         details["total_steps"] = len(self._steps)
 
         # Cleanup details
-        details = {k: v for k, v in details.items() if v is not None}
+        # details = {k: v for k, v in details.items() if v is not None}
 
         self._logger.report_event(**details)
 

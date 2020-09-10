@@ -29,10 +29,10 @@ class SqlTask(Task):
         return Ok()
 
     def run(self):
-        return self.execute_steps(["write_query_on_disk", "execute_sql"])
+        return self.execute_steps(["Write Query", "Execute Query"])
 
     def compile(self):
-        return self.execute_steps(["write_query_on_disk"])
+        return self.execute_steps(["Write Query"])
 
     def execute_steps(self, steps):
         self.set_run_steps(steps)
@@ -47,39 +47,39 @@ class SqlTask(Task):
         return Ok()
 
     def execute_step(self, step):
-        if step == "execute_sql":
+        if step == "Execute Query":
             return self.default_db.execute(self.sql_query)
 
-        elif step == "write_query_on_disk":
+        elif step == "Write Query":
             return self.write_compilation_output(self.sql_query)
 
-        elif step == "drop_tmp":
+        elif step == "Cleanup":
             return self.drop(self.tmp_table, self.tmp_schema)
 
-        elif step == "drop":
+        elif step == "Drop Target":
             return self.drop(self.table, self.schema)
 
-        elif step == "create_tmp":
+        elif step == "Create Temp":
             return self.create_select(
                 self.tmp_table, self.tmp_schema, self.sql_query, self.ddl
             )
 
-        elif step == "create_tmp_ddl":
+        elif step == "Create Temp DDL":
             return self.default_db.create_table_ddl(
                 self.table, self.schema, self.ddl, execute=True
             )
 
-        elif step == "create_view":
+        elif step == "Create View":
             return self.default_db.create_table_select(
                 self.table, self.schema, self.sql_query, view=True, execute=True
             )
 
-        elif step == "create_indexes":
+        elif step == "Create Indexes":
             return self.default_db.create_indexes(
                 self.table, self.schema, self.ddl, execute=True
             )
 
-        elif step == "merge":
+        elif step == "Merge":
             return self.default_db.merge_tables(
                 self.tmp_table,
                 self.tmp_schema,
@@ -89,7 +89,7 @@ class SqlTask(Task):
                 execute=True,
             )
 
-        elif step == "move":
+        elif step == "Move":
             return self.default_db.move_table(
                 self.tmp_table,
                 self.tmp_schema,
@@ -99,12 +99,12 @@ class SqlTask(Task):
                 execute=True,
             )
 
-        elif step == "set_permissions":
+        elif step == "Grant Permissions":
             return self.default_db.grant_permissions(
                 self.table, self.schema, self.ddl["permissions"], execute=True
             )
 
-        elif step == "load_data":
+        elif step == "Load Data":
             return self.load_data(
                 self.source_table_def,
                 self.source_db,

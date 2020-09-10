@@ -100,5 +100,7 @@ def humanize(obj):
             msecs = secs * 1000.0
             r = str(round(msecs, 1))
             return f"{r if r[-1] != '0' else r[:-2]}ms"
+    elif isinstance(obj, str):
+        return obj.replace("_", " ").title()
     else:
         return obj

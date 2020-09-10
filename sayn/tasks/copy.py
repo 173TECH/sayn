@@ -106,11 +106,11 @@ class CopyTask(SqlTask):
         return Ok()
 
     def run(self):
-        steps = ["drop_tmp", "create_tmp", "create_indexes", "load_data"]
+        steps = ["Cleanup", "Create Temp DDL", "Create Index", "Load Data"]
         if self.default_db.table_exists(self.table, self.schema):
-            steps.extend(["merge", "drop_tmp"])
+            steps.extend(["Merge"])
         else:
-            steps.extend(["move", "set_permissions"])
+            steps.extend(["Move", "Grant Permissions"])
 
         return self.execute_steps(steps)
 
