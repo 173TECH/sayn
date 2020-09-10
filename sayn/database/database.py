@@ -83,7 +83,7 @@ class Database:
         with self.engine.connect().execution_options(stream_results=True) as connection:
             res = connection.execute(query, **params)
 
-            for record in res.cursor:
+            for record in res:
                 yield dict(zip(res.keys(), record))
 
     def load_data(self, table, schema, data):
