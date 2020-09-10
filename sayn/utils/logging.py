@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+from pathlib import Path
+import logging
 
 from colorama import init, Fore, Style
 from halo import Halo
@@ -6,24 +8,6 @@ from halo import Halo
 from .misc import group_list
 
 init(autoreset=True)
-
-# Styling functions
-
-dim = lambda s: f"{Style.DIM}{s}{Style.NORMAL}"
-bright = lambda s: f"{Style.BRIGHT}{s}{Style.NORMAL}"
-red = lambda s: f"{Fore.RED}{s}{Fore.RESET}"
-bright_red = lambda s: f"{Fore.RED}{Style.BRIGHT}{s}{Style.NORMAL}{Fore.RESET}"
-yellow = lambda s: f"{Fore.YELLOW}{s}{Fore.RESET}"
-bright_yellow = lambda s: f"{Fore.YELLOW}{Style.BRIGHT}{s}{Style.NORMAL}{Fore.RESET}"
-green = lambda s: f"{Fore.GREEN}{s}{Fore.RESET}"
-bright_green = lambda s: f"{Fore.GREEN}{Style.BRIGHT}{s}{Style.NORMAL}{Fore.RESET}"
-indent = lambda s, l: " " * l + s
-good = lambda s: green(f"✔ {s}")
-info = lambda s: f"ℹ {s}"
-warn = lambda s: yellow(f"⚠ {s}")
-bad = lambda s: red(f"✖ {s}")
-join = lambda l, sep, f: sep.join(f(s) for s in l)
-blist = lambda l: join(l, ", ", bright)
 
 
 def human(obj):
@@ -57,6 +41,105 @@ def human(obj):
 
 
 class LogFormatter:
+    use_colour = True
+
+    def __init__(self, use_colour=True):
+        self.use_colour = use_colour
+
+    # Styling methods
+
+    def dim(self, s):
+        if self.use_colour:
+            return f"{Style.DIM}{s}{Style.NORMAL}"
+        else:
+            return s
+
+    def bright(self, s):
+        if self.use_colour:
+            return f"{Style.BRIGHT}{s}{Style.NORMAL}"
+        else:
+            return s
+
+    def red(self, s):
+        if self.use_colour:
+            return f"{Fore.RED}{s}{Fore.RESET}"
+        else:
+            return s
+
+    def bright_red(self, s):
+        if self.use_colour:
+            return f"{Fore.RED}{Style.BRIGHT}{s}{Style.NORMAL}{Fore.RESET}"
+        else:
+            return s
+
+    def yellow(self, s):
+        if self.use_colour:
+            return f"{Fore.YELLOW}{s}{Fore.RESET}"
+        else:
+            return s
+
+    def bright_yellow(self, s):
+        if self.use_colour:
+            return f"{Fore.YELLOW}{Style.BRIGHT}{s}{Style.NORMAL}{Fore.RESET}"
+        else:
+            return s
+
+    def green(self, s):
+        if self.use_colour:
+            return f"{Fore.GREEN}{s}{Fore.RESET}"
+        else:
+            return s
+
+    def bright_green(self, s):
+        if self.use_colour:
+            return f"{Fore.GREEN}{Style.BRIGHT}{s}{Style.NORMAL}{Fore.RESET}"
+        else:
+            return s
+
+    def indent(self, s, l):
+        if self.use_colour:
+            return " " * l + s
+        else:
+            return s
+
+    def good(self, s):
+        if self.use_colour:
+            return self.green(f"✔ {s}")
+        else:
+            return s
+
+    def info(self, s):
+        if self.use_colour:
+            return f"ℹ {s}"
+        else:
+            return s
+
+    def warn(self, s):
+        if self.use_colour:
+            return self.yellow(f"⚠ {s}")
+        else:
+            return s
+
+    def bad(self, s):
+        if self.use_colour:
+            return self.red(f"✖ {s}")
+        else:
+            return s
+
+    def join(self, l, sep, f):
+        if self.use_colour:
+            return sep.join(f(s) for s in l)
+        else:
+            return sep.join(l)
+
+    def blist(self, l):
+        if self.use_colour:
+            return self.join(l, ", ", self.bright)
+        else:
+            return ", ".join(l)
+
+    # Event handling methods
+
     def unhandled(self, event, context, stage, details):
         ignored = (
             "project_git_commit",
@@ -102,13 +185,15 @@ class LogFormatter:
             "skipped", list()
         )
         msg = f"Execution of SAYN took {human(details['duration'])}"
-        return bad(msg) if len(errors) > 0 else good(msg)
+        return self.bad(msg) if len(errors) > 0 else self.good(msg)
 
     def app_stage_start(self, stage, details):
         if stage == "setup":
             return "Setting up..."
         elif stage in ("run", "compile"):
-            return bright(f"Starting {stage} at {details['ts'].strftime('%H:%M')}...")
+            return self.bright(
+                f"Starting {stage} at {details['ts'].strftime('%H:%M')}..."
+            )
         else:
             return self.unhandled("start_stage", "app", stage, details)
 
@@ -122,24 +207,28 @@ class LogFormatter:
         if stage == "setup":
             out = ["Finished setup:"]
             if len(failed) > 0:
-                out.append(bad(f"Failed tasks: {blist(failed)}"))
+                out.append(self.bad(f"Failed tasks: {self.blist(failed)}"))
             if len(skipped) > 0:
-                out.append(warn(f"Tasks to skip: {blist(skipped)}"))
+                out.append(self.warn(f"Tasks to skip: {self.blist(skipped)}"))
             if len(succeeded) > 0:
-                out.append(green(f"Tasks to run: {blist(succeeded)}"))
+                out.append(self.green(f"Tasks to run: {self.blist(succeeded)}"))
             return out
 
         elif stage in ("run", "compile"):
             if len(failed) > 0 or len(skipped) > 0:
-                out = [red(f"There were some errors during {stage} (took {duration})")]
+                out = [
+                    self.red(f"There were some errors during {stage} (took {duration})")
+                ]
                 if len(failed) > 0:
-                    out.append(bad(f"Failed tasks: {blist(failed)}"))
+                    out.append(self.bad(f"Failed tasks: {self.blist(failed)}"))
                 if len(skipped) > 0:
-                    out.append(warn(f"Skipped tasks: {blist(skipped)}"))
+                    out.append(self.warn(f"Skipped tasks: {self.blist(skipped)}"))
             else:
                 return [
-                    good(f"{stage.capitalize()} finished successfully in {duration}"),
-                    f"Tasks executed: {blist(succeeded)}",
+                    self.good(
+                        f"{stage.capitalize()} finished successfully in {duration}"
+                    ),
+                    f"Tasks executed: {self.blist(succeeded)}",
                 ]
 
         else:
@@ -148,16 +237,16 @@ class LogFormatter:
     # Task context
 
     def task_set_steps(self, details):
-        return f"Run Steps: {blist(details['steps'])}"
+        return f"Run Steps: {self.blist(details['steps'])}"
 
     def task_stage_start(self, stage, task, task_order, total_tasks, details):
         task_progress = f"[{task_order}/{total_tasks}]"
         ts = human(details["ts"])
 
         if stage == "setup":
-            return f"{task_progress} {bright(task)}"
+            return f"{task_progress} {self.bright(task)}"
         elif stage in ("run", "compile"):
-            return bright(f"{task_progress} {task} ") + f"(started at {ts})"
+            return self.bright(f"{task_progress} {task} ") + f"(started at {ts})"
         else:
             return self.unhandled("start_stage", "task", stage, details)
 
@@ -165,7 +254,7 @@ class LogFormatter:
         duration = human(details["duration"])
 
         if details["result"].is_ok:
-            return good(f"Finished {stage} for {bright(task)} ({duration})")
+            return self.good(f"Finished {stage} for {self.bright(task)} ({duration})")
         else:
             return self.unhandled("finish_stage", "task", stage, details)
 
@@ -174,7 +263,9 @@ class LogFormatter:
         ts = f"[{human(details['ts'])}]"
 
         if stage in ("run", "compile"):
-            return info(f"{task_progress} {ts} Executing {bright(step)} at ...")
+            return self.info(
+                f"{task_progress} {ts} Executing {self.bright(step)} at ..."
+            )
         else:
             return self.unhandled("start_step", "task", stage, details)
 
@@ -184,17 +275,14 @@ class LogFormatter:
         duration = human(details["duration"])
 
         if details["result"].is_ok:
-            return good(f"{task_progress}" + f" {ts} {bright(step)} ({duration})")
+            return self.good(
+                f"{task_progress}" + f" {ts} {self.bright(step)} ({duration})"
+            )
         else:
             return self.unhandled("finish_step", "task", stage, details)
 
 
 class Logger:
-    def report_event(self, **event):
-        raise NotImplementedError()
-
-
-class ConsoleDebugLogger(Logger):
     fmt = LogFormatter()
     current_indent = 0
 
@@ -205,7 +293,7 @@ class ConsoleDebugLogger(Logger):
 
     def app_start(self, details):
         self.print(self.fmt.app_start(details))
-        print()
+        self.print()
 
     def app_finish(self, details):
         self.print(self.fmt.app_finish(details))
@@ -217,7 +305,7 @@ class ConsoleDebugLogger(Logger):
     def app_stage_finish(self, stage, details):
         self.current_indent -= 1
         self.print(self.fmt.app_stage_finish(stage, details))
-        print()
+        self.print()
 
     # Task context
 
@@ -233,7 +321,7 @@ class ConsoleDebugLogger(Logger):
             self.fmt.task_stage_finish(stage, task, task_order, total_tasks, details)
         )
         if stage in ("run", "compile"):
-            print()
+            self.print()
 
     def task_set_steps(self, details):
         self.print(self.fmt.task_set_steps(details))
@@ -311,21 +399,61 @@ class ConsoleDebugLogger(Logger):
         else:
             self.unhandled(event, context, stage, details)
 
-    def print(self, s):
-        prefix = "  " * self.current_indent
-        if isinstance(s, str):
-            s = [s]
-
-        if isinstance(s, list):
-            print(f"{prefix}{s[0]}")
-            for e in s[1:]:
-                for l in e.split("\n"):
-                    print(f"{prefix}  {l}")
+    def print(self, s=None):
+        if s is None:
+            print()
         else:
-            raise ValueError("error in logging print")
+            prefix = "  " * self.current_indent
+            if isinstance(s, str):
+                s = [s]
+
+            if isinstance(s, list):
+                print(f"{prefix}{s[0]}")
+                for e in s[1:]:
+                    for l in e.split("\n"):
+                        print(f"{prefix}  {l}")
+            else:
+                raise ValueError("error in logging print")
 
 
-class ConsoleLogger(Logger):
+class FileLogger(Logger):
+    fmt = LogFormatter(False)
+    logger = None
+
+    def __init__(self, run_id, folder):
+        formatter = logging.Formatter(
+            f"{run_id}|" + "%(asctime)s|%(levelname)s|%(message)s"
+        )
+
+        log_file = Path(folder, "sayn.log")
+        if not log_file.parent.exists():
+            log_file.parent.mkdir(parents=True)
+
+        handler = logging.FileHandler(log_file)
+        handler.setLevel(logging.DEBUG)
+        handler.setFormatter(formatter)
+
+        logger = logging.getLogger(__name__)
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+
+        self.logger = logger
+
+    def print(self, s=None):
+        if s is not None:
+            if isinstance(s, str):
+                s = [s]
+
+            if isinstance(s, list):
+                self.logger.debug(f"{s[0]}")
+                for e in s[1:]:
+                    for l in e.split("\n"):
+                        self.logger.debug(f"{l}")
+            else:
+                raise ValueError("error in logging print")
+
+
+class FancyLogger(Logger):
     # TODO refactor log formatter so that it's more useful here
     # formatter = LogFormatter("info", False)
     spinner = None
@@ -413,35 +541,3 @@ class ConsoleLogger(Logger):
             print()
             for line in out:
                 print(f"{colour}{line}")
-
-
-class FileLogger(Logger):
-    # formatter = LogFormatter("debug", True)
-    # logger = None
-
-    def __init__(self, folder):
-        pass
-
-    #     from pathlib import Path
-    #     import logging
-    #     formatter = logging.Formatter("%(message)s")
-
-    #     log_file = Path(folder, "sayn.log")
-    #     if not log_file.parent.exists():
-    #         log_file.parent.mkdir(parents=True)
-
-    #     handler = logging.FileHandler(log_file)
-    #     handler.setLevel(logging.DEBUG)
-    #     handler.setFormatter(formatter)
-
-    #     logger = logging.getLogger(__name__)
-    #     logger.addHandler(handler)
-    #     logger.setLevel(logging.DEBUG)
-
-    #     self.logger = logger
-
-    def report_event(self, **event):
-        # TODO
-        return
-        for line in self.formatter.get_lines(**event):
-            self.logger.debug(line)
