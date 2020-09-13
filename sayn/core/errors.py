@@ -18,6 +18,9 @@ class Error:
         self.code = code
         self.details = details
 
+    def __repr__(self):
+        return f"Result.Err ({self.kind}::{self.code}): {self.details.__repr__()}"
+
 
 class Result:
     is_ok: bool = False
@@ -36,7 +39,7 @@ class Result:
         if self.is_ok:
             return f"Result.Ok: {self.value.__repr__()}"
         else:
-            return f"Result.Err ({self.error.kind}::{self.error.code}): {self.error.details.__repr__()}"
+            return self.error.__repr__()
 
     @property
     def is_err(self):

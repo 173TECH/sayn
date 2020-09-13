@@ -259,20 +259,6 @@ class LogFormatter:
             "message": f"Run Steps: {self.blist(details['steps'])}",
         }
 
-    def task_stage_start(self, stage, task, task_order, total_tasks, details):
-        task_progress = f"[{task_order}/{total_tasks}]"
-        ts = human(details["ts"])
-
-        if stage == "setup":
-            return {"level": "info", "message": f"{task_progress} {self.bright(task)}"}
-        elif stage in ("run", "compile"):
-            return {
-                "level": "info",
-                "message": f"{self.bright(task_progress +' ' +task)} (started at {ts})",
-            }
-        else:
-            return self.unhandled("start_stage", "task", stage, details)
-
     def error_msg(self, duration, error):
         level = "error"
         message = self.bad(error.__str__())
@@ -289,14 +275,42 @@ class LogFormatter:
                     for l in it.split("\n")
                 ]
             )
+
         elif error.code == "parent_errors":
             level = "warning"
-            message = self.warn("Skipping due to errors upstream")
+            message = self.warn(f"Skipping due to errors upstream ({duration})")
+
+        elif error.code == "setup_error":
+            if error.details["status"].value == "skipped":
+                level = "warning"
+                message = self.warn(f"Skipping due to errors upstream ({duration})")
+            else:
+                level = "error"
+                message = self.bad(f"Failed during setup ({duration})")
+
+        # else:
+        #     import IPython
+
+        #     IPython.embed()
 
         return {
             "level": level,
             "message": message,
         }
+
+    def task_stage_start(self, stage, task, task_order, total_tasks, details):
+        task_progress = f"[{task_order}/{total_tasks}]"
+        ts = human(details["ts"])
+
+        if stage == "setup":
+            return {"level": "info", "message": f"{task_progress} {self.bright(task)}"}
+        elif stage in ("run", "compile"):
+            return {
+                "level": "info",
+                "message": f"{self.bright(task_progress +' ' +task)} (started at {ts})",
+            }
+        else:
+            return self.unhandled("start_stage", "task", stage, details)
 
     def task_stage_finish(self, stage, task, task_order, total_tasks, details):
         duration = human(details["duration"])
