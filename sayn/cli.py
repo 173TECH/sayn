@@ -7,7 +7,7 @@ import click
 from .utils.python_loader import PythonLoader
 from .utils.task_query import get_query
 from .utils.graphviz import plot_dag
-from .utils.logging import FancyLogger, Logger, FileLogger
+from .utils.logging import FancyLogger, ConsoleLogger, FileLogger
 from .scaffolding.init_project import sayn_init
 from .core.app import App
 from .core.config import read_project, read_dags, read_settings, get_tasks_dict
@@ -30,10 +30,15 @@ class CliApp(App):
         # STARTING APP: register loggers and set cli arguments in the App object
         loggers = list()
         if debug:
-            loggers.append(Logger())
+            loggers.append(ConsoleLogger())
         else:
             loggers.append(FancyLogger())
-        loggers.append(FileLogger(self.run_id, self.run_arguments["folders"]["logs"]))
+        loggers.append(
+            FileLogger(
+                self.run_arguments["folders"]["logs"],
+                fmt=f"{self.run_id}|" + "%(asctime)s|%(levelname)s|%(message)s",
+            )
+        )
 
         self.start_app(
             loggers,

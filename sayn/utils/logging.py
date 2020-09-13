@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from pathlib import Path
 import logging
+import traceback
 
 from colorama import init, Fore, Style
 from halo import Halo
@@ -156,10 +157,8 @@ class LogFormatter:
         ctx = details["task"] if context == "task" else context
         return {
             "level": "error",
-            "message": (
-                f"Unhandled: {ctx}::{stage}::{event}:",
-                {k: v for k, v in details.items() if k not in ignored},
-            ),
+            "message": f"Unhandled: {ctx}::{stage}::{event}: "
+            + {k: v for k, v in details.items() if k not in ignored}.__str__(),
         }
 
     # App context
@@ -269,11 +268,35 @@ class LogFormatter:
         elif stage in ("run", "compile"):
             return {
                 "level": "info",
-                "message": self.bright(f"{task_progress} {task} ")
-                + f"(started at {ts})",
+                "message": f"{self.bright(task_progress +' ' +task)} (started at {ts})",
             }
         else:
             return self.unhandled("start_stage", "task", stage, details)
+
+    def error_msg(self, duration, error):
+        level = "error"
+        message = self.bad(error.__str__())
+
+        if error.kind == "exception":
+            exc = error.details["exception"]
+            message = [self.bad(f"Failed ({duration}) {exc}")]
+            message.extend(
+                [
+                    self.red(l)
+                    for it in traceback.format_exception(
+                        etype=type(exc), value=exc, tb=exc.__traceback__
+                    )
+                    for l in it.split("\n")
+                ]
+            )
+        elif error.code == "parent_errors":
+            level = "warning"
+            message = self.warn("Skipping due to errors upstream")
+
+        return {
+            "level": level,
+            "message": message,
+        }
 
     def task_stage_finish(self, stage, task, task_order, total_tasks, details):
         duration = human(details["duration"])
@@ -281,12 +304,10 @@ class LogFormatter:
         if details["result"].is_ok:
             return {
                 "level": "info",
-                "message": self.good(
-                    f"Finished {stage} for {self.bright(task)} ({duration})"
-                ),
+                "message": self.good(f"Took ({duration})"),
             }
         else:
-            return self.unhandled("finish_stage", "task", stage, details)
+            return self.error_msg(duration, details["result"].error)
 
     def task_step_start(self, stage, task, step, step_order, total_steps, details):
         task_progress = f"[{step_order}/{total_steps}]"
@@ -436,6 +457,16 @@ class Logger:
             self.unhandled(event, context, stage, details)
 
     def print(self, s=None):
+        raise NotImplementedError("Logger requires print method")
+
+
+class ConsoleLogger(Logger):
+    is_debug = True
+
+    def __init__(self, debug=True):
+        self.is_debug = debug
+
+    def print(self, s=None):
         if s is None:
             print()
         else:
@@ -443,24 +474,24 @@ class Logger:
             s = s["message"]
             if isinstance(s, str):
                 s = [s]
-
-            if isinstance(s, list):
-                print(f"{prefix}{s[0]}")
-                for e in s[1:]:
-                    for l in e.split("\n"):
-                        print(f"{prefix}  {l}")
-            else:
+            elif not isinstance(s, list):
                 raise ValueError("error in logging print")
+
+            print(f"{prefix}{s[0]}")
+            for e in s[1:]:
+                for l in e.split("\n"):
+                    print(f"{prefix}  {l}")
 
 
 class FileLogger(Logger):
     fmt = LogFormatter(use_colour=False, output_ts=False)
     logger = None
 
-    def __init__(self, run_id, folder):
-        formatter = logging.Formatter(
-            f"{run_id}|" + "%(asctime)s|%(levelname)s|%(message)s"
-        )
+    def __init__(self, folder, fmt=None):
+        if fmt is None:
+            fmt = ("%(asctime)s|%(levelname)s|%(message)s",)
+
+        formatter = logging.Formatter(fmt)
 
         log_file = Path(folder, "sayn.log")
         if not log_file.parent.exists():
@@ -490,14 +521,13 @@ class FileLogger(Logger):
 
             if isinstance(s, str):
                 s = [s]
-
-            if isinstance(s, list):
-                func(f"{s[0]}")
-                for e in s[1:]:
-                    for l in e.split("\n"):
-                        func(f"{l}")
-            else:
+            elif not isinstance(s, list):
                 raise ValueError("error in logging print")
+
+            func(f"{s[0]}")
+            for e in s[1:]:
+                for l in e.split("\n"):
+                    func(f"{l}")
 
 
 class FancyLogger(Logger):
@@ -505,6 +535,8 @@ class FancyLogger(Logger):
     # formatter = LogFormatter("info", False)
     spinner = None
     text = None
+
+    # def print(self,
 
     def report_event(self, level, event, stage, **kwargs):
         if event == "start_stage" and stage != "summary":

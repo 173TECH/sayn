@@ -20,7 +20,6 @@ class Error:
 
 
 class Result:
-
     is_ok: bool = False
     value: Any = None
     error: Error = None
@@ -104,11 +103,6 @@ def Exc(exc, **kwargs):
     #   - Jinja
 
     else:
-        # Unhandled exception
-
-        import IPython
-
-        IPython.embed()
         return Result(
             error=Error("exception", "unhandled_exception", {"exception": exc})
         )

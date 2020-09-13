@@ -77,7 +77,7 @@ class TaskWrapper:
         python_loader,
     ):
         def failed(result):
-            self.status = TaskStatus.SETUP_FAILED
+            self.status = TaskStatus.FAILED
             self.logger.current_step = None
             return result
 
