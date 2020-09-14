@@ -179,11 +179,32 @@ def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 @click_debug
 @click_filter
 def dag_image(debug, tasks, exclude):
-    project = read_project()
-    dags = read_dags(project.dags)
-    tasks_dict = get_tasks_dict(project.presets, dags)
+    def handle_error():
+        print("Errors detected in project. Run `sayn compile` to see the errors")
+        sys.exit()
+
+    result = read_project()
+    if result.is_err:
+        handle_error()
+    else:
+        project = result.value
+
+    result = read_dags(project.dags)
+    if result.is_err:
+        handle_error()
+    else:
+        dags = result.value
+
+    result = get_tasks_dict(project.presets, dags)
+    if result.is_err:
+        handle_error()
+    else:
+        tasks_dict = result.value
     dag = {
         task["name"]: [p for p in task.get("parents", list())]
         for task in tasks_dict.values()
     }
+
     plot_dag(dag, "images", "dag")
+
+    print("Dag image created in `images/dag.png`")
