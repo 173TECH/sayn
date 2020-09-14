@@ -4,7 +4,6 @@ import logging
 import traceback
 
 from colorama import init, Fore, Style
-from halo import Halo
 
 from .misc import group_list
 
@@ -170,11 +169,11 @@ class LogFormatter:
 
         for m in message:
             if level == "error":
-                out.append(self.fmt.bad(f"{ts} {m}"))
+                out.append(self.bad(f"{ts} {m}"))
             elif level == "warning":
-                out.append(self.fmt.warn(f"{ts} {m}"))
+                out.append(self.warn(f"{ts} {m}"))
             elif level == "debug":
-                out.append(self.fmt.dim(f"{ts} {m}"))
+                out.append(self.dim(f"{ts} {m}"))
             else:
                 out.append(f"{ts} {m}")
 
@@ -243,7 +242,7 @@ class LogFormatter:
                 out.append(self.warn(f"Tasks to skip: {self.blist(skipped)}"))
                 level = "error"
             if len(succeeded) > 0:
-                out.append(self.green(f"Tasks to run: {self.blist(succeeded)}"))
+                out.append(self.good(f"Tasks to run: {self.blist(succeeded)}"))
             return {"level": level, "message": out}
 
         elif stage in ("run", "compile"):

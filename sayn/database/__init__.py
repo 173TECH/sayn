@@ -152,7 +152,7 @@ class Database:
         with self.engine.connect().execution_options(stream_results=True) as connection:
             res = connection.execute(query, **params)
 
-            for record in res.cursor:
+            for record in res:
                 yield dict(zip(res.keys(), record))
 
     def load_data(self, table, schema, data):
@@ -166,7 +166,12 @@ class Database:
             schema (str): The target schema or None
             data (list): A list of dictionaries to load
         """
-        table_def = self.get_table(table, schema)
+        result = self.get_table(table, schema)
+        if result.is_ok:
+            table_def = result.value
+        else:
+            return result
+
         with self.engine.connect().execution_options(autocommit=True) as connection:
             connection.execute(table_def.insert().values(data))
 
@@ -238,7 +243,9 @@ class Database:
             return Exc(e)
 
         if table_def.exists():
-            self.refresh_metadata(only=[table], schema=schema)
+            table_def = Table(
+                table, self.metadata, schema=schema, extend_existing=True, autoload=True
+            )
             return Ok(table_def)
         else:
             return Err(
@@ -249,8 +256,8 @@ class Database:
                 schema=schema,
             )
 
-    def table_exists(self, table, schema, with_columns=None):
-        table_def = self.get_table(table, schema, columns=with_columns)
+    def table_exists(self, table, schema):
+        table_def = self.get_table(table, schema)
         if table_def.is_ok:
             return table_def.value.exists()
         else:
@@ -300,6 +307,14 @@ class Database:
         Returns:
             str: A SQL script for the CREATE TABLE statement
         """
+        if len(ddl["columns"]) == 0:
+            return Err(
+                "database",
+                "create_table_ddl_missing_columns",
+                table=table,
+                schema=schema,
+                ddl=ddl,
+            )
         table_name = table
         table = f"{schema+'.' if schema else ''}{table_name}"
 

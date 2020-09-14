@@ -18,6 +18,7 @@ class Config(BaseModel):
 
 class SqlTask(Task):
     def setup(self, file_name):
+        print("adfadfaf")
         self.config = Config(sql_folder=self.run_arguments["folders"]["sql"])
 
         result = self.compile_obj(self.config.file_name)
@@ -66,7 +67,7 @@ class SqlTask(Task):
 
         elif step == "Create Temp DDL":
             return self.default_db.create_table_ddl(
-                self.table, self.schema, self.ddl, execute=True
+                self.tmp_table, self.tmp_schema, self.ddl, execute=True
             )
 
         elif step == "Create View":

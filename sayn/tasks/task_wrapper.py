@@ -85,8 +85,8 @@ class TaskWrapper:
             try:
                 result = runner.setup(**runner_config)
 
-            except Exception as e:
-                result = Exc(e)
+            except Exception as exc:
+                result = Exc(exc)
 
             finally:
                 if not isinstance(result, Result):

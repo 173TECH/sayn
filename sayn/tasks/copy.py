@@ -60,7 +60,7 @@ class CopyTask(SqlTask):
                 "_db_type": self.default_db.db_type,
             }
         )
-        self.config = Config(sql_folder=self.run_arguments["folders"]["sql"], **config)
+        self.config = Config(**config)
 
         self.source_db = self.connections[self.config.source.db]
         self.source_schema = self.config.source.db_schema
@@ -69,10 +69,16 @@ class CopyTask(SqlTask):
         self.tmp_schema = self.config.destination.tmp_schema
         self.schema = self.config.destination.db_schema
         self.table = self.config.destination.table
+        self.tmp_table = f"sayn_tmp_{self.table}"
 
         self.delete_key = self.config.delete_key
         self.incremental_key = self.config.incremental_key
-        self.ddl = self.default_db.validate_ddl(self.config.ddl)
+
+        result = self.default_db.validate_ddl(self.config.ddl)
+        if result.is_ok:
+            self.ddl = result.value
+        else:
+            return result
 
         result = self.source_db.get_table(
             self.source_table,
@@ -84,20 +90,27 @@ class CopyTask(SqlTask):
             return result
 
         self.source_table_def = result.value
+        if len(self.ddl["columns"]) == 0:
+            self.ddl["columns"] = [
+                {
+                    "name": c.name,
+                    "type": c.type.compile(dialect=self.default_db.engine.dialect),
+                }
+                for c in self.source_table_def.columns
+            ]
+        else:
+            # Fill up column types from the source table
+            for column in self.ddl["columns"]:
+                if column.get("name") not in self.source_table_def.columns:
+                    return Err(
+                        "database_error",
+                        "source_table_missing_column",
+                        db=self.source_db.name,
+                        table=self.source_table,
+                        schema=self.source_schema,
+                        column=column.get("name"),
+                    )
 
-        # Fill up column types from the source table
-        for column in self.ddl["columns"]:
-            if column.get("name") not in self.source_table_def.columns:
-                return Err(
-                    "database_error",
-                    "source_table_missing_column",
-                    db=self.source_db.name,
-                    table=self.source_table,
-                    schema=self.source_schema,
-                    column=column.get("name"),
-                )
-
-            # TODO check for incorrect column types
             if "type" not in column:
                 column["type"] = self.source_table_def.columns[
                     column["name"]
@@ -106,7 +119,7 @@ class CopyTask(SqlTask):
         return Ok()
 
     def run(self):
-        steps = ["Cleanup", "Create Temp DDL", "Create Index", "Load Data"]
+        steps = ["Cleanup", "Create Temp DDL", "Create Indexes", "Load Data"]
         if self.default_db.table_exists(self.table, self.schema):
             steps.extend(["Merge"])
         else:
