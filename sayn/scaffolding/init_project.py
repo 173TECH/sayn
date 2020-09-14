@@ -5,7 +5,7 @@ import shutil
 
 def sayn_init(sayn_project_name):
     src = Path(
-        os.path.dirname(os.path.abspath(__file__)), "sayn_project_base"
+        os.path.dirname(os.path.abspath(__file__)), "data", "init_project"
     ).absolute()
     dst = Path(sayn_project_name).absolute()
 

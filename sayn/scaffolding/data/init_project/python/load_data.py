@@ -1,4 +1,3 @@
-import sqlite3
 from .utils.log_creator import prepare_data, generate_load_query
 from sayn import PythonTask
 
@@ -26,7 +25,6 @@ class LoadData(PythonTask):
             return self.success()
 
     def run(self):
-
         # load the logs
         for log_type, log_details in self.data_to_load.items():
             # create table

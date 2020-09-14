@@ -51,14 +51,14 @@ class Task:
 
     # Task lifetime methods
 
-    def setup(self):
-        raise NotImplementedError("SAYN task", self.__class.__name__, "setup")
+    # def setup(self):
+    #     raise NotImplementedError("SAYN task", self.__class__.__name__, "setup")
 
-    def run(self):
-        raise NotImplementedError("SAYN task", self.__class.__name__, "run")
+    # def run(self):
+    #     raise NotImplementedError("SAYN task", self.__class__.__name__, "run")
 
-    def compile(self):
-        raise NotImplementedError("SAYN task", self.__class.__name__, "compile")
+    # def compile(self):
+    #     raise NotImplementedError("SAYN task", self.__class__.__name__, "compile")
 
     # Status methods
 
@@ -161,3 +161,17 @@ class Task:
         path.write_text(str(content))
 
         return Ok()
+
+
+class PythonTask(Task):
+    def setup(self):
+        self.debug("Nothing to be done")
+        return self.success()
+
+    def run(self):
+        self.debug("Nothing to be done")
+        return self.success()
+
+    def compile(self):
+        self.debug("Nothing to be done")
+        return self.success()

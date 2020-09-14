@@ -161,6 +161,25 @@ class LogFormatter:
             + {k: v for k, v in details.items() if k not in ignored}.__str__(),
         }
 
+    def message(self, level, message, details):
+        if not isinstance(message, list):
+            message = [message]
+
+        out = []
+        ts = f"[{human(details['ts'])}]" if self.output_ts else ""
+
+        for m in message:
+            if level == "error":
+                out.append(self.fmt.bad(f"{ts} {m}"))
+            elif level == "warning":
+                out.append(self.fmt.warn(f"{ts} {m}"))
+            elif level == "debug":
+                out.append(self.fmt.dim(f"{ts} {m}"))
+            else:
+                out.append(f"{ts} {m}")
+
+        return {"level": level, "message": out}
+
     # App context
 
     def app_start(self, details):
@@ -365,23 +384,8 @@ class Logger:
     def unhandled(self, event, context, stage, details):
         print(self.fmt.unhandled(event, context, stage, details))
 
-    def message(self, level, message):
-        if not isinstance(message, list):
-            message = [message]
-
-        out = []
-
-        for m in message:
-            if level == "error":
-                out.append(self.fmt.bad(m))
-            elif level == "warning":
-                out.append(self.fmt.warn(m))
-            elif level == "debug":
-                out.append(self.fmt.dim(m))
-            else:
-                out.append(m)
-
-        self.print({"level": level, "message": out})
+    def message(self, level, message, details):
+        self.print(self.fmt.message(level, message, details))
 
     # App context
 
@@ -438,7 +442,7 @@ class Logger:
 
     def report_event(self, context, event, stage, **details):
         if event == "message":
-            self.message(details["level"], details["message"])
+            self.message(details["level"], details["message"], details)
 
         elif context == "app":
             if event == "start_app":
