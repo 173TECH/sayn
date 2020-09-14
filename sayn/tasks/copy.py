@@ -3,15 +3,24 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field, validator
 
 from ..core.errors import Err, Ok
+from ..database import Database
 from .sql import SqlTask
 
 
 class Source(BaseModel):
-    db: str
     db_schema: Optional[str] = Field(None, alias="schema")
     table: str
     _db_properties: List
     _db_type: str
+    all_dbs: List[str]
+    db: str
+
+    @validator("db")
+    def source_db_exists(cls, v, values):
+        if v not in values["all_dbs"]:
+            raise ValueError(f'"{v}" is not a valid database')
+        else:
+            return v
 
 
 class Destination(BaseModel):
@@ -52,6 +61,9 @@ class CopyTask(SqlTask):
             {
                 "_db_features": self.default_db.sql_features,
                 "_db_type": self.default_db.db_type,
+                "all_dbs": [
+                    n for n, c in self.connections.items() if isinstance(c, Database)
+                ],
             }
         )
         config["destination"].update(

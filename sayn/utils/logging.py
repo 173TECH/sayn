@@ -179,6 +179,68 @@ class LogFormatter:
 
         return {"level": level, "message": out}
 
+    def error_result(self, duration, error):
+        level = "error"
+        message = self.bad(error.__str__())
+
+        if error.kind == "exception":
+            exc = error.details["exception"]
+            message = [self.bad(f"Failed ({duration}) {exc}")]
+            message.extend(
+                [
+                    self.red(l)
+                    for it in traceback.format_exception(
+                        etype=type(exc), value=exc, tb=exc.__traceback__
+                    )
+                    for l in it.split("\n")
+                ]
+            )
+
+        elif error.code == "wrong_credentials":
+            level = "error"
+            message = self.bad(
+                f'Connections {self.bright(", ".join(error.details["credentials"]))} not defined in project.yaml'
+            )
+
+        elif error.code == "missing_credentials":
+            level = "error"
+            message = self.bad(
+                f'Connections {self.bright(", ".join(error.details["credentials"]))} are required by project.yaml'
+            )
+
+        elif error.code == "missing_credential_type":
+            level = "error"
+            message = self.bad(
+                f'Connections {self.bright(", ".join(error.details["credentials"]))} have no type'
+            )
+
+        elif error.code == "parent_errors":
+            level = "warning"
+            message = self.warn(f"Skipping due to parent errors ({duration})")
+
+        elif error.code == "setup_error":
+            if error.details["status"].value == "skipped":
+                level = "warning"
+                message = self.warn(f"Skipping due to parent errors ({duration})")
+            else:
+                level = "error"
+                message = self.bad(f"Failed during setup ({duration})")
+
+        elif error.code == "validation_error":
+            level = "error"
+            message = [self.bad(f"Validation errors found ({duration})")]
+            message.extend(
+                [
+                    self.red(f"  In {' > '.join(e['loc'])}: {e['msg']}")
+                    for e in error.details["errors"]
+                ]
+            )
+
+        return {
+            "level": level,
+            "message": message,
+        }
+
     # App context
 
     def app_start(self, details):
@@ -203,14 +265,17 @@ class LogFormatter:
         return {"level": "info", "message": out}
 
     def app_finish(self, details):
-        errors = details["tasks"].get("failed", list()) + details["tasks"].get(
-            "skipped", list()
-        )
-        msg = f"Execution of SAYN took {human(details['duration'])}"
-        if len(errors) > 0:
-            return {"level": "error", "message": self.bad(msg)}
+        if "error" in details:
+            return self.error_result(details["duration"], details["error"].error)
         else:
-            return {"level": "info", "message": self.good(msg)}
+            errors = details["tasks"].get("failed", list()) + details["tasks"].get(
+                "skipped", list()
+            )
+            msg = f"Execution of SAYN took {human(details['duration'])}"
+            if len(errors) > 0:
+                return {"level": "error", "message": self.bad(msg)}
+            else:
+                return {"level": "info", "message": self.good(msg)}
 
     def app_stage_start(self, stage, details):
         if stage == "setup":
@@ -275,50 +340,6 @@ class LogFormatter:
         return {
             "level": "info",
             "message": f"Run Steps: {self.blist(details['steps'])}",
-        }
-
-    def error_result(self, duration, error):
-        level = "error"
-        message = self.bad(error.__str__())
-
-        if error.kind == "exception":
-            exc = error.details["exception"]
-            message = [self.bad(f"Failed ({duration}) {exc}")]
-            message.extend(
-                [
-                    self.red(l)
-                    for it in traceback.format_exception(
-                        etype=type(exc), value=exc, tb=exc.__traceback__
-                    )
-                    for l in it.split("\n")
-                ]
-            )
-
-        elif error.code == "parent_errors":
-            level = "warning"
-            message = self.warn(f"Skipping due to parent errors ({duration})")
-
-        elif error.code == "setup_error":
-            if error.details["status"].value == "skipped":
-                level = "warning"
-                message = self.warn(f"Skipping due to parent errors ({duration})")
-            else:
-                level = "error"
-                message = self.bad(f"Failed during setup ({duration})")
-
-        elif error.code == "validation_error":
-            level = "error"
-            message = [self.bad(f"Validation errors found ({duration})")]
-            message.extend(
-                [
-                    self.red(f"  In {', '.join(e['loc'])}: {e['msg']}")
-                    for e in error.details["errors"]
-                ]
-            )
-
-        return {
-            "level": level,
-            "message": message,
         }
 
     def task_stage_start(self, stage, task, task_order, total_tasks, details):

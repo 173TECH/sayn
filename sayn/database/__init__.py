@@ -541,7 +541,11 @@ class Database:
         )
 
         select = f"SELECT * FROM {src}"
-        insert = self.insert(dst_table, dst_schema, select, columns=columns)
+        result = self.insert(dst_table, dst_schema, select, columns=columns)
+        if result.is_ok:
+            insert = result.value
+        else:
+            return result
         q = "\n".join((delete, insert))
 
         if execute:

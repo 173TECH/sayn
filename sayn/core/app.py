@@ -85,15 +85,15 @@ class App:
         # Validate credentials
         error_items = set(credentials.keys()) - set(self.credentials.keys())
         if error_items:
-            return Err("app", "wrong_credentials", credentials=error_items,)
+            return Err("app", "wrong_credentials", credentials=error_items)
 
         error_items = set(self.credentials.keys()) - set(credentials.keys())
         if error_items:
-            return Err("app", "missing_credentials", credentials=error_items,)
+            return Err("app", "missing_credentials", credentials=error_items)
 
         error_items = [n for n, v in credentials.items() if "type" not in v]
         if error_items:
-            return Err("app", "missing_credential_type", credentials=error_items,)
+            return Err("app", "missing_credential_type", credentials=error_items)
 
         self.credentials.update(credentials)
 
@@ -184,10 +184,15 @@ class App:
         self.tracker = EventTracker(self.run_id, loggers, run_arguments=run_arguments)
         self.run_arguments.update(run_arguments)
 
-    def finish_app(self):
+    def finish_app(self, error=None):
         duration = datetime.now() - self.app_start_ts
-        self.tracker.report_event(
-            event="finish_app",
-            duration=duration,
-            tasks={k: v.status for k, v in self.tasks.items()},
-        )
+        if error is None:
+            self.tracker.report_event(
+                event="finish_app",
+                duration=duration,
+                tasks={k: v.status for k, v in self.tasks.items()},
+            )
+        else:
+            self.tracker.report_event(
+                event="finish_app", duration=duration, error=error,
+            )

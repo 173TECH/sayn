@@ -49,33 +49,33 @@ class CliApp(App):
         self.tracker.start_stage("setup")
 
         # Read the project configuration
-        project = self.handle_result(read_project())
-        dags = self.handle_result(read_dags(project.dags))
+        project = self.check_abort(read_project())
+        dags = self.check_abort(read_dags(project.dags))
         self.set_project(project)
-        settings = self.handle_result(read_settings())
-        self.handle_result(self.set_settings(settings))
+        settings = self.check_abort(read_settings())
+        self.check_abort(self.set_settings(settings))
 
         # Set python environment
         self.python_loader = PythonLoader()
         if Path(self.run_arguments["folders"]["python"]).is_dir():
-            self.handle_result(
+            self.check_abort(
                 self.python_loader.register_module(
                     "python_tasks", self.run_arguments["folders"]["python"]
                 )
             )
 
         # Set tasks and dag from it
-        tasks_dict = self.handle_result(get_tasks_dict(project.presets, dags))
-        task_query = self.handle_result(
+        tasks_dict = self.check_abort(get_tasks_dict(project.presets, dags))
+        task_query = self.check_abort(
             get_query(tasks_dict, include=include, exclude=exclude)
         )
-        self.handle_result(self.set_tasks(tasks_dict, task_query))
+        self.check_abort(self.set_tasks(tasks_dict, task_query))
 
         self.tracker.finish_current_stage(
             tasks={k: v.status for k, v in self.tasks.items()}
         )
 
-    def handle_result(self, result):
+    def check_abort(self, result):
         """Interpret the result of setup opreations returning the value if `result.is_ok`.
 
         Setup errors from the cli result in execution abort.
@@ -84,13 +84,10 @@ class CliApp(App):
           result (sayn.errors.Result): The result of a setup operation
         """
         if result is None or not isinstance(result, Result):
-            self.tracker.finish_current_stage(
-                error=Err("app_setup", "unhandled_error", result=result)
-            )
+            self.finish_app(error=Err("app_setup", "unhandled_error", result=result))
             sys.exit()
         elif result.is_err:
-            # TODO send event
-            print(result)
+            self.finish_app(result)
             sys.exit()
         else:
             return result.value
