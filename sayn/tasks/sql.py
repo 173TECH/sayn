@@ -136,7 +136,7 @@ class SqlTask(Task):
         return Ok()
 
     def create_select(self, table, schema, select, ddl):
-        if ddl.get("columns") is None:
+        if len(ddl.get("columns")) == 0:
             self.default_db.create_table_select(
                 table, schema, select, view=False, execute=True
             )

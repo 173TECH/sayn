@@ -30,32 +30,38 @@ def _get_query_component(tasks, query):
             relevant_tasks = {k: v for k, v in tasks.items() if tag in v.get("tags")}
             if len(relevant_tasks) == 0:
                 return Err("task_query", "undefined_tag", tag=tag,)
-            return [
-                {"task": task, "upstream": False, "downstream": False}
-                for task, value in relevant_tasks.items()
-            ]
+            return Ok(
+                [
+                    {"task": task, "upstream": False, "downstream": False}
+                    for task, value in relevant_tasks.items()
+                ]
+            )
 
         if match_components.get("dag") is not None:
             dag = match_components["dag"]
             relevant_tasks = {k: v for k, v in tasks.items() if dag == v.get("dag")}
             if len(relevant_tasks) == 0:
                 return Err("task_query", "undefined_dag", dag=dag,)
-            return [
-                {"task": task, "upstream": False, "downstream": False}
-                for task, value in relevant_tasks.items()
-            ]
+            return Ok(
+                [
+                    {"task": task, "upstream": False, "downstream": False}
+                    for task, value in relevant_tasks.items()
+                ]
+            )
 
         if match_components.get("task") is not None:
             task = match_components["task"]
             if task not in tasks:
                 return Err("task_query", "undefined_task", task=task,)
-            return [
-                {
-                    "task": task,
-                    "upstream": match_components.get("upstream", "") == "+",
-                    "downstream": match_components.get("downstream", "") == "+",
-                }
-            ]
+            return Ok(
+                [
+                    {
+                        "task": task,
+                        "upstream": match_components.get("upstream", "") == "+",
+                        "downstream": match_components.get("downstream", "") == "+",
+                    }
+                ]
+            )
 
 
 def get_query(tasks, include=list(), exclude=list()):

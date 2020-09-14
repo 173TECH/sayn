@@ -199,11 +199,6 @@ class Database:
             else:
                 loaded += result.value
 
-        if i != loaded:
-            return Err(
-                "database", "load_data_missing_records", loaded=loaded, expected=i,
-            )
-
         return Ok(loaded)
 
     def validate_ddl(self, ddl):

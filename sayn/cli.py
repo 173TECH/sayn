@@ -89,7 +89,8 @@ class CliApp(App):
             )
             sys.exit()
         elif result.is_err:
-            self.report_finish_setup(error=result)
+            # TODO send event
+            print(result)
             sys.exit()
         else:
             return result.value
