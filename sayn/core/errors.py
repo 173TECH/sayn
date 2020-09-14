@@ -4,10 +4,6 @@ from pydantic import ValidationError
 from ruamel.yaml.error import MarkedYAMLError
 
 
-class SaynValidationError(ValueError):
-    pass
-
-
 class Error:
     kind: str
     code: str

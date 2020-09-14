@@ -3,7 +3,7 @@ from typing import Dict, Any, List, Optional
 
 from pydantic import BaseModel, Field, FilePath, validator
 
-from ..core.errors import SaynValidationError, Exc, Ok
+from ..core.errors import Exc, Ok
 from .sql import SqlTask
 
 
@@ -17,7 +17,7 @@ class Destination(BaseModel):
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
         if v is not None:
-            raise SaynValidationError("tmp_schema_not_supported", v["_db_type"])
+            raise ValueError(f"Temporary schemas not supported by {v['_db_type']}")
 
         return v
 
@@ -37,11 +37,11 @@ class Config(BaseModel):
     @validator("materialisation")
     def incremental_has_delete_key(cls, v, values):
         if v not in ("table", "view", "incremental"):
-            raise SaynValidationError("invalidid_materialisation", v)
+            raise ValueError(f'"{v}". Valid materialisations: table, view, incremental')
         elif v != "incremental" and values.get("delete_key") is not None:
-            raise SaynValidationError("incremental_spec_error", "delete_key")
+            raise ValueError('"delete_key" is invalid in non-incremental loads')
         elif v == "incremental" and values.get("delete_key") is None:
-            raise SaynValidationError("non_incremental_spec_error", "delete_key")
+            raise ValueError('"delete_key" is required for incremental loads')
         else:
             return v
 

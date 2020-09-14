@@ -84,16 +84,24 @@ class Task:
         self.logger.finish_current_step(result)
 
     def debug(self, message, details=None):
-        self.logger.debug(message, details)
+        if details is None:
+            details = dict()
+        self.logger.debug(message, **details)
 
     def info(self, message, details=None):
-        self.logger.info(message, details)
+        if details is None:
+            details = dict()
+        self.logger.info(message, **details)
 
     def warning(self, message, details=None):
-        self.logger.warning(message, details)
+        if details is None:
+            details = dict()
+        self.logger.warning(message, **details)
 
     def error(self, message, details=None):
-        self.logger.error(message, details)
+        if details is None:
+            details = dict()
+        self.logger.error(message, **details)
 
     @contextmanager
     def step(self, step):

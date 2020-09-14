@@ -205,7 +205,7 @@ class LogFormatter:
                 ),
             }
         else:
-            return (self.unhandled("start_stage", "app", stage, details),)
+            return self.unhandled("start_stage", "app", stage, details)
 
     def app_stage_finish(self, stage, details):
         tasks = group_list([(v.value, t) for t, v in details["tasks"].items()])
@@ -249,7 +249,7 @@ class LogFormatter:
                 }
 
         else:
-            return (self.unhandled("finish_stage", "app", stage, details),)
+            return self.unhandled("finish_stage", "app", stage, details)
 
     # Task context
 
@@ -278,20 +278,25 @@ class LogFormatter:
 
         elif error.code == "parent_errors":
             level = "warning"
-            message = self.warn(f"Skipping due to errors upstream ({duration})")
+            message = self.warn(f"Skipping due to parent errors ({duration})")
 
         elif error.code == "setup_error":
             if error.details["status"].value == "skipped":
                 level = "warning"
-                message = self.warn(f"Skipping due to errors upstream ({duration})")
+                message = self.warn(f"Skipping due to parent errors ({duration})")
             else:
                 level = "error"
                 message = self.bad(f"Failed during setup ({duration})")
 
-        # else:
-        #     import IPython
-
-        #     IPython.embed()
+        elif error.code == "validation_error":
+            level = "error"
+            message = [self.bad(f"Validation errors found ({duration})")]
+            message.extend(
+                [
+                    self.red(f"  In {', '.join(e['loc'])}: {e['msg']}")
+                    for e in error.details["errors"]
+                ]
+            )
 
         return {
             "level": level,
@@ -360,6 +365,24 @@ class Logger:
     def unhandled(self, event, context, stage, details):
         print(self.fmt.unhandled(event, context, stage, details))
 
+    def message(self, level, message):
+        if not isinstance(message, list):
+            message = [message]
+
+        out = []
+
+        for m in message:
+            if level == "error":
+                out.append(self.fmt.bad(m))
+            elif level == "warning":
+                out.append(self.fmt.warn(m))
+            elif level == "debug":
+                out.append(self.fmt.dim(m))
+            else:
+                out.append(m)
+
+        self.print({"level": level, "message": out})
+
     # App context
 
     def app_start(self, details):
@@ -414,7 +437,10 @@ class Logger:
         )
 
     def report_event(self, context, event, stage, **details):
-        if context == "app":
+        if event == "message":
+            self.message(details["level"], details["message"])
+
+        elif context == "app":
             if event == "start_app":
                 self.app_start(details)
 
@@ -633,4 +659,5 @@ class FancyLogger(Logger):
             )
             print()
             for line in out:
+                print(f"{colour}{line}")
                 print(f"{colour}{line}")
