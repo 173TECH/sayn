@@ -259,7 +259,7 @@ class LogFormatter:
             "message": f"Run Steps: {self.blist(details['steps'])}",
         }
 
-    def error_msg(self, duration, error):
+    def error_result(self, duration, error):
         level = "error"
         message = self.bad(error.__str__())
 
@@ -326,7 +326,7 @@ class LogFormatter:
                 "message": self.good(f"Took ({duration})"),
             }
         else:
-            return self.error_msg(duration, details["result"].error)
+            return self.error_result(duration, details["result"].error)
 
     def task_step_start(self, stage, task, step, step_order, total_steps, details):
         task_progress = f"[{step_order}/{total_steps}]"
@@ -336,7 +336,7 @@ class LogFormatter:
             return {
                 "level": "info",
                 "message": self.info(
-                    f"{task_progress} {ts} Executing {self.bright(step)} at ..."
+                    f"{task_progress} {ts} Executing {self.bright(step)}"
                 ),
             }
         else:
@@ -501,6 +501,7 @@ class Logger:
 
 
 class ConsoleLogger(Logger):
+    fmt = LogFormatter(output_ts=True)
     is_debug = True
 
     def __init__(self, debug=True):
@@ -570,94 +571,94 @@ class FileLogger(Logger):
                     func(f"{l}")
 
 
-class FancyLogger(Logger):
-    # TODO refactor log formatter so that it's more useful here
-    # formatter = LogFormatter("info", False)
-    spinner = None
-    text = None
-
-    # def print(self,
-
-    def report_event(self, level, event, stage, **kwargs):
-        if event == "start_stage" and stage != "summary":
-            self.spinner = Halo(spinner="dots")
-            self.spinner.start(stage)
-
-        elif event == "finish_stage" and stage == "setup":
-            if level == "error":
-                self.spinner.fail(
-                    "\n    ".join(
-                        (
-                            f"{Fore.RED}{stage.capitalize()} ({human(kwargs['duration'])}):",
-                            f"{Fore.RED}Some tasks failed during setup: {', '.join(kwargs['task_statuses']['failed'])}",
-                            "",
-                        )
-                    )
-                )
-            elif level == "warning":
-                self.spinner.warn(
-                    "\n    ".join(
-                        (
-                            f"{Fore.YELLOW}{stage.capitalize()} ({human(kwargs['duration'])}):",
-                            f"{Fore.RED}Some tasks failed during setup: {', '.join(kwargs['task_statuses']['failed'])}",
-                            f"{Fore.YELLOW}Some tasks will be skipped: {', '.join(kwargs['task_statuses']['skipped'])}",
-                            "",
-                        )
-                    )
-                )
-            else:
-                self.spinner.succeed(
-                    f"{stage.capitalize()} ({human(kwargs['duration'])})"
-                )
-
-        elif event == "start_task":
-            self.spinner.text = f"{stage.capitalize()}: {kwargs['task']}"
-
-        elif event == "finish_task":
-            if level == "error":
-                self.spinner.fail(
-                    f"{stage.capitalize()}: {kwargs['task']} ({human(kwargs['duration'])})"
-                )
-            elif level == "warning":
-                self.spinner.warn(
-                    f"{stage.capitalize()}: {kwargs['task']} ({human(kwargs['duration'])})"
-                )
-            else:
-                self.spinner.succeed(
-                    f"{stage.capitalize()}: {kwargs['task']} ({human(kwargs['duration'])})"
-                )
-
-        elif event == "execution_finished":
-            out = [
-                ". ".join(
-                    (
-                        "" f"Process finished ({human(kwargs['duration'])})",
-                        f"Total tasks: {len(kwargs['succeeded']+kwargs['skipped']+kwargs['failed'])}",
-                        f"Success: {len(kwargs['succeeded'])}",
-                        f"Failed {len(kwargs['failed'])}",
-                        f"Skipped {len(kwargs['skipped'])}.",
-                    )
-                )
-            ]
-
-            for status in ("succeeded", "failed", "skipped"):
-                if len(kwargs[status]) > 0:
-                    out.append(
-                        (
-                            f"  The following tasks "
-                            f"{'were ' if status == 'skipped' else ''}{status}: "
-                            f"{', '.join(kwargs[status])}"
-                        )
-                    )
-
-            colour = (
-                Fore.GREEN
-                if level == "success"
-                else Fore.YELLOW
-                if level == "warning"
-                else Fore.RED
-            )
-            print()
-            for line in out:
-                print(f"{colour}{line}")
-                print(f"{colour}{line}")
+# class FancyLogger(Logger):
+#     # TODO refactor log formatter so that it's more useful here
+#     # formatter = LogFormatter("info", False)
+#     spinner = None
+#     text = None
+#
+#     # def print(self,
+#
+#     def report_event(self, level, event, stage, **kwargs):
+#         if event == "start_stage" and stage != "summary":
+#             self.spinner = Halo(spinner="dots")
+#             self.spinner.start(stage)
+#
+#         elif event == "finish_stage" and stage == "setup":
+#             if level == "error":
+#                 self.spinner.fail(
+#                     "\n    ".join(
+#                         (
+#                             f"{Fore.RED}{stage.capitalize()} ({human(kwargs['duration'])}):",
+#                             f"{Fore.RED}Some tasks failed during setup: {', '.join(kwargs['task_statuses']['failed'])}",
+#                             "",
+#                         )
+#                     )
+#                 )
+#             elif level == "warning":
+#                 self.spinner.warn(
+#                     "\n    ".join(
+#                         (
+#                             f"{Fore.YELLOW}{stage.capitalize()} ({human(kwargs['duration'])}):",
+#                             f"{Fore.RED}Some tasks failed during setup: {', '.join(kwargs['task_statuses']['failed'])}",
+#                             f"{Fore.YELLOW}Some tasks will be skipped: {', '.join(kwargs['task_statuses']['skipped'])}",
+#                             "",
+#                         )
+#                     )
+#                 )
+#             else:
+#                 self.spinner.succeed(
+#                     f"{stage.capitalize()} ({human(kwargs['duration'])})"
+#                 )
+#
+#         elif event == "start_task":
+#             self.spinner.text = f"{stage.capitalize()}: {kwargs['task']}"
+#
+#         elif event == "finish_task":
+#             if level == "error":
+#                 self.spinner.fail(
+#                     f"{stage.capitalize()}: {kwargs['task']} ({human(kwargs['duration'])})"
+#                 )
+#             elif level == "warning":
+#                 self.spinner.warn(
+#                     f"{stage.capitalize()}: {kwargs['task']} ({human(kwargs['duration'])})"
+#                 )
+#             else:
+#                 self.spinner.succeed(
+#                     f"{stage.capitalize()}: {kwargs['task']} ({human(kwargs['duration'])})"
+#                 )
+#
+#         elif event == "execution_finished":
+#             out = [
+#                 ". ".join(
+#                     (
+#                         "" f"Process finished ({human(kwargs['duration'])})",
+#                         f"Total tasks: {len(kwargs['succeeded']+kwargs['skipped']+kwargs['failed'])}",
+#                         f"Success: {len(kwargs['succeeded'])}",
+#                         f"Failed {len(kwargs['failed'])}",
+#                         f"Skipped {len(kwargs['skipped'])}.",
+#                     )
+#                 )
+#             ]
+#
+#             for status in ("succeeded", "failed", "skipped"):
+#                 if len(kwargs[status]) > 0:
+#                     out.append(
+#                         (
+#                             f"  The following tasks "
+#                             f"{'were ' if status == 'skipped' else ''}{status}: "
+#                             f"{', '.join(kwargs[status])}"
+#                         )
+#                     )
+#
+#             colour = (
+#                 Fore.GREEN
+#                 if level == "success"
+#                 else Fore.YELLOW
+#                 if level == "warning"
+#                 else Fore.RED
+#             )
+#             print()
+#             for line in out:
+#                 print(f"{colour}{line}")
+#                 print(f"{colour}{line}")
