@@ -1,4 +1,3 @@
-# TODO enable again once cli is complete
 # from pathlib import Path
 #
 #

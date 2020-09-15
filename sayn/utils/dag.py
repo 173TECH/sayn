@@ -77,6 +77,8 @@ def topological_sort(dag):
         if current == len(pending):
             current = 0
 
+    return Ok(topo_sorted)
+
 
 # DAG querying
 def downstream(dag, node):
@@ -97,7 +99,9 @@ def upstream(dag, node):
 
 def query(dag, query=list()):
     result = topological_sort(dag)
-    if len(query) == 0:
+    if result.is_err:
+        return result
+    elif len(query) == 0:
         return Ok(result.value)
     else:
         topo_sort = result.value

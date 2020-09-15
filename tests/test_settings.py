@@ -1,7 +1,7 @@
 import json
 import pytest
 
-from sayn.app.config import read_settings, ConfigError
+from sayn.core.config import read_settings
 
 from . import create_project
 
@@ -27,8 +27,8 @@ credentials:
 """
 
     with create_project(tmpdir, settings=settings_yaml):
-        settings = read_settings()
-        assert settings.get_settings() == {
+        settings = read_settings().value
+        assert settings.get_settings().value == {
             "credentials": {"warehouse": {"type": "sqlite", "database": "dev.db"}},
             "parameters": None,
         }
@@ -48,8 +48,8 @@ credentials:
 """
 
     with create_project(tmpdir, settings=settings_yaml):
-        settings = read_settings()
-        assert settings.get_settings() == {
+        settings = read_settings().value
+        assert settings.get_settings().value == {
             "credentials": {"warehouse": {"type": "sqlite", "database": "dev.db"}},
             "parameters": None,
         }
@@ -76,8 +76,7 @@ credentials:
 """
 
     with create_project(tmpdir, settings=settings_yaml):
-        with pytest.raises(ConfigError):
-            read_settings()
+        assert read_settings().is_err
 
 
 def test_error_profile02(tmpdir):
@@ -101,8 +100,7 @@ credentials:
 """
 
     with create_project(tmpdir, settings=settings_yaml):
-        with pytest.raises(ConfigError):
-            read_settings()
+        assert read_settings().is_err
 
 
 def test_error_consistency_01(tmpdir):
@@ -119,8 +117,7 @@ credentials:
 """
 
     with create_project(tmpdir, settings=settings_yaml):
-        with pytest.raises(ConfigError):
-            read_settings()
+        assert read_settings().is_err
 
 
 def test_missing_props01(tmpdir):
@@ -132,8 +129,7 @@ credentials:
 """
 
     with create_project(tmpdir, settings=settings_yaml):
-        with pytest.raises(ConfigError):
-            read_settings()
+        assert read_settings().is_err
 
 
 def test_missing_props02(tmpdir):
@@ -145,8 +141,7 @@ profiles:
 """
 
     with create_project(tmpdir, settings=settings_yaml):
-        with pytest.raises(ConfigError):
-            read_settings()
+        assert read_settings().is_err
 
 
 def test_env_01(tmpdir):
@@ -156,8 +151,8 @@ def test_env_01(tmpdir):
     }
 
     with create_project(tmpdir, env=env):
-        settings = read_settings()
-        assert settings.get_settings() == {
+        settings = read_settings().value
+        assert settings.get_settings().value == {
             "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
             "parameters": {"param1": "value1"},
         }

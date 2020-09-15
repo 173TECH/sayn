@@ -1,6 +1,6 @@
 import pytest
 
-from sayn.app.common import get_query, TaskQueryError
+from sayn.utils.task_query import get_query
 
 
 tasks = {
@@ -15,7 +15,7 @@ tasks = {
 
 
 def test_simple01():
-    assert get_query(tasks, include=["task1"]) == [
+    assert get_query(tasks, include=["task1"]).value == [
         {
             "operation": "include",
             "task": "task1",
@@ -26,12 +26,11 @@ def test_simple01():
 
 
 def test_simple02():
-    with pytest.raises(TaskQueryError):
-        get_query(tasks, include=["task_undefined"])
+    assert get_query(tasks, include=["task_undefined"]).is_err
 
 
 def test_simple03():
-    assert get_query(tasks, include=["task2+"]) == [
+    assert get_query(tasks, include=["task2+"]).value == [
         {
             "operation": "include",
             "task": "task2",
@@ -42,13 +41,13 @@ def test_simple03():
 
 
 def test_simple04():
-    assert get_query(tasks, include=["+task4+"]) == [
+    assert get_query(tasks, include=["+task4+"]).value == [
         {"operation": "include", "task": "task4", "upstream": True, "downstream": True}
     ]
 
 
 def test_dag01():
-    assert get_query(tasks, include=["dag:dag1"]) == [
+    assert get_query(tasks, include=["dag:dag1"]).value == [
         {
             "operation": "include",
             "task": "task1",
@@ -65,7 +64,7 @@ def test_dag01():
 
 
 def test_tag01():
-    assert get_query(tasks, include=["tag:tag1"]) == [
+    assert get_query(tasks, include=["tag:tag1"]).value == [
         {
             "operation": "include",
             "task": "task2",
@@ -88,22 +87,19 @@ def test_tag01():
 
 
 def test_error_identifier01():
-    with pytest.raises(TaskQueryError):
-        get_query(tasks, include=["+_task_undefined"])
+    assert get_query(tasks, include=["+_task_undefined"]).is_err
 
 
 def test_error_identifier02():
-    with pytest.raises(TaskQueryError):
-        get_query(tasks, include=["tag:tag_undefined"])
+    assert get_query(tasks, include=["tag:tag_undefined"]).is_err
 
 
 def test_error_identifier03():
-    with pytest.raises(TaskQueryError):
-        get_query(tasks, include=["dag:dag_undefined"])
+    assert get_query(tasks, include=["dag:dag_undefined"]).is_err
 
 
 def test_full_query02():
-    assert get_query(tasks, include=["tag:tag1"], exclude=["dag:dag2"]) == [
+    assert get_query(tasks, include=["tag:tag1"], exclude=["dag:dag2"]).value == [
         {
             "operation": "include",
             "task": "task2",
@@ -142,7 +138,7 @@ def test_full_query03():
         tasks,
         include=["task1", "task2+", "tag:tag1", "+task2"],
         exclude=["dag:dag3", "+task3"],
-    ) == [
+    ).value == [
         {
             "operation": "include",
             "task": "task1",
