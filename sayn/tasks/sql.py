@@ -18,8 +18,9 @@ class Config(BaseModel):
 
 class SqlTask(Task):
     def setup(self, file_name):
-        print("adfadfaf")
-        self.config = Config(sql_folder=self.run_arguments["folders"]["sql"])
+        self.config = Config(
+            sql_folder=self.run_arguments["folders"]["sql"], file_name=file_name
+        )
 
         result = self.compile_obj(self.config.file_name)
         if result.is_err:

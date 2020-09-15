@@ -1,9 +1,10 @@
 from __future__ import annotations
-from datetime import datetime
-from typing import List, Dict, Any
 from copy import deepcopy
+from datetime import datetime
+import os
+from typing import List, Dict, Any
 
-from jinja2 import Environment, BaseLoader, StrictUndefined
+from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 from ..core.errors import Err, Exc, Ok, Result
 from ..utils.misc import map_nested
@@ -166,7 +167,7 @@ class TaskWrapper:
             if result.is_ok:
                 runner, runner_config = result.value
             else:
-                return self.setup_failed(result)
+                return failed(result)
 
             # Run the setup stage for the runner and return the results
             return setup_runner(runner, runner_config)
@@ -200,7 +201,9 @@ class TaskWrapper:
         # Create a jinja environment with the project parameters so that we
         # can use that to compile parameters and other properties
         jinja_env = Environment(
-            loader=BaseLoader, undefined=StrictUndefined, keep_trailing_newline=True,
+            loader=FileSystemLoader(os.getcwd()),
+            undefined=StrictUndefined,
+            keep_trailing_newline=True,
         )
         jinja_env.globals.update(task=self)
         jinja_env.globals.update(**env_arguments)

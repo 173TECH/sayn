@@ -8,10 +8,10 @@ from .sql import SqlTask
 
 
 class Source(BaseModel):
+    db_features: List[str]
+    db_type: str
     db_schema: Optional[str] = Field(None, alias="schema")
     table: str
-    _db_properties: List
-    _db_type: str
     all_dbs: List[str]
     db: str
 
@@ -24,17 +24,17 @@ class Source(BaseModel):
 
 
 class Destination(BaseModel):
+    db_features: List[str]
+    db_type: str
     tmp_schema: Optional[str]
     db_schema: Optional[str] = Field(None, alias="schema")
     table: str
-    _db_properties: List
-    _db_type: str
 
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
-        if v is not None:
+        if v is not None and "NO SET SCHEMA" in values["db_features"]:
             raise ValueError(
-                f'tmp_schema not supported for database of type {v["_db_type"]}'
+                f'tmp_schema not supported for database of type {values["db_type"]}'
             )
 
         return v
@@ -44,8 +44,8 @@ class Config(BaseModel):
     source: Source
     destination: Destination
     ddl: Optional[Dict[str, Any]]
-    incremental_key: Optional[str]
     delete_key: Optional[str]
+    incremental_key: Optional[str]
 
     @validator("incremental_key", always=True)
     def incremental_validation(cls, v, values):
@@ -59,8 +59,8 @@ class CopyTask(SqlTask):
     def setup(self, **config):
         config["source"].update(
             {
-                "_db_features": self.default_db.sql_features,
-                "_db_type": self.default_db.db_type,
+                "db_features": self.default_db.sql_features,
+                "db_type": self.default_db.db_type,
                 "all_dbs": [
                     n for n, c in self.connections.items() if isinstance(c, Database)
                 ],
@@ -68,8 +68,8 @@ class CopyTask(SqlTask):
         )
         config["destination"].update(
             {
-                "_db_features": self.default_db.sql_features,
-                "_db_type": self.default_db.db_type,
+                "db_features": self.default_db.sql_features,
+                "db_type": self.default_db.db_type,
             }
         )
         self.config = Config(**config)

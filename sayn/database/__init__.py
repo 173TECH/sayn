@@ -26,8 +26,7 @@ class DDL(BaseModel):
 
     @validator("columns")
     def columns_unique(cls, v, values):
-        print(v)
-        dupes = {k for k, v in Counter([e.name for e in v]) if v > 1}
+        dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
         if len(dupes) > 0:
             raise ValueError(f"Duplicate columns: {','.join(dupes)}")
         else:
@@ -35,7 +34,7 @@ class DDL(BaseModel):
 
     @validator("indexes")
     def index_columns_exists(cls, v, values):
-        cols = [c.name for c in values["columns"]]
+        cols = [c for i in v.values() for c in i.columns]
         if len(cols) > 0:
             missing_cols = group_list(
                 [
@@ -59,7 +58,7 @@ class DDL(BaseModel):
                 {"name": c} if isinstance(c, str) else c.dict() for c in self.columns
             ],
             "indexes": {k: v.dict() for k, v in self.indexes.items()},
-            "permissions": {k: v.dict() for k, v in self.permissions.items()},
+            "permissions": self.permissions,
         }
 
 

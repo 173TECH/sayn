@@ -8,16 +8,18 @@ from .sql import SqlTask
 
 
 class Destination(BaseModel):
+    db_features: List[str]
+    db_type: str
     tmp_schema: Optional[str]
     db_schema: Optional[str] = Field(None, alias="schema")
     table: str
-    _db_properties: List
-    _db_type: str
 
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
-        if v is not None:
-            raise ValueError(f"Temporary schemas not supported by {v['_db_type']}")
+        if v is not None and "NO SET SCHEMA" in values["db_features"]:
+            raise ValueError(
+                f'tmp_schema not supported for database of type {values["db_type"]}'
+            )
 
         return v
 
@@ -51,8 +53,8 @@ class AutoSqlTask(SqlTask):
         # TODO control this better
         config["destination"].update(
             {
-                "_db_features": self.default_db.sql_features,
-                "_db_type": self.default_db.db_type,
+                "db_features": self.default_db.sql_features,
+                "db_type": self.default_db.db_type,
             }
         )
         try:

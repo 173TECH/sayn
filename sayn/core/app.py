@@ -127,7 +127,8 @@ class App:
 
         for task_name, task in self._tasks_dict.items():
             task_tracker = self.tracker.get_task_logger(task_name)
-            task_tracker._report_event("start_stage")
+            if task_name in tasks_in_query:
+                task_tracker._report_event("start_stage")
             start_ts = datetime.now()
 
             self.tasks[task_name] = TaskWrapper()
@@ -143,9 +144,10 @@ class App:
                 self.python_loader,
             )
 
-            task_tracker._report_event(
-                "finish_stage", duration=datetime.now() - start_ts, result=result
-            )
+            if task_name in tasks_in_query:
+                task_tracker._report_event(
+                    "finish_stage", duration=datetime.now() - start_ts, result=result
+                )
 
         return Ok()
 
