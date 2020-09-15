@@ -190,8 +190,8 @@ class TaskWrapper:
         runner.run_arguments = run_arguments
         env_arguments = {
             "full_load": run_arguments["full_load"],
-            "start_dt": run_arguments["start_dt"].strftime("%Y-%m-%d"),
-            "end_dt": run_arguments["end_dt"].strftime("%Y-%m-%d"),
+            "start_dt": f"'{run_arguments['start_dt'].strftime('%Y-%m-%d')}'",
+            "end_dt": f"'{run_arguments['end_dt'].strftime('%Y-%m-%d')}'",
         }
 
         # Process parameters

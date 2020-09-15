@@ -50,7 +50,6 @@ class Config(BaseModel):
 
 class AutoSqlTask(SqlTask):
     def setup(self, **config):
-        # TODO control this better
         config["destination"].update(
             {
                 "db_features": self.default_db.sql_features,

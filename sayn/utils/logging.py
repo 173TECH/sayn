@@ -375,10 +375,7 @@ class LogFormatter:
                 "message": self.good(f"Took ({duration})"),
             }
         else:
-            return {
-                "level": "info",
-                "message": self.bad(f"Failed after ({duration})"),
-            }
+            return self.error_result(details["duration"], details["result"].error)
 
     def task_step_start(self, stage, task, step, step_order, total_steps, details):
         task_progress = f"[{step_order}/{total_steps}]"

@@ -138,17 +138,23 @@ class SqlTask(Task):
 
     def create_select(self, table, schema, select, ddl):
         if len(ddl.get("columns")) == 0:
-            self.default_db.create_table_select(
+            result = self.default_db.create_table_select(
                 table, schema, select, view=False, execute=True
             )
+            if result.is_err:
+                return result
         else:
             # create table with DDL and insert the output of the select
-            self.default_db.create_table_ddl(table, schema, ddl, execute=True)
+            result = self.default_db.create_table_ddl(table, schema, ddl, execute=True)
+            if result.is_err:
+                return result
 
             ddl_column_names = [c["name"] for c in ddl.get("columns")]
-            self.default_db.insert(
+            result = self.default_db.insert(
                 table, schema, select, columns=ddl_column_names, execute=True
             )
+            if result.is_err:
+                return result
 
         return Ok()
 
