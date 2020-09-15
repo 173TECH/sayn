@@ -101,7 +101,7 @@ class AutoSqlTask(SqlTask):
             and not self.run_arguments["full_load"]
             and self.default_db.table_exists(self.table, self.schema)
         ):  # Incremental load
-            steps.extend(["Cleanup", "Create Temp", "Merge", "Drop Temp"])
+            steps.extend(["Cleanup", "Create Temp", "Merge", "Cleanup"])
 
         else:  # Full load
             steps.extend(["Cleanup", "Create Temp"])
