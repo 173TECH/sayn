@@ -131,7 +131,10 @@ class CopyTask(SqlTask):
         return Ok()
 
     def run(self):
-        steps = ["Cleanup", "Create Temp DDL", "Create Indexes", "Load Data"]
+        steps = ["Cleanup", "Create Temp DDL"]
+        if len(self.ddl["indexes"]) > 0:
+            steps.append("Create Indexes")
+        steps.append("Load Data")
         if self.run_arguments["full_load"] or not self.default_db.table_exists(
             self.table, self.schema
         ):

@@ -105,9 +105,10 @@ class AutoSqlTask(SqlTask):
             steps.extend(["Cleanup", "Create Temp", "Merge", "Drop Temp"])
 
         else:  # Full load
-            steps.extend(
-                ["Cleanup", "Create Temp", "Create Indexes", "Drop Target", "Move"]
-            )
+            steps.extend(["Cleanup", "Create Temp"])
+            if len(self.ddl["indexes"]) > 0:
+                steps.append("Create Indexes")
+            steps.extend(["Drop Target", "Move"])
 
         if "permissions" in self.ddl:
             steps.append("Grant Permissions")
