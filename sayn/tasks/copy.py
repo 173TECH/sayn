@@ -132,10 +132,12 @@ class CopyTask(SqlTask):
 
     def run(self):
         steps = ["Cleanup", "Create Temp DDL", "Create Indexes", "Load Data"]
-        if self.default_db.table_exists(self.table, self.schema):
-            steps.extend(["Merge"])
-        else:
+        if self.run_arguments["full_load"] or not self.default_db.table_exists(
+            self.table, self.schema
+        ):
             steps.extend(["Move", "Grant Permissions"])
+        else:
+            steps.extend(["Merge"])
 
         return self.execute_steps(steps)
 
