@@ -78,7 +78,7 @@ class SqlTask(Task):
 
         elif step == "Create Indexes":
             return self.default_db.create_indexes(
-                self.table, self.schema, self.ddl, execute=True
+                self.tmp_table, self.tmp_schema, self.ddl, execute=True
             )
 
         elif step == "Merge":
@@ -164,7 +164,11 @@ class SqlTask(Task):
         ddl,
     ):
         # Get the incremental value
-        if incremental_key is None or not self.default_db.table_exists(table, schema):
+        if (
+            incremental_key is None
+            or self.run_arguments["full_load"]
+            or not self.default_db.table_exists(table, schema)
+        ):
             last_incremental_value = None
         else:
             res = self.default_db.select(

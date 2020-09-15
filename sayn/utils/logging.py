@@ -242,6 +242,10 @@ class LogFormatter:
                 ]
             )
 
+        elif error.code == "sql_execution_error" and "message" in error.details:
+            level = "error"
+            message = self.bad(error.details["message"])
+
         return {
             "level": level,
             "message": message,
@@ -371,7 +375,10 @@ class LogFormatter:
                 "message": self.good(f"Took ({duration})"),
             }
         else:
-            return self.error_result(duration, details["result"].error)
+            return {
+                "level": "info",
+                "message": self.bad(f"Failed after ({duration})"),
+            }
 
     def task_step_start(self, stage, task, step, step_order, total_steps, details):
         task_progress = f"[{step_order}/{total_steps}]"
@@ -400,7 +407,7 @@ class LogFormatter:
                 ),
             }
         else:
-            return self.unhandled("finish_step", "task", stage, details)
+            return self.error_result(details["duration"], details["result"].error)
 
 
 class Logger:

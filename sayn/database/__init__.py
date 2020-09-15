@@ -2,7 +2,7 @@ from collections import Counter
 from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, validator
-from sqlalchemy import MetaData, Table
+from sqlalchemy import MetaData, Table, exc
 
 from ..core.errors import Err, Exc, Ok
 
@@ -103,6 +103,15 @@ class Database:
             with self.engine.connect().execution_options(autocommit=True) as connection:
                 connection.execute(script)
             result = Ok()
+        except exc.ProgrammingError as e:
+            result = Err(
+                "database_error",
+                "sql_execution_error",
+                message="\n ".join([s.strip() for s in e.args]),
+                exception=e,
+                db=self.name,
+                script=script,
+            )
         except Exception as e:
             result = Err(
                 "database_error",
@@ -286,7 +295,9 @@ class Database:
             q += f"CREATE {table_or_view}{if_not_exists} {table} AS (\n{select}\n);"
 
         if execute:
-            self.execute(q)
+            result = self.execute(q)
+            if result.is_err:
+                return result
 
         return Ok(q)
 
@@ -329,7 +340,9 @@ class Database:
         q += f"CREATE TABLE{if_not_exists} {table} (\n      {columns}\n);"
 
         if execute:
-            self.execute(q)
+            result = self.execute(q)
+            if result.is_err:
+                return result
 
         return Ok(q)
 
@@ -366,7 +379,9 @@ class Database:
         )
 
         if execute:
-            self.execute(q)
+            result = self.execute(q)
+            if result.is_err:
+                return result
 
         return Ok(q)
 
@@ -389,7 +404,9 @@ class Database:
         )
 
         if execute:
-            self.execute(q)
+            result = self.execute(q)
+            if result.is_err:
+                return result
 
         return Ok(q)
 
@@ -415,7 +432,9 @@ class Database:
             q += ";"
 
         if execute:
-            self.execute(q)
+            result = self.execute(q)
+            if result.is_err:
+                return result
 
         return Ok(q)
 
@@ -446,7 +465,9 @@ class Database:
             q = f"INSERT INTO {table} {columns} (\n{select}\n);"
 
         if execute:
-            self.execute(q)
+            result = self.execute(q)
+            if result.is_err:
+                return result
 
         return Ok(q)
 
@@ -496,7 +517,9 @@ class Database:
         q = "\n".join([rename, change_schema] + idx_alter)
 
         if execute:
-            self.execute(q)
+            result = self.execute(q)
+            if result.is_err:
+                return result
 
         return Ok(q)
 
@@ -548,6 +571,8 @@ class Database:
         q = "\n".join((delete, insert))
 
         if execute:
-            self.execute(q)
+            result = self.execute(q)
+            if result.is_err:
+                return result
 
         return Ok(q)

@@ -135,7 +135,7 @@ class CopyTask(SqlTask):
         if self.run_arguments["full_load"] or not self.default_db.table_exists(
             self.table, self.schema
         ):
-            steps.extend(["Move", "Grant Permissions"])
+            steps.extend(["Drop Target", "Move", "Grant Permissions"])
         else:
             steps.extend(["Merge"])
 
