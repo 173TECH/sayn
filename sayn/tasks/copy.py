@@ -86,6 +86,8 @@ class CopyTask(SqlTask):
         self.delete_key = self.config.delete_key
         self.incremental_key = self.config.incremental_key
 
+        self.is_full_load = self.run_arguments["full_load"] or self.delete_key is None
+
         result = self.default_db.validate_ddl(self.config.ddl)
         if result.is_ok:
             self.ddl = result.value
@@ -135,7 +137,7 @@ class CopyTask(SqlTask):
         if len(self.ddl["indexes"]) > 0:
             steps.append("Create Indexes")
         steps.append("Load Data")
-        if self.run_arguments["full_load"] or not self.default_db.table_exists(
+        if self.is_full_load or not self.default_db.table_exists(
             self.table, self.schema
         ):
             steps.extend(["Drop Target", "Move", "Grant Permissions"])
