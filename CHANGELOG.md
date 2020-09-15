@@ -1,5 +1,17 @@
 # Change Log
 
+## Upcoming
+
+### Changed
+
+- Switched to pydantic for project validation
+- Removed Config and Dag objects and split that functionality into separate modules improving the ability for automated testing
+- Created an App object to encapsulate most of the the running logic
+- Created a TaskWrapper object to isolate the task lifetime logic from the execution
+- Added new Result type for error reporting
+- Switched from standard python logging to an event reporting model
+- Majjor changes to console UI
+
 ## [0.3.0] - 2020-07-29
 
 ### Changed
