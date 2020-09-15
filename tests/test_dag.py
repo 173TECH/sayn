@@ -1,5 +1,3 @@
-import pytest
-
 from sayn.utils import dag
 
 
@@ -150,3 +148,18 @@ def test_cycle05():
             }
         ],
     ).is_err
+
+
+def test_query06():
+    test_dag = {"task1": ["task2", "task3"], "task2": ["task3"], "task3": []}
+    assert dag.query(
+        test_dag,
+        [
+            {
+                "operation": "exclude",
+                "task": "task3",
+                "downstream": False,
+                "upstream": False,
+            }
+        ],
+    ).value == ["task2", "task1"]

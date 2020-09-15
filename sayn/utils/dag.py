@@ -107,7 +107,10 @@ def query(dag, query=list()):
         topo_sort = result.value
 
     query = sorted(query, key=lambda x: 0 if x["operation"] == "include" else 1)
-    to_include = set()
+    if query[0]["operation"] == "include":
+        to_include = set()
+    else:
+        to_include = set(topo_sort)
     query_cache = dict()
 
     for operand in query:

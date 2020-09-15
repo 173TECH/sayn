@@ -62,6 +62,11 @@ class Task:
 
     # Status methods
 
+    def ready(self):
+        """Returned on successful execution
+        """
+        return Ok()
+
     def success(self):
         """Returned on successful execution
         """

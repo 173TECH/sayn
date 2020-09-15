@@ -94,7 +94,7 @@ class AutoSqlTask(SqlTask):
         steps = ["Write Query"]
 
         if self.materialisation == "view":  # View
-            steps.extend(["Cleanup", "Create View"])
+            steps.extend(["Drop Target", "Create View"])
 
         elif (
             self.materialisation == "incremental"

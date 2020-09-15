@@ -202,6 +202,13 @@ class LogFormatter:
                 f"A cycle was detected in the dag: {' > '.join(error.details['path'])}"
             )
 
+        elif error.kind == "dag" and error.code == "missing_parents":
+            level = "error"
+            message = ["Some parents are missing from dag"] + [
+                self.red(f"In task {self.bright(task)}: {', '.join(parents)}")
+                for task, parents in error.details["missing"].items()
+            ]
+
         elif error.code == "wrong_credentials":
             level = "error"
             message = self.bad(
