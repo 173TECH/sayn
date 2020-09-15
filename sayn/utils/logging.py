@@ -196,6 +196,12 @@ class LogFormatter:
                 ]
             )
 
+        elif error.kind == "dag" and error.code == "cycle_error":
+            level = "error"
+            message = self.bad(
+                f"A cycle was detected in the dag: {' > '.join(error.details['path'])}"
+            )
+
         elif error.code == "wrong_credentials":
             level = "error"
             message = self.bad(

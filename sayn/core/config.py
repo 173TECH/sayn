@@ -271,7 +271,9 @@ def get_presets(global_presets, dags):
         # global dag
         dag_presets_dag = {
             f"{dag_name}:{k}": [
-                f"{dag_name}:{v}" if v in dag_presets_dag else f"sayn_global:{v}"
+                f"{dag_name}:{v}"
+                if v in dag_presets_dag and v != k
+                else f"sayn_global:{v}"
             ]
             if v is not None
             else []
@@ -281,9 +283,11 @@ def get_presets(global_presets, dags):
 
     # 1.3. The preset references represent a dag that we need to validate, ensuring
     #      there are no cycles and that all references exists
-    topo_sort = topological_sort(presets_dag)
-    if topo_sort.is_err:
-        return topo_sort
+    result = topological_sort(presets_dag)
+    if result.is_err:
+        return result
+    else:
+        topo_sort = result.value
 
     # 1.4. Merge the presets with the reference preset, so that we have 1 dictionary
     #      per preset a task could reference
@@ -292,7 +296,7 @@ def get_presets(global_presets, dags):
             [presets_info[p] for p in upstream(presets_dag, name).value]
             + [presets_info[name]]
         )
-        for name in topo_sort.value
+        for name in topo_sort
     }
 
     return Ok(presets)
@@ -332,7 +336,11 @@ def get_tasks_dict(global_presets, dags):
       global_presets (dict): a dictionary with the presets as defined in project.yaml
       dags (sayn.common.config.Dag): a list of dags from the dags/ folder
     """
-    presets = get_presets(global_presets, dags)
+    result = get_presets(global_presets, dags)
+    if result.is_err:
+        return result
+    else:
+        presets = result.value
 
     errors = dict()
     tasks = dict()
