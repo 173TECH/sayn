@@ -261,14 +261,10 @@ class TaskWrapper:
             failed_parents = {
                 p.name: p.status
                 for p in self.parents
-                if p.status
-                not in (
-                    TaskStatus.NOT_IN_QUERY,
-                    TaskStatus.READY,
-                    TaskStatus.SUCCEEDED,
-                )
+                if p.status not in (TaskStatus.NOT_IN_QUERY, TaskStatus.SUCCEEDED,)
             }
             if len(failed_parents) > 0:
+                self.status = TaskStatus.SKIPPED
                 return Err("execution", "parent_errors", failed_parents=failed_parents)
 
             try:

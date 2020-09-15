@@ -227,6 +227,10 @@ class LogFormatter:
                 f'Connections {self.bright(", ".join(error.details["credentials"]))} have no type'
             )
 
+        elif error.kind == "tasks" and error.code == "task_fail":
+            level = "error"
+            message = self.bad(error.details["message"])
+
         elif error.code == "parent_errors":
             level = "warning"
             message = self.warn(f"Skipping due to parent errors ({duration})")
