@@ -45,7 +45,7 @@ default_profile: dev
 profiles:
   dev:
     credentials:
-      warehouse: test_db
+      warehouse: dev_db
     parameters:
       user_prefix: sg_
   prod:
@@ -55,9 +55,9 @@ profiles:
       user_prefix: '' #no prefix for prod
 
 credentials:
-  test_db:
+  dev_db:
     type: sqlite
-    database: test.db
+    database: dev.db
   prod_db:
     type: sqlite
     database: prod.db
@@ -100,9 +100,9 @@ class LoadData(PythonTask):
            logging.error(e)
 
        if err:
-           return self.failed()
+           return self.fail()
        else:
-           return self.ready()
+           return self.success()
 
     def run(self):
 
@@ -320,7 +320,7 @@ You can now test running `sayn run` or `sayn -p prod`. The two options will do t
 
 * `sayn run`:
     * use our `dev` profile
-    * create all tables into a `test.db` database
+    * create all tables into a `dev.db` database
     * prefix all tables with `sg_` and read from `sg_` prefixed tables
 * `sayn run -p prod`:
     * use our `prod` profile
