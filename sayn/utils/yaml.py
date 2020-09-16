@@ -1,3 +1,5 @@
+# TODO Module using strictyaml. To be removed once dbs are migrated to pydantic
+
 from strictyaml import (
     Bool,
     Map,
@@ -14,7 +16,6 @@ from strictyaml import (
     EmptyDict,
 )
 from strictyaml import YAMLValidationError as ValidationError
-from ..utils.ui import UI
 
 
 class Identifier(Regex):
@@ -43,18 +44,3 @@ class CaseInsensitiveEnum(Enum):
             self._item_validator, ScalarValidator
         ), "item validator must be scalar too"
         self._restricted_to = [i.lower() for i in restricted_to]
-
-
-def load(path):
-    if not path.is_file():
-        UI()._spinner_error(f"No {path.name} found")
-        return
-    else:
-        from strictyaml import load
-
-        try:
-            return load(path.read_text())
-        except ValidationError as e:
-            UI()._spinner_error(f"Error reading {path.name}")
-            UI()._spinner_error(f"{e}")
-            return

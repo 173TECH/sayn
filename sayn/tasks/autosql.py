@@ -1,109 +1,115 @@
+from pathlib import Path
+from typing import Dict, Any, List, Optional
+
+from pydantic import BaseModel, Field, FilePath, validator
+
+from ..core.errors import Exc, Ok
 from .sql import SqlTask
-from .task import TaskStatus
-from ..utils.ui import UI
+
+
+class Destination(BaseModel):
+    db_features: List[str]
+    db_type: str
+    tmp_schema: Optional[str]
+    db_schema: Optional[str] = Field(None, alias="schema")
+    table: str
+
+    @validator("tmp_schema")
+    def can_use_tmp_schema(cls, v, values):
+        if v is not None and "NO SET SCHEMA" in values["db_features"]:
+            raise ValueError(
+                f'tmp_schema not supported for database of type {values["db_type"]}'
+            )
+
+        return v
+
+
+class Config(BaseModel):
+    sql_folder: Path
+    file_name: FilePath
+    delete_key: Optional[str]
+    materialisation: str
+    destination: Destination
+    ddl: Optional[Dict[str, Any]]
+
+    @validator("file_name", pre=True)
+    def file_name_plus_folder(cls, v, values):
+        return Path(values["sql_folder"], v)
+
+    @validator("materialisation")
+    def incremental_has_delete_key(cls, v, values):
+        if v not in ("table", "view", "incremental"):
+            raise ValueError(f'"{v}". Valid materialisations: table, view, incremental')
+        elif v != "incremental" and values.get("delete_key") is not None:
+            raise ValueError('"delete_key" is invalid in non-incremental loads')
+        elif v == "incremental" and values.get("delete_key") is None:
+            raise ValueError('"delete_key" is required for incremental loads')
+        else:
+            return v
 
 
 class AutoSqlTask(SqlTask):
-    # Core
+    def setup(self, **config):
+        config["destination"].update(
+            {
+                "db_features": self.default_db.sql_features,
+                "db_type": self.default_db.db_type,
+            }
+        )
+        try:
+            self.config = Config(
+                sql_folder=self.run_arguments["folders"]["sql"], **config
+            )
+        except Exception as e:
+            return Exc(e)
 
-    def setup(self):
-        self.db = self.sayn_config.default_db
+        self.materialisation = self.config.materialisation
+        self.tmp_schema = self.config.destination.tmp_schema
+        self.schema = self.config.destination.db_schema
+        self.table = self.config.destination.table
+        self.tmp_table = f"sayn_tmp_{self.table}"
+        self.delete_key = self.config.delete_key
 
-        status = self._setup_file_name()
-        if status != TaskStatus.READY:
-            return self.failed()
+        result = self.default_db.validate_ddl(self.config.ddl)
+        if result.is_err:
+            return result
+        else:
+            self.ddl = result.value
 
-        self.template = self._get_query_template()
-        if self.template is None:
-            return self.failed()
+        result = self.get_template(self.config.file_name)
+        if result.is_err:
+            return result
+        else:
+            self.template = result.value
 
-        status = self._setup_materialisation()
-        if status != TaskStatus.READY:
-            return status
+        result = self.compile_obj(self.template)
+        if result.is_err:
+            return result
+        else:
+            self.sql_query = result.value
 
-        status = self._setup_destination()
-        if status != TaskStatus.READY:
-            return status
-
-        status = self._setup_ddl()
-        if status != TaskStatus.READY:
-            return status
-
-        status = self._setup_query()
-        if status != TaskStatus.READY:
-            return status
-
-        return self._check_extra_fields()
+        return Ok()
 
     def run(self):
-        # Compilation
-        UI().debug("Writting query on disk...")
-        self.compile()
+        steps = ["Write Query"]
 
-        # Execution
-        UI().debug("Executing AutoSQL task...")
+        if self.materialisation == "view":  # View
+            steps.extend(["Drop Target", "Create View"])
 
-        if self.materialisation == "view":
-            self._exeplan_drop(self.table, self.schema, view=True)
-            self._exeplan_create(
-                self.table, self.schema, select=self.sql_query, view=True
-            )
-        elif self.materialisation == "table" or (
+        elif (
             self.materialisation == "incremental"
-            and (
-                self.sayn_config.options["full_load"] is True
-                or self.db.table_exists(self.table, self.schema) is False
-            )
-        ):
-            self._exeplan_drop(self.tmp_table, self.tmp_schema)
-            self._exeplan_create(
-                self.tmp_table, self.tmp_schema, select=self.sql_query, ddl=self.ddl
-            )
-            self._exeplan_create_indexes(self.tmp_table, self.tmp_schema, ddl=self.ddl)
-            self._exeplan_drop(self.table, self.schema)
-            self._exeplan_move(
-                self.tmp_table, self.tmp_schema, self.table, self.schema, ddl=self.ddl
-            )
-        else:  # incremental not full refresh or incremental table exists
-            self._exeplan_drop(self.tmp_table, self.tmp_schema)
-            self._exeplan_create(
-                self.tmp_table, self.tmp_schema, select=self.sql_query, ddl=self.ddl
-            )
-            self._exeplan_merge(
-                self.tmp_table,
-                self.tmp_schema,
-                self.table,
-                self.schema,
-                self.delete_key,
-                ddl=self.ddl,
-            )
-            self._exeplan_drop(self.tmp_table, self.tmp_schema)
+            and not self.run_arguments["full_load"]
+            and self.default_db.table_exists(self.table, self.schema)
+        ):  # Incremental load
+            steps.extend(["Cleanup", "Create Temp", "Merge", "Cleanup"])
 
-        # permissions
-        self._exeplan_set_permissions(self.table, self.schema, ddl=self.ddl)
+        else:  # Full load
+            steps.extend(["Cleanup", "Create Temp"])
+            if len(self.ddl["indexes"]) > 0:
+                steps.append("Create Indexes")
+            steps.extend(["Drop Target", "Move"])
 
-        return self.success()
+        if "permissions" in self.ddl:
+            steps.append("Grant Permissions")
 
-    # Task property methods - SETUP
-
-    def _setup_materialisation(self):
-        # Type of materialisation
-        self.materialisation = self._pop_property("materialisation")
-        if self.materialisation is None:
-            return self.failed(
-                '"materialisation" is a required field (values: table, incremental, view)'
-            )
-        elif not isinstance(self.materialisation, str) or self.materialisation not in (
-            "table",
-            "incremental",
-            "view",
-        ):
-            return self.failed(
-                'Accepted "materialisation" values: table, incremental, view)'
-            )
-        elif self.materialisation == "incremental":
-            self.delete_key = self._pop_property("delete_key")
-            if self.delete_key is None:
-                return self.failed("Incremental materialisation requires delete_key")
-
-        return TaskStatus.READY
+        return self.execute_steps(steps)

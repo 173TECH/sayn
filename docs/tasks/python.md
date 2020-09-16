@@ -35,9 +35,9 @@ class TaskPython(PythonTask):
         #code doing setup
         err = False
         if err:
-            return self.failed()
+            return self.fail()
         else:
-            return self.ready()
+            return self.success()
 
     def run(self):
         err = False
@@ -45,7 +45,7 @@ class TaskPython(PythonTask):
         #code you want to run
 
         if err:
-          return self.failed()
+          return self.fail()
         else:
           return self.success()
 ```
@@ -55,9 +55,9 @@ As you can observe, writing a `python` task requires the following:
 * import the `PythonTask` class from `sayn`.
 * define the class you want the task to run. The task should inherit from `PythonTask`.
 * the class you define can overwrite the following methods (those methods need to follow a specific signature and **you should only pass `self` as argument**):
-    * `setup`: runs when setting up the task. It should return `self.failed()` if an error has occurred otherwise `self.ready()`.
-    * `compile`: runs when compiling the task. It should return `self.failed()` if an error has occurred otherwise `self.success()`.
-    * `run`: runs when executing the task. It should return `self.failed()` if an error has occurred otherwise `self.success()`.
+    * `setup`: runs when setting up the task. It should return `self.fail()` if an error has occurred otherwise `self.success()`.
+    * `compile`: runs when compiling the task. It should return `self.fail()` if an error has occurred otherwise `self.success()`.
+    * `run`: runs when executing the task. It should return `self.fail()` if an error has occurred otherwise `self.success()`.
 
 ### Using the SAYN API
 

@@ -21,10 +21,10 @@ Running `sayn run` will output logging on your terminal about the process being 
 
 * SAYN will run all project tasks. Those are all in the DAG file `dags/base.yaml`.
 * The tasks include:
-    * One `python` task which creates some logs and stores them into several log tables within a `test.db` SQLite database. This database is created in your project's folder root.
+    * One `python` task which creates some logs and stores them into several log tables within a `dev.db` SQLite database. This database is created in your project's folder root.
     * Several `autosql` tasks which create data models including tables and views based on those logs.
 
-You can open `test.db` and see the tables and views created by `sayn run`. You can use [DB Browser for SQLite](https://sqlitebrowser.org/dl/){target="\_blank"} in order to view the content of the database. As you can observe, `sayn run` created a small ETL process which models battles from various tournaments.
+You can open `dev.db` and see the tables and views created by `sayn run`. You can use [DB Browser for SQLite](https://sqlitebrowser.org/dl/){target="\_blank"} in order to view the content of the database. As you can observe, `sayn run` created a small ETL process which models battles from various tournaments.
 
 That's it, you made your first SAYN run! We will now explain what happens in the background.
 
@@ -105,15 +105,15 @@ default_profile: dev
 profiles:
   dev:
     credentials:
-      warehouse: test_db
+      warehouse: dev_db
   prod:
     credentials:
       warehouse: prod_db
 
 credentials:
-  test_db:
+  dev_db:
     type: sqlite
-    database: test.db
+    database: dev.db
   prod_db:
     type: sqlite
     database: prod.db

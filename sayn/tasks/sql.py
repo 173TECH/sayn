@@ -1,239 +1,206 @@
 from pathlib import Path
 
-from .task import Task, TaskStatus
-from ..utils import yaml
-from ..utils.ui import UI
+from pydantic import BaseModel, FilePath, validator
+from sqlalchemy import or_, select
+
+from ..core.errors import Err, Ok
+from . import Task
+
+
+class Config(BaseModel):
+    sql_folder: Path
+    file_name: FilePath
+
+    @validator("file_name", pre=True)
+    def file_name_plus_folder(cls, v, values):
+        return Path(values["sql_folder"], v)
 
 
 class SqlTask(Task):
-    def setup(self):
-        self.db = self.sayn_config.default_db
+    def setup(self, file_name):
+        self.config = Config(
+            sql_folder=self.run_arguments["folders"]["sql"], file_name=file_name
+        )
 
-        status = self._setup_file_name()
-        if status != TaskStatus.READY:
-            return status
+        result = self.compile_obj(self.config.file_name)
+        if result.is_err:
+            return result
+        else:
+            self.sql_query = result.value
 
-        self.template = self._get_query_template()
-        if self.template is None:
-            return self.failed()
-
-        status = self._setup_query()
-        if status != TaskStatus.READY:
-            return status
-
-        return self._check_extra_fields()
+        return Ok()
 
     def run(self):
-        UI().debug("Writting query on disk...")
-
-        self._write_query(self.sql_query)
-        if self.status == TaskStatus.FAILED:
-            return self.failed()
-
-        UI().debug("Executing SQL task...")
-
-        try:
-            self.db.execute(self.sql_query)
-        except Exception as e:
-            return self.failed(
-                ("Error running query", f"{e}", f"Query: {self.sql_query}")
-            )
-
-        return self.success()
+        return self.execute_steps(["Write Query", "Execute Query"])
 
     def compile(self):
-        try:
-            self._write_query(self.sql_query)
-        except Exception as e:
-            return self.failed(("Error saving query on disk", f"{e}"))
+        return self.execute_steps(["Write Query"])
 
-        return self.success()
+    def execute_steps(self, steps):
+        self.set_run_steps(steps)
 
-    # Task property methods - SETUP
+        for step in steps:
+            self.start_step(step)
+            result = self.execute_step(step)
+            self.finish_current_step(result)
+            if result.is_err:
+                return result
 
-    def _setup_file_name(self):
-        # file_name pointint to the code for the sql task
-        self.file_name = self._pop_property("file_name")
-        if self.file_name is None:
-            return self.failed('"file_name" is a required field')
-        else:
-            self.file_name = self.compile_property(self.file_name)
+        return Ok()
 
-        return TaskStatus.READY
+    def execute_step(self, step):
+        if step == "Execute Query":
+            return self.default_db.execute(self.sql_query)
 
-    def _get_query_template(self):
-        path = Path(self.sayn_config.sql_path, self.compile_property(self.file_name))
+        elif step == "Write Query":
+            return self.write_compilation_output(self.sql_query)
 
-        if not path.is_file():
-            UI().error(f"{path}: file not found")
-            return
+        elif step == "Cleanup":
+            return self.drop(self.tmp_table, self.tmp_schema)
 
-        return self.sayn_config.jinja_env.get_template(str(path))
+        elif step == "Drop Target":
+            return self.drop(self.table, self.schema)
 
-    def _setup_destination(self):
-        # Destination property indicating the table this will create
-        destination = self._pop_property(
-            "destination", default={"tmp_schema": None, "schema": None}
-        )
-
-        self.schema = destination.pop("schema", None)
-        if self.schema is not None and isinstance(self.schema, str):
-            self.schema = self.compile_property(self.schema)
-        elif self.schema is not None:
-            return self.failed('Optional property "schema" must be a string')
-
-        self.tmp_schema = destination.pop("tmp_schema", None)
-        if "NO SET SCHEMA" in self.db.sql_features and self.tmp_schema is not None:
-            return self.failed(
-                f'"tmp_schema" not supported for database of type "{self.db.db_type}"'
-            )
-        elif self.tmp_schema is not None and isinstance(self.tmp_schema, str):
-            self.tmp_schema = self.compile_property(self.tmp_schema)
-        elif self.tmp_schema is not None:
-            return self.failed('Optional property "tmp_schema" must be a string')
-        else:
-            self.tmp_schema = self.schema
-
-        if (
-            set(destination.keys()) == set(["table"])
-            and destination["table"] is not None
-        ):
-            self.table = self.compile_property(destination.pop("table"))
-            self.tmp_table = f"sayn_tmp_{self.table}"
-        else:
-            return self.failed(
-                'Destination requires "table" field. Optional fields: tmp_schema and schema.'
+        elif step == "Create Temp":
+            return self.create_select(
+                self.tmp_table, self.tmp_schema, self.sql_query, self.ddl
             )
 
-        return TaskStatus.READY
+        elif step == "Create Temp DDL":
+            return self.default_db.create_table_ddl(
+                self.tmp_table, self.tmp_schema, self.ddl, execute=True
+            )
 
-    def _setup_ddl(self, type_required=True):
-        ddl = self._pop_property("ddl")
-        if ddl is not None:
-            if isinstance(ddl, str):
-                # TODO external file not implemented
-                # parsed = yaml.load(self.compile_property(ddl))
-                raise ValueError("External file for ddl not implemented")
+        elif step == "Create View":
+            return self.default_db.create_table_select(
+                self.table, self.schema, self.sql_query, view=True, execute=True
+            )
 
-            self.ddl = self.db.validate_ddl(ddl, type_required=type_required)
+        elif step == "Create Indexes":
+            return self.default_db.create_indexes(
+                self.tmp_table, self.tmp_schema, self.ddl, execute=True
+            )
 
-            if self.ddl is None:
-                return self.failed("Error processing DDL")
-            else:
-                return TaskStatus.READY
+        elif step == "Merge":
+            return self.default_db.merge_tables(
+                self.tmp_table,
+                self.tmp_schema,
+                self.table,
+                self.schema,
+                self.delete_key,
+                execute=True,
+            )
+
+        elif step == "Move":
+            return self.default_db.move_table(
+                self.tmp_table,
+                self.tmp_schema,
+                self.table,
+                self.schema,
+                self.ddl,
+                execute=True,
+            )
+
+        elif step == "Grant Permissions":
+            return self.default_db.grant_permissions(
+                self.table, self.schema, self.ddl["permissions"], execute=True
+            )
+
+        elif step == "Load Data":
+            return self.load_data(
+                self.source_table_def,
+                self.source_db,
+                self.table,
+                self.schema,
+                self.tmp_table,
+                self.tmp_schema,
+                self.incremental_key,
+                self.ddl,
+            )
 
         else:
-            self.ddl = dict()
-            return TaskStatus.READY
+            return Err("task_execution", "unknown_step", step=step)
 
-    def _setup_query(self):
-        # Retrieve the select statement compiled with jinja
+    # SQL execution steps methods
+
+    def drop(self, table, schema):
         try:
-            self.sql_query = self.template.render(**self.parameters)
-        except Exception as e:
-            return self.failed(f"Error compiling template\n{e}")
-
-        return TaskStatus.READY
-
-    # Task property methods - EXECUTION
-
-    def _exeplan_drop(self, table, schema, view=False):
-        UI().debug(
-            "Dropping {name}...".format(
-                name=f"{'' if schema is None else schema +'.'}{table}"
-            )
-        )
-        stop = False
-        try:
-            drop1 = self.db.drop_table(table, schema, view=view)
-            self.db.execute(drop1)
-            stop = True
+            self.default_db.drop_table(table, schema, view=False, execute=True)
         except:
             pass
 
-        if stop is False:
-            try:
-                drop2 = self.db.drop_table(table, schema, view=not view)
-                self.db.execute(drop2)
-            except:
-                pass
+        try:
+            self.default_db.drop_table(table, schema, view=True, execute=True)
+        except:
+            pass
 
-    def _exeplan_create(self, table, schema, select=None, view=False, ddl=dict()):
-        UI().debug(
-            "Creating {table_or_view} {name}...".format(
-                table_or_view="view" if view is True else "table",
-                name=f"{'' if schema is None else schema +'.'}{table}",
+        return Ok()
+
+    def create_select(self, table, schema, select, ddl):
+        if len(ddl.get("columns")) == 0:
+            result = self.default_db.create_table_select(
+                table, schema, select, view=False, execute=True
             )
-        )
-        if ddl.get("columns") is None:
-            create = self.db.create_table_select(table, schema, select, view=view)
-            self.db.execute(create)
+            if result.is_err:
+                return result
         else:
-            ddl_column_names = [c["name"] for c in ddl.get("columns")]
             # create table with DDL and insert the output of the select
-            create = self.db.create_table_ddl(table, schema, ddl)
-            self.db.execute(create)
-            if select is not None:
-                # we need to reshape the query to ensure that the columns are always in the right order
-                insert = self.db.insert(table, schema, select, columns=ddl_column_names)
-                self.db.execute(insert)
+            result = self.default_db.create_table_ddl(table, schema, ddl, execute=True)
+            if result.is_err:
+                return result
 
-    def _exeplan_create_indexes(self, table, schema, ddl=dict()):
-        if ddl.get("indexes") is not None:
-            UI().debug(
-                "Creating indexes on table {name}...".format(
-                    name=f"{'' if self.schema is None else self.schema +'.'}{self.table}"
-                )
+            ddl_column_names = [c["name"] for c in ddl.get("columns")]
+            result = self.default_db.insert(
+                table, schema, select, columns=ddl_column_names, execute=True
             )
-            indexes = self.db.create_indexes(table, schema, ddl)
-            self.db.execute(indexes)
+            if result.is_err:
+                return result
 
-    def _exeplan_move(self, src_table, src_schema, dst_table, dst_schema, ddl=dict()):
-        UI().debug(
-            "Moving table {src_name} to {dst_name}...".format(
-                src_name=f"{'' if src_schema is None else src_schema +'.'}{src_table}",
-                dst_name=f"{'' if dst_schema is None else dst_schema +'.'}{dst_table}",
-            )
-        )
-        move = self.db.move_table(src_table, src_schema, dst_table, dst_schema, ddl)
-        self.db.execute(move)
+        return Ok()
 
-    def _exeplan_merge(
-        self, tmp_table, tmp_schema, table, schema, delete_key, ddl=dict()
+    def load_data(
+        self,
+        source_table_def,
+        source_db,
+        table,
+        schema,
+        tmp_table,
+        tmp_schema,
+        incremental_key,
+        ddl,
     ):
-        UI().debug(
-            "Merging into table {name}...".format(
-                name=f"{'' if schema is None else schema +'.'}{table}"
-            )
-        )
-        columns = [c["name"] for c in ddl.get("columns")]
-        merge = self.db.merge_tables(
-            tmp_table, tmp_schema, table, schema, delete_key, columns=columns
-        )
-        self.db.execute(merge)
-
-    def _exeplan_set_permissions(self, table, schema, ddl=dict()):
-        if ddl.get("permissions") is not None:
-            UI().debug(
-                "Setting permissions on {name}...".format(
-                    name=f"{'' if schema is None else schema +'.'}{table}"
+        # Get the incremental value
+        if (
+            incremental_key is None
+            or self.run_arguments["full_load"]
+            or not self.default_db.table_exists(table, schema)
+        ):
+            last_incremental_value = None
+        else:
+            res = self.default_db.select(
+                (
+                    f"SELECT MAX({incremental_key}) AS value\n"
+                    f"FROM {'' if schema is None else schema +'.'}{table}\n"
+                    f"WHERE {incremental_key} IS NOT NULL"
                 )
             )
-            permissions = self.db.grant_permissions(table, schema, ddl["permissions"])
-            self.db.execute(permissions)
+            if len(res) == 1:
+                last_incremental_value = res[0]["value"]
+            else:
+                last_incremental_value = None
 
-    # Utility methods
+        # Select stream
+        get_data_query = select([source_table_def.c[c["name"]] for c in ddl["columns"]])
+        if last_incremental_value is None:
+            data_iter = source_db.select_stream(get_data_query)
+        else:
+            query = get_data_query.where(
+                or_(
+                    source_table_def.c[incremental_key].is_(None),
+                    source_table_def.c[incremental_key] > last_incremental_value,
+                )
+            )
+            data_iter = source_db.select_stream(query)
 
-    def _write_query(self, query, suffix=None):
-        path = Path(
-            self.sayn_config.compile_path,
-            self.dag,
-            Path(f"{self.name}{'_'+suffix if suffix is not None else ''}.sql"),
-        )
-
-        # Ensure the path exists and it's empty
-        path.parent.mkdir(parents=True, exist_ok=True)
-        if path.exists():
-            path.unlink()
-
-        path.write_text(str(query))
+        # Load
+        return self.default_db.load_data_stream(tmp_table, tmp_schema, data_iter)

@@ -1,12 +1,61 @@
+from collections import Counter
 import re
+from typing import Dict, List, Optional
 
 from sqlalchemy import create_engine
 
-from .database import Database
-from ..utils import yaml
-from ..utils.ui import UI
+from pydantic import BaseModel, validator
+
+# TODO from ..core.errors import DatabaseError
+from ..utils.misc import group_list
+from . import Database
 
 db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
+
+
+class DDL(BaseModel):
+    class Column(BaseModel):
+        name: str
+        type: str
+        primary: Optional[bool]
+        not_null: Optional[bool]
+        unique: Optional[bool]
+
+    class Index(BaseModel):
+        columns: List[str]
+
+    columns: Optional[List[Column]]
+    indexes: Dict[str, Index]
+    permissions: Dict[str, str]
+
+    @validator("columns")
+    def columns_unique(cls, v, values):
+        print(v)
+        dupes = {k for k, v in Counter([e.name for e in v]) if v > 1}
+        if len(dupes) > 0:
+            raise ValueError(f"Duplicate columns: {','.join(dupes)}")
+        else:
+            return v
+
+    @validator("indexes")
+    def index_columns_exists(cls, v, values):
+        cols = [c.name for c in values["columns"]]
+        if len(cols) > 0:
+            missing_cols = group_list(
+                [
+                    (index_name, index_column)
+                    for index_name, index in v.items()
+                    for index_column in index.columns
+                    if index_column not in cols
+                ]
+            )
+            if len(missing_cols) > 0:
+                cols_msg = ";".join(
+                    [f"On {i}: {','.join(c)}" for i, c in missing_cols.items()]
+                )
+                raise ValueError(f"Some indexes refer to missing columns: {cols_msg}")
+
+        return v
 
 
 class Redshift(Database):
@@ -62,48 +111,49 @@ class Redshift(Database):
         engine = create_engine("postgresql://", **settings)
         self.setup_db(name, name_in_settings, db_type, engine)
 
-    def validate_ddl(self, ddl, **kwargs):
-        out_ddl = super(self, Database).validate_ddl(ddl, **kwargs)
-        if out_ddl is None:
-            return
+    def validate_ddl(self, ddl):
+        # TODO
+        pass
 
-        # Redshift specific ddl
-        column_names = [c["name"] for c in out_ddl["columns"]]
-        if "sorting" in kwargs:
-            try:
-                sorting = yaml.as_document(
-                    kwargs["sorting"],
-                    schema=yaml.Map(
-                        {
-                            yaml.Optional("type"): yaml.Enum(
-                                ["compound", "interleaved"]
-                            ),
-                            "columns": yaml.UniqueSeq(
-                                yaml.NotEmptyStr()
-                                if len(column_names) == 0
-                                else yaml.Enum(column_names)
-                            ),
-                        }
-                    ),
-                )
-            except Exception as e:
-                UI().error(f"{e}")
-                return
-
-            out_ddl["sorting"] = sorting.data
-
-        if "distribution" in kwargs:
-            try:
-                distribution = yaml.as_document(
-                    kwargs["distribution"], schema=yaml.Regex(r"even|all|key([^,]+)")
-                )
-            except Exception as e:
-                UI().error(f"{e}")
-                return
-
-            out_ddl["distribution"] = distribution.data
-
-        return out_ddl
+    #        out_ddl = super(self, Database).validate_ddl(ddl, **kwargs)
+    #        if out_ddl is None:
+    #            return
+    #
+    #        # Redshift specific ddl
+    #        column_names = [c["name"] for c in out_ddl["columns"]]
+    #        if "sorting" in kwargs:
+    #            try:
+    #                sorting = yaml.as_document(
+    #                    kwargs["sorting"],
+    #                    schema=yaml.Map(
+    #                        {
+    #                            yaml.Optional("type"): yaml.Enum(
+    #                                ["compound", "interleaved"]
+    #                            ),
+    #                            "columns": yaml.UniqueSeq(
+    #                                yaml.NotEmptyStr()
+    #                                if len(column_names) == 0
+    #                                else yaml.Enum(column_names)
+    #                            ),
+    #                        }
+    #                    ),
+    #                )
+    #            except Exception as e:
+    #                raise DatabaseError(f"{e}")
+    #
+    #            out_ddl["sorting"] = sorting.data
+    #
+    #        if "distribution" in kwargs:
+    #            try:
+    #                distribution = yaml.as_document(
+    #                    kwargs["distribution"], schema=yaml.Regex(r"even|all|key([^,]+)")
+    #                )
+    #            except Exception as e:
+    #                raise DatabaseError(f"{e}")
+    #
+    #            out_ddl["distribution"] = distribution.data
+    #
+    #        return out_ddl
 
     def _get_table_attributes(self, ddl):
         if "sorting" not in ddl and "distribution" not in ddl:

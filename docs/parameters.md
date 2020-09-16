@@ -154,9 +154,9 @@ class TaskPython(PythonTask):
         #code doing setup
         err = False
         if err:
-            return self.failed()
+            return self.fail()
         else:
-            return self.ready()
+            return self.success()
 
     def run(self):
         err = False
@@ -165,7 +165,7 @@ class TaskPython(PythonTask):
         #code you want to run
 
         if err:
-          return self.failed()
+          return self.fail()
         else:
           return self.success()
 ```
