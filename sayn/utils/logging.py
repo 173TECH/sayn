@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from pathlib import Path
+from halo import Halo
 import logging
 import traceback
 
@@ -423,7 +424,7 @@ class Logger:
     current_indent = 0
 
     def unhandled(self, event, context, stage, details):
-        print(self.fmt.unhandled(event, context, stage, details))
+        self.print(self.fmt.unhandled(event, context, stage, details))
 
     def message(self, level, message, details):
         self.print(self.fmt.message(level, message, details))
@@ -614,6 +615,105 @@ class FileLogger(Logger):
             for e in s[1:]:
                 for l in e.split("\n"):
                     func(f"{l}")
+
+
+class FancyLogger(Logger):
+    fmt = LogFormatter(use_colour=True, output_ts=True)
+    spinner = Halo(spinner="dots")
+    text = None
+    is_append = False
+
+    def report_event(self, context, event, stage, **details):
+        if event == "message":
+            self.message(details["level"], details["message"], details)
+
+        elif context == "app":
+            if event == "start_app":
+                self.app_start(details)
+
+            elif event == "finish_app":
+                self.app_finish(details)
+
+            elif event == "start_stage":
+                self.app_stage_start(stage, details)
+
+            elif event == "finish_stage":
+                self.app_stage_finish(stage, details)
+
+            else:
+                self.unhandled(event, context, stage, details)
+
+        elif context == "task":
+            task = details["task"]
+            task_order = details["task_order"]
+            total_tasks = details["total_tasks"]
+
+            if event == "set_run_steps":
+                self.task_set_steps(details)
+
+            elif event == "start_stage":
+                self.task_stage_start(stage, task, task_order, total_tasks, details)
+
+            elif event == "finish_stage":
+                self.task_stage_finish(stage, task, task_order, total_tasks, details)
+
+            elif event == "start_step":
+                self.task_step_start(
+                    stage,
+                    task,
+                    details["step"],
+                    details["step_order"],
+                    details["total_steps"],
+                    details,
+                )
+
+            elif event == "finish_step":
+                self.task_step_finish(
+                    stage,
+                    task,
+                    details["step"],
+                    details["step_order"],
+                    details["total_steps"],
+                    details,
+                )
+
+            else:
+                self.unhandled(event, context, stage, details)
+
+        else:
+            self.unhandled(event, context, stage, details)
+
+    def print(self, s=None):
+        if s is None:
+            pass
+        else:
+            prefix = "  " * self.current_indent
+            s = s["message"]
+            if isinstance(s, str):
+                s = [s]
+            elif not isinstance(s, list):
+                raise ValueError("error in logging print")
+
+            print(f"{prefix}{s[0]}")
+            for e in s[1:]:
+                for l in e.split("\n"):
+                    print(f"{prefix}  {l}")
+
+    def sprint(self, s=None):
+        if s is None:
+            pass
+        else:
+            prefix = "  " * self.current_indent
+            s = s["message"]
+            if isinstance(s, str):
+                s = [s]
+            elif not isinstance(s, list):
+                raise ValueError("error in logging print")
+
+            self.spinner.text = f"\n{prefix}{s[0]}"
+            for e in s[1:]:
+                for l in e.split("\n"):
+                    self.spinner.text = f"\n{prefix}  {l}"
 
 
 # class FancyLogger(Logger):
