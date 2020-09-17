@@ -3,7 +3,7 @@ from datetime import datetime
 from ..core.errors import Ok
 
 
-class TaskLogger:
+class TaskEventTracker:
     _logger = None
     _task_name = None
     _task_order = None
@@ -30,9 +30,6 @@ class TaskLogger:
             else None
         )
         details["total_steps"] = len(self._steps)
-
-        # Cleanup details
-        # details = {k: v for k, v in details.items() if v is not None}
 
         self._logger.report_event(**details)
 

@@ -5,7 +5,7 @@ from ..tasks.task_wrapper import TaskWrapper
 from ..utils.dag import query as dag_query, topological_sort
 from .config import get_connections
 from .errors import Err, Ok
-from .event_tracker import EventTracker
+from ..logging import EventTracker
 
 run_id = uuid4()
 
@@ -98,7 +98,11 @@ class App:
         self.credentials.update(credentials)
 
         # Create connections
-        self.connections = get_connections(self.credentials)
+        result = get_connections(self.credentials)
+        if result.is_err:
+            return result
+        else:
+            self.connections = result.value
 
         return Ok()
 
@@ -126,7 +130,7 @@ class App:
         self.tracker.set_tasks(tasks_in_query)
 
         for task_name, task in self._tasks_dict.items():
-            task_tracker = self.tracker.get_task_logger(task_name)
+            task_tracker = self.tracker.get_task_tracker(task_name)
             if task_name in tasks_in_query:
                 task_tracker._report_event("start_stage")
             start_ts = datetime.now()
@@ -165,14 +169,14 @@ class App:
         self.tracker.start_stage(command, tasks=list(tasks.keys()))
 
         for task_name, task in tasks.items():
-            task.logger._report_event("start_stage")
+            task.tracker._report_event("start_stage")
             start_ts = datetime.now()
             if task.in_query:
                 if command == "run":
                     result = task.run()
                 else:
                     result = task.compile()
-            task.logger._report_event(
+            task.tracker._report_event(
                 "finish_stage", duration=datetime.now() - start_ts, result=result
             )
 

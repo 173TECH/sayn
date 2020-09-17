@@ -2,7 +2,7 @@ from pathlib import Path
 from datetime import datetime
 import subprocess
 
-from ..tasks.task_logger import TaskLogger
+from .task_event_tracker import TaskEventTracker
 
 try:
     from importlib import metadata
@@ -12,7 +12,6 @@ except ImportError:
 
 class EventTracker:
     loggers = list()
-    stage = None
     run_id = None
     current_stage = None
     current_stage_start_ts = None
@@ -28,7 +27,9 @@ class EventTracker:
         self.loggers = loggers
         try:
             self.project_git_commit = (
-                subprocess.check_output(["git", "rev-parse", "HEAD"])
+                subprocess.check_output(
+                    ["git", "rev-parse", "HEAD"], stderr=subprocess.STDOUT
+                )
                 .split()[0]
                 .decode("utf-8")
             )
@@ -60,13 +61,13 @@ class EventTracker:
     def set_tasks(self, tasks):
         self.tasks = tasks
 
-    def get_task_logger(self, task_name):
+    def get_task_tracker(self, task_name):
         if task_name in self.tasks:
             task_order = self.tasks.index(task_name) + 1
         else:
             task_order = None
 
-        return TaskLogger(self, task_name, task_order)
+        return TaskEventTracker(self, task_name, task_order)
 
     def report_event(self, **event):
         if "context" not in event:

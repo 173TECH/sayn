@@ -2,6 +2,7 @@ from typing import Any, Dict
 
 from pydantic import ValidationError
 from ruamel.yaml.error import MarkedYAMLError
+import sqlalchemy
 
 
 class Error:
@@ -100,6 +101,14 @@ def Exc(exc, **kwargs):
     # TODO add other exceptions like:
     #   - DB errors
     #   - Jinja
+    elif isinstance(exc, sqlalchemy.exc.OperationalError):
+        return Result(
+            error=Error(
+                "database",
+                "operational_error",
+                {"exception": exc, "message": " ".join(exc.args)},
+            )
+        )
 
     else:
         return Result(

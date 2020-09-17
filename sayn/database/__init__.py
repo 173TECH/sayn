@@ -91,6 +91,9 @@ class Database:
         self.engine = engine
         self.metadata = MetaData(self.engine)
 
+        # Force a query to test the connection
+        engine.execute("select 1")
+
     # API
 
     def execute(self, script):

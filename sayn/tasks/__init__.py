@@ -32,7 +32,7 @@ class Task:
 
     _default_db = None
     connections = dict()
-    logger = None
+    tracker = None
 
     jinja_env = None
 
@@ -48,6 +48,11 @@ class Task:
     @property
     def db(self):
         return self.connections[self._default_db]
+
+    # Making it backwards compatible
+    @property
+    def logger(self):
+        return self.tracker
 
     # Task lifetime methods
 
@@ -80,42 +85,42 @@ class Task:
     # Logging methods
 
     def set_run_steps(self, steps):
-        self.logger.set_run_steps(steps)
+        self.tracker.set_run_steps(steps)
 
     def start_step(self, step):
-        self.logger.start_step(step)
+        self.tracker.start_step(step)
 
     def finish_current_step(self, result=Ok()):
-        self.logger.finish_current_step(result)
+        self.tracker.finish_current_step(result)
 
     def debug(self, message, details=None):
         if details is None:
             details = dict()
-        self.logger.debug(message, **details)
+        self.tracker.debug(message, **details)
 
     def info(self, message, details=None):
         if details is None:
             details = dict()
-        self.logger.info(message, **details)
+        self.tracker.info(message, **details)
 
     def warning(self, message, details=None):
         if details is None:
             details = dict()
-        self.logger.warning(message, **details)
+        self.tracker.warning(message, **details)
 
     def error(self, message, details=None):
         if details is None:
             details = dict()
-        self.logger.error(message, **details)
+        self.tracker.error(message, **details)
 
     @contextmanager
     def step(self, step):
-        self.logger.start_step(step)
+        self.tracker.start_step(step)
         try:
             yield
-            self.logger.finish_current_step()
+            self.tracker.finish_current_step()
         except Exception as e:
-            self.logger.finish_current_step(e)
+            self.tracker.finish_current_step(e)
             raise e
 
     # Jinja methods

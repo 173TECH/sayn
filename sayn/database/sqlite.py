@@ -31,6 +31,7 @@ class Sqlite(Database):
                     "database_error",
                     "sql_execution_error",
                     exception=e,
+                    message=f"{e}",
                     db=self.name,
                     script=script,
                 )
