@@ -28,7 +28,9 @@ class EventTracker:
         self.loggers = loggers
         try:
             self.project_git_commit = (
-                subprocess.check_output(["git", "rev-parse", "HEAD"])
+                subprocess.check_output(
+                    ["git", "rev-parse", "HEAD"], stderr=subprocess.STDOUT
+                )
                 .split()[0]
                 .decode("utf-8")
             )
