@@ -40,11 +40,13 @@ def human(obj):
 
 class LogFormatter:
     use_colour = True
+    use_icons = True
     output_ts = False
 
-    def __init__(self, use_colour=True, output_ts=False):
+    def __init__(self, use_colour=True, use_icons=True, output_ts=False):
         self.use_colour = use_colour
         self.output_ts = output_ts
+        self.use_icons = True
 
     # Styling methods
 
@@ -103,25 +105,25 @@ class LogFormatter:
             return s
 
     def good(self, s):
-        if self.use_colour:
+        if self.use_colour and self.use_icons:
             return self.green(f"✔ {s}")
         else:
             return s
 
     def info(self, s):
-        if self.use_colour:
+        if self.use_colour and self.use_icons:
             return f"ℹ {s}"
         else:
             return s
 
     def warn(self, s):
-        if self.use_colour:
+        if self.use_colour and self.use_icons:
             return self.yellow(f"⚠ {s}")
         else:
             return s
 
     def bad(self, s):
-        if self.use_colour:
+        if self.use_colour and self.use_icons:
             return self.red(f"✖ {s}")
         else:
             return s
@@ -180,6 +182,7 @@ class LogFormatter:
     def error_result(self, duration, error):
         level = "error"
         message = self.bad(error.__str__())
+        duration = human(duration)
 
         if error.kind == "exception":
             exc = error.details["exception"]

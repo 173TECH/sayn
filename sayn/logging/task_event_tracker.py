@@ -33,6 +33,8 @@ class TaskEventTracker:
 
         # Cleanup details
         # details = {k: v for k, v in details.items() if v is not None}
+        # if self._task_name == 'dim_arenas' and details['event'] == 'finish_step' and details['result'].is_err:
+        #     import IPython;IPython.embed()
 
         self._logger.report_event(**details)
 
@@ -50,6 +52,8 @@ class TaskEventTracker:
 
     def finish_current_step(self, result=Ok()):
         if self._current_step is not None:
+            # if self._task_name == 'dim_arenas' and result.is_err:
+            #     import IPython;IPython.embed()
             duration = datetime.now() - self._current_step_start_ts
 
             self._report_event(

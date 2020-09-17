@@ -32,7 +32,7 @@ class CliApp(App):
             ConsoleLogger(True) if debug else FancyLogger(),
             FileLogger(
                 self.run_arguments["folders"]["logs"],
-                fmt=f"{self.run_id}|" + "%(asctime)s|%(levelname)s|%(message)s",
+                format=f"{self.run_id}|" + "%(asctime)s|%(levelname)s|%(message)s",
             ),
         ]
 

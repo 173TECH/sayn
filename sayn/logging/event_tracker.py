@@ -12,7 +12,6 @@ except ImportError:
 
 class EventTracker:
     loggers = list()
-    stage = None
     run_id = None
     current_stage = None
     current_stage_start_ts = None
