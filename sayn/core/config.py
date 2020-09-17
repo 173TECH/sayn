@@ -214,12 +214,17 @@ def read_settings():
 
 
 def get_connections(credentials):
-    return {
-        name: create_db(name, name, config)
-        if config["type"] != "api"
-        else {k: v for k, v in config.items() if k != "type"}
-        for name, config in credentials.items()
-    }
+    try:
+        return Ok(
+            {
+                name: create_db(name, name, config)
+                if config["type"] != "api"
+                else {k: v for k, v in config.items() if k != "type"}
+                for name, config in credentials.items()
+            }
+        )
+    except Exception as e:
+        return Exc(e)
 
 
 ###############################

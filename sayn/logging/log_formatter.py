@@ -258,6 +258,10 @@ class LogFormatter:
             level = "error"
             message = self.bad(error.details["message"])
 
+        elif error.kind == "database" and error.code == "operational_error":
+            level = "error"
+            message = self.bad(error.details["message"])
+
         return {
             "level": level,
             "message": message,
@@ -323,7 +327,7 @@ class LogFormatter:
             out = ["Finished setup:"]
             level = "info"
             if len(failed) > 0:
-                out.append(self.bad(f"Failed tasks: {self.blist(failed)}"))
+                out.append(self.bad(f"Tasks failed: {self.blist(failed)}"))
                 level = "error"
             if len(skipped) > 0:
                 out.append(self.warn(f"Tasks to skip: {self.blist(skipped)}"))
@@ -338,9 +342,9 @@ class LogFormatter:
                     self.red(f"There were some errors during {stage} (took {duration})")
                 ]
                 if len(failed) > 0:
-                    out.append(self.bad(f"Failed tasks: {self.blist(failed)}"))
+                    out.append(self.bad(f"Failed: {self.blist(failed)}"))
                 if len(skipped) > 0:
-                    out.append(self.warn(f"Skipped tasks: {self.blist(skipped)}"))
+                    out.append(self.warn(f"Skipped: {self.blist(skipped)}"))
                 return {"level": "error", "message": out}
             else:
                 return {

@@ -98,7 +98,11 @@ class App:
         self.credentials.update(credentials)
 
         # Create connections
-        self.connections = get_connections(self.credentials)
+        result = get_connections(self.credentials)
+        if result.is_err:
+            return result
+        else:
+            self.connections = result.value
 
         return Ok()
 
