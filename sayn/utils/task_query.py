@@ -18,7 +18,9 @@ RE_TASK_QUERY = re.compile(
 
 
 def _get_query_component(tasks, query):
-    tasks = {k: {"dag": v["dag"], "tags": v.get("tags")} for k, v in tasks.items()}
+    tasks = {
+        k: {"dag": v["dag"], "tags": v.get("tags", list())} for k, v in tasks.items()
+    }
     match = RE_TASK_QUERY.match(query)
     if match is None:
         return Err("task_query", "incorrect_syntax", query=query,)
