@@ -17,7 +17,7 @@ class LoadData(PythonTask):
             self.data_to_load = prepare_data(tournament_battles)
         except Exception as e:
             err = True
-            self.logger.error(e)
+            self.tracker.error(e)
 
         if err:
             return self.fail()
@@ -28,12 +28,12 @@ class LoadData(PythonTask):
         # load the logs
         for log_type, log_details in self.data_to_load.items():
             # create table
-            self.logger.info("Creating table: {log_type}.".format(log_type=log_type))
+            self.tracker.info("Creating table: {log_type}.".format(log_type=log_type))
 
             self.default_db.execute(log_details["create"])
 
             # load logs
-            self.logger.info("Loading logs: {log_type}.".format(log_type=log_type))
+            self.tracker.info("Loading logs: {log_type}.".format(log_type=log_type))
             logs = log_details["data"]
 
             for log in logs:
@@ -42,6 +42,6 @@ class LoadData(PythonTask):
                 self.default_db.execute(q_insert)
 
             # done
-            self.logger.info("Done: {log_type}.".format(log_type=log_type))
+            self.tracker.info("Done: {log_type}.".format(log_type=log_type))
 
         return self.success()

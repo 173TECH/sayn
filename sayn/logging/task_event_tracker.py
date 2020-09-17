@@ -3,7 +3,7 @@ from datetime import datetime
 from ..core.errors import Ok
 
 
-class TaskLogger:
+class TaskEventTracker:
     _logger = None
     _task_name = None
     _task_order = None

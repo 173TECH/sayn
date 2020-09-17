@@ -7,7 +7,7 @@ import click
 from .utils.python_loader import PythonLoader
 from .utils.task_query import get_query
 from .utils.graphviz import plot_dag
-from .utils.logging import ConsoleLogger, FancyLogger, FileLogger
+from .logging import ConsoleLogger, FancyLogger, FileLogger
 from .scaffolding.init_project import sayn_init
 from .core.app import App
 from .core.config import read_project, read_dags, read_settings, get_tasks_dict

@@ -70,7 +70,7 @@ class TaskWrapper:
         task_info,
         parents,
         in_query,
-        logger,
+        tracker,
         connections,
         default_db,
         project_parameters,
@@ -79,7 +79,7 @@ class TaskWrapper:
     ):
         def failed(result):
             self.status = TaskStatus.FAILED
-            self.logger.current_step = None
+            self.tracker.current_step = None
             return result
 
         def setup_runner(runner, runner_config):
@@ -101,7 +101,7 @@ class TaskWrapper:
                     self.status = TaskStatus.READY
                     return Ok()
 
-        self.logger = logger
+        self.tracker = tracker
 
         self.status = TaskStatus.SETTING_UP
         self._info = task_info
@@ -237,7 +237,7 @@ class TaskWrapper:
         # Connections and logging
         runner._default_db = default_db
         runner.connections = connections
-        runner.logger = self.logger
+        runner.tracker = self.tracker
 
         return Ok((runner, runner_config))
 
