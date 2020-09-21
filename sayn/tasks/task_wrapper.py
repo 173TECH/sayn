@@ -1,6 +1,4 @@
-from __future__ import annotations
 from copy import deepcopy
-from datetime import datetime
 import os
 from typing import List, Dict, Any
 
@@ -9,7 +7,6 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from ..core.errors import Err, Exc, Ok, Result
 from ..utils.misc import map_nested
 
-# from ..utils.python_loader import PythonLoader
 from . import Task, TaskStatus
 from .dummy import DummyTask
 from .sql import SqlTask
@@ -58,7 +55,7 @@ class TaskWrapper:
     name: str = None
     dag: str = None
     tags: List[str] = list()
-    parents: List[TaskWrapper] = list()
+    parents: List[Any] = list()
     project_parameters: Dict[str, Any] = dict()
     task_parameters: Dict[str, Any] = dict()
     in_query: bool = True
