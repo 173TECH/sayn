@@ -132,9 +132,6 @@ class FancyLogger(Logger):
                 pass  # self.task_set_steps(details)
 
             elif event == "start_stage":
-                # self.spinner.stop()
-                # import IPython;IPython.embed()
-                # self.spinner.start()
                 self.task_text = f"[{self.task_order}/{self.total_tasks}] {self.task} (started at {ts})"
                 self.spinner.text = self.task_text
                 self.spinner.start()
@@ -168,9 +165,6 @@ class FancyLogger(Logger):
         if s is None:
             pass
         else:
-            # if self.current_indent != 0:
-            #     self.spinner.stop()
-            #     import IPython;IPython.embed()
             prefix = "  " * self.current_indent
             s = s["message"]
             if isinstance(s, str):
