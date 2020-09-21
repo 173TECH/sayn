@@ -6,6 +6,7 @@ from .log_formatter import LogFormatter, human
 
 class FancyLogger(Logger):
     fmt = LogFormatter(use_colour=False, use_icons=False, output_ts=True)
+    cfmt = LogFormatter(use_colour=True, use_icons=False, output_ts=True)
     spinner = Halo(spinner="dots")
 
     stage = None
@@ -16,6 +17,18 @@ class FancyLogger(Logger):
     step = None
     step_order = None
     total_steps = None
+    task_text = None
+    step_text = None
+    task_persist_msgs = list()
+
+    def message(self, level, message, details):
+        fmsg = self.cfmt.message(level, message, details)
+        self.task_persist_msgs.append(fmsg)
+        txt = f"{self.task_text}: "
+        if self.step_text is not None:
+            txt += f"{self.step_text}: "
+        txt += ". ".join(fmsg["message"])
+        self.spinner.text = txt
 
     def task_stage_finish(self, stage, duration, result):
         self.spinner.text = (
@@ -47,7 +60,7 @@ class FancyLogger(Logger):
 
             self.spinner.text_color = None
 
-            self.current_indent = 1
+            self.current_indent += 1
 
             message = self.fmt.error_result(duration, result.error)
 
@@ -71,9 +84,17 @@ class FancyLogger(Logger):
 
             self.current_indent -= 1
 
-        self.current_indent -= 1
         self.task = None
         self.task_order = None
+        self.task_text = None
+
+        self.current_indent += 1
+        for msg in self.task_persist_msgs:
+            if msg["level"] in ("warning", "error"):
+                self.print(msg)
+        self.current_indent -= 1
+
+        self.task_persist_msgs = list()
 
     def report_event(self, context, event, stage, **details):
         if event == "message":
@@ -111,7 +132,11 @@ class FancyLogger(Logger):
                 pass  # self.task_set_steps(details)
 
             elif event == "start_stage":
-                self.spinner.text = f"[{self.task_order}/{self.total_tasks}] {self.task} (started at {ts})"
+                # self.spinner.stop()
+                # import IPython;IPython.embed()
+                # self.spinner.start()
+                self.task_text = f"[{self.task_order}/{self.total_tasks}] {self.task} (started at {ts})"
+                self.spinner.text = self.task_text
                 self.spinner.start()
 
             elif event == "finish_stage":
@@ -121,15 +146,17 @@ class FancyLogger(Logger):
                 self.step = details["step"]
                 self.step_order = details["step_order"]
                 self.total_steps = details["total_steps"]
-                self.spinner.text = (
-                    f"[{self.task_order}/{self.total_tasks}] {self.task} (started at {ts}): "
+                self.step_text = (
                     f"Step [{self.step_order}/{self.total_steps}] {self.step}"
                 )
+                self.spinner.text = f"{self.task_text}: {self.step_text}"
 
             elif event == "finish_step":
                 if details["result"].is_ok:
                     self.step = None
                     self.step_order = None
+
+                self.step_text = None
 
             else:
                 self.unhandled(event, context, stage, details)
@@ -141,6 +168,9 @@ class FancyLogger(Logger):
         if s is None:
             pass
         else:
+            # if self.current_indent != 0:
+            #     self.spinner.stop()
+            #     import IPython;IPython.embed()
             prefix = "  " * self.current_indent
             s = s["message"]
             if isinstance(s, str):
