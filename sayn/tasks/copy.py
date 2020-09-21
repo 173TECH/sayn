@@ -54,6 +54,8 @@ class Config(BaseModel):
                 'Incremental copy requires both "delete_key" and "incremental_key"'
             )
 
+        return v
+
 
 class CopyTask(SqlTask):
     def setup(self, **config):
