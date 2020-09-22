@@ -1,3 +1,6 @@
+from .misc import reverse_dict
+
+
 def plot_dag(tasks, folder=None, file_name=None):
     """Uses graphviz to plot the dag
     It requires the graphviz python package (pip install graphviz) and an installation of graphviz
@@ -5,6 +8,7 @@ def plot_dag(tasks, folder=None, file_name=None):
     """
 
     task_list = list(tasks.keys())
+    tasks = reverse_dict(tasks)
 
     from graphviz import Digraph
 
