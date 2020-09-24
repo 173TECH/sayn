@@ -51,7 +51,7 @@ class CliApp(App):
             profile=profile,
         )
 
-        cleanup_compilation()
+        cleanup_compilation(self.run_arguments["folders"]["compile"])
 
         # SETUP THE APP: read project config and settings, interpret cli arguments and setup the dag
         self.tracker.start_stage("setup")

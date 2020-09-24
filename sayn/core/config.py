@@ -17,8 +17,8 @@ from .errors import Err, Exc, Ok
 RE_ENV_VAR_NAME = re.compile(r"SAYN_(?P<type>PARAMETER|CREDENTIAL)_(?P<name>.*)")
 
 
-def cleanup_compilation():
-    compile_path = Path("compile")
+def cleanup_compilation(folder):
+    compile_path = Path(folder)
     if compile_path.exists():
         if compile_path.is_dir():
             shutil.rmtree(compile_path.absolute())
