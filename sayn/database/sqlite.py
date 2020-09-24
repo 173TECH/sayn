@@ -21,7 +21,8 @@ class Sqlite(Database):
         engine = create_engine(f"sqlite:///{database}", **settings)
         self.setup_db(name, name_in_settings, db_type, engine)
 
-        # this is set to fix a SQLite setting which can prevent a second execution of SAYN. More info on this command here: https://sqlite.org/pragma.html#pragma_legacy_alter_table
+        # this is set to fix a SQLite setting which can prevent a second execution of SAYN.
+        # More info on this command here: https://sqlite.org/pragma.html#pragma_legacy_alter_table
         @event.listens_for(self.engine, "connect")
         def do_connect(dbapi_connection, connection_record):
             cursor = dbapi_connection.cursor()
