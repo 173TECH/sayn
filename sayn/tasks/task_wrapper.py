@@ -132,14 +132,15 @@ class TaskWrapper:
 
         self.in_query = in_query
 
+        # Check the parents are in a good state
+        result = self.check_skip()
+        if result.is_err or result.value == TaskStatus.SKIPPED:
+            return result
+
         if not in_query:
             self.status = TaskStatus.NOT_IN_QUERY
             return Ok()
         else:
-            # Check the parents are in a good state
-            result = self.check_skip()
-            if result.is_err:
-                return result
 
             # Instantiate the Task runner object
 
