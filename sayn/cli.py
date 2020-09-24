@@ -10,7 +10,13 @@ from .utils.graphviz import plot_dag
 from .logging import ConsoleLogger, FancyLogger, FileLogger
 from .scaffolding.init_project import sayn_init
 from .core.app import App
-from .core.config import read_project, read_dags, read_settings, get_tasks_dict
+from .core.config import (
+    cleanup_compilation,
+    read_project,
+    read_dags,
+    read_settings,
+    get_tasks_dict,
+)
 from .core.errors import Err, Result
 
 yesterday = date.today() - timedelta(days=1)
@@ -44,6 +50,8 @@ class CliApp(App):
             end_dt=end_dt,
             profile=profile,
         )
+
+        cleanup_compilation()
 
         # SETUP THE APP: read project config and settings, interpret cli arguments and setup the dag
         self.tracker.start_stage("setup")

@@ -2,6 +2,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 from typing import List, Optional, Dict, Any
 
 from pydantic import BaseModel, validator, ValidationError
@@ -14,6 +15,17 @@ from ..utils.dag import upstream, topological_sort
 from .errors import Err, Exc, Ok
 
 RE_ENV_VAR_NAME = re.compile(r"SAYN_(?P<type>PARAMETER|CREDENTIAL)_(?P<name>.*)")
+
+
+def cleanup_compilation():
+    compile_path = Path("compile")
+    if compile_path.exists():
+        if compile_path.is_dir():
+            shutil.rmtree(compile_path.absolute())
+        else:
+            compile_path.unlink()
+
+    compile_path.mkdir()
 
 
 def read_yaml_file(filename):
