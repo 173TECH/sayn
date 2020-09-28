@@ -25,6 +25,7 @@ yesterday = date.today() - timedelta(days=1)
 class CliApp(App):
     def __init__(
         self,
+        command,
         debug=False,
         include=list(),
         exclude=list(),
@@ -34,6 +35,8 @@ class CliApp(App):
         end_dt=yesterday,
     ):
         # STARTING APP: register loggers and set cli arguments in the App object
+        self.run_arguments["command"] = command
+
         loggers = [
             ConsoleLogger(True) if debug else FancyLogger(),
             FileLogger(
@@ -170,14 +173,14 @@ def init(sayn_project_name):
 @cli.command(help="Compile sql tasks.")
 @click_run_options
 def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
-    app = CliApp(debug, tasks, exclude, profile, full_load, start_dt, end_dt)
+    app = CliApp("compile", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
     app.compile()
 
 
 @cli.command(help="Run SAYN tasks.")
 @click_run_options
 def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
-    app = CliApp(debug, tasks, exclude, profile, full_load, start_dt, end_dt)
+    app = CliApp("run", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
     app.run()
 
 

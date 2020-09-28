@@ -28,57 +28,84 @@ class SqlTask(Task):
         else:
             self.sql_query = result.value
 
+        # Set execution steps
+        self.steps = ["Write Query"]
+        if self.run_arguments["command"] == "run":
+            self.steps.append("Execute Query")
+
         return Ok()
 
     def run(self):
-        return self.execute_steps(["Write Query", "Execute Query"])
+        return self.execute_steps()
 
     def compile(self):
-        return self.execute_steps(["Write Query"])
+        return self.execute_steps()
 
-    def execute_steps(self, steps):
-        self.set_run_steps(steps)
+    def execute_steps(self):
+        # For incremental loads, manipulate the "Merge" steps depending on whether
+        # the target table exists or not. This is done so we can delay the introspection
+        if self.steps[-1] == "Merge" and not self.default_db.table_exists(
+            self.table, self.schema
+        ):
+            self.steps.pop(-1)
+            if len(self.ddl["indexes"]) > 0:
+                self.steps.append("Create Indexes")
+            self.steps.extend(["Cleanup Target", "Move"])
 
-        for step in steps:
+        self.set_run_steps(self.steps)
+
+        for step in self.steps:
             self.start_step(step)
             result = self.execute_step(step)
             self.finish_current_step(result)
             if result.is_err:
                 return result
+            elif isinstance(result.value, str) and self.run_arguments["debug"]:
+                self.write_compilation_output(
+                    result.value, step.replace(" ", "_").lower()
+                )
 
         return Ok()
 
     def execute_step(self, step):
+        if self.run_arguments["command"] == "run":
+            execute = True
+        else:
+            execute = False
+
         if step == "Execute Query":
-            return self.default_db.execute(self.sql_query)
+            if execute:
+                return self.default_db.execute(self.sql_query)
+            else:
+                return Ok()
 
         elif step == "Write Query":
             return self.write_compilation_output(self.sql_query)
 
         elif step == "Cleanup":
-            return self.drop(self.tmp_table, self.tmp_schema)
+            return self.drop(self.tmp_table, self.tmp_schema, execute)
 
-        elif step == "Drop Target":
-            return self.drop(self.table, self.schema)
+        elif step == "Cleanup Target":
+            return self.drop(self.table, self.schema, execute)
 
         elif step == "Create Temp":
             return self.create_select(
-                self.tmp_table, self.tmp_schema, self.sql_query, self.ddl
+                self.tmp_table, self.tmp_schema, self.sql_query, self.ddl, execute
             )
 
         elif step == "Create Temp DDL":
             return self.default_db.create_table_ddl(
-                self.tmp_table, self.tmp_schema, self.ddl, execute=True
+                self.tmp_table, self.tmp_schema, self.ddl, execute=execute
             )
 
         elif step == "Create View":
             return self.default_db.create_table_select(
-                self.table, self.schema, self.sql_query, view=True, execute=True
+                self.table, self.schema, self.sql_query, view=True, execute=execute
             )
 
         elif step == "Create Indexes":
             return self.default_db.create_indexes(
-                self.tmp_table, self.tmp_schema, self.ddl, execute=True
+                self.tmp_table, self.tmp_schema, self.ddl, execute=execute
             )
 
         elif step == "Merge":
@@ -88,7 +115,7 @@ class SqlTask(Task):
                 self.table,
                 self.schema,
                 self.delete_key,
-                execute=True,
+                execute=execute,
             )
 
         elif step == "Move":
@@ -98,12 +125,12 @@ class SqlTask(Task):
                 self.table,
                 self.schema,
                 self.ddl,
-                execute=True,
+                execute=execute,
             )
 
         elif step == "Grant Permissions":
             return self.default_db.grant_permissions(
-                self.table, self.schema, self.ddl["permissions"], execute=True
+                self.table, self.schema, self.ddl["permissions"], execute=execute
             )
 
         elif step == "Load Data":
@@ -116,6 +143,7 @@ class SqlTask(Task):
                 self.tmp_schema,
                 self.incremental_key,
                 self.ddl,
+                execute,
             )
 
         else:
@@ -123,35 +151,51 @@ class SqlTask(Task):
 
     # SQL execution steps methods
 
-    def drop(self, table, schema):
+    def drop(self, table, schema, execute):
+        out_sql = list()
+
         try:
-            self.default_db.drop_table(table, schema, view=False, execute=True)
+            result = self.default_db.drop_table(
+                table, schema, view=False, execute=execute
+            )
+            if result.is_err:
+                out_sql.append(result.error.details["script"])
+            else:
+                out_sql.append(result.value)
         except:
             pass
 
         try:
-            self.default_db.drop_table(table, schema, view=True, execute=True)
+            result = self.default_db.drop_table(
+                table, schema, view=True, execute=execute
+            )
+            if result.is_err:
+                out_sql.append(result.error.details["script"])
+            else:
+                out_sql.append(result.value)
         except:
             pass
 
-        return Ok()
+        return Ok("\n".join(out_sql))
 
-    def create_select(self, table, schema, select, ddl):
+    def create_select(self, table, schema, select, ddl, execute):
         if len(ddl.get("columns")) == 0:
             result = self.default_db.create_table_select(
-                table, schema, select, view=False, execute=True
+                table, schema, select, view=False, execute=execute
             )
             if result.is_err:
                 return result
         else:
             # create table with DDL and insert the output of the select
-            result = self.default_db.create_table_ddl(table, schema, ddl, execute=True)
+            result = self.default_db.create_table_ddl(
+                table, schema, ddl, execute=execute
+            )
             if result.is_err:
                 return result
 
             ddl_column_names = [c["name"] for c in ddl.get("columns")]
             result = self.default_db.insert(
-                table, schema, select, columns=ddl_column_names, execute=True
+                table, schema, select, columns=ddl_column_names, execute=execute
             )
             if result.is_err:
                 return result
@@ -168,7 +212,11 @@ class SqlTask(Task):
         tmp_schema,
         incremental_key,
         ddl,
+        execute,
     ):
+        if not execute:
+            return Ok()
+
         # Get the incremental value
         if (
             incremental_key is None

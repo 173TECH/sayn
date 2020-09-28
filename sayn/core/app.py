@@ -164,6 +164,7 @@ class App:
         self.execute_dag("compile")
 
     def execute_dag(self, command):
+        self.run_arguments["command"] = command
         # Execution of relevant tasks
         tasks = {k: v for k, v in self.tasks.items() if v.in_query}
         self.tracker.start_stage(command, tasks=list(tasks.keys()))
