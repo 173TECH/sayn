@@ -80,13 +80,16 @@ class SqlTask(Task):
                 return Ok()
 
         elif step == "Write Query":
-            return self.write_compilation_output(self.sql_query)
+            if self.run_arguments["debug"]:
+                return self.write_compilation_output(self.sql_query, "select")
+            else:
+                return self.write_compilation_output(self.sql_query)
 
         elif step == "Cleanup":
-            return self.drop(self.tmp_table, self.tmp_schema, execute)
+            return self.cleanup(self.tmp_table, self.tmp_schema, execute)
 
         elif step == "Cleanup Target":
-            return self.drop(self.table, self.schema, execute)
+            return self.cleanup(self.table, self.schema, execute)
 
         elif step == "Create Temp":
             return self.create_select(
@@ -151,7 +154,7 @@ class SqlTask(Task):
 
     # SQL execution steps methods
 
-    def drop(self, table, schema, execute):
+    def cleanup(self, table, schema, execute):
         out_sql = list()
 
         try:
@@ -179,12 +182,16 @@ class SqlTask(Task):
         return Ok("\n".join(out_sql))
 
     def create_select(self, table, schema, select, ddl, execute):
+        out_sql = list()
+
         if len(ddl.get("columns")) == 0:
             result = self.default_db.create_table_select(
                 table, schema, select, view=False, execute=execute
             )
             if result.is_err:
                 return result
+            else:
+                out_sql.append(result.value)
         else:
             # create table with DDL and insert the output of the select
             result = self.default_db.create_table_ddl(
@@ -192,6 +199,8 @@ class SqlTask(Task):
             )
             if result.is_err:
                 return result
+            else:
+                out_sql.append(result.value)
 
             ddl_column_names = [c["name"] for c in ddl.get("columns")]
             result = self.default_db.insert(
@@ -199,8 +208,10 @@ class SqlTask(Task):
             )
             if result.is_err:
                 return result
+            else:
+                out_sql.append(result.value)
 
-        return Ok()
+        return Ok("\n".join(out_sql))
 
     def load_data(
         self,
@@ -214,41 +225,39 @@ class SqlTask(Task):
         ddl,
         execute,
     ):
-        if not execute:
-            return Ok()
-
         # Get the incremental value
-        if (
-            incremental_key is None
-            or self.run_arguments["full_load"]
-            or not self.default_db.table_exists(table, schema)
-        ):
+        if self.is_full_load or not self.default_db.table_exists(table, schema):
             last_incremental_value = None
         else:
-            res = self.default_db.select(
-                (
-                    f"SELECT MAX({incremental_key}) AS value\n"
-                    f"FROM {'' if schema is None else schema +'.'}{table}\n"
-                    f"WHERE {incremental_key} IS NOT NULL"
-                )
+            q = (
+                f"SELECT MAX({incremental_key}) AS value\n"
+                f"FROM {'' if schema is None else schema +'.'}{table}\n"
+                f"WHERE {incremental_key} IS NOT NULL"
             )
-            if len(res) == 1:
-                last_incremental_value = res[0]["value"]
+            self.write_compilation_output(q, "last_incremental_value")
+
+            if execute:
+                res = self.default_db.select(q)
+                if len(res) == 1:
+                    last_incremental_value = res[0]["value"]
+                else:
+                    last_incremental_value = None
             else:
-                last_incremental_value = None
+                last_incremental_value = "LAST_INCREMENTAL_VALUE"
 
         # Select stream
         get_data_query = select([source_table_def.c[c["name"]] for c in ddl["columns"]])
-        if last_incremental_value is None:
-            data_iter = source_db.select_stream(get_data_query)
-        else:
-            query = get_data_query.where(
+        if last_incremental_value is not None:
+            get_data_query = get_data_query.where(
                 or_(
                     source_table_def.c[incremental_key].is_(None),
                     source_table_def.c[incremental_key] > last_incremental_value,
                 )
             )
-            data_iter = source_db.select_stream(query)
+        self.write_compilation_output(get_data_query, "get_data")
 
-        # Load
-        return self.default_db.load_data_stream(tmp_table, tmp_schema, data_iter)
+        if execute:
+            data_iter = source_db.select_stream(get_data_query)
+            return self.default_db.load_data_stream(tmp_table, tmp_schema, data_iter)
+        else:
+            return Ok()
