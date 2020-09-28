@@ -5,6 +5,8 @@ from . import Task
 
 
 class BaseSqlTask(Task):
+    target_table_exists = None
+
     def run(self):
         return self.execute_steps()
 
@@ -14,13 +16,20 @@ class BaseSqlTask(Task):
     def execute_steps(self):
         # For incremental loads, manipulate the "Merge" steps depending on whether
         # the target table exists or not. This is done so we can delay the introspection
-        if self.steps[-1] == "Merge" and not self.default_db.table_exists(
-            self.table, self.schema
-        ):
-            self.steps.pop(-1)
-            if len(self.ddl["indexes"]) > 0:
-                self.steps.append("Create Indexes")
-            self.steps.extend(["Cleanup Target", "Move"])
+        if "Merge" in self.steps and self.run_arguments["command"] == "run":
+            self.target_table_exists = self.default_db.table_exists(
+                self.table, self.schema
+            )
+
+            if not self.target_table_exists:
+                tmp = self.steps[self.steps.index("Merge") + 1 :]
+                self.steps = self.steps[: self.steps.index("Merge")]
+                if len(self.ddl["indexes"]) > 0:
+                    self.steps.append("Create Indexes")
+                self.steps.extend(["Cleanup Target", "Move"])
+                self.steps.extend(tmp)
+            else:
+                self.steps.append("Cleanup")
 
         self.set_run_steps(self.steps)
 
@@ -43,10 +52,7 @@ class BaseSqlTask(Task):
         return Ok()
 
     def execute_step(self, step):
-        if self.run_arguments["command"] == "run":
-            execute = True
-        else:
-            execute = False
+        execute = self.run_arguments["command"] == "run"
 
         if step == "Execute Query":
             if execute:
@@ -55,10 +61,7 @@ class BaseSqlTask(Task):
                 return Ok()
 
         elif step == "Write Query":
-            if self.run_arguments["debug"]:
-                return self.write_compilation_output(self.sql_query, "select")
-            else:
-                return self.write_compilation_output(self.sql_query)
+            return self.write_compilation_output(self.sql_query, "select")
 
         elif step == "Cleanup":
             return self.cleanup(self.tmp_table, self.tmp_schema, execute)
@@ -201,7 +204,6 @@ class BaseSqlTask(Task):
         execute,
     ):
         # Get the incremental value
-        # import IPython;IPython.embed()
 
         last_incremental_value_query = (
             f"SELECT MAX({incremental_key}) AS value\n"
@@ -214,26 +216,15 @@ class BaseSqlTask(Task):
             )
 
         get_data_query = select([source_table_def.c[c["name"]] for c in ddl["columns"]])
+        last_incremental_value = None
 
-        # if self.is_full_load
-        #     last_incremental_value = None
-        # else:
-
-        if self.is_full_load:
+        if not self.is_full_load and self.target_table_exists:
             if execute:
-                if not self.default_db.table_exists(table, schema):
-                    # If the table doesn't exists, interpret it as a full load
-                    last_incremental_value = None
-                else:
-                    res = self.default_db.select(last_incremental_value_query)
-                    if len(res) == 1:
-                        last_incremental_value = res[0]["value"]
-                    else:
-                        last_incremental_value = None
+                res = self.default_db.select(last_incremental_value_query)
+                if len(res) == 1:
+                    last_incremental_value = res[0]["value"]
             else:
-                last_incremental_value = None
-        else:
-            last_incremental_value = "LAST_INCREMENTAL_VALUE"
+                last_incremental_value = "LAST_INCREMENTAL_VALUE"
 
         # Select stream
         if last_incremental_value is not None:
