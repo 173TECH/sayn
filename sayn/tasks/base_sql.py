@@ -201,27 +201,41 @@ class BaseSqlTask(Task):
         execute,
     ):
         # Get the incremental value
-        if self.is_full_load or not self.default_db.table_exists(table, schema):
-            last_incremental_value = None
-        else:
-            q = (
-                f"SELECT MAX({incremental_key}) AS value\n"
-                f"FROM {'' if schema is None else schema +'.'}{table}\n"
-                f"WHERE {incremental_key} IS NOT NULL"
-            )
-            self.write_compilation_output(q, "last_incremental_value")
+        # import IPython;IPython.embed()
 
+        last_incremental_value_query = (
+            f"SELECT MAX({incremental_key}) AS value\n"
+            f"FROM {'' if schema is None else schema +'.'}{table}\n"
+            f"WHERE {incremental_key} IS NOT NULL"
+        )
+        if self.run_arguments["debug"]:
+            self.write_compilation_output(
+                last_incremental_value_query, "last_incremental_value"
+            )
+
+        get_data_query = select([source_table_def.c[c["name"]] for c in ddl["columns"]])
+
+        # if self.is_full_load
+        #     last_incremental_value = None
+        # else:
+
+        if self.is_full_load:
             if execute:
-                res = self.default_db.select(q)
-                if len(res) == 1:
-                    last_incremental_value = res[0]["value"]
-                else:
+                if not self.default_db.table_exists(table, schema):
+                    # If the table doesn't exists, interpret it as a full load
                     last_incremental_value = None
+                else:
+                    res = self.default_db.select(last_incremental_value_query)
+                    if len(res) == 1:
+                        last_incremental_value = res[0]["value"]
+                    else:
+                        last_incremental_value = None
             else:
-                last_incremental_value = "LAST_INCREMENTAL_VALUE"
+                last_incremental_value = None
+        else:
+            last_incremental_value = "LAST_INCREMENTAL_VALUE"
 
         # Select stream
-        get_data_query = select([source_table_def.c[c["name"]] for c in ddl["columns"]])
         if last_incremental_value is not None:
             get_data_query = get_data_query.where(
                 or_(
@@ -229,7 +243,8 @@ class BaseSqlTask(Task):
                     source_table_def.c[incremental_key] > last_incremental_value,
                 )
             )
-        self.write_compilation_output(get_data_query, "get_data")
+        if self.run_arguments["debug"]:
+            self.write_compilation_output(get_data_query, "get_data")
 
         if execute:
             data_iter = source_db.select_stream(get_data_query)
