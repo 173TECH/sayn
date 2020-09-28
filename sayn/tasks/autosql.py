@@ -4,7 +4,7 @@ from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field, FilePath, validator
 
 from ..core.errors import Exc, Ok
-from .sql import SqlTask
+from .base_sql import BaseSqlTask
 
 
 class Destination(BaseModel):
@@ -48,7 +48,7 @@ class Config(BaseModel):
             return v
 
 
-class AutoSqlTask(SqlTask):
+class AutoSqlTask(BaseSqlTask):
     def setup(self, **config):
         config["destination"].update(
             {

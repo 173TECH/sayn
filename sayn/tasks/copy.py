@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, validator
 
 from ..core.errors import Err, Ok
 from ..database import Database
-from .sql import SqlTask
+from .base_sql import BaseSqlTask
 
 
 class Source(BaseModel):
@@ -57,7 +57,7 @@ class Config(BaseModel):
         return v
 
 
-class CopyTask(SqlTask):
+class CopyTask(BaseSqlTask):
     def setup(self, **config):
         config["source"].update(
             {
