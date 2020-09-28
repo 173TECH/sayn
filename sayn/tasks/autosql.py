@@ -89,7 +89,7 @@ class AutoSqlTask(BaseSqlTask):
             self.sql_query = result.value
 
         self.is_full_load = (
-            self.materialisation == "incremental" or self.run_arguments["full_load"]
+            self.materialisation == "table" or self.run_arguments["full_load"]
         )
 
         # Sets the execution steps
@@ -101,7 +101,7 @@ class AutoSqlTask(BaseSqlTask):
         else:
             self.steps.extend(["Cleanup", "Create Temp"])
 
-            if self.materialisation == "table" or self.is_full_load:
+            if self.is_full_load:
                 if len(self.ddl["indexes"]) > 0:
                     self.steps.append("Create Indexes")
                 self.steps.extend(["Cleanup Target", "Move"])
