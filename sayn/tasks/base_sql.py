@@ -29,7 +29,12 @@ class BaseSqlTask(Task):
             result = self.execute_step(step)
             self.finish_current_step(result)
             if result.is_err:
+                if "script" in result.error.details:
+                    self.write_compilation_output(
+                        result.error.details["script"], step.replace(" ", "_").lower()
+                    )
                 return result
+
             elif isinstance(result.value, str) and self.run_arguments["debug"]:
                 self.write_compilation_output(
                     result.value, step.replace(" ", "_").lower()
