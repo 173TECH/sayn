@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine
+from sqlalchemy.types import Boolean, DateTime
 
 from . import Database
 
@@ -24,3 +25,12 @@ class Mysql(Database):
 
         engine = create_engine("mysql+pymysql://", **settings)
         self.setup_db(name, name_in_settings, db_type, engine)
+
+    def transform_column_type(self, column_type, dialect):
+        ctype = column_type.compile()
+        if ctype.lower() == "tinyint(1)":
+            return Boolean().compile(dialect=dialect)
+        elif ctype.lower() == "datetime":
+            return DateTime().compile(dialect=dialect)
+        else:
+            return super().transform_column_type(column_type, dialect)

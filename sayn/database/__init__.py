@@ -221,6 +221,9 @@ class Database:
             except Exception as e:
                 return Exc(e, db=self.name, type=self.db_type)
 
+    def transform_column_type(self, column_type, dialect):
+        return column_type.compile(dialect=dialect)
+
     def refresh_metadata(self, only=None, schema=None):
         """Refreshes the sqlalchemy metadata object.
 

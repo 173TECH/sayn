@@ -110,7 +110,9 @@ class CopyTask(BaseSqlTask):
             self.ddl["columns"] = [
                 {
                     "name": c.name,
-                    "type": c.type.compile(dialect=self.default_db.engine.dialect),
+                    "type": self.source_db.transform_column_type(
+                        c.type, self.default_db.engine.dialect
+                    ),
                 }
                 for c in self.source_table_def.columns
             ]
