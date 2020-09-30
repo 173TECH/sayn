@@ -3,7 +3,7 @@ from pathlib import Path
 from pydantic import BaseModel, FilePath, validator
 
 from ..core.errors import Ok
-from . import Task
+from .base_sql import BaseSqlTask
 
 
 class Config(BaseModel):
@@ -15,7 +15,7 @@ class Config(BaseModel):
         return Path(values["sql_folder"], v)
 
 
-class SqlTask(Task):
+class SqlTask(BaseSqlTask):
     def setup(self, file_name):
         self.config = Config(
             sql_folder=self.run_arguments["folders"]["sql"], file_name=file_name
