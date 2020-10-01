@@ -8,7 +8,7 @@
 
 SAYN is a data-modelling and processing framework for automating Python and SQL tasks. It enables analytics teams to build robust data infrastructures in minutes.
 
- *Status: SAYN is under active development so some changes can be expected.*
+ *Status: SAYN is under active development so some changes can be expected. SAYN currently supports UNIX operating systems (macOS, Linux).*
 
 ## Use Cases
 
