@@ -335,13 +335,21 @@ class Database:
         table_name = table
         table = f"{schema+'.' if schema else ''}{table_name}"
 
+        # List of reserved keywords so columns are quoted
+        # TODO find a better way
+        reserved = ("from", "to", "primary")
+        columns = [
+            {k: f'"{v}"' if k == "name" and v in reserved else v for k, v in c.items()}
+            for c in ddl["columns"]
+        ]
+
         columns = "\n    , ".join(
             [
                 (
                     f'{c["name"]} {c["type"]}'
                     f'{" NOT NULL" if c.get("not_null", False) else ""}'
                 )
-                for c in ddl["columns"]
+                for c in columns
             ]
         )
 
