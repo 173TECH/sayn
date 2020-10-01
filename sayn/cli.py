@@ -10,7 +10,13 @@ from .utils.graphviz import plot_dag
 from .logging import ConsoleLogger, FancyLogger, FileLogger
 from .scaffolding.init_project import sayn_init
 from .core.app import App
-from .core.config import read_project, read_dags, read_settings, get_tasks_dict
+from .core.config import (
+    cleanup_compilation,
+    read_project,
+    read_dags,
+    read_settings,
+    get_tasks_dict,
+)
 from .core.errors import Err, Result
 
 yesterday = date.today() - timedelta(days=1)
@@ -19,6 +25,7 @@ yesterday = date.today() - timedelta(days=1)
 class CliApp(App):
     def __init__(
         self,
+        command,
         debug=False,
         include=list(),
         exclude=list(),
@@ -28,6 +35,8 @@ class CliApp(App):
         end_dt=yesterday,
     ):
         # STARTING APP: register loggers and set cli arguments in the App object
+        self.run_arguments["command"] = command
+
         loggers = [
             ConsoleLogger(True) if debug else FancyLogger(),
             FileLogger(
@@ -44,6 +53,8 @@ class CliApp(App):
             end_dt=end_dt,
             profile=profile,
         )
+
+        cleanup_compilation(self.run_arguments["folders"]["compile"])
 
         # SETUP THE APP: read project config and settings, interpret cli arguments and setup the dag
         self.tracker.start_stage("setup")
@@ -162,14 +173,14 @@ def init(sayn_project_name):
 @cli.command(help="Compile sql tasks.")
 @click_run_options
 def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
-    app = CliApp(debug, tasks, exclude, profile, full_load, start_dt, end_dt)
+    app = CliApp("compile", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
     app.compile()
 
 
 @cli.command(help="Run SAYN tasks.")
 @click_run_options
 def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
-    app = CliApp(debug, tasks, exclude, profile, full_load, start_dt, end_dt)
+    app = CliApp("run", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
     app.run()
 
 

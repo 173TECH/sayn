@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, validator
 
 from ..core.errors import Err, Ok
 from ..database import Database
-from .sql import SqlTask
+from .base_sql import BaseSqlTask
 
 
 class Source(BaseModel):
@@ -57,7 +57,7 @@ class Config(BaseModel):
         return v
 
 
-class CopyTask(SqlTask):
+class CopyTask(BaseSqlTask):
     def setup(self, **config):
         config["source"].update(
             {
@@ -132,21 +132,20 @@ class CopyTask(SqlTask):
                     column["name"]
                 ].type.compile(dialect=self.default_db.engine.dialect)
 
-        return Ok()
+        # set execution steps
+        self.steps = ["Cleanup", "Create Temp DDL"]
+        self.steps.append("Load Data")
 
-    def run(self):
-        steps = ["Cleanup", "Create Temp DDL"]
-        if len(self.ddl["indexes"]) > 0:
-            steps.append("Create Indexes")
-        steps.append("Load Data")
-        if self.is_full_load or not self.default_db.table_exists(
-            self.table, self.schema
-        ):
-            steps.extend(["Drop Target", "Move", "Grant Permissions"])
+        if self.is_full_load:
+            if len(self.ddl["indexes"]) > 0:
+                self.steps.append("Create Indexes")
+
+            self.steps.extend(["Cleanup Target", "Move"])
+
         else:
-            steps.extend(["Merge"])
+            self.steps.extend(["Merge"])
 
-        return self.execute_steps(steps)
+        if "permissions" in self.ddl:
+            self.steps.append("Grant Permissions")
 
-    def compile(self):
         return Ok()

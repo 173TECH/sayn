@@ -4,7 +4,7 @@ from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field, FilePath, validator
 
 from ..core.errors import Exc, Ok
-from .sql import SqlTask
+from .base_sql import BaseSqlTask
 
 
 class Destination(BaseModel):
@@ -48,7 +48,7 @@ class Config(BaseModel):
             return v
 
 
-class AutoSqlTask(SqlTask):
+class AutoSqlTask(BaseSqlTask):
     def setup(self, **config):
         config["destination"].update(
             {
@@ -88,28 +88,28 @@ class AutoSqlTask(SqlTask):
         else:
             self.sql_query = result.value
 
-        return Ok()
+        self.is_full_load = (
+            self.materialisation == "table" or self.run_arguments["full_load"]
+        )
 
-    def run(self):
-        steps = ["Write Query"]
+        # Sets the execution steps
+        self.steps = ["Write Query"]
 
-        if self.materialisation == "view":  # View
-            steps.extend(["Drop Target", "Create View"])
+        if self.materialisation == "view":
+            self.steps.extend(["Cleanup Target", "Create View"])
 
-        elif (
-            self.materialisation == "incremental"
-            and not self.run_arguments["full_load"]
-            and self.default_db.table_exists(self.table, self.schema)
-        ):  # Incremental load
-            steps.extend(["Cleanup", "Create Temp", "Merge", "Cleanup"])
+        else:
+            self.steps.extend(["Cleanup", "Create Temp"])
 
-        else:  # Full load
-            steps.extend(["Cleanup", "Create Temp"])
-            if len(self.ddl["indexes"]) > 0:
-                steps.append("Create Indexes")
-            steps.extend(["Drop Target", "Move"])
+            if self.is_full_load:
+                if len(self.ddl["indexes"]) > 0:
+                    self.steps.append("Create Indexes")
+                self.steps.extend(["Cleanup Target", "Move"])
+
+            else:
+                self.steps.extend(["Merge"])
 
         if "permissions" in self.ddl:
-            steps.append("Grant Permissions")
+            self.steps.append("Grant Permissions")
 
-        return self.execute_steps(steps)
+        return Ok()

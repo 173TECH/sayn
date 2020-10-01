@@ -10,7 +10,9 @@
 - Created a TaskWrapper object to isolate the task lifetime logic from the execution
 - Added new Result type for error reporting
 - Switched from standard python logging to an event reporting model
-- Majjor changes to console UI
+- Major changes to console UI
+- Added the concept of task step to improve feedback to the user
+- With `-d` sayn will write all sql related to every step
 
 ## [0.3.0] - 2020-07-29
 
