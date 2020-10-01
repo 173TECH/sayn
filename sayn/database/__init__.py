@@ -12,7 +12,7 @@ from ..utils.misc import group_list
 class DDL(BaseModel):
     class Column(BaseModel):
         name: str
-        type: str
+        type: Optional[str]
         primary: Optional[bool] = False
         not_null: Optional[bool] = False
         unique: Optional[bool] = False
@@ -26,7 +26,13 @@ class DDL(BaseModel):
 
     @validator("columns")
     def columns_unique(cls, v, values):
-        dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
+        dupes = {
+            k
+            for k, v in Counter(
+                [e.name if isinstance(e, cls.Column) else e for e in v]
+            ).items()
+            if v > 1
+        }
         if len(dupes) > 0:
             raise ValueError(f"Duplicate columns: {','.join(dupes)}")
         else:
@@ -192,7 +198,7 @@ class Database:
         loaded = 0
         buffer = list()
         for i, record in enumerate(data_iter):
-            if i % 100000 == 0:
+            if i % 50000 == 0:
                 if len(buffer) > 0:
                     result = self.load_data(table, schema, buffer)
                     if result.is_err:
@@ -220,6 +226,9 @@ class Database:
                 return Ok(DDL(**ddl).get_ddl())
             except Exception as e:
                 return Exc(e, db=self.name, type=self.db_type)
+
+    def transform_column_type(self, column_type, dialect):
+        return column_type.compile(dialect=dialect)
 
     def refresh_metadata(self, only=None, schema=None):
         """Refreshes the sqlalchemy metadata object.
@@ -326,13 +335,21 @@ class Database:
         table_name = table
         table = f"{schema+'.' if schema else ''}{table_name}"
 
+        # List of reserved keywords so columns are quoted
+        # TODO find a better way
+        reserved = ("from", "to", "primary")
+        columns = [
+            {k: f'"{v}"' if k == "name" and v in reserved else v for k, v in c.items()}
+            for c in ddl["columns"]
+        ]
+
         columns = "\n    , ".join(
             [
                 (
                     f'{c["name"]} {c["type"]}'
                     f'{" NOT NULL" if c.get("not_null", False) else ""}'
                 )
-                for c in ddl["columns"]
+                for c in columns
             ]
         )
 
