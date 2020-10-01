@@ -198,7 +198,7 @@ class Database:
         loaded = 0
         buffer = list()
         for i, record in enumerate(data_iter):
-            if i % 100000 == 0:
+            if i % 50000 == 0:
                 if len(buffer) > 0:
                     result = self.load_data(table, schema, buffer)
                     if result.is_err:
