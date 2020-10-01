@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.types import Boolean, DateTime
+from sqlalchemy.types import Boolean, DateTime, Text
 
 from . import Database
 
@@ -27,10 +27,14 @@ class Mysql(Database):
         self.setup_db(name, name_in_settings, db_type, engine)
 
     def transform_column_type(self, column_type, dialect):
-        ctype = column_type.compile()
-        if ctype.lower() == "tinyint(1)":
+        ctype = column_type.compile().lower()
+        if ctype == "tinyint(1)":
             return Boolean().compile(dialect=dialect)
-        elif ctype.lower() == "datetime":
+        elif ctype == "datetime":
             return DateTime().compile(dialect=dialect)
+        elif ctype == "longtext":
+            return Text().compile(dialect=dialect)
+        elif ctype == "mediumtext":
+            return Text().compile(dialect=dialect)
         else:
             return super().transform_column_type(column_type, dialect)

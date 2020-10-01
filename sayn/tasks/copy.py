@@ -129,11 +129,11 @@ class CopyTask(BaseSqlTask):
                         column=column.get("name"),
                     )
 
-            if "type" not in column:
-                column["type"] = self.source_db.transform_column_type(
-                    self.source_table_def.columns[column["name"]].type,
-                    self.default_db.engine.dialect,
-                )
+                if "type" not in column:
+                    column["type"] = self.source_db.transform_column_type(
+                        self.source_table_def.columns[column["name"]].type,
+                        self.default_db.engine.dialect,
+                    )
 
         # set execution steps
         self.steps = ["Cleanup", "Create Temp DDL"]

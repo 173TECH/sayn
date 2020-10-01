@@ -12,7 +12,7 @@ from ..utils.misc import group_list
 class DDL(BaseModel):
     class Column(BaseModel):
         name: str
-        type: str
+        type: Optional[str]
         primary: Optional[bool] = False
         not_null: Optional[bool] = False
         unique: Optional[bool] = False
@@ -26,7 +26,13 @@ class DDL(BaseModel):
 
     @validator("columns")
     def columns_unique(cls, v, values):
-        dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
+        dupes = {
+            k
+            for k, v in Counter(
+                [e.name if isinstance(e, cls.Column) else e for e in v]
+            ).items()
+            if v > 1
+        }
         if len(dupes) > 0:
             raise ValueError(f"Duplicate columns: {','.join(dupes)}")
         else:
