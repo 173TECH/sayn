@@ -36,5 +36,7 @@ class Mysql(Database):
             return Text().compile(dialect=dialect)
         elif ctype == "mediumtext":
             return Text().compile(dialect=dialect)
+        elif "varchar" in ctype:
+            return Text().compile(dialect=dialect)
         else:
             return super().transform_column_type(column_type, dialect)
