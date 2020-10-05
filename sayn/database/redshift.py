@@ -27,6 +27,10 @@ class RedshiftDDL(DDL):
     distribution: Optional[constr(regex=r"even|all|key([^,]+)")]
     sorting: Optional[Sorting]
 
+    @validator("indexes")
+    def index_columns_exists(cls, v, values):
+        raise ValueError("Indexes not supported by Redshift")
+
     @validator("distribution")
     def validate_distribution(cls, v, values):
         distribution = {"type": v.upper() if v in ("even", "all") else "KEY"}
