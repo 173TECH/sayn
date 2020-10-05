@@ -1,61 +1,15 @@
-from collections import Counter
 import re
-from typing import Dict, List, Optional
 
 from sqlalchemy import create_engine
 
-from pydantic import BaseModel, validator
-
-# TODO from ..core.errors import DatabaseError
-from ..utils.misc import group_list
-from . import Database
+from ..core.errors import Ok, Exc
+from . import Database, DDL
 
 db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
 
 
-class DDL(BaseModel):
-    class Column(BaseModel):
-        name: str
-        type: str
-        primary: Optional[bool]
-        not_null: Optional[bool]
-        unique: Optional[bool]
-
-    class Index(BaseModel):
-        columns: List[str]
-
-    columns: Optional[List[Column]]
-    indexes: Dict[str, Index]
-    permissions: Dict[str, str]
-
-    @validator("columns")
-    def columns_unique(cls, v, values):
-        print(v)
-        dupes = {k for k, v in Counter([e.name for e in v]) if v > 1}
-        if len(dupes) > 0:
-            raise ValueError(f"Duplicate columns: {','.join(dupes)}")
-        else:
-            return v
-
-    @validator("indexes")
-    def index_columns_exists(cls, v, values):
-        cols = [c.name for c in values["columns"]]
-        if len(cols) > 0:
-            missing_cols = group_list(
-                [
-                    (index_name, index_column)
-                    for index_name, index in v.items()
-                    for index_column in index.columns
-                    if index_column not in cols
-                ]
-            )
-            if len(missing_cols) > 0:
-                cols_msg = ";".join(
-                    [f"On {i}: {','.join(c)}" for i, c in missing_cols.items()]
-                )
-                raise ValueError(f"Some indexes refer to missing columns: {cols_msg}")
-
-        return v
+class RedshiftDDL(DDL):
+    pass
 
 
 class Redshift(Database):
@@ -112,8 +66,13 @@ class Redshift(Database):
         self.setup_db(name, name_in_settings, db_type, engine)
 
     def validate_ddl(self, ddl):
-        # TODO
-        pass
+        if ddl is None:
+            return Ok(RedshiftDDL().get_ddl())
+        else:
+            try:
+                return Ok(RedshiftDDL(**ddl).get_ddl())
+            except Exception as e:
+                return Exc(e, db=self.name, type=self.db_type)
 
     #        out_ddl = super(self, Database).validate_ddl(ddl, **kwargs)
     #        if out_ddl is None:
@@ -179,26 +138,28 @@ class Redshift(Database):
         return table_attributes + "\n"
 
     def create_table_select(
-        self, table, schema, select, replace=False, view=False, ddl=dict()
+        self, table, schema, select, view=False, ddl=dict(), execute=True
     ):
         """Returns SQL code for a create table from a select statment
         """
-        table_name = table
         table = f"{schema+'.' if schema else ''}{table}"
         table_or_view = "VIEW" if view else "TABLE"
 
         q = ""
-        if replace:
-            q += self.drop_table(table_name, schema, view) + "\n"
 
         q += f"CREATE {table_or_view} {table} "
         if not view:
             q += self._get_table_attributes(ddl)
         q += f" AS (\n{select}\n);"
 
-        return q
+        if execute:
+            result = self.execute(q)
+            if result.is_err:
+                return result
 
-    def create_table_ddl(self, table, schema, ddl, replace=False):
+        return Ok(q)
+
+    def create_table_ddl(self, table, schema, ddl, execute=False):
         """Returns SQL code for a create table from a select statment
         """
         table_name = table
@@ -215,11 +176,14 @@ class Redshift(Database):
         )
 
         q = ""
-        if replace:
-            q += self.drop_table(table_name, schema) + "\n"
 
         q += f"CREATE TABLE {table} "
         q += self._get_table_attributes(ddl)
         q += f" AS (\n      {columns}\n);"
 
-        return q
+        if execute:
+            result = self.execute(q)
+            if result.is_err:
+                return result
+
+        return Ok(q)
