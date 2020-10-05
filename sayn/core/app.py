@@ -166,22 +166,29 @@ class App:
     def execute_dag(self, command):
         self.run_arguments["command"] = command
         # Execution of relevant tasks
-        tasks = {k: v for k, v in self.tasks.items() if v.in_query}
-        self.tracker.start_stage(command, tasks=list(tasks.keys()))
+        tasks_in_query = {k: v for k, v in self.tasks.items() if v.in_query}
+        self.tracker.start_stage(command, tasks=list(tasks_in_query.keys()))
 
-        for task_name, task in tasks.items():
-            task.tracker._report_event("start_stage")
-            start_ts = datetime.now()
+        for task_name, task in self.tasks.items():
+            # We force the run/compile so that the skipped status can be calculated,
+            # but we only report if the task is in the query
             if task.in_query:
-                if command == "run":
-                    result = task.run()
-                else:
-                    result = task.compile()
-            task.tracker._report_event(
-                "finish_stage", duration=datetime.now() - start_ts, result=result
-            )
+                task.tracker._report_event("start_stage")
+                start_ts = datetime.now()
 
-        self.tracker.finish_current_stage(tasks={k: v.status for k, v in tasks.items()})
+            if command == "run":
+                result = task.run()
+            else:
+                result = task.compile()
+
+            if task.in_query:
+                task.tracker._report_event(
+                    "finish_stage", duration=datetime.now() - start_ts, result=result
+                )
+
+        self.tracker.finish_current_stage(
+            tasks={k: v.status for k, v in tasks_in_query.items()}
+        )
 
         self.finish_app()
 

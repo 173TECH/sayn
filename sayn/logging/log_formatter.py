@@ -234,7 +234,12 @@ class LogFormatter:
 
         elif error.code == "parent_errors":
             level = "warning"
-            message = self.warn(f"Skipping due to parent errors ({duration})")
+            parents = ", ".join(
+                [f"{p} ({s.value})" for p, s in error.details["failed_parents"].items()]
+            )
+            message = self.warn(
+                f"Skipping due to ancestors errors: {parents} ({duration})"
+            )
 
         elif error.code == "setup_error":
             if error.details["status"].value == "skipped":
