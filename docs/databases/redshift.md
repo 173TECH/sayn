@@ -20,7 +20,7 @@ when creating the engine.
 
     credentials:
       redshift-conn:
-        type: postgresql
+        type: redshift
         host: [host]
         port: [port]
         user: [username]
@@ -43,7 +43,7 @@ You can connect to Redshift with SAYN through IAM users. In order to do so, add 
 
     credentials:
       redshift-conn:
-        type: postgresql
+        type: redshift
         host: [host]
         port: [port]
         user: [username]
