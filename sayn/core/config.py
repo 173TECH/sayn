@@ -1,3 +1,4 @@
+from copy import deepcopy
 import json
 import os
 from pathlib import Path
@@ -229,7 +230,7 @@ def get_connections(credentials):
     try:
         return Ok(
             {
-                name: create_db(name, name, config)
+                name: create_db(name, name, deepcopy(config))
                 if config["type"] != "api"
                 else {k: v for k, v in config.items() if k != "type"}
                 for name, config in credentials.items()

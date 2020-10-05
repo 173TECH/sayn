@@ -96,6 +96,30 @@ class CopyTask(BaseSqlTask):
         else:
             return result
 
+        result = self.get_columns()
+        if result.is_err:
+            return result
+
+        # set execution steps
+        self.steps = ["Cleanup", "Create Temp DDL"]
+        self.steps.append("Load Data")
+
+        if self.is_full_load:
+            if len(self.ddl["indexes"]) > 0:
+                self.steps.append("Create Indexes")
+
+            self.steps.extend(["Cleanup Target", "Move"])
+
+        else:
+            self.steps.extend(["Merge"])
+
+        if len(self.ddl.get("permissions")) > 0:
+            self.steps.append("Grant Permissions")
+
+        return Ok()
+
+    def get_columns(self):
+        # We get the source table definition
         result = self.source_db.get_table(
             self.source_table,
             self.source_schema,
@@ -104,18 +128,47 @@ class CopyTask(BaseSqlTask):
         )
         if result.is_err:
             return result
-
         self.source_table_def = result.value
+
         if len(self.ddl["columns"]) == 0:
-            self.ddl["columns"] = [
-                {
-                    "name": c.name,
-                    "type": self.source_db.transform_column_type(
-                        c.type, self.default_db.engine.dialect
-                    ),
-                }
-                for c in self.source_table_def.columns
-            ]
+            dst_table_def = None
+            if not self.is_full_load:
+                result = self.default_db.get_table(self.table, self.schema)
+                if result.is_ok:
+                    dst_table_def = result.value
+
+            if dst_table_def is not None:
+                # In incremental loads we use the destination table to determine the columns
+                self.ddl["columns"] = [
+                    {"name": c.name, "type": c.type.compile()}
+                    for c in dst_table_def.columns
+                ]
+
+                # Ensure these columns are in the source
+                missing_columns = set([c.name for c in dst_table_def.columns]) - set(
+                    [c.name for c in self.source_table_def.columns]
+                )
+                if len(missing_columns) > 0:
+                    return Err(
+                        "database_error",
+                        "source_table_missing_columns",
+                        db=self.source_db.name,
+                        table=self.source_table,
+                        schema=self.source_schema,
+                        columns=missing_columns,
+                    )
+
+            else:
+                # In any other case, we use the source
+                self.ddl["columns"] = [
+                    {
+                        "name": c.name,
+                        "type": self.source_db.transform_column_type(
+                            c.type, self.default_db.engine.dialect
+                        ),
+                    }
+                    for c in self.source_table_def.columns
+                ]
         else:
             # Fill up column types from the source table
             for column in self.ddl["columns"]:
@@ -134,21 +187,5 @@ class CopyTask(BaseSqlTask):
                         self.source_table_def.columns[column["name"]].type,
                         self.default_db.engine.dialect,
                     )
-
-        # set execution steps
-        self.steps = ["Cleanup", "Create Temp DDL"]
-        self.steps.append("Load Data")
-
-        if self.is_full_load:
-            if len(self.ddl["indexes"]) > 0:
-                self.steps.append("Create Indexes")
-
-            self.steps.extend(["Cleanup Target", "Move"])
-
-        else:
-            self.steps.extend(["Merge"])
-
-        if "permissions" in self.ddl:
-            self.steps.append("Grant Permissions")
 
         return Ok()
