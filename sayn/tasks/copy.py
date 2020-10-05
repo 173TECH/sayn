@@ -148,7 +148,7 @@ class CopyTask(BaseSqlTask):
         else:
             self.steps.extend(["Merge"])
 
-        if "permissions" in self.ddl:
+        if len(self.ddl.get("permissions")) > 0:
             self.steps.append("Grant Permissions")
 
         return Ok()
