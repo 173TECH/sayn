@@ -1,5 +1,7 @@
 import re
+from typing import List, Optional
 
+from pydantic import BaseModel, constr, validator
 from sqlalchemy import create_engine
 
 from ..core.errors import Ok, Exc
@@ -9,7 +11,47 @@ db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
 
 
 class RedshiftDDL(DDL):
-    pass
+    class Sorting(BaseModel):
+        type: Optional[str]
+        columns: List[str]
+
+        @validator("type")
+        def validate_type(cls, v, values):
+            if v.upper() not in ("COMPOUND", "INTERLEAVED"):
+                raise ValueError(
+                    'Sorting type must be one of "COMPOUND" or "INTERLEAVED"'
+                )
+
+            return v.upper()
+
+    distribution: Optional[constr(regex=r"even|all|key([^,]+)")]
+    sorting: Optional[Sorting]
+
+    @validator("distribution")
+    def validate_distribution(cls, v, values):
+        distribution = {"type": v.upper() if v in ("even", "all") else "KEY"}
+        if distribution["type"] == "KEY":
+            distribution["column"] = v[len("key(") : -1]
+            if (
+                len(values["columns"]) > 0
+                and distribution["column"] not in values["columns"]
+            ):
+                raise ValueError(
+                    f'Distribution key "{distribution["column"]}" is not declared in columns'
+                )
+
+        return distribution
+
+    def get_ddl(self):
+        return {
+            "columns": [
+                {"name": c} if isinstance(c, str) else c.dict() for c in self.columns
+            ],
+            "indexes": {k: v.dict() for k, v in self.indexes.items()},
+            "permissions": self.permissions,
+            "distribution": self.distribution,
+            "sorting": self.sorting.dict() if self.sorting is not None else None,
+        }
 
 
 class Redshift(Database):
@@ -74,66 +116,28 @@ class Redshift(Database):
             except Exception as e:
                 return Exc(e, db=self.name, type=self.db_type)
 
-    #        out_ddl = super(self, Database).validate_ddl(ddl, **kwargs)
-    #        if out_ddl is None:
-    #            return
-    #
-    #        # Redshift specific ddl
-    #        column_names = [c["name"] for c in out_ddl["columns"]]
-    #        if "sorting" in kwargs:
-    #            try:
-    #                sorting = yaml.as_document(
-    #                    kwargs["sorting"],
-    #                    schema=yaml.Map(
-    #                        {
-    #                            yaml.Optional("type"): yaml.Enum(
-    #                                ["compound", "interleaved"]
-    #                            ),
-    #                            "columns": yaml.UniqueSeq(
-    #                                yaml.NotEmptyStr()
-    #                                if len(column_names) == 0
-    #                                else yaml.Enum(column_names)
-    #                            ),
-    #                        }
-    #                    ),
-    #                )
-    #            except Exception as e:
-    #                raise DatabaseError(f"{e}")
-    #
-    #            out_ddl["sorting"] = sorting.data
-    #
-    #        if "distribution" in kwargs:
-    #            try:
-    #                distribution = yaml.as_document(
-    #                    kwargs["distribution"], schema=yaml.Regex(r"even|all|key([^,]+)")
-    #                )
-    #            except Exception as e:
-    #                raise DatabaseError(f"{e}")
-    #
-    #            out_ddl["distribution"] = distribution.data
-    #
-    #        return out_ddl
-
     def _get_table_attributes(self, ddl):
-        if "sorting" not in ddl and "distribution" not in ddl:
+        if ddl["sorting"] is None and ddl["distribution"] is None:
             return ""
 
         table_attributes = ""
 
-        if "sorting" in ddl:
-            sorting_type = ddl["sorting"].get("type")
+        if ddl["sorting"] is not None:
             sorting_type = (
-                sorting_type.upper() + " " if sorting_type is not None else ""
+                f"{ddl['sorting']['type']} "
+                if ddl["sorting"]["type"] is not None
+                else ""
             )
             columns = ", ".join(ddl["sorting"]["columns"])
             table_attributes += f"\n{sorting_type}SORTKEY ({columns})"
 
-        if "distribution" in ddl:
-            if ddl["distribution"] in ("even", "all"):
-                table_attributes += f"\nDISTSTYLE {ddl['distribution'].upper()}"
+        if ddl["distribution"] is not None:
+            if ddl["distribution"] in ("EVEN", "ALL"):
+                table_attributes += f"\nDISTSTYLE {ddl['distribution']['type']}"
             else:
-                column = re.match(r"key\((.*)\)", ddl["distribution"]).groups()[0]
-                table_attributes += f"\nDISTSTYLE KEY\nDISTKEY ({column})"
+                table_attributes += (
+                    f"\nDISTSTYLE KEY\nDISTKEY ({ddl['distribution']['column']})"
+                )
 
         return table_attributes + "\n"
 
