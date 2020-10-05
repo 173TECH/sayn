@@ -77,9 +77,11 @@ class Task:
         """
         return Ok()
 
-    def fail(self, msg):
+    def fail(self, msg=None):
         """Returned on failure in any stage
         """
+        if msg is None:
+            msg = 'Unknown error. Use `self.fail("Error message")` in python tasks for more details.'
         return Err("tasks", "task_fail", message=msg)
 
     # Logging methods
