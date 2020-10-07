@@ -20,7 +20,7 @@ when creating the engine.
 
     credentials:
       redshift-conn:
-        type: postgresql
+        type: redshift
         host: [host]
         port: [port]
         user: [username]
@@ -43,7 +43,7 @@ You can connect to Redshift with SAYN through IAM users. In order to do so, add 
 
     credentials:
       redshift-conn:
-        type: postgresql
+        type: redshift
         host: [host]
         port: [port]
         user: [username]
@@ -62,3 +62,96 @@ For this connection methodology to work:
 * The `user` and `dbname` still need to be specified (use the database user, not the `IAM:user`).
 * `host` and `port` can be skipped and these values will be obtained using boto3's
     `redshift describe-clusters`.
+
+## Redshift specific DDL
+
+# Indexes
+
+Redshift doesn't support index definitions, and so autosql and copy tasks will forbid its definition in the `ddl` entry in the task definition.
+
+# Sorting
+
+Table sorting can be specified under the `ddl` entry in the task definition
+
+!!! example "dags/base.yaml"
+    ```yaml
+    ...
+
+tasks:
+  f_battles:
+    type: autosql
+    file_name: f_battles.sql
+    materialisation: table
+    destination:
+      table: f_battles
+    ddl:
+      sorting:
+        columns:
+          - arena_name
+          - fighter1_name
+    ...
+    ```
+
+With the above example, the table `f_battles` will be sorted by `arena_name` and `fighter1_name` using a compound key (Redshift default). The type of sorting can be changed to interleaved.
+
+!!! example "dags/base.yaml"
+    ```yaml
+    ...
+
+tasks:
+  f_battles:
+    type: autosql
+    file_name: f_battles.sql
+    materialisation: table
+    destination:
+      table: f_battles
+    ddl:
+      sorting:
+        type: interleaved
+        columns:
+          - arena_name
+          - fighter1_name
+    ...
+    ```
+
+For more information, read the latest docs about [SORTKEY](https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html)
+
+# Distribution
+
+We can also specify the type of distribution: even, all or key based. If not specified, the Redshift default is even distribution.
+
+!!! example "dags/base.yaml"
+    ```yaml
+    ...
+
+tasks:
+  f_battles:
+    type: autosql
+    file_name: f_battles.sql
+    materialisation: table
+    destination:
+      table: f_battles
+    ddl:
+      distribution: all
+    ...
+    ```
+
+If we want to distribute the table by a given column use the following:
+
+!!! example "dags/base.yaml"
+    ```yaml
+    ...
+
+tasks:
+  f_battles:
+    type: autosql
+    file_name: f_battles.sql
+    materialisation: table
+    destination:
+      table: f_battles
+    ddl:
+      distribution: key(tournament_name)
+    ...
+    ```
+
+For more information, read the latest docs about [DISTKEY](https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html)

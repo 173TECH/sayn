@@ -1,61 +1,61 @@
-from collections import Counter
 import re
-from typing import Dict, List, Optional
+from typing import List, Optional
 
+from pydantic import BaseModel, constr, validator
 from sqlalchemy import create_engine
 
-from pydantic import BaseModel, validator
-
-# TODO from ..core.errors import DatabaseError
-from ..utils.misc import group_list
-from . import Database
+from ..core.errors import Ok, Exc
+from . import Database, DDL
 
 db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
 
 
-class DDL(BaseModel):
-    class Column(BaseModel):
-        name: str
-        type: str
-        primary: Optional[bool]
-        not_null: Optional[bool]
-        unique: Optional[bool]
-
-    class Index(BaseModel):
+class RedshiftDDL(DDL):
+    class Sorting(BaseModel):
+        type: Optional[str]
         columns: List[str]
 
-    columns: Optional[List[Column]]
-    indexes: Dict[str, Index]
-    permissions: Dict[str, str]
+        @validator("type")
+        def validate_type(cls, v, values):
+            if v.upper() not in ("COMPOUND", "INTERLEAVED"):
+                raise ValueError(
+                    'Sorting type must be one of "COMPOUND" or "INTERLEAVED"'
+                )
 
-    @validator("columns")
-    def columns_unique(cls, v, values):
-        print(v)
-        dupes = {k for k, v in Counter([e.name for e in v]) if v > 1}
-        if len(dupes) > 0:
-            raise ValueError(f"Duplicate columns: {','.join(dupes)}")
-        else:
-            return v
+            return v.upper()
+
+    distribution: Optional[constr(regex=r"even|all|key([^,]+)")]
+    sorting: Optional[Sorting]
 
     @validator("indexes")
     def index_columns_exists(cls, v, values):
-        cols = [c.name for c in values["columns"]]
-        if len(cols) > 0:
-            missing_cols = group_list(
-                [
-                    (index_name, index_column)
-                    for index_name, index in v.items()
-                    for index_column in index.columns
-                    if index_column not in cols
-                ]
-            )
-            if len(missing_cols) > 0:
-                cols_msg = ";".join(
-                    [f"On {i}: {','.join(c)}" for i, c in missing_cols.items()]
-                )
-                raise ValueError(f"Some indexes refer to missing columns: {cols_msg}")
+        raise ValueError("Indexes not supported by Redshift")
 
-        return v
+    @validator("distribution")
+    def validate_distribution(cls, v, values):
+        distribution = {"type": v.upper() if v in ("even", "all") else "KEY"}
+        if distribution["type"] == "KEY":
+            distribution["column"] = v[len("key(") : -1]
+            if (
+                len(values["columns"]) > 0
+                and distribution["column"] not in values["columns"]
+            ):
+                raise ValueError(
+                    f'Distribution key "{distribution["column"]}" is not declared in columns'
+                )
+
+        return distribution
+
+    def get_ddl(self):
+        return {
+            "columns": [
+                {"name": c} if isinstance(c, str) else c.dict() for c in self.columns
+            ],
+            "indexes": {k: v.dict() for k, v in self.indexes.items()},
+            "permissions": self.permissions,
+            "distribution": self.distribution,
+            "sorting": self.sorting.dict() if self.sorting is not None else None,
+        }
 
 
 class Redshift(Database):
@@ -112,93 +112,62 @@ class Redshift(Database):
         self.setup_db(name, name_in_settings, db_type, engine)
 
     def validate_ddl(self, ddl):
-        # TODO
-        pass
-
-    #        out_ddl = super(self, Database).validate_ddl(ddl, **kwargs)
-    #        if out_ddl is None:
-    #            return
-    #
-    #        # Redshift specific ddl
-    #        column_names = [c["name"] for c in out_ddl["columns"]]
-    #        if "sorting" in kwargs:
-    #            try:
-    #                sorting = yaml.as_document(
-    #                    kwargs["sorting"],
-    #                    schema=yaml.Map(
-    #                        {
-    #                            yaml.Optional("type"): yaml.Enum(
-    #                                ["compound", "interleaved"]
-    #                            ),
-    #                            "columns": yaml.UniqueSeq(
-    #                                yaml.NotEmptyStr()
-    #                                if len(column_names) == 0
-    #                                else yaml.Enum(column_names)
-    #                            ),
-    #                        }
-    #                    ),
-    #                )
-    #            except Exception as e:
-    #                raise DatabaseError(f"{e}")
-    #
-    #            out_ddl["sorting"] = sorting.data
-    #
-    #        if "distribution" in kwargs:
-    #            try:
-    #                distribution = yaml.as_document(
-    #                    kwargs["distribution"], schema=yaml.Regex(r"even|all|key([^,]+)")
-    #                )
-    #            except Exception as e:
-    #                raise DatabaseError(f"{e}")
-    #
-    #            out_ddl["distribution"] = distribution.data
-    #
-    #        return out_ddl
+        if ddl is None:
+            return Ok(RedshiftDDL().get_ddl())
+        else:
+            try:
+                return Ok(RedshiftDDL(**ddl).get_ddl())
+            except Exception as e:
+                return Exc(e, db=self.name, type=self.db_type)
 
     def _get_table_attributes(self, ddl):
-        if "sorting" not in ddl and "distribution" not in ddl:
+        if ddl["sorting"] is None and ddl["distribution"] is None:
             return ""
 
         table_attributes = ""
 
-        if "sorting" in ddl:
-            sorting_type = ddl["sorting"].get("type")
+        if ddl["sorting"] is not None:
             sorting_type = (
-                sorting_type.upper() + " " if sorting_type is not None else ""
+                f"{ddl['sorting']['type']} "
+                if ddl["sorting"]["type"] is not None
+                else ""
             )
             columns = ", ".join(ddl["sorting"]["columns"])
             table_attributes += f"\n{sorting_type}SORTKEY ({columns})"
 
-        if "distribution" in ddl:
-            if ddl["distribution"] in ("even", "all"):
-                table_attributes += f"\nDISTSTYLE {ddl['distribution'].upper()}"
+        if ddl["distribution"] is not None:
+            if ddl["distribution"] in ("EVEN", "ALL"):
+                table_attributes += f"\nDISTSTYLE {ddl['distribution']['type']}"
             else:
-                column = re.match(r"key\((.*)\)", ddl["distribution"]).groups()[0]
-                table_attributes += f"\nDISTSTYLE KEY\nDISTKEY ({column})"
+                table_attributes += (
+                    f"\nDISTSTYLE KEY\nDISTKEY ({ddl['distribution']['column']})"
+                )
 
         return table_attributes + "\n"
 
     def create_table_select(
-        self, table, schema, select, replace=False, view=False, ddl=dict()
+        self, table, schema, select, view=False, ddl=dict(), execute=True
     ):
         """Returns SQL code for a create table from a select statment
         """
-        table_name = table
         table = f"{schema+'.' if schema else ''}{table}"
         table_or_view = "VIEW" if view else "TABLE"
 
         q = ""
-        if replace:
-            q += self.drop_table(table_name, schema, view) + "\n"
 
         q += f"CREATE {table_or_view} {table} "
         if not view:
             q += self._get_table_attributes(ddl)
         q += f" AS (\n{select}\n);"
 
-        return q
+        if execute:
+            result = self.execute(q)
+            if result.is_err:
+                return result
 
-    def create_table_ddl(self, table, schema, ddl, replace=False):
+        return Ok(q)
+
+    def create_table_ddl(self, table, schema, ddl, execute=False):
         """Returns SQL code for a create table from a select statment
         """
         table_name = table
@@ -215,11 +184,14 @@ class Redshift(Database):
         )
 
         q = ""
-        if replace:
-            q += self.drop_table(table_name, schema) + "\n"
 
         q += f"CREATE TABLE {table} "
         q += self._get_table_attributes(ddl)
         q += f" AS (\n      {columns}\n);"
 
-        return q
+        if execute:
+            result = self.execute(q)
+            if result.is_err:
+                return result
+
+        return Ok(q)

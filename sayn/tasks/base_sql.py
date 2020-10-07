@@ -164,7 +164,7 @@ class BaseSqlTask(Task):
 
         if len(ddl.get("columns")) == 0:
             result = self.default_db.create_table_select(
-                table, schema, select, view=False, execute=execute
+                table, schema, select, view=False, ddl=self.ddl, execute=execute
             )
             if result.is_err:
                 return result
