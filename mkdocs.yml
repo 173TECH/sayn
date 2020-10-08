@@ -8,8 +8,9 @@ site_url: https://173tech.github.io/sayn/
 theme:
   name: material
   palette:
-    primary: blue grey
-    accent: light blue
+    scheme: slate
+    primary: cyan
+    accent: blue
 
 google_analytics:
   - UA-149287493-2
@@ -40,10 +41,6 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/173TECH
-
-
-extra_css:
-    - css/custom.css
 
 nav:
   - Home: index.md
