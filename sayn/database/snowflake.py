@@ -14,8 +14,6 @@ db_parameters = [
     "warehouse",
     "role",
     "schema",
-    "host",
-    "port",
 ]
 
 
@@ -24,10 +22,6 @@ class Snowflake(Database):
         db_type = settings.pop("type")
 
         from snowflake.sqlalchemy import URL
-
-        for logger_name in ["snowflake.connector", "botocore", "boto3"]:
-            logger = logging.getLogger(logger_name)
-            logger.setLevel(logging.WARNING)
 
         url_params = dict()
         for param in db_parameters:
