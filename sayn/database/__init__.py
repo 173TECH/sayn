@@ -76,10 +76,11 @@ class Database:
     when working in python tasks without the need for calling create_engine.
 
     Attributes:
-        * engine (sqlalchemy.Engine): A sqlalchemy engine referencing the database
-        * name (str): Name of the db as defined in `required_credentials` in `project.yaml`
-        * name_in_yaml (str): Name of db under `credentials` in `settings.yaml`
-        * db_type (str): Type of the database
+        engine (sqlalchemy.Engine): A sqlalchemy engine referencing the database.
+        name (str): Name of the db as defined in `required_credentials` in `project.yaml`.
+        name_in_yaml (str): Name of db under `credentials` in `settings.yaml`.
+        db_type (str): Type of the database.
+        metadata (sqlalchemy.MetaData): A metadata object associated with the engine.
     """
 
     sql_features = []
@@ -245,9 +246,6 @@ class Database:
         Args:
             table (str): The table name
             schema (str): The schema or None
-            columns (list): A list of column names to build the table object
-            required_existing (bool): If True and columns is not None, fills up
-                the table columns with the specification in columns
 
         Returns:
             sqlalchemy.Table: A table object from sqlalchemy
@@ -290,6 +288,9 @@ class Database:
             schema (str): The target schema or None
             select (str): A SQL SELECT query to build the table with
             view (bool): Indicates if the object to create is a view. Defaults to creating a table
+            ddl (dict): Optionally specify a ddl dict. If provided, a `CREATE` with column specification
+                followed by an `INSERT` rather than a `CREATE ... AS SELECT ...` will be issued
+            execute (bool): Execute the query before returning it
 
         Returns:
             str: A SQL script for the CREATE...AS
@@ -320,6 +321,7 @@ class Database:
             table (str): The target table name
             schema (str): The target schema or None
             ddl (dict): A ddl task definition
+            execute (bool): Execute the query before returning it
 
         Returns:
             str: A SQL script for the CREATE TABLE statement
@@ -373,6 +375,7 @@ class Database:
             table (str): The target table name
             schema (str): The target schema or None
             ddl (dict): A ddl task definition
+            execute (bool): Execute the query before returning it
 
         Returns:
             str: A SQL script for the CREATE INDEX statements
@@ -412,6 +415,7 @@ class Database:
             table (str): The target table name
             schema (str): The target schema or None
             ddl (dict): A ddl task definition
+            execute (bool): Execute the query before returning it
 
         Returns:
             str: A SQL script for the GRANT statements
@@ -437,6 +441,7 @@ class Database:
             table (str): The target table name
             schema (str): The target schema or None
             view (bool): Indicates if the object to drop is a view. Defaults to dropping a table
+            execute (bool): Execute the query before returning it
 
         Returns:
             str: A SQL script for the DROP statements
@@ -466,6 +471,7 @@ class Database:
             schema (str): The target schema or None
             select (str): The SELECT statement to issue
             columns (list): The list of column names specified in DDL. If provided, the insert will be reordered based on this order
+            execute (bool): Execute the query before returning it
 
         Returns:
             str: A SQL script for the INSERT statement
@@ -510,6 +516,7 @@ class Database:
             dst_table (str): The target table name
             dst_schema (str): The target schema or None
             ddl (dict): A ddl task definition
+            execute (bool): Execute the query before returning it
 
         Returns:
             str: A SQL script for moving the table
@@ -568,6 +575,7 @@ class Database:
             dst_schema (str): The target schema or None
             delete_key (str): The column name to use for deleting records from the target table
             columns (list): The list of column names specified in DDL. If provided, the insert will be reordered based on this order
+            execute (bool): Execute the query before returning it
 
         Returns:
             str: A SQL script for moving the table

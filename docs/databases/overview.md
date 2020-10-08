@@ -63,7 +63,7 @@ convenience though, all Python tasks have a `default_db`.
 
 ## Database class
 
-::: sayn.database.database.Database
+::: sayn.database.Database
     selection:
       members:
         - execute
