@@ -34,6 +34,8 @@ plugins:
         python:
           rendering:
             show_source: false
+          selection:
+            inherited_members: True
       watch:
         - sayn
 
@@ -43,25 +45,25 @@ extra:
       link: https://github.com/173TECH
 
 nav:
-  - Home: index.md
+  - What is SAYN: index.md
   - Tutorial:
     - Tutorial (Part 1): tutorials/tutorial_part1.md
     - Tutorial (Part 2): tutorials/tutorial_part2.md
-  - Project Structure: project_structure.md
-  - Settings:
+  - Core concepts:
+    - Project Structure: project_structure.md
     - project.yaml: settings/project_yaml.md
     - settings.yaml: settings/settings_yaml.md
-  - Commands: commands.md
-  - DAGs: dags.md
+    - Commands: commands.md
+    - DAGs: dags.md
+    - Tasks: tasks/overview.md
+    - Presets: presets.md
+    - Parameters: parameters.md
   - Tasks:
-    - Overview: tasks/overview.md
-    - autosql: tasks/autosql.md
-    - python: tasks/python.md
-    - copy: tasks/copy.md
-    - dummy: tasks/dummy.md
-    - sql: tasks/sql.md
-  - Presets: presets.md
-  - Parameters: parameters.md
+    - Autosql: tasks/autosql.md
+    - Python: tasks/python.md
+    - Sql: tasks/sql.md
+    - Copy: tasks/copy.md
+    - Dummy: tasks/dummy.md
   - Databases:
     - Overview: databases/overview.md
     - Redshift: databases/redshift.md
@@ -71,3 +73,4 @@ nav:
     - SQLite: databases/sqlite.md
   - API Reference:
     - Database: api/database.md
+    - PythonTask: api/pythontask.md

@@ -1,4 +1,3 @@
-from contextlib import contextmanager
 from enum import Enum
 from pathlib import Path
 
@@ -23,6 +22,21 @@ class TaskStatus(Enum):
 
 
 class Task:
+    """
+    Base class for tasks in SAYN.
+
+    Attributes:
+        name (str): Name of the task as defined in the dag.
+        dag (str): Name of the dag where the task was defined.
+        run_arguments (dict): Dictionary containing the values for the arguments specified in the cli.
+        task_parameters (dict): Provides access to the parameters specified in the task.
+        project_parameters (dict): Provides access to the global parameters of the project.
+        parameters (dict): Convinience property joining project and task parameters.
+        connections (dict): Dictionary of connections specified for the project.
+        tracker (sayn.logging.TaskEventTracker): Message tracker for the current task.
+        jinja_env (jinja2.Environment): Jinja environment for this task. The environment comes pre-populated with the parameter values relevant to the task.
+    """
+
     name = None
     dag = None
     tags = list()
@@ -42,10 +56,6 @@ class Task:
         return dict(**self.project_parameters, **self.task_parameters)
 
     @property
-    def default_db(self):
-        return self.connections[self._default_db]
-
-    @property
     def db(self):
         return self.connections[self._default_db]
 
@@ -53,6 +63,10 @@ class Task:
     @property
     def logger(self):
         return self.tracker
+
+    @property
+    def default_db(self):
+        return self.connections[self._default_db]
 
     # Task lifetime methods
 
@@ -68,17 +82,17 @@ class Task:
     # Status methods
 
     def ready(self):
-        """Returned on successful execution
+        """(Deprecated: use `success` instead) Returned on successful execution.
         """
         return Ok()
 
     def success(self):
-        """Returned on successful execution
+        """Returned on successful execution.
         """
         return Ok()
 
     def fail(self, msg=None):
-        """Returned on failure in any stage
+        """Returned on failure in any stage.
         """
         if msg is None:
             msg = 'Unknown error. Use `self.fail("Error message")` in python tasks for more details.'
@@ -87,47 +101,67 @@ class Task:
     # Logging methods
 
     def set_run_steps(self, steps):
+        """Sets the run steps for the task, allowing the CLI to indicate task execution progress. """
         self.tracker.set_run_steps(steps)
 
     def start_step(self, step):
+        """Specifies the start of a task step"""
         self.tracker.start_step(step)
 
     def finish_current_step(self, result=Ok()):
+        """Specifies the end of the current step"""
         self.tracker.finish_current_step(result)
 
     def debug(self, message, details=None):
+        """Print a debug message when executing sayn in debug mode (`sayn run -d`)"""
         if details is None:
             details = dict()
         self.tracker.debug(message, **details)
 
     def info(self, message, details=None):
+        """Prints an info message."""
         if details is None:
             details = dict()
         self.tracker.info(message, **details)
 
     def warning(self, message, details=None):
+        """Prints a warning message which will be persisted on the screen after the task concludes execution."""
         if details is None:
             details = dict()
         self.tracker.warning(message, **details)
 
     def error(self, message, details=None):
+        """Prints an error message which will be persisted on the screen after the task concludes execution.
+
+        Executing this method doesn't abort the task or changes the task status. Use `return self.fail` for that instead.
+
+        Args:
+          message (str): An optinal error message to print to the screen.
+
+        """
         if details is None:
             details = dict()
         self.tracker.error(message, **details)
 
-    @contextmanager
-    def step(self, step):
-        self.tracker.start_step(step)
-        try:
-            yield
-            self.tracker.finish_current_step()
-        except Exception as e:
-            self.tracker.finish_current_step(e)
-            raise e
+    # @contextmanager
+    # def step(self, step):
+    #     self.tracker.start_step(step)
+    #     try:
+    #         yield
+    #         self.tracker.finish_current_step()
+    #     except Exception as e:
+    #         self.tracker.finish_current_step(e)
+    #         raise e
 
     # Jinja methods
 
     def get_template(self, obj):
+        """Returns a Jinja template object.
+
+        Args:
+          obj (str/Path): The object to transform into a template. If a `pathlib.Path` is specified, the template will be read from disk.
+
+        """
         if isinstance(obj, Path):
             try:
                 template = obj.read_text()
@@ -144,6 +178,13 @@ class Task:
             return Exc(e, template=template)
 
     def compile_obj(self, obj, **params):
+        """Compiles the object into a string using the task jinja environment.
+
+        Args:
+          obj (str/Path/Template): The object to compile. If the object is not a Jinja template object, `self.get_template` will be called first.
+          params (dict): An optional dictionary of additional values to use for compilation.
+              Note: Project and task parameters values are already set in the environment, so there's no need to pass them on
+        """
         if isinstance(obj, Template):
             template = obj
         else:
