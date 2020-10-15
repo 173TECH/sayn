@@ -1,33 +1,9 @@
-# For more information on how to use SAYN, please visit our documentation:
-# https://173tech.github.io/sayn/
+# SAYN sample project. Follow the tutorial for more details:
+# https://173tech.github.io/sayn/tutorials/tutorial_part1
 
-##############
-#PROJECT OVERVIEW
-##############
-# this file contains the details of the SAYN project -it is shared across all project users
-# for more information about the project.yaml file, please see the specific documentation:
-# https://173tech.github.io/sayn/settings/project_yaml/
-
-##############
-#REQUIRED CREDENTIALS SECTION
-##############
-# specifies the list of the required credentials to run the project
-# the details of those credentials are specified into the settings.yaml file
 required_credentials:
   - warehouse
-
-##############
-#DEFAULT DATABASE SECTION
-##############
-# specifies which database should be used as the default database when running SAYN
-# the specified database need to be part of the required_credentials
 default_db: warehouse
 
-##############
-#DAGs SECTION
-##############
-# specifies the DAGs that are run by the SAYN project
-# those DAGs are stored into the dags folder and contain the details of the SAYN tasks
-# refer to the dags without the .yaml extension
 dags:
   - base

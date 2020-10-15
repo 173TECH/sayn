@@ -2,7 +2,7 @@
 
 ## What We Will Cover
 
-This tutorial covers the basic concepts of SAYN and will get you going quickly. It uses the example project in the folder created by `sayn init` and creates a small ETL process based on synthetic data.
+This tutorial covers the basic concepts of SAYN and will get you going quickly. It uses the example project created by `sayn init`.
 
 If you need any help or want to ask a question, please reach out to the team at <sayn@173tech.com>.
 
@@ -24,7 +24,7 @@ Running `sayn run` will output logging on your terminal about the process being 
     * One `python` task which creates some logs and stores them into several log tables within a `dev.db` SQLite database. This database is created in your project's folder root.
     * Several `autosql` tasks which create data models including tables and views based on those logs.
 
-You can open `dev.db` and see the tables and views created by `sayn run`. You can use [DB Browser for SQLite](https://sqlitebrowser.org/dl/){target="\_blank"} in order to view the content of the database. As you can observe, `sayn run` created a small ETL process which models battles from various tournaments.
+You can open `dev.db` and see the tables and views created by `sayn run`. You can use [DB Browser for SQLite](https://sqlitebrowser.org/dl/) in order to view the content of the database. As you can observe, `sayn run` created a small ETL process which models battles from various tournaments.
 
 That's it, you made your first SAYN run! We will now explain what happens in the background.
 
