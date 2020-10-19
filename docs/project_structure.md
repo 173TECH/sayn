@@ -3,26 +3,29 @@
 SAYN projects are structured as follows:
 
 ```
-  project_name   
-    compile/ #only appears after first run     
-    dags/
-        dag.yaml
-    logs/ #only appears after first run
-        sayn.log
-    python/
-        __init__.py
-        task_1.py
-    sql/
-        task_2.sql
-        task_3.sql
-        task_4.sql
-    .gitignore
-    project.yaml
-    readme.md
-    settings.yaml
+tutorial
+├── project.yaml
+├── settings.yaml
+├── dags
+│   └── base.yaml
+├── python
+│   ├── __init__.py
+│   ├── load_data.py
+│   └── utils
+│       ├── __init__.py
+│       └── log_creator.py
+├── sql
+│   ├── dim_arenas.sql
+│   ├── dim_fighters.sql
+│   ├── dim_tournaments.sql
+│   ├── f_battles.sql
+│   ├── f_fighter_results.sql
+│   └── f_rankings.sql
+├── compile
+├── .gitignore
+├── readme.md
+└── requirements.txt
 ```
-
-Please see below the role of each component:
 
 * `project.yaml`: defines the core components of the SAYN project. It is **shared across all collaborators**.
 * `settings.yaml`: defines the individual user's settings. It is **unique for each collaborator and should never be pushed to git** as it contains credentials.

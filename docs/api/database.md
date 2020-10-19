@@ -1,1 +1,4 @@
-::: sayn.database.database
+::: sayn.database
+    selection:
+      members:
+        - Database

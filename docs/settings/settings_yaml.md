@@ -1,90 +1,102 @@
 # Settings: `settings.yaml`
 
-## Role
+The `settings.yaml` defines local configuration like credentials. **This file is unique to each SAYN user**
+collaborating on the project and is automatically ignored by git.
 
-The `settings.yaml` file is used for individual settings to run the SAYN project. **This file is unique to each SAYN user** collaborating on the project and is automatically ignored by git **(it should never be pushed to git as it contains credentials for databases and APIs used by the SAYN project)**.
+!!! warning
+    `settings.yaml` should never be pushed to git as it contains credentials for
+    databases and APIs used by the SAYN project.
 
-## Content
-
-### Overview
-
-Please see below and example of `settings.yaml` file:
-
-**`settings.yaml`**
-
-``` yaml
-default_profile: dev
-
-profiles:
-  dev:
+!!! example "settings.yaml"
+    ``` yaml
+    default_profile: dev
+    
+    profiles:
+      dev:
+        credentials:
+          warehouse: snowflake-songoku
+    
+        parameters:
+          table_prefix: songoku_
+          schema_logs: analytics_logs
+          schema_staging: analytics_adhoc
+          schema_models: analytics_adhoc
+    
+      prod:
+        credentials:
+          warehouse: snowflake-prod
+    
+        # no need for prod parameters as those are read from models.yaml
+    
     credentials:
-      warehouse: snowflake-songoku
+      snowflake-songoku:
+        type: snowflake
+        account: [snowflake-account]
+        user: [user-name]
+        password: '[password]'
+        database: [database]
+        schema: [schema]
+        warehouse: [warehouse]
+        role: [role]
+    
+      snowflake-prod:
+        type: snowflake
+        account: [snowflake-account]
+        user: [user-name]
+        password: '[password]'
+        database: [database]
+        schema: [schema]
+        warehouse: [warehouse]
+        role: [role]
+    ```
 
-    parameters:
-      table_prefix: songoku_
-      schema_logs: analytics_logs
-      schema_staging: analytics_adhoc
-      schema_models: analytics_adhoc
+| Property | Description | Default |
+| -------- | ----------- | -------- |
+| profiles | A map of available profiles to the user. `credentials` and `parameters` are defined for each profile. Those `parameters` overwrite the `parameters` set in `project.yaml`. | Required |
+| default_profile | The profile used by default at execution time. | Entry in `required_credentials` if only 1 defined |
+| credentials | The list of credentials used in profiles to link `required_credentials` in `project.yaml`. | Required |
 
-  prod:
+This file enables the user to use two different profiles whenever desired: `dev` and `prod`. It is
+usually good practice to separate your environments in order to ensure that testing is never done directly
+on production.
+
+### Defining credentials
+
+Credentials includes both databases (eg: your warehouse) as well as custom secrets used by python tasks.
+For a definition of a database connection see to the documentation for your
+[database type](../databases/overview.md)
+
+For custom credentials, use the `type: api` and include values required:
+
+!!! example "settings.yaml"
+    ```yaml
     credentials:
-      warehouse: snowflake-prod
+      credential_name:
+        type: api
+        api_key: 'api_key'
+    ```
 
-    # no need for prod parameters as those are read from models.yaml
+All credentials are accessible through `self.connections['credential_name']` where `credential_name` is the
+name given in required_credentials. API credentials when accessed in python are defined as dictionary,
+whereas database connections are `Database` objects.
 
-credentials:
-  snowflake-songoku:
-    type: snowflake
-    connect_args:
-      account: [snowflake-account]
-      user: [user-name]
-      password: '[password]'
-      database: [database]
-      schema: [schema]
-      warehouse: [warehouse]
-      role: [role]
+### Using environment variables
 
-  snowflake-prod:
-    type: snowflake
-    connect_args:
-      account: [snowflake-account]
-      user: [user-name]
-      password: '[password]'
-      database: [database]
-      schema: [schema]
-      warehouse: [warehouse]
-      role: [role]
-```
+Local settings can be set without the need of a `settings.yaml` file using environment variables instead.
+With environment variables we don't need to set profiles, only credentials and project parameters are
+defined. SAYN will interpret any environment variable names `SAYN_CREDENTIAL_name` or `SAYN_PARAMETER_name`.
+The values when using environment variables are json encoded.
 
-The `settings.yaml` file requires the following to be defined:
+Taking the `settings.yaml` example above for the dev profile, in environment variables:
 
-* `default_profile`: the profile used by default at execution time.
-* `profiles`: the list of available profiles to the user. `credentials` and `parameters` are defined for each profile. Those `parameters` overwrite the `parameters` set in `project.yaml`.
-* `credentials`: the list of credentials for the user.
+!!! example ".env.sh"
+    ```bash
+    export SAYN_CREDENTIAL_warehouse="{'type': 'snowflake', 'account': ..."
+    export SAYN_PARAMETER_table_prefix="songoku_"
+    export SAYN_PARAMETER_schema_logs="analytics_logs"
+    export SAYN_PARAMETER_schema_staging="analytics_adhoc"
+    export SAYN_PARAMETER_schema_models="analytics_adhoc"
+    ```
 
-As can be observed, this file enables the user to use two different profiles whenever desired: `dev` and `prod`. It is usually good practice to separate your environments in order to ensure that testing is never done directly on production.
-
-### About Credentials
-
-The `credentials` section of the `settings.yaml` file is used to store both databases and API credentials.
-
-#### Databases
-
-SAYN supports various databases. In order to create a database credential, define the `type` as one of the supported databases (see the [Database](../databases/overview.md) section for more details) and the connection parameters relevant to the database type.
-
-#### APIs
-
-In order to define API credentials, use the `type: api` and pass the API connection parameters. Please see an example below:
-
-```yaml
-# ...
-
-credentials:
-  # ...
-
-  credential_name:
-    type: api
-    api_key: 'api_key'
-```
-
-Those API credentials can then be accessed in `python` tasks through the Task object.
+When environement variables are defined and a `settings.yaml` file exists, the settings from both will
+be combined with the environment variables taking precedence.

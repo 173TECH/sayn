@@ -1,129 +1,135 @@
 # Tutorial: Part 1
 
-## What We Will Cover
+This tutorial covers the basic concepts of SAYN and will get you going quickly. It uses the example
+project created by `sayn init`. It assumes SAYN is setup as described in the
+[installation section](../installation.md).
 
-This tutorial covers the basic concepts of SAYN and will get you going quickly. It uses the example project in the folder created by `sayn init` and creates a small ETL process based on synthetic data.
-
-If you need any help or want to ask a question, please reach out to the team at <sayn@173tech.com>.
+This project generates some random data with a `python` task and performs some modelling on it with
+`autosql` tasks.
 
 ## Running SAYN
 
-Run the below in order to install SAYN and process your first SAYN run.
+To get started, open a terminal, activate your virtual environment (`source sayn_venv/bin/activate`)
+and run the following:
 
 ```bash
-$ pip install sayn
-$ sayn init test_sayn
-$ cd test_sayn
-$ sayn run
+sayn init sayn_tutorial
+cd sayn_tutorial
+sayn run
 ```
 
-Running `sayn run` will output logging on your terminal about the process being executed. This is what will happen:
+This will create a new project with the contents of this tutorial and execute it.
 
-* SAYN will run all project tasks. Those are all in the DAG file `dags/base.yaml`.
-* The tasks include:
-    * One `python` task which creates some logs and stores them into several log tables within a `dev.db` SQLite database. This database is created in your project's folder root.
-    * Several `autosql` tasks which create data models including tables and views based on those logs.
+![`sayn run` execution](sayn_run1.gif)
 
-You can open `dev.db` and see the tables and views created by `sayn run`. You can use [DB Browser for SQLite](https://sqlitebrowser.org/dl/){target="\_blank"} in order to view the content of the database. As you can observe, `sayn run` created a small ETL process which models battles from various tournaments.
+You can open `dev.db` and see the tables and views created by `sayn run`. You can use
+[DB Browser for SQLite](https://sqlitebrowser.org/dl/){target="\_blank"} in order to view the
+content of the database. As you can observe, `sayn run` created a small ETL process which models
+battles from various tournaments.
 
 That's it, you made your first SAYN run! We will now explain what happens in the background.
 
 ## Project Overview
 
-The `test_sayn` folder has the following structure:
+The `sayn_tutorial` folder has the following structure:
 
 ```
-  test_sayn    
-    compile/ # only appears after first run     
-    dags/
-        base.yaml
-    logs/ # only appears after first run
-        sayn.log
-    python/
-        __init__.py
-        load_data.py
-        utils/
-          __init__.py
-          log_creator.py
-    sql/
-        dim_arenas.sql
-        dim_fighters.sql
-        dim_tournaments.sql
-        f_battles.sql
-        f_fighter_results.sql
-        f_rankings.sql
-    .gitignore
-    project.yaml
-    readme.md
-    settings.yaml
+tutorial
+├── project.yaml
+├── settings.yaml
+├── dags
+│   └── base.yaml
+├── python
+│   ├── __init__.py
+│   ├── load_data.py
+│   └── utils
+│       ├── __init__.py
+│       └── log_creator.py
+├── sql
+│   ├── dim_arenas.sql
+│   ├── dim_fighters.sql
+│   ├── dim_tournaments.sql
+│   ├── f_battles.sql
+│   ├── f_fighter_results.sql
+│   └── f_rankings.sql
+├── compile
+├── .gitignore
+├── readme.md
+└── requirements.txt
 ```
 
-Please see below the role of each component:
+The main files are:
 
-* `project.yaml`: defines the core components of the SAYN project. It is **shared across all collaborators**.
-* `settings.yaml`: defines the individual user's settings. It is **unique for each collaborator and should never be pushed to git** as it contains credentials.
+* `project.yaml`: defines the SAYN project. It is **shared across all collaborators**.
+* `settings.yaml`: defines the individual user's settings. It is **unique for each collaborator and
+   should never be pushed to git** as it contains credentials.
 * `dags`: folder where DAG files are stored. SAYN tasks are defined in those files.
 * `python`: folder where `python` tasks are stored.
 * `sql`: folder where `sql` and `autosql` tasks are stored.
 * `logs`: folder where SAYN logs are written.
-* `compile`: folder where SQL queries are compiled before execution.
+* `compile`: folder where compiled SQL queries before execution.
 
-## Implementing Your Project
+## Implementing your project
 
-We will now go through the example project and explain the process of building a SAYN project. You can use the `test_sayn` folder you created to follow along, all the code is already written there.
+Now let's see how the tutorial project would be created from scratch.
 
-### Step 1: Define the SAYN project with `project.yaml`
+### Step 1: Define the project in `project.yaml`
 
-Add the `project.yaml` file at the root level of your directory. Here is the file from the example:
+The `project.yaml` file is at the root level of your directory and contains:
 
-**`project.yaml`**
-``` yaml
-required_credentials:
-  - warehouse
-
-default_db: warehouse
-
-dags:
-  - base
-```
+!!! example "project.yaml"
+    ```yaml
+    required_credentials:
+      - warehouse
+    
+    default_db: warehouse
+    
+    dags:
+      - base
+    ```
 
 The following is defined:
 
-* `required_credentials`: the required credentials to run the project. Credential details are defined in the `settings.yaml` file.
-* `default_db`: the database used at run time.
-* `dags`: the DAGs of the project (this example has only one `dag` which can be found at `dags/base.yaml`). Those DAGs contain the tasks.
+* `required_credentials`: the list of credentials used by the project. In this case we have a single
+  credential called `warehouse`. The connection details will be defined in `settings.yaml`.
+* `default_db`: the database used by sql and autosql tasks. Since we only have 1 credential, this
+  field can be skipped.
+* `dags`: the list of files in the dags folder that contain this project's task definitions.
 
 ### Step 2: Define your individual settings with `settings.yaml`
 
-Add the `settings.yaml` file at the root level of your directory. Here is the file from the example:
+The `settings.yaml` file at the root level of your directory and contains:
 
-**`settings.yaml`**
-
-``` yaml
-default_profile: dev
-
-profiles:
-  dev:
+!!! example "settings.yaml"
+    ```yaml
+    profiles:
+      dev:
+        credentials:
+          warehouse: dev_db
+      prod:
+        credentials:
+          warehouse: prod_db
+    
+    default_profile: dev
+    
     credentials:
-      warehouse: dev_db
-  prod:
-    credentials:
-      warehouse: prod_db
-
-credentials:
-  dev_db:
-    type: sqlite
-    database: dev.db
-  prod_db:
-    type: sqlite
-    database: prod.db
-```
+      dev_db:
+        type: sqlite
+        database: dev.db
+      prod_db:
+        type: sqlite
+        database: prod.db
+    ```
 
 The following is defined:
 
-* `default_profile`: the profile used by default at execution time.
-* `profiles`: the list of available profiles to the user. Here we include the credential details for a `dev` and a `prod` profile.
-* `credentials`: the list of credentials for the user.
+* `profiles`: the definion of profiles for the project. A profile defines the connection between
+  credentials in the `project.yaml` file and credentials defined below. In this case we define 2
+  profiles dev and prod.
+* `default_profile`: the profile used by default at execution time. It can be overriden using
+  `sayn run -p prod`.
+* `credentials`: here we define the credentials. In this case we have 2 for dev and prod, that are
+  used as `warehouse` on each profile.
 
 ### Step 3: Define your DAG(s)
 
@@ -131,101 +137,124 @@ In SAYN, DAGs are defined in `yaml` files within the `dags` folder. As seen befo
 
 Our project contains only one DAG: `base.yaml`. Below is the file:
 
-**`base.yaml`**
-```yaml
-tasks:
-  load_data:
-    type: python
-    class: load_data.LoadData
+!!! example "dags/base.yaml"
+    ```yaml
+    tasks:
+      load_data:
+        type: python
+        class: load_data.LoadData
+    
+      dim_tournaments:
+        type: autosql
+        file_name: dim_tournaments.sql
+        materialisation: table
+        destination:
+          table: dim_tournaments
+        parents:
+          - load_data
+    # ...
+    ```
 
-  dim_tournaments:
-    type: autosql
-    file_name: dim_tournaments.sql
-    materialisation: table
-    destination:
-      tmp_schema: main
-      schema: main
-      table: dim_tournaments
-    parents:
-      - load_data
+The `tasks` entry contains a map of tasks definitions. In this case we're using 2 types of tasks:
 
-  dim_arenas:
-    type: autosql
-    file_name: dim_arenas.sql
-    materialisation: table
-    destination:
-      tmp_schema: main
-      schema: main
-      table: dim_arenas
-    parents:
-      - load_data
+* `python`: lets you define a task written in Python. Python tasks are useful to complete your extraction
+  and load layers if you're using an ELT tool or for data science models defined in Python.
+* `autosql`: lets you write a `SELECT` statement while SAYN manages the table or view creation
+  automatically for you. Our example has multiple `autosql` tasks which create models based on the
+  logs. 
 
-  dim_fighters:
-    type: autosql
-    file_name: dim_fighters.sql
-    materialisation: table
-    destination:
-      tmp_schema: main
-      schema: main
-      table: dim_fighters
-    parents:
-      - load_data
+## `load_data` task
 
-  f_battles:
-    type: autosql
-    file_name: f_battles.sql
-    materialisation: table
-    destination:
-      tmp_schema: main
-      schema: main
-      table: f_battles
-    parents:
-      - load_data
-      - dim_tournaments
-      - dim_arenas
-      - dim_fighters
+In our example project the only python task is `load_data` which creates some synthetic logs and loads
+them to our database. The code can be found in the class `LoadData` in `python/load_data.py`. Let's have
+a look at the main elements of a python task
 
-  f_fighter_results:
-    type: autosql
-    file_name: f_fighter_results.sql
-    materialisation: table
-    destination:
-      tmp_schema: main
-      schema: main
-      table: f_fighter_results
-    parents:
-      - f_battles
+!!! example "python/load_data.py"
+    ```python
+    # ...
+    from sayn import PythonTask
 
-  f_rankings:
-    type: autosql
-    file_name: f_rankings.sql
-    materialisation: view
-    destination:
-      tmp_schema: main
-      schema: main
-      table: f_rankings
-    parents:
-      - f_fighter_results
-```
+    class LoadData(PythonTask):
+        def run(self):
+            # Your code here
+    ```
 
-The following is defined:
+The above is the beginning of the python task. When the execution of `sayn run` hits the `load_data`
+task the code in the `run` method will execute.
 
-* `tasks`: the tasks of the DAG.
+A task in SAYN can be split into multiple steps, which is useful for debugging when errors occur. In this
+case, we first generate all data and then we load each dataset one by one. We can define the steps a task
+will follow with the `self.set_run_steps` method.
 
-Each task is defined by a `type` and various properties respective to its `type`. In our example, we use two task types:
+!!! example "python/load_data.py"
+    ```python
+        def run(self):
+            # ...
+            self.set_run_steps(
+                [
+                    "Generate Data",
+                    "Load fighters",
+                    "Load arenas",
+                    "Load tournaments",
+                    "Load battles",
+                ]
+            )
+            # ...
+    ```
 
-* `python`: lets you run a Python process. The `load_data.py` is our only `python` task. It creates some synthetic logs and loads them to our database. For more information about how to build `python` tasks, visit the [Python section](../tasks/python.md)
-* `autosql`: lets you write a `SELECT` statement and SAYN then creates the table or view automatically for you. Our example has multiple `autosql` tasks which create models based on the logs. For more information about setting up `autosql` tasks, visit the [autosql section](../tasks/autosql.md).
+To indicate SAYN what step is executing, we can use the following construct:
+
+!!! example "python/load_data.py"
+    ```python
+        def run(self):
+            # ...
+            with self.step("Generate Data"):
+                data_to_load = get_data(tournament_battles)
+            # ...
+    ```
+
+Here our "Generate Data" step calls a function in `python/utils.py` that creates the synthetic logs.
+
+The final core element is accessing databases. In our project we defined a single credential called
+`warehouse` and we made this the `default_db`. To access this we just need to use `self.default_db`.
+
+!!! example "python/load_data.py"
+    ```python
+    self.default_db.execute(q_create)
+    ```
+
+The main method in Database objects is `execute` which accepts a sql script via parameter and executes
+it in a transaction.
+
+For more information about how to build `python` tasks, visit the [python tasks section](../tasks/python.md).
+
+## Autosql tasks
+
+Let's have a look at one of the autosql tasks (`dim_tournaments`). As you can see in `dag/base.yaml`
+above, we specify a `file_name` which contains:
+
+!!! example "sql/dim_tournaments.yaml"
+    ```sql
+    SELECT l.tournament_id
+         , l.tournament_name
+      FROM logs_tournaments l
+    ```
+
+So a simple `SELECT` statement that SAYN will use when creating a table called `dim_tournaments` as
+defined in the `destination` field in the dag file.
+
+For more information about setting up `autosql` tasks, visit the [autosql tasks section](../tasks/autosql.md).
 
 ## Running Your Project
 
-You can now run your SAYN project with the following commands:
+So far we've used `sayn run` to execute our project, however SAYN provides more options:
 
-* `sayn run`: runs the whole project
-* `sayn run -p [profile_name]`: runs the whole project with the specific profile. In our case using the profile `prod` will create a `prod.db` SQLite database and process all data there.
-* `sayn run -t [task_name]`: runs the specific task
+* `sayn run -p [profile_name]`: runs the whole project with the specific profile. In our case using
+  the profile `prod` will create a `prod.db` SQLite database and process all data there.
+* `sayn run -t [task_name]`: allows the filtering the tasks to run.
 
-More options are available to run specific components of your SAYN project. All details can be found in the [Commands](../commands.md) section.
+More options are available to run specific components of your SAYN project. All details can be
+found in the [SAYN cli](../cli.md) section.
 
 ## What Next?
 
