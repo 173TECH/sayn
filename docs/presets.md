@@ -1,68 +1,56 @@
 # Presets
 
-## About
-
-`presets` enable to define preset tasks which can be used when defining `tasks` in DAGs. If a `task` specifies a `preset` attribute, it will then inherit all attributes from the referred `preset`. This makes `presets` great to avoid repetition.
+Presets are used to define common task configuration. If a `task` specifies a `preset` attribute, it
+will then inherit all attributes from the referred `preset`. This makes `presets` great to avoid
+repetition.
 
 ## Defining a `preset`
 
-`presets` are defined in a similar way than `tasks` within each individual DAG file. Please see below an example of a preset definition:
+!!! example "Preset"
+    ```yaml
+    presets:
+      modelling:
+        type: autosql
+        materialisation: table
+        destination:
+          tmp_schema: analytics_staging
+          schema: analytics_models
+          table: '{{task.name}}'
+    ```
 
-```yaml
-presets:
-  modelling:
-    type: autosql
-    materialisation: table
-    destination:
-      tmp_schema: analytics_staging
-      schema: analytics_models
-      table: '{{task.name}}'
-```
+The above defines a preset called `modelling`. Every `task` referring to it will be an `autosql`
+task and inherit all other attributes from it. For a task to use this configuration, we use the `preset`
+property in the task.
 
-The above defines a `modelling` preset. Every `task` referring to it will be an `autosql` task and inherit all other attributes from the `modelling` preset.
+!!! example "dags/base.yaml"
+    ```yaml
+    tasks:
+      task_name:
+        preset: modelling
+        #other task properties
+    ```
 
-## Defining `tasks` using `presets`
+Presets can be defined both in `project.yaml` and in any dag file.
 
-`tasks` can inherit attributes directly from `presets`. In order to do so, specify the `preset` attribute on the task. The below example illustrates this by setting the `modelling` preset defined above on a `task`:
+## Preset inheritance
 
-```yaml
-tasks:
-  #...
+Presets can reference other presets, the behaviour of this reference being exactly as it works for task.
 
-  task_preset:
-    preset: modelling
-    #other task properties
+!!! example "project.yaml"
+    ```yaml
+    presets:
+      modelling:
+        type: autosql
+        materialisation: table
+        destination:
+          tmp_schema: analytics_staging
+          schema: analytics_models
+          table: '{{task.name}}'
 
-  #...
-```
+      modelling_view:
+        preset: modelling
+        materialisation: view
+    ```
 
-## Defining project-level presets
-
-If you use the same `preset` across multiple DAGs, you can avoid this repetition by defining a project-level `preset`. For example, if you use the `modelling` preset defined above across all DAGs of your SAYN project, you can define it directly in `project.yaml` in a similar way:
-
-**`project.yaml`**
-```yaml
-# ...
-
-presets:
-  modelling:
-    type: autosql
-    materialisation: table
-    destination:
-      tmp_schema: analytics_staging
-      schema: analytics_models
-      table: '{{task.name}}'
-
-# ...
-```
-
-You can then use that project-level `preset` to define `presets` within individual DAGs as follows:
-
-**`dag.yaml`**
-```yaml
-presets:
-  modelling:
-    preset: modelling
-
-# ...
-```
+In the above example, `modelling_view` is a preset with exactly the same properties as preset `modelling`
+except it will generate a view when materialising an autosql task.

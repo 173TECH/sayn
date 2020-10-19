@@ -4,75 +4,30 @@
 
 Tasks are the core components of your SAYN DAGs (Directed Acyclic Graph). Through tasks, SAYN provides a lot of automation under the hood, so make sure you explore the various task types SAYN offers! Tasks will be executed in an order based on the parents you define.
 
-## Defining Tasks In DAGs
+## Defining Tasks
 
-Tasks are defined in individual [DAGs](../dags.md). Their definition is composed of several attributes.
+Tasks are defined in [DAG](../dags.md) files under the `tasks` entry.
 
-### `type`
+!!! example "dags/base.yaml"
+    ```yaml
+    tasks:
+      task_1:
+        # Task properties
 
-A task is defined by its `type` - `type` is the only attribute shared by all tasks. Below is a simple example of a SAYN task definition:
+      task_2:
+        # Task properties
 
-**`dag.yaml`**
-```yaml
-task_1:
-  type: sql
-  file_name: task_1.sql
-```
-Please see the `Task Types` section on this page for the list of all task types.
+      # ...
+    ```
 
-### `parents`
+All tasks share a number of common properties available:
 
-If a task is dependent upon another task, it can define `parents`. A `task` can have as many `parents` as desired. Please see below an example which shows how to define `parents`:
-
-**`dag.yaml`**
-```yaml
-task_2:
-  type: sql
-  file_name: task_2.sql
-  parents:
-    - task_1
-```
-
-### `parameters`
-
-Enables to set some `parameters` at the task level. Those can then be accessed in the task. This is defined as follows:
-
-**`dag.yaml`**
-```yaml
-task_3:
-  type: sql
-  file_name: task_3.sql
-  parameters:
-    field_select: 'a, b, c'
-```
-
-For more details on `parameters`, please see the [Parameters](../parameters.md) section.
-
-### `presets`
-
-`presets` enable you to define some standard tasks. Other tasks can then inherit attributes from the pre-defined `presets`. This is defined as follows:
-
-**`dag.yaml`**
-```yaml
-task_4:
-  #this task would inherit everything from the modelling preset
-  preset: modelling
-```
-
-For more details on `presets`, please see the [Presets](../presets.md) section.
-
-### `tags`
-
-Tasks can define a `tags` attribute - you can define as many `tags` as desired on a task. Those `tags` can be used in order to run only `tasks` which are defined with a specific tag. This is useful to group several `tasks` across multiple DAGs under one structure. Please see below how to define `tags` on a task:
-
-**`dag.yaml`**
-```yaml
-task_5:
-  type: python
-  class: my_module.MyClass
-  tags:
-    - extract
-```
+| Property | Description | Required |
+| -------- | ----------- | ---- |
+| type | The task type. | Required one of: `autosql`, `sql`, `python`, `copy`, `dummy` |
+| preset | A preset to inherit task properties from. Seee [the presets sectinon](../presets.md) for more info. | Optional name of preset |
+| parents | A list of tasks this one depends on. All tasks in this list is ensured to run before the child task. | Optional list |
+| tags | A list of tags used in `sayn run -t tag:tag_name`. This allows for advanced task filtering when we don't want to run all tasks in the project. | Optional list |
 
 ### `type` specific attributes
 

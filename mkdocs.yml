@@ -8,7 +8,7 @@ site_url: https://173tech.github.io/sayn/
 theme:
   name: material
   palette:
-    scheme: slate
+    # scheme: slate
     primary: cyan
     accent: blue
 
@@ -17,12 +17,12 @@ google_analytics:
   - auto
 
 markdown_extensions:
+  - admonition
   - attr_list
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
   - pymdownx.superfences
-  - admonition
   - toc:
       permalink: true
 
@@ -33,11 +33,12 @@ plugins:
       handlers:
         python:
           rendering:
-            show_source: false
-          selection:
-            inherited_members: True
+            show_source: False
       watch:
         - sayn
+
+extra_css:
+  - css/mkdocstrings.css
 
 extra:
   social:
@@ -45,20 +46,22 @@ extra:
       link: https://github.com/173TECH
 
 nav:
-  - What is SAYN: index.md
-  - Tutorial:
+  - Home: index.md
+  - Getting Started:
+    - Installation: installation.md
     - Tutorial (Part 1): tutorials/tutorial_part1.md
     - Tutorial (Part 2): tutorials/tutorial_part2.md
   - Core concepts:
+    - CLI: cli.md
     - Project Structure: project_structure.md
     - project.yaml: settings/project_yaml.md
     - settings.yaml: settings/settings_yaml.md
-    - Commands: commands.md
     - DAGs: dags.md
     - Tasks: tasks/overview.md
     - Presets: presets.md
     - Parameters: parameters.md
   - Tasks:
+    - Overview: tasks/overview.md
     - Autosql: tasks/autosql.md
     - Python: tasks/python.md
     - Sql: tasks/sql.md
@@ -72,5 +75,5 @@ nav:
     - MySQL: databases/mysql.md
     - SQLite: databases/sqlite.md
   - API Reference:
-    - Database: api/database.md
-    - PythonTask: api/pythontask.md
+     - Database: api/database.md
+     - PythonTask: api/python_task.md

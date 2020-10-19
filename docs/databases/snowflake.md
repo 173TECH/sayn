@@ -1,5 +1,12 @@
 # Snowflake
 
+The Snowflake driver depends on the [sqlalchemy snowflake](https://docs.snowflake.com/en/user-guide/sqlalchemy.html){target="\_blank"}
+and can be installed with:
+
+```bash
+pip install "sayn[snowflake]"
+```
+
 SAYN will consider the following parameters to construct the sqlalchemy url:
 
 Parameter  | Description                         | Default
@@ -13,7 +20,7 @@ warehouse  | Warehouse to use to run queries     | Default warehouse for user
 schema     | Default schema for the connection   | 
 
 Other parameters specified will be passed on to
-[sqlalchemy.create_engine](https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine)
+[sqlalchemy.create_engine](https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine){target="\_blank"}
 when creating the engine.
 
 !!! example "settings.yaml"
@@ -29,5 +36,5 @@ when creating the engine.
         warehouse: etl-warehouse
     ```
 
-Check the sqlalchemy [snowflake dialect](https://docs.snowflake.com/en/user-guide/sqlalchemy.html)
+Check the sqlalchemy [snowflake dialect](https://docs.snowflake.com/en/user-guide/sqlalchemy.html){target="\_blank"}
 for extra parameters.

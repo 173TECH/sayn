@@ -4,7 +4,7 @@
 
 The `autosql` task lets you write a `SELECT` statement and SAYN then automates the data processing (i.e. table or view creation, incremental load, etc.) for you.
 
-## Defining `autosql` Tasks In `models.yaml`
+## Defining `autosql` Tasks
 
 An `autosql` task is defined as follows:
 
@@ -36,9 +36,12 @@ An `autosql` task is defined by the following attributes:
 
 ## Using `autosql` In `incremental` Mode
 
-If you do not want to have a full refresh of your tables, you can use the `autosql` task with `incremental` `materialisation`. This is extremely useful for large data volumes when full refresh would be too long.
+`autosql` tasks support loads incrementally, which is extremely useful for large data volumes when full
+refresh (`materialisation: table`) would be infeasible.
 
-SAYN `autosql` tasks with `incremental` materialisation require a `delete_key`. Please see below an example:
+We set an `autosql` task as incremental by:
+1. Setting `materialisation` to `incremental`
+2. Defining a `delete_key`
 
 !!! example "autosql in incremental mode"
     ```yaml
@@ -59,23 +62,34 @@ SAYN `autosql` tasks with `incremental` materialisation require a `delete_key`. 
 When using `incremental`, SAYN will do the following in the background:
 
 1. Create a temporary table based on the incremental logic from the SAYN query.
-2. Delete rows from the target table that are found in the temporary table based on the `delete_key`.
-3. Load the temporary table in the destination table.
+2. Delete from the final table those records for which the `delete_key` value is in the temporary table.
+3. Insert the contents of the temporary table into the final table.
 
-### Incremental SAYN parameters
+In order to make the `SELECT` statement incremental, SAYN provides the following arguments:
 
-There are three SAYN parameters which you can use for autosql tasks in incremental mode:
+* `full_load`: a flag defaulting to `False` and controlled by the `-f` flag in the SAYN command.
+  If `-f` is pass to the sayn command, the final table will be replaced with the temporary one
+  in step 2 above, rather than performing a merge of the data.
+* `start_dt`: a date defaulting to "yesterday" and controlled by the `-s` flag in the SAYN command.
+* `end_dt`: a date defaulting to "yesterday" and controlled by the `-e` flag in the SAYN command.
 
-* `full_load`: controlled by the `-f` flag in the SAYN command. This will reload the whole table.
-* `start_dt`: controlled by the `-s` flag in the SAYN command.
-* `end_dt`: controlled by the `-e` flag in the SAYN command.
+!!! example "SQL using incremental arguments"
+    ```sql
+    SELECT dt
+         , field2
+         , COUNT(1) AS c
+      FROM table
+     WHERE dt BETWEEN {{ start_dt }} AND {{ end_dt }}
+     GROUP BY 1,2
+    ```
 
 ## Defining DDLs
 
-You can define the following DDL parameters in the `autosql` task definition:
+Additionally, autosql tasks support the definition of DDL that will be used when creating the table.
+Each supported database might have specific DDL related to it, but in general the following is supported:
 
 * indexes: the indexes to add on the table.
-* primary_key: this should be added in the indexes section using the `primary_key` name for the index.
+  * primary_key: this should be added in the indexes section using the `primary_key` name for the index.
 * columns: the list of columns as well as their type. If used, SAYN will enforce the types specified.
 * permissions: the permissions you want to give to each role. You should map each role to the rights you want to grant separated by commas (e.g. SELECT, DELETE).
 

@@ -1,6 +1,13 @@
 # Redshift
 
-The [Redshift](https://aws.amazon.com/redshift/) connector looks for the following parameters:
+The Redshift driver depends on [psycopg2](https://www.psycopg.org){target="\_blank"} and can be
+installed with:
+
+```bash
+pip install "sayn[redshift]"
+```
+
+The [Redshift](https://aws.amazon.com/redshift/){target="\_blank"} connector looks for the following parameters:
 
 Parameter  | Description                           | Default
 ---------  | ------------------------------------- | ---------------------------------------------
@@ -12,7 +19,7 @@ cluster_id | Cluster id as registered in AWS       |
 dbname     | Database in use upon connection       | Required
 
 For advanced configurations, SAYN will pass other parameters to `create_engine`, so check the
-sqlalchemy [psycopg2](https://docs.sqlalchemy.org/en/13/dialects/postgresql.html#module-sqlalchemy.dialects.postgresql.psycopg2)
+sqlalchemy [psycopg2](https://docs.sqlalchemy.org/en/13/dialects/postgresql.html#module-sqlalchemy.dialects.postgresql.psycopg2){target="\_blank"}
 dialect for extra parameters.
 
 ## Connection types
@@ -54,7 +61,7 @@ connection, so only user, dbname and cluster_id are required.
 For this connection type to work:
 
 * `boto3` needs to be installed in the project virtual environment `pip install boto3`.
-* The AWS cli need to be [setup](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html#configuration).
+* The AWS cli need to be [setup](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html#configuration){target="\_blank"}.
 * The `user` and `dbname` still need to be specified (use the database user, not the `IAM:user`).
 * `host` and `port` can be skipped and these values will be obtained using boto3's `redshift describe-clusters`.
 
@@ -105,7 +112,7 @@ using a compound key (Redshift default). The type of sorting can be changed to i
               - fighter1_name
     ```
 
-For more information, read the latest docs about [SORTKEY](https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html)
+For more information, read the latest docs about [SORTKEY](https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html){target="\_blank"}.
 
 # Distribution
 
@@ -140,4 +147,4 @@ If we want to distribute the table by a given column use the following:
     ```
 
 For more information, read the latest docs about
-[DISTKEY](https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html)
+[DISTKEY](https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html){target="\_blank"}.

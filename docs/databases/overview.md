@@ -2,7 +2,7 @@
 
 ## About
 
-SAYN uses [sqlalchemy](https://www.sqlalchemy.org/) in order to manage database connections.
+SAYN uses [sqlalchemy](https://www.sqlalchemy.org/){target="\_blank"} in order to manage database connections.
 It currently supports the following databases:
 
 * [Redshift](redshift.md)
@@ -28,7 +28,7 @@ Database connections are defined as `credentials` in `settings.yaml` by specifyi
 
 You can check the list of connection parameters in the database specific pages of this section.
 If a parameter that is not listed on the database page is included in `settings.yaml`, that parameter
-will be passed to [sqlalchemy.create_engine](https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine).
+will be passed to [sqlalchemy.create_engine](https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine){target="\_blank"}.
 Refer to sqlalchemy's documentation if you need to fine tune the connection.
 
 For example, to specify override the default timezone for a Snowflake connection, this can be

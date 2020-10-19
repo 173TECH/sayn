@@ -4,7 +4,7 @@ SAYN will form the sqlalchemy connection URL with the `database` parameter,
 which should point to a file path relative to the SAYN project.
 
 Any parameter other than `database` will be passed to
-[sqlalchemy.create_engine](https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine).
+[sqlalchemy.create_engine](https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine){target="\_blank"}.
 
 !!! example "settings.yaml"
     ```yaml
@@ -15,5 +15,5 @@ Any parameter other than `database` will be passed to
     ```
 
 
-Check the sqlalchemy [sqlite](https://docs.sqlalchemy.org/en/13/dialects/sqlite.html)
+Check the sqlalchemy [sqlite](https://docs.sqlalchemy.org/en/13/dialects/sqlite.html){target="\_blank"}
 dialect for extra parameters.
