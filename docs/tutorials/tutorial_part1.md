@@ -254,7 +254,7 @@ So far we've used `sayn run` to execute our project, however SAYN provides more 
 * `sayn run -t [task_name]`: allows the filtering the tasks to run.
 
 More options are available to run specific components of your SAYN project. All details can be
-found in the [Commands](../commands.md) section.
+found in the [SAYN cli](../cli.md) section.
 
 ## What Next?
 
