@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from enum import Enum
 from pathlib import Path
 
@@ -53,7 +54,7 @@ class Task:
     # Handy properties
     @property
     def parameters(self):
-        return dict(**self.project_parameters, **self.task_parameters)
+        return {**self.project_parameters, **self.task_parameters}
 
     @property
     def db(self):
@@ -143,15 +144,22 @@ class Task:
             details = dict()
         self.tracker.error(message, **details)
 
-    # @contextmanager
-    # def step(self, step):
-    #     self.tracker.start_step(step)
-    #     try:
-    #         yield
-    #         self.tracker.finish_current_step()
-    #     except Exception as e:
-    #         self.tracker.finish_current_step(e)
-    #         raise e
+    @contextmanager
+    def step(self, step):
+        """Step context
+
+        Usage:
+        ```python
+        with self.step('Generate Data'):
+            data = generate_data()
+        ```
+
+        Args:
+          step (str): name of the step being executed.
+        """
+        self.tracker.start_step(step)
+        yield
+        self.tracker.finish_current_step()
 
     # Jinja methods
 
