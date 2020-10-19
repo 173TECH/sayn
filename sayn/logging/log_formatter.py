@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import traceback
 
 from colorama import init, Fore, Style
@@ -276,11 +276,19 @@ class LogFormatter:
 
     def app_start(self, details):
         debug = "(debug)" if details["run_arguments"]["debug"] else ""
-        dt_range = (
-            f"{details['run_arguments']['start_dt']} to {details['run_arguments']['end_dt']}"
-            if not details["run_arguments"]["full_load"]
-            else "Full Load"
-        )
+        yesterday = date.today() - timedelta(days=1)
+        if details["run_arguments"]["full_load"]:
+            dt_range = "Full Load"
+        elif (
+            details["run_arguments"]["start_dt"] == details["run_arguments"]["end_dt"]
+            and details["run_arguments"]["end_dt"] == yesterday
+        ):
+            dt_range = "Default"
+        elif details["run_arguments"]["start_dt"] == details["run_arguments"]["end_dt"]:
+            dt_range = f"{details['run_arguments']['start_dt']}"
+        else:
+            dt_range = f"{details['run_arguments']['start_dt']} to {details['run_arguments']['end_dt']}"
+
         out = list()
         out.append(f"Starting sayn {debug}")
         out.append(f"Run ID: {details['run_id']}")
