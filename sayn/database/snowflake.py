@@ -1,5 +1,3 @@
-import logging
-
 from sqlalchemy import create_engine, exc
 
 from ..core.errors import Err, Ok
