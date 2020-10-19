@@ -155,7 +155,7 @@ We also define `modelling` so that tasks referencing it become:
 * Materialised as tables.
 * Have `load_data` as a parent task, so that models always run after our log generator.
 
-When a task references a preset, we're not restricted to the values defined in thepreset, instead
+When a task references a preset, we're not restricted to the values defined in the preset, instead
 a task can override those values. Take `f_rankings` for example:
 
 !!! example "dags/base.yaml"

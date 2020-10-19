@@ -240,7 +240,7 @@ above, we specify a `file_name` which contains:
       FROM logs_tournaments l
     ```
 
-So a simple `SELECT` statment that SAYN will use when creating a table called `dim_tournaments` as
+So a simple `SELECT` statement that SAYN will use when creating a table called `dim_tournaments` as
 defined in the `destination` field in the dag file.
 
 For more information about setting up `autosql` tasks, visit the [autosql tasks section](../tasks/autosql.md).

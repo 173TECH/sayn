@@ -335,6 +335,10 @@ class LogFormatter:
         succeeded = tasks.get("ready", list()) + tasks.get("succeeded", list())
         skipped = tasks.get("skipped", list())
         duration = human(details["duration"])
+        totals_msg = (
+            f"Total tasks: {len(succeeded+failed+skipped)}. "
+            f"Success: {len(succeeded)}. Failed {len(failed)}. Skipped {len(skipped)}."
+        )
 
         if stage == "setup":
             out = ["Finished setup:"]
@@ -352,7 +356,10 @@ class LogFormatter:
         elif stage in ("run", "compile"):
             if len(failed) > 0 or len(skipped) > 0:
                 out = [
-                    self.red(f"There were some errors during {stage} (took {duration})")
+                    self.red(
+                        f"There were some errors during {stage} (took {duration})"
+                    ),
+                    self.red(totals_msg),
                 ]
                 if len(failed) > 0:
                     out.append(self.bad(f"Failed: {self.blist(failed)}"))
@@ -363,6 +370,7 @@ class LogFormatter:
                 return {
                     "level": "info",
                     "message": [
+                        self.good(totals_msg),
                         self.good(
                             f"{stage.capitalize()} finished successfully in {duration}"
                         ),
