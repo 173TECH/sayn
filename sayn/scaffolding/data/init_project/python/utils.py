@@ -1,8 +1,7 @@
 import random
 from uuid import uuid4
 
-# Table creation queries
-
+# Log definitions
 log_types = {
     "fighters": {
         "columns": {"fighter_id": "INTEGER", "fighter_name": "VARCHAR"},

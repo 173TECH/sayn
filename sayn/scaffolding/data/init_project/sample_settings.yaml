@@ -1,16 +1,21 @@
-# Sample settings file. Exclude from version control.
+# Sample settings file. Exclude from version control as it contains secrets.
 # For more information follow the tutorial:
 # https://173tech.github.io/sayn/tutorials/tutorial_part1
 
-default_profile: dev
-
+# Profiles are useful when you have multiple environments (ie: for testing and production)
 profiles:
   dev:
     credentials:
+      # All required credentials defined in the project.yaml need to be linked
+      # to specific credential in the final section of this file
       warehouse: dev_db
   prod:
     credentials:
       warehouse: prod_db
+
+# The profile to can be change with the -p option when running sayn commands
+# Example: sayn run -p prd
+default_profile: dev
 
 credentials:
   dev_db:

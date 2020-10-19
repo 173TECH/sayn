@@ -2,8 +2,12 @@
 # https://173tech.github.io/sayn/tutorials/tutorial_part1
 
 required_credentials:
+  # List of credential names used by tasks in the project
   - warehouse
+
+# Credential used by sql and autosql tasks
 default_db: warehouse
 
 dags:
+  # List of yaml files in the dags folder to be considered by this project
   - base
