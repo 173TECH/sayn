@@ -1,8 +1,11 @@
 # Settings: `settings.yaml`
 
 The `settings.yaml` defines local configuration like credentials. **This file is unique to each SAYN user**
-collaborating on the project and is automatically ignored by git **(it should never be pushed to git as
-it contains credentials for databases and APIs used by the SAYN project)**.
+collaborating on the project and is automatically ignored by git.
+
+!!! warning
+    `settings.yaml` should never be pushed to git as it contains credentials for
+    databases and APIs used by the SAYN project.
 
 !!! example "settings.yaml"
     ``` yaml
@@ -74,7 +77,7 @@ For custom credentials, use the `type: api` and include values required:
     ```
 
 All credentials are accessible through `self.connections['credential_name']` where `credential_name` is the
-name given in required_credentials. Api credentials when accessed in python are defined as dictionary,
+name given in required_credentials. API credentials when accessed in python are defined as dictionary,
 whereas database connections are `Database` objects.
 
 ### Using environment variables
@@ -89,10 +92,10 @@ Taking the `settings.yaml` example above for the dev profile, in environment var
 !!! example ".env.sh"
     ```bash
     export SAYN_CREDENTIAL_warehouse="{'type': 'snowflake', 'account': ..."
-    export SAYN_PARAMETER_table_prefix: "songoku_"
-    export SAYN_PARAMETER_schema_logs: "analytics_logs"
-    export SAYN_PARAMETER_schema_staging: "analytics_adhoc"
-    export SAYN_PARAMETER_schema_models: "analytics_adhoc"
+    export SAYN_PARAMETER_table_prefix="songoku_"
+    export SAYN_PARAMETER_schema_logs="analytics_logs"
+    export SAYN_PARAMETER_schema_staging="analytics_adhoc"
+    export SAYN_PARAMETER_schema_models="analytics_adhoc"
     ```
 
 When environement variables are defined and a `settings.yaml` file exists, the settings from both will

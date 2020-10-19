@@ -15,5 +15,5 @@ Any parameter other than `database` will be passed to
     ```
 
 
-Check the sqlalchemy [sqlite](https://docs.sqlalchemy.org/en/13/dialects/sqlite.html){target="\_blank"}
+Check the sqlalchemy [SQLite](https://docs.sqlalchemy.org/en/13/dialects/sqlite.html){target="\_blank"}
 dialect for extra parameters.

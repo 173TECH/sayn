@@ -1,6 +1,6 @@
 # Installation
 
-SAYN is available for installation using `pip` and it's regularly tested in Python 3.6+ on both
+SAYN is available for installation using `pip` and is regularly tested in Python 3.6+ on both
 MacOS and Linux environments.
 
 It is recommended to separate the python environment from project to project, so you might want to
@@ -27,5 +27,5 @@ pip install "sayn[postgresql]"
 
 Check the [database](databases/overview.md) section for a full list of supported databases.
 
-By default the tutorials use sqlite, so with the setup above you're already setup to following the
+By default the tutorials use sqlite, so with the setup above you're already setup to follow the
 [tutorial](tutorials/tutorial_part1.md).

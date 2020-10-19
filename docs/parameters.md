@@ -24,7 +24,7 @@ with the value used on production.
     Parameters are interpreted as yaml values, so for example `schema_logs` above would end up
     as a string. In the above example `user_prefix` would also be a string (empty string by default)
     because we included the double quote, but if we didn't include those quotations, the value
-    would be python's `None` we we use it in both python and sql tasks.
+    would be python's `None` when we use it in both python and sql tasks.
 
 To override those default values, we just need to set them in the profile. For example, for a dev
 environment we can do the following:
@@ -105,7 +105,7 @@ task:
         table: '{{ user_prefix }}task_autosql_param'
     ```
 
-In this example we're using `schema_staging`, `schema_models` and `user_perfix` project parameters
+In this example we're using `schema_staging`, `schema_models` and `user_prefix` project parameters
 so that the values would change depending on the profile. Note the use of quotation in the yaml file
 when we template task properties.
 
@@ -138,7 +138,7 @@ If we used the `prod` profile instead (`sayn run -t task_autosql_param -p prod`)
         table: task_autosql_param
     ```
 
-This task example even more powerful when used in presets in combination with the jinja variable `task`:
+This task example is even more powerful when used in presets in combination with the jinja variable `task`:
 
 !!! example "dags/base.yaml"
     ```yaml
@@ -163,7 +163,7 @@ table name using `{{ task.name }}`
 
 ### In SQL queries
 
-For SQL related tasks (`autosql`, `sql`), `parameters` within the SQL code with the same jinja syntax
+For SQL related tasks (`autosql`, `sql`), use `parameters` within the SQL code with the same jinja syntax
 `{{ parameter_name }}`:
 
 !!! example "sql/task_autosql_param.sql"
