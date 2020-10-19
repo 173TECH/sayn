@@ -62,9 +62,9 @@ nav:
     - Parameters: parameters.md
   - Tasks:
     - Overview: tasks/overview.md
-    - Autosql: tasks/autosql.md
+    - AutoSQL: tasks/autosql.md
     - Python: tasks/python.md
-    - Sql: tasks/sql.md
+    - SQL: tasks/sql.md
     - Copy: tasks/copy.md
     - Dummy: tasks/dummy.md
   - Databases:
