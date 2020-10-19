@@ -1,6 +1,6 @@
 # Change Log
 
-## Upcoming
+## [0.4.0] - 2020-10-19
 
 ### Changed
 
@@ -12,7 +12,7 @@
 - Switched from standard python logging to an event reporting model
 - Major changes to console UI
 - Added the concept of task step to improve feedback to the user
-- With `-d` sayn will write all sql related to every step
+- With `-d` sayn will write all sql related to every step in the compile folder
 
 ## [0.3.0] - 2020-07-29
 
