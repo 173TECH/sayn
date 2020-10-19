@@ -1,6 +1,6 @@
 # Change Log
 
-## Upcoming
+## [0.4.0] - 2020-10-19
 
 ### Changed
 
