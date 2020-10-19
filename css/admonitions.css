@@ -1,0 +1,16 @@
+:root {
+}
+.md-typeset .admonition.example,
+.md-typeset details.example {
+  border-color: rgb(3, 189, 214);
+}
+.md-typeset .example > .admonition-title,
+.md-typeset .example > summary {
+  background-color: rgba(3, 189, 214, 0.1);
+}
+.md-typeset .example > .admonition-title::before,
+.md-typeset .example > summary::before {
+  background-color: rgb(3, 189, 214);
+  -webkit-mask-image: var(--md-admonition-icon--example);
+          mask-image: var(--md-admonition-icon--example);
+}

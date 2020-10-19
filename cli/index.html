@@ -7,22 +7,22 @@
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
       
-        <link rel="canonical" href="https://173tech.github.io/sayn/databases/mysql/">
+        <link rel="canonical" href="https://173tech.github.io/sayn/cli/">
       
       
-      <link rel="shortcut icon" href="../../assets/images/favicon.png">
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
     
     
       
-        <title>MySQL - SAYN</title>
+        <title>CLI - SAYN</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.38780c08.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.38780c08.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.3f72e892.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.3f72e892.min.css">
         
           
           
@@ -41,9 +41,9 @@
     
     
     
-      <link rel="stylesheet" href="../../css/mkdocstrings.css">
+      <link rel="stylesheet" href="../css/mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../css/admonitions.css">
+      <link rel="stylesheet" href="../css/admonitions.css">
     
     
       
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#mysql" class="md-skip">
+        <a href="#sayn-cli" class="md-skip">
           Skip to content
         </a>
       
@@ -98,7 +98,7 @@
           </span>
           <span class="md-header-nav__topic md-ellipsis">
             
-              MySQL
+              CLI
             
           </span>
         </div>
@@ -196,7 +196,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../.." class="md-nav__link">
+    <a href=".." class="md-nav__link">
       Home
     </a>
   </li>
@@ -229,7 +229,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../installation/" class="md-nav__link">
+    <a href="../installation/" class="md-nav__link">
       Installation
     </a>
   </li>
@@ -241,7 +241,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/tutorial_part1/" class="md-nav__link">
+    <a href="../tutorials/tutorial_part1/" class="md-nav__link">
       Tutorial (Part 1)
     </a>
   </li>
@@ -253,7 +253,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tutorials/tutorial_part2/" class="md-nav__link">
+    <a href="../tutorials/tutorial_part2/" class="md-nav__link">
       Tutorial (Part 2)
     </a>
   </li>
@@ -268,10 +268,12 @@
       
       
 
+  
 
-  <li class="md-nav__item md-nav__item--nested">
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
     
     <label class="md-nav__link" for="nav-3">
       Core concepts
@@ -289,11 +291,110 @@
           
           
 
+  
 
-  <li class="md-nav__item">
-    <a href="../../cli/" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        CLI
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
       CLI
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#about" class="md-nav__link">
+    About
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#available-commands" class="md-nav__link">
+    Available commands
+  </a>
+  
+    <nav class="md-nav" aria-label="Available commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sayn-init" class="md-nav__link">
+    sayn init
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sayn-run" class="md-nav__link">
+    sayn run
+  </a>
+  
+    <nav class="md-nav" aria-label="sayn run">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#filtering-tasks" class="md-nav__link">
+    Filtering tasks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#incremental-tasks-options" class="md-nav__link">
+    Incremental tasks options
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sayn-compile" class="md-nav__link">
+    sayn compile
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dag-image" class="md-nav__link">
+    dag-image
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
         
@@ -303,7 +404,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../project_structure/" class="md-nav__link">
+    <a href="../project_structure/" class="md-nav__link">
       Project Structure
     </a>
   </li>
@@ -315,7 +416,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../settings/project_yaml/" class="md-nav__link">
+    <a href="../settings/project_yaml/" class="md-nav__link">
       project.yaml
     </a>
   </li>
@@ -327,7 +428,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../settings/settings_yaml/" class="md-nav__link">
+    <a href="../settings/settings_yaml/" class="md-nav__link">
       settings.yaml
     </a>
   </li>
@@ -339,7 +440,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../dags/" class="md-nav__link">
+    <a href="../dags/" class="md-nav__link">
       DAGs
     </a>
   </li>
@@ -351,7 +452,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tasks/overview/" class="md-nav__link">
+    <a href="../tasks/overview/" class="md-nav__link">
       Tasks
     </a>
   </li>
@@ -363,7 +464,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../presets/" class="md-nav__link">
+    <a href="../presets/" class="md-nav__link">
       Presets
     </a>
   </li>
@@ -375,7 +476,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../parameters/" class="md-nav__link">
+    <a href="../parameters/" class="md-nav__link">
       Parameters
     </a>
   </li>
@@ -413,7 +514,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tasks/overview/" class="md-nav__link">
+    <a href="../tasks/overview/" class="md-nav__link">
       Overview
     </a>
   </li>
@@ -425,7 +526,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tasks/autosql/" class="md-nav__link">
+    <a href="../tasks/autosql/" class="md-nav__link">
       AutoSQL
     </a>
   </li>
@@ -437,7 +538,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tasks/python/" class="md-nav__link">
+    <a href="../tasks/python/" class="md-nav__link">
       Python
     </a>
   </li>
@@ -449,7 +550,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tasks/sql/" class="md-nav__link">
+    <a href="../tasks/sql/" class="md-nav__link">
       SQL
     </a>
   </li>
@@ -461,7 +562,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tasks/copy/" class="md-nav__link">
+    <a href="../tasks/copy/" class="md-nav__link">
       Copy
     </a>
   </li>
@@ -473,7 +574,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tasks/dummy/" class="md-nav__link">
+    <a href="../tasks/dummy/" class="md-nav__link">
       Dummy
     </a>
   </li>
@@ -488,12 +589,10 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+  <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" checked>
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
     
     <label class="md-nav__link" for="nav-5">
       Databases
@@ -513,7 +612,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../overview/" class="md-nav__link">
+    <a href="../databases/overview/" class="md-nav__link">
       Overview
     </a>
   </li>
@@ -525,7 +624,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../redshift/" class="md-nav__link">
+    <a href="../databases/redshift/" class="md-nav__link">
       Redshift
     </a>
   </li>
@@ -537,7 +636,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../snowflake/" class="md-nav__link">
+    <a href="../databases/snowflake/" class="md-nav__link">
       Snowflake
     </a>
   </li>
@@ -549,7 +648,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../postgresql/" class="md-nav__link">
+    <a href="../databases/postgresql/" class="md-nav__link">
       PostgreSQL
     </a>
   </li>
@@ -559,20 +658,11 @@
           
           
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    
-      
-    
-    
-    <a href="./" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../databases/mysql/" class="md-nav__link">
       MySQL
     </a>
-    
   </li>
 
         
@@ -582,7 +672,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../sqlite/" class="md-nav__link">
+    <a href="../databases/sqlite/" class="md-nav__link">
       SQLite
     </a>
   </li>
@@ -620,7 +710,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../api/database/" class="md-nav__link">
+    <a href="../api/database/" class="md-nav__link">
       Database
     </a>
   </li>
@@ -632,7 +722,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../api/python_task/" class="md-nav__link">
+    <a href="../api/python_task/" class="md-nav__link">
       PythonTask
     </a>
   </li>
@@ -660,6 +750,82 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#about" class="md-nav__link">
+    About
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#available-commands" class="md-nav__link">
+    Available commands
+  </a>
+  
+    <nav class="md-nav" aria-label="Available commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sayn-init" class="md-nav__link">
+    sayn init
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sayn-run" class="md-nav__link">
+    sayn run
+  </a>
+  
+    <nav class="md-nav" aria-label="sayn run">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#filtering-tasks" class="md-nav__link">
+    Filtering tasks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#incremental-tasks-options" class="md-nav__link">
+    Incremental tasks options
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sayn-compile" class="md-nav__link">
+    sayn compile
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dag-image" class="md-nav__link">
+    dag-image
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -671,67 +837,56 @@
               
                 
                 
-                <h1 id="mysql">MySQL<a class="headerlink" href="#mysql" title="Permanent link">&para;</a></h1>
-<p>The MySQL driver depends on <a href="https://github.com/PyMySQL/PyMySQL" target="_blank">pymysql</a>
-and can be installed with:</p>
-<div class="highlight"><pre><span></span><code>pip install <span class="s2">&quot;sayn[mysql]&quot;</span>
-</code></pre></div>
-
-<p>SAYN will consider the following parameters to construct the sqlalchemy url:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>host</td>
-<td>Host name or public IP of the server</td>
-<td>Required</td>
-</tr>
-<tr>
-<td>port</td>
-<td>Connection port</td>
-<td>3306</td>
-</tr>
-<tr>
-<td>user</td>
-<td>User name used to connect</td>
-<td>Required</td>
-</tr>
-<tr>
-<td>password</td>
-<td>Password for that user</td>
-<td>Required</td>
-</tr>
-<tr>
-<td>database</td>
-<td>Database in use upon connection</td>
-<td>Required</td>
-</tr>
-</tbody>
-</table>
-<p>Other parameters specified will be passed on to 
-<a href="https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine" target="_blank">sqlalchemy.create_engine</a>
-when creating the engine.</p>
-<div class="admonition example">
-<p class="admonition-title">settings.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">credentials</span><span class="p">:</span>
-  <span class="nt">mysql-conn</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mysql</span>
-    <span class="nt">host</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">warehouse.company.com</span>
-    <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3306</span>
-    <span class="nt">user</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">mysql_user</span>
-    <span class="nt">password</span><span class="p">:</span> <span class="s">&#39;Pas$w0rd&#39;</span> <span class="c1">#use quotes to avoid conflict with special characters</span>
-    <span class="nt">database</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">models</span>
-</code></pre></div>
-
-</div>
-<p>Check the sqlalchemy <a href="https://docs.sqlalchemy.org/en/13/dialects/mysql.html#module-sqlalchemy.dialects.mysql.mysqlconnector" target="_blank">mysql-connector</a>
-dialect for extra parameters.</p>
+                <h1 id="sayn-cli">SAYN cli<a class="headerlink" href="#sayn-cli" title="Permanent link">&para;</a></h1>
+<h2 id="about">About<a class="headerlink" href="#about" title="Permanent link">&para;</a></h2>
+<p>SAYN's cli tool is the main means for interacting with SAYN projects. Use <code>sayn --help</code> to see all options.</p>
+<h2 id="available-commands">Available commands<a class="headerlink" href="#available-commands" title="Permanent link">&para;</a></h2>
+<h3 id="sayn-init"><code>sayn init</code><a class="headerlink" href="#sayn-init" title="Permanent link">&para;</a></h3>
+<p>Initialises a SAYN project in the current working directory with the
+<a href="../tutorials/tutorial_part1/">SAYN tutorial</a>.</p>
+<h3 id="sayn-run"><code>sayn run</code><a class="headerlink" href="#sayn-run" title="Permanent link">&para;</a></h3>
+<p>Executes the project. Without arguments it will run all tasks, using the default profile defined in
+<code>settings.yaml</code>. This default behaviour can be overridden with some arguments:</p>
+<ul>
+<li><code>-p profile_name</code>: use the specified profile instead of the default.</li>
+<li><code>-d</code>: extra information to the screen, including messages from <code>self.debug</code> in python tasks.</li>
+</ul>
+<h4 id="filtering-tasks">Filtering tasks<a class="headerlink" href="#filtering-tasks" title="Permanent link">&para;</a></h4>
+<p>Sometimes we don't want to execute all tasks defined in the project. In these instances we can use the
+following arguments to filter:</p>
+<ul>
+<li><code>-t task_query</code>: tasks to include.</li>
+<li><code>-x task_query</code>: exclude specific tasks.</li>
+</ul>
+<p>Both <code>-t</code> and <code>-x</code> can be specified multiple times, accumulating their values.</p>
+<p>Examples:</p>
+<ul>
+<li><code>sayn run -t task_name</code>: run <code>task_name</code> only.</li>
+<li><code>sayn run -t task1 -t task2</code>: runs <code>task1</code> and <code>task2</code> only.</li>
+<li><code>sayn run -t +task_name</code>: run <code>task_name</code> and all its ancestors.</li>
+<li><code>sayn run -t task_name+</code>: run <code>task_name</code> and all its descendants.</li>
+<li><code>sayn run -t dag:dag_name</code>: run all tasks specified in the dag <code>dag_name</code>.</li>
+<li><code>sayn run -t tag:tag_name</code> run all tasks tagged with <code>tag_name</code>.</li>
+<li><code>sayn run -x task_name</code>: run all tasks except <code>task_name</code>.</li>
+<li><code>sayn run -t dag:marketing -x +task_name</code>: run all tasks in the <code>marketing</code> DAG except <code>task_name</code> and
+  its ancestors.</li>
+</ul>
+<h4 id="incremental-tasks-options">Incremental tasks options<a class="headerlink" href="#incremental-tasks-options" title="Permanent link">&para;</a></h4>
+<p>SAYN uses 3 arguments to manage incremental executions: <code>full_load</code>, <code>start_dt</code> and <code>end_dt</code>; which can
+be overridden with these arguments to <code>sayn run</code>:</p>
+<ul>
+<li><code>-f</code>: do a full refresh. Mostly useful on incremental tasks to refresh the whole table (default: False).</li>
+<li><code>-s</code>: start date for incremental loads (default: yesterday).</li>
+<li><code>-e</code>: end date for incremental loads (default: yesterday).</li>
+</ul>
+<p>These values are available to sql and autosql tasks as well as python tasks with <code>self.run_arguments</code>.
+When the <code>sayn run</code> command is executed, these values define the <code>Period</code> specified in the console.</p>
+<h3 id="sayn-compile"><code>sayn compile</code><a class="headerlink" href="#sayn-compile" title="Permanent link">&para;</a></h3>
+<p>Works like <code>run</code> except it doesn't execute the sql code. The same optional flags than for <code>sayn run</code> apply.</p>
+<h3 id="dag-image"><code>dag-image</code><a class="headerlink" href="#dag-image" title="Permanent link">&para;</a></h3>
+<p>Generates a visualisation of the whole SAYN process. This requires <code>graphviz</code> installed in your
+<a href="https://www.graphviz.org/download/" target="_blank">system</a> and the python package, which can be
+installed with <code>pip install "sayn[graphviz]"</code>.</p>
                 
               
               
@@ -750,7 +905,7 @@ dialect for extra parameters.</p>
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
         
-          <a href="../postgresql/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../tutorials/tutorial_part2/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-footer-nav__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
             </div>
@@ -759,19 +914,19 @@ dialect for extra parameters.</p>
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                PostgreSQL
+                Tutorial (Part 2)
               </div>
             </div>
           </a>
         
         
-          <a href="../sqlite/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../project_structure/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-footer-nav__title">
               <div class="md-ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                SQLite
+                Project Structure
               </div>
             </div>
             <div class="md-footer-nav__button md-icon">
@@ -811,15 +966,15 @@ dialect for extra parameters.</p>
       
     </div>
     
-      <script src="../../assets/javascripts/vendor.77e55a48.min.js"></script>
-      <script src="../../assets/javascripts/bundle.9554a270.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      <script src="../assets/javascripts/vendor.77e55a48.min.js"></script>
+      <script src="../assets/javascripts/bundle.9554a270.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
       
       <script>
         app = initialize({
-          base: "../..",
+          base: "..",
           features: [],
           search: Object.assign({
-            worker: "../../assets/javascripts/worker/search.4ac00218.min.js"
+            worker: "../assets/javascripts/worker/search.4ac00218.min.js"
           }, typeof search !== "undefined" && search)
         })
       </script>

@@ -1,531 +1,922 @@
 
-<!DOCTYPE html>
-
-<html class="no-js" lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width,initial-scale=1" name="viewport"/>
-<link href="https://173tech.github.io/sayn/tutorials/tutorial_part1/" rel="canonical"/>
-<link href="../../assets/images/favicon.png" rel="shortcut icon"/>
-<meta content="mkdocs-1.1.2, mkdocs-material-5.2.1" name="generator"/>
-<title>Tutorial (Part 1) - SAYN</title>
-<link href="../../assets/stylesheets/main.71dfd922.min.css" rel="stylesheet"/>
-<link href="../../assets/stylesheets/palette.616af814.min.css" rel="stylesheet"/>
-<meta content="#546e7a" name="theme-color"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&amp;display=fallback" rel="stylesheet"/>
-<style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
-<link href="../../css/custom.css" rel="stylesheet"/>
-<link href="https://www.google-analytics.com" rel="preconnect dns-prefetch"/>
-<script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-149287493-2","auto"),ga("set","anonymizeIp",!0),ga("send","pageview"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){if(this.value){var e=document.location.pathname;ga("send","pageview",e+"?q="+this.value)}})}),document.addEventListener("DOMContentSwitch",function(){ga("send","pageview")})</script>
-<script async="" src="https://www.google-analytics.com/analytics.js"></script>
-</head>
-<body data-md-color-accent="light-blue" data-md-color-primary="blue-grey" data-md-color-scheme="" dir="ltr">
-<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
-<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
-<label class="md-overlay" for="__drawer"></label>
-<div data-md-component="skip">
-<a class="md-skip" href="#tutorial-part-1">
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <link rel="canonical" href="https://173tech.github.io/sayn/tutorials/tutorial_part1/">
+      
+      
+      <link rel="shortcut icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
+    
+    
+      
+        <title>Tutorial (Part 1) - SAYN</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.38780c08.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.3f72e892.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#00bdd6">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../../css/mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../css/admonitions.css">
+    
+    
+      
+        
+<script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-149287493-2","auto"),ga("set","anonymizeIp",!0),ga("send","pageview"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){if(this.value){var e=document.location.pathname;ga("send","pageview",e+"?q="+this.value)}})}),document.addEventListener("DOMContentSwitch",function(){ga("send","pageview",document.location.pathname)})</script>
+<script async src="https://www.google-analytics.com/analytics.js"></script>
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="cyan" data-md-color-accent="blue">
+      
+  
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tutorial-part-1" class="md-skip">
           Skip to content
         </a>
-</div>
-<div data-md-component="announce">
-</div>
-<header class="md-header" data-md-component="header">
-<nav aria-label="Header" class="md-header-nav md-grid">
-<a aria-label="SAYN" class="md-header-nav__button md-logo" href="https://173tech.github.io/sayn/" title="SAYN">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
-</a>
-<label class="md-header-nav__button md-icon" for="__drawer">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"></path></svg>
-</label>
-<div class="md-header-nav__title" data-md-component="header-title">
-<div class="md-header-nav__ellipsis">
-<span class="md-header-nav__topic md-ellipsis">
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://173tech.github.io/sayn/" title="SAYN" class="md-header-nav__button md-logo" aria-label="SAYN">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
             SAYN
           </span>
-<span class="md-header-nav__topic md-ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
             
               Tutorial (Part 1)
             
           </span>
-</div>
-</div>
-<label class="md-header-nav__button md-icon" for="__search">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
-</label>
+        </div>
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
 <div class="md-search" data-md-component="search" role="dialog">
-<label class="md-search__overlay" for="__search"></label>
-<div class="md-search__inner" role="search">
-<form class="md-search__form" name="search">
-<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" data-md-state="active" name="query" placeholder="Search" spellcheck="false" type="text"/>
-<label class="md-search__icon md-icon" for="__search">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</label>
-<button aria-label="Clear" class="md-search__icon md-icon" data-md-component="search-reset" tabindex="-1" type="reset">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path></svg>
-</button>
-</form>
-<div class="md-search__output">
-<div class="md-search__scrollwrap" data-md-scrollfix="">
-<div class="md-search-result" data-md-component="search-result">
-<div class="md-search-result__meta">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
             Initializing search
           </div>
-<ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-</div>
-</div>
-</div>
-</div>
-<div class="md-header-nav__source">
-<a class="md-source" href="https://github.com/173TECH/sayn" title="Go to repository">
-<div class="md-source__icon md-icon">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"></path></svg>
-</div>
-<div class="md-source__repository">
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/173TECH/sayn" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
     173TECH/sayn
   </div>
 </a>
-</div>
-</nav>
+      </div>
+    
+  </nav>
 </header>
-<div class="md-container" data-md-component="container">
-<main class="md-main" data-md-component="main">
-<div class="md-main__inner md-grid">
-<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
-<div class="md-sidebar__scrollwrap">
-<div class="md-sidebar__inner">
-<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
-<label class="md-nav__title" for="__drawer">
-<a aria-label="SAYN" class="md-nav__button md-logo" href="https://173tech.github.io/sayn/" title="SAYN">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
-</a>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://173tech.github.io/sayn/" title="SAYN" class="md-nav__button md-logo" aria-label="SAYN">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
     SAYN
   </label>
-<div class="md-nav__source">
-<a class="md-source" href="https://github.com/173TECH/sayn" title="Go to repository">
-<div class="md-source__icon md-icon">
-<svg viewbox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"></path></svg>
-</div>
-<div class="md-source__repository">
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/173TECH/sayn" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
     173TECH/sayn
   </div>
 </a>
-</div>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="../.." title="Home">
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." class="md-nav__link">
       Home
     </a>
-</li>
-<li class="md-nav__item md-nav__item--active md-nav__item--nested">
-<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-2" id="nav-2" type="checkbox"/>
-<label class="md-nav__link" for="nav-2">
-      Tutorial
-      <span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"></path></svg>
-</span>
-</label>
-<nav aria-label="Tutorial" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="nav-2">
-<span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</span>
-        Tutorial
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2" checked>
+    
+    <label class="md-nav__link" for="nav-2">
+      Getting Started
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Getting Started" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        <span class="md-nav__icon md-icon"></span>
+        Getting Started
       </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
-<label class="md-nav__link md-nav__link--active" for="__toc">
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../installation/" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
         Tutorial (Part 1)
-        <span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9h14V7H3v2m0 4h14v-2H3v2m0 4h14v-2H3v2m16 0h2v-2h-2v2m0-10v2h2V7h-2m0 6h2v-2h-2v2z"></path></svg>
-</span>
-</label>
-<a class="md-nav__link md-nav__link--active" href="./" title="Tutorial (Part 1)">
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
       Tutorial (Part 1)
     </a>
-<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">
-<span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</span>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#what-we-will-cover">
-    What We Will Cover
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#running-sayn">
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#running-sayn" class="md-nav__link">
     Running SAYN
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#project-overview">
+      
+        <li class="md-nav__item">
+  <a href="#project-overview" class="md-nav__link">
     Project Overview
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#implementing-your-project">
-    Implementing Your Project
+      
+        <li class="md-nav__item">
+  <a href="#implementing-your-project" class="md-nav__link">
+    Implementing your project
   </a>
-<nav aria-label="Implementing Your Project" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#step-1-define-the-sayn-project-with-projectyaml">
-    Step 1: Define the SAYN project with project.yaml
+  
+    <nav class="md-nav" aria-label="Implementing your project">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-define-the-project-in-projectyaml" class="md-nav__link">
+    Step 1: Define the project in project.yaml
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#step-2-define-your-individual-settings-with-settingsyaml">
+        
+          <li class="md-nav__item">
+  <a href="#step-2-define-your-individual-settings-with-settingsyaml" class="md-nav__link">
     Step 2: Define your individual settings with settings.yaml
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#step-3-define-your-dags">
+        
+          <li class="md-nav__item">
+  <a href="#step-3-define-your-dags" class="md-nav__link">
     Step 3: Define your DAG(s)
   </a>
+  
 </li>
-</ul>
-</nav>
+        
+      </ul>
+    </nav>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#running-your-project">
+      
+        <li class="md-nav__item">
+  <a href="#load_data-task" class="md-nav__link">
+    load_data task
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#autosql-tasks" class="md-nav__link">
+    Autosql tasks
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-your-project" class="md-nav__link">
     Running Your Project
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#what-next">
+      
+        <li class="md-nav__item">
+  <a href="#what-next" class="md-nav__link">
     What Next?
   </a>
+  
 </li>
-</ul>
+      
+    </ul>
+  
 </nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../tutorial_part2/" title="Tutorial (Part 2)">
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../tutorial_part2/" class="md-nav__link">
       Tutorial (Part 2)
     </a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../project_structure/" title="Project Structure">
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Core concepts
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Core concepts" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon"></span>
+        Core concepts
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cli/" class="md-nav__link">
+      CLI
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../project_structure/" class="md-nav__link">
       Project Structure
     </a>
-</li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" id="nav-4" type="checkbox"/>
-<label class="md-nav__link" for="nav-4">
-      Settings
-      <span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"></path></svg>
-</span>
-</label>
-<nav aria-label="Settings" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="nav-4">
-<span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</span>
-        Settings
-      </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../settings/project_yaml/" title="project.yaml">
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../settings/project_yaml/" class="md-nav__link">
       project.yaml
     </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../settings/settings_yaml/" title="settings.yaml">
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../settings/settings_yaml/" class="md-nav__link">
       settings.yaml
     </a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../commands/" title="Commands">
-      Commands
-    </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../dags/" title="DAGs">
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../dags/" class="md-nav__link">
       DAGs
     </a>
-</li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" id="nav-7" type="checkbox"/>
-<label class="md-nav__link" for="nav-7">
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../tasks/overview/" class="md-nav__link">
       Tasks
-      <span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"></path></svg>
-</span>
-</label>
-<nav aria-label="Tasks" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="nav-7">
-<span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</span>
-        Tasks
-      </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../tasks/overview/" title="Overview">
-      Overview
     </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../tasks/autosql/" title="autosql">
-      autosql
-    </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../tasks/python/" title="python">
-      python
-    </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../tasks/copy/" title="copy">
-      copy
-    </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../tasks/dummy/" title="dummy">
-      dummy
-    </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../tasks/sql/" title="sql">
-      sql
-    </a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../presets/" title="Presets">
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../presets/" class="md-nav__link">
       Presets
     </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../parameters/" title="Parameters">
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../parameters/" class="md-nav__link">
       Parameters
     </a>
-</li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" data-md-toggle="nav-10" id="nav-10" type="checkbox"/>
-<label class="md-nav__link" for="nav-10">
-      Databases
-      <span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"></path></svg>
-</span>
-</label>
-<nav aria-label="Databases" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="nav-10">
-<span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</span>
-        Databases
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Tasks
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Tasks" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        <span class="md-nav__icon md-icon"></span>
+        Tasks
       </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../databases/overview/" title="Overview">
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../tasks/overview/" class="md-nav__link">
       Overview
     </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../databases/redshift/" title="Redshift">
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../tasks/autosql/" class="md-nav__link">
+      AutoSQL
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../tasks/python/" class="md-nav__link">
+      Python
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../tasks/sql/" class="md-nav__link">
+      SQL
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../tasks/copy/" class="md-nav__link">
+      Copy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../tasks/dummy/" class="md-nav__link">
+      Dummy
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      Databases
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Databases" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        <span class="md-nav__icon md-icon"></span>
+        Databases
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../databases/overview/" class="md-nav__link">
+      Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../databases/redshift/" class="md-nav__link">
       Redshift
     </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../databases/snowflake/" title="Snowflake">
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../databases/snowflake/" class="md-nav__link">
       Snowflake
     </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../databases/postgresql/" title="PostgreSQL">
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../databases/postgresql/" class="md-nav__link">
       PostgreSQL
     </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../databases/mysql/" title="MySQL">
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../databases/mysql/" class="md-nav__link">
       MySQL
     </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../databases/sqlite/" title="SQLite">
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../databases/sqlite/" class="md-nav__link">
       SQLite
     </a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle" data-md-toggle="nav-11" id="nav-11" type="checkbox"/>
-<label class="md-nav__link" for="nav-11">
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
       API Reference
-      <span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"></path></svg>
-</span>
-</label>
-<nav aria-label="API Reference" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="nav-11">
-<span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</span>
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="API Reference" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        <span class="md-nav__icon md-icon"></span>
         API Reference
       </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../api/database/" title="Database">
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../api/database/" class="md-nav__link">
       Database
     </a>
-</li>
-</ul>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../api/python_task/" class="md-nav__link">
+      PythonTask
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
 </nav>
-</li>
-</ul>
-</nav>
-</div>
-</div>
-</div>
-<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
-<div class="md-sidebar__scrollwrap">
-<div class="md-sidebar__inner">
-<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">
-<span class="md-nav__icon md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</span>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#what-we-will-cover">
-    What We Will Cover
-  </a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#running-sayn">
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#running-sayn" class="md-nav__link">
     Running SAYN
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#project-overview">
+      
+        <li class="md-nav__item">
+  <a href="#project-overview" class="md-nav__link">
     Project Overview
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#implementing-your-project">
-    Implementing Your Project
+      
+        <li class="md-nav__item">
+  <a href="#implementing-your-project" class="md-nav__link">
+    Implementing your project
   </a>
-<nav aria-label="Implementing Your Project" class="md-nav">
-<ul class="md-nav__list">
-<li class="md-nav__item">
-<a class="md-nav__link" href="#step-1-define-the-sayn-project-with-projectyaml">
-    Step 1: Define the SAYN project with project.yaml
+  
+    <nav class="md-nav" aria-label="Implementing your project">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-define-the-project-in-projectyaml" class="md-nav__link">
+    Step 1: Define the project in project.yaml
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#step-2-define-your-individual-settings-with-settingsyaml">
+        
+          <li class="md-nav__item">
+  <a href="#step-2-define-your-individual-settings-with-settingsyaml" class="md-nav__link">
     Step 2: Define your individual settings with settings.yaml
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#step-3-define-your-dags">
+        
+          <li class="md-nav__item">
+  <a href="#step-3-define-your-dags" class="md-nav__link">
     Step 3: Define your DAG(s)
   </a>
+  
 </li>
-</ul>
-</nav>
+        
+      </ul>
+    </nav>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#running-your-project">
+      
+        <li class="md-nav__item">
+  <a href="#load_data-task" class="md-nav__link">
+    load_data task
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#autosql-tasks" class="md-nav__link">
+    Autosql tasks
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-your-project" class="md-nav__link">
     Running Your Project
   </a>
+  
 </li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="#what-next">
+      
+        <li class="md-nav__item">
+  <a href="#what-next" class="md-nav__link">
     What Next?
   </a>
+  
 </li>
-</ul>
+      
+    </ul>
+  
 </nav>
-</div>
-</div>
-</div>
-<div class="md-content">
-<article class="md-content__inner md-typeset">
-<h1 id="tutorial-part-1">Tutorial: Part 1<a class="headerlink" href="#tutorial-part-1" title="Permanent link">¶</a></h1>
-<h2 id="what-we-will-cover">What We Will Cover<a class="headerlink" href="#what-we-will-cover" title="Permanent link">¶</a></h2>
-<p>This tutorial covers the basic concepts of SAYN and will get you going quickly. It uses the example project in the folder created by <code>sayn init</code> and creates a small ETL process based on synthetic data.</p>
-<p>If you need any help or want to ask a question, please reach out to the team at <a href="mailto:sayn@173tech.com">sayn@173tech.com</a>.</p>
-<h2 id="running-sayn">Running SAYN<a class="headerlink" href="#running-sayn" title="Permanent link">¶</a></h2>
-<p>Run the below in order to install SAYN and process your first SAYN run.</p>
-<div class="highlight"><pre><span></span><code>$ pip install sayn
-$ sayn init test_sayn
-$ <span class="nb">cd</span> test_sayn
-$ sayn run
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <h1 id="tutorial-part-1">Tutorial: Part 1<a class="headerlink" href="#tutorial-part-1" title="Permanent link">&para;</a></h1>
+<p>This tutorial covers the basic concepts of SAYN and will get you going quickly. It uses the example
+project created by <code>sayn init</code>. It assumes SAYN is setup as described in the
+<a href="../../installation/">installation section</a>.</p>
+<p>This project generates some random data with a <code>python</code> task and performs some modelling on it with
+<code>autosql</code> tasks.</p>
+<h2 id="running-sayn">Running SAYN<a class="headerlink" href="#running-sayn" title="Permanent link">&para;</a></h2>
+<p>To get started, open a terminal, activate your virtual environment (<code>source sayn_venv/bin/activate</code>)
+and run the following:</p>
+<div class="highlight"><pre><span></span><code>sayn init sayn_tutorial
+<span class="nb">cd</span> sayn_tutorial
+sayn run
 </code></pre></div>
-<p>Running <code>sayn run</code> will output logging on your terminal about the process being executed. This is what will happen:</p>
-<ul>
-<li>SAYN will run all project tasks. Those are all in the DAG file <code>dags/base.yaml</code>.</li>
-<li>The tasks include:<ul>
-<li>One <code>python</code> task which creates some logs and stores them into several log tables within a <code>test.db</code> SQLite database. This database is created in your project's folder root.</li>
-<li>Several <code>autosql</code> tasks which create data models including tables and views based on those logs.</li>
-</ul>
-</li>
-</ul>
-<p>You can open <code>test.db</code> and see the tables and views created by <code>sayn run</code>. You can use <a href="https://sqlitebrowser.org/dl/" target="_blank">DB Browser for SQLite</a> in order to view the content of the database. As you can observe, <code>sayn run</code> created a small ETL process which models battles from various tournaments.</p>
+
+<p>This will create a new project with the contents of this tutorial and execute it.</p>
+<p><img alt="sayn run execution" src="../sayn_run1.gif" /></p>
+<p>You can open <code>dev.db</code> and see the tables and views created by <code>sayn run</code>. You can use
+<a href="https://sqlitebrowser.org/dl/" target="_blank">DB Browser for SQLite</a> in order to view the
+content of the database. As you can observe, <code>sayn run</code> created a small ETL process which models
+battles from various tournaments.</p>
 <p>That's it, you made your first SAYN run! We will now explain what happens in the background.</p>
-<h2 id="project-overview">Project Overview<a class="headerlink" href="#project-overview" title="Permanent link">¶</a></h2>
-<p>The <code>test_sayn</code> folder has the following structure:</p>
-<div class="highlight"><pre><span></span><code>  test_sayn    
-    compile/ # only appears after first run     
-    dags/
-        base.yaml
-    logs/ # only appears after first run
-        sayn.log
-    python/
-        __init__.py
-        load_data.py
-        utils/
-          __init__.py
-          log_creator.py
-    sql/
-        dim_arenas.sql
-        dim_fighters.sql
-        dim_tournaments.sql
-        f_battles.sql
-        f_fighter_results.sql
-        f_rankings.sql
-    .gitignore
-    project.yaml
-    readme.md
-    settings.yaml
+<h2 id="project-overview">Project Overview<a class="headerlink" href="#project-overview" title="Permanent link">&para;</a></h2>
+<p>The <code>sayn_tutorial</code> folder has the following structure:</p>
+<div class="highlight"><pre><span></span><code>tutorial
+├── project.yaml
+├── settings.yaml
+├── dags
+│   └── base.yaml
+├── python
+│   ├── __init__.py
+│   ├── load_data.py
+│   └── utils
+│       ├── __init__.py
+│       └── log_creator.py
+├── sql
+│   ├── dim_arenas.sql
+│   ├── dim_fighters.sql
+│   ├── dim_tournaments.sql
+│   ├── f_battles.sql
+│   ├── f_fighter_results.sql
+│   └── f_rankings.sql
+├── compile
+├── .gitignore
+├── readme.md
+└── requirements.txt
 </code></pre></div>
-<p>Please see below the role of each component:</p>
+
+<p>The main files are:</p>
 <ul>
-<li><code>project.yaml</code>: defines the core components of the SAYN project. It is <strong>shared across all collaborators</strong>.</li>
-<li><code>settings.yaml</code>: defines the individual user's settings. It is <strong>unique for each collaborator and should never be pushed to git</strong> as it contains credentials.</li>
+<li><code>project.yaml</code>: defines the SAYN project. It is <strong>shared across all collaborators</strong>.</li>
+<li><code>settings.yaml</code>: defines the individual user's settings. It is <strong>unique for each collaborator and
+   should never be pushed to git</strong> as it contains credentials.</li>
 <li><code>dags</code>: folder where DAG files are stored. SAYN tasks are defined in those files.</li>
 <li><code>python</code>: folder where <code>python</code> tasks are stored.</li>
 <li><code>sql</code>: folder where <code>sql</code> and <code>autosql</code> tasks are stored.</li>
 <li><code>logs</code>: folder where SAYN logs are written.</li>
-<li><code>compile</code>: folder where SQL queries are compiled before execution.</li>
+<li><code>compile</code>: folder where compiled SQL queries before execution.</li>
 </ul>
-<h2 id="implementing-your-project">Implementing Your Project<a class="headerlink" href="#implementing-your-project" title="Permanent link">¶</a></h2>
-<p>We will now go through the example project and explain the process of building a SAYN project. You can use the <code>test_sayn</code> folder you created to follow along, all the code is already written there.</p>
-<h3 id="step-1-define-the-sayn-project-with-projectyaml">Step 1: Define the SAYN project with <code>project.yaml</code><a class="headerlink" href="#step-1-define-the-sayn-project-with-projectyaml" title="Permanent link">¶</a></h3>
-<p>Add the <code>project.yaml</code> file at the root level of your directory. Here is the file from the example:</p>
-<p><strong><code>project.yaml</code></strong>
+<h2 id="implementing-your-project">Implementing your project<a class="headerlink" href="#implementing-your-project" title="Permanent link">&para;</a></h2>
+<p>Now let's see how the tutorial project would be created from scratch.</p>
+<h3 id="step-1-define-the-project-in-projectyaml">Step 1: Define the project in <code>project.yaml</code><a class="headerlink" href="#step-1-define-the-project-in-projectyaml" title="Permanent link">&para;</a></h3>
+<p>The <code>project.yaml</code> file is at the root level of your directory and contains:</p>
+<div class="admonition example">
+<p class="admonition-title">project.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">required_credentials</span><span class="p">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">warehouse</span>
 
@@ -533,44 +924,56 @@ $ sayn run
 
 <span class="nt">dags</span><span class="p">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">base</span>
-</code></pre></div></p>
+</code></pre></div>
+
+</div>
 <p>The following is defined:</p>
 <ul>
-<li><code>required_credentials</code>: the required credentials to run the project. Credential details are defined in the <code>settings.yaml</code> file.</li>
-<li><code>default_db</code>: the database used at run time.</li>
-<li><code>dags</code>: the DAGs of the project (this example has only one <code>dag</code> which can be found at <code>dags/base.yaml</code>). Those DAGs contain the tasks.</li>
+<li><code>required_credentials</code>: the list of credentials used by the project. In this case we have a single
+  credential called <code>warehouse</code>. The connection details will be defined in <code>settings.yaml</code>.</li>
+<li><code>default_db</code>: the database used by sql and autosql tasks. Since we only have 1 credential, this
+  field can be skipped.</li>
+<li><code>dags</code>: the list of files in the dags folder that contain this project's task definitions.</li>
 </ul>
-<h3 id="step-2-define-your-individual-settings-with-settingsyaml">Step 2: Define your individual settings with <code>settings.yaml</code><a class="headerlink" href="#step-2-define-your-individual-settings-with-settingsyaml" title="Permanent link">¶</a></h3>
-<p>Add the <code>settings.yaml</code> file at the root level of your directory. Here is the file from the example:</p>
-<p><strong><code>settings.yaml</code></strong></p>
-<div class="highlight"><pre><span></span><code><span class="nt">default_profile</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dev</span>
-
-<span class="nt">profiles</span><span class="p">:</span>
+<h3 id="step-2-define-your-individual-settings-with-settingsyaml">Step 2: Define your individual settings with <code>settings.yaml</code><a class="headerlink" href="#step-2-define-your-individual-settings-with-settingsyaml" title="Permanent link">&para;</a></h3>
+<p>The <code>settings.yaml</code> file at the root level of your directory and contains:</p>
+<div class="admonition example">
+<p class="admonition-title">settings.yaml</p>
+<div class="highlight"><pre><span></span><code><span class="nt">profiles</span><span class="p">:</span>
   <span class="nt">dev</span><span class="p">:</span>
     <span class="nt">credentials</span><span class="p">:</span>
-      <span class="nt">warehouse</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">test_db</span>
+      <span class="nt">warehouse</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dev_db</span>
   <span class="nt">prod</span><span class="p">:</span>
     <span class="nt">credentials</span><span class="p">:</span>
       <span class="nt">warehouse</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">prod_db</span>
 
+<span class="nt">default_profile</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dev</span>
+
 <span class="nt">credentials</span><span class="p">:</span>
-  <span class="nt">test_db</span><span class="p">:</span>
+  <span class="nt">dev_db</span><span class="p">:</span>
     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sqlite</span>
-    <span class="nt">database</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">test.db</span>
+    <span class="nt">database</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dev.db</span>
   <span class="nt">prod_db</span><span class="p">:</span>
     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sqlite</span>
     <span class="nt">database</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">prod.db</span>
 </code></pre></div>
+
+</div>
 <p>The following is defined:</p>
 <ul>
-<li><code>default_profile</code>: the profile used by default at execution time.</li>
-<li><code>profiles</code>: the list of available profiles to the user. Here we include the credential details for a <code>dev</code> and a <code>prod</code> profile.</li>
-<li><code>credentials</code>: the list of credentials for the user.</li>
+<li><code>profiles</code>: the definion of profiles for the project. A profile defines the connection between
+  credentials in the <code>project.yaml</code> file and credentials defined below. In this case we define 2
+  profiles dev and prod.</li>
+<li><code>default_profile</code>: the profile used by default at execution time. It can be overriden using
+  <code>sayn run -p prod</code>.</li>
+<li><code>credentials</code>: here we define the credentials. In this case we have 2 for dev and prod, that are
+  used as <code>warehouse</code> on each profile.</li>
 </ul>
-<h3 id="step-3-define-your-dags">Step 3: Define your DAG(s)<a class="headerlink" href="#step-3-define-your-dags" title="Permanent link">¶</a></h3>
+<h3 id="step-3-define-your-dags">Step 3: Define your DAG(s)<a class="headerlink" href="#step-3-define-your-dags" title="Permanent link">&para;</a></h3>
 <p>In SAYN, DAGs are defined in <code>yaml</code> files within the <code>dags</code> folder. As seen before, those <code>dags</code> are imported in the <code>project.yaml</code> file in order to be executed. When importing the DAGs in the <code>project.yaml</code> file, you should write the name without the <code>.yaml</code> extension.</p>
 <p>Our project contains only one DAG: <code>base.yaml</code>. Below is the file:</p>
-<p><strong><code>base.yaml</code></strong>
+<div class="admonition example">
+<p class="admonition-title">dags/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
   <span class="nt">load_data</span><span class="p">:</span>
     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python</span>
@@ -581,154 +984,200 @@ $ sayn run
     <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_tournaments.sql</span>
     <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
     <span class="nt">destination</span><span class="p">:</span>
-      <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">main</span>
-      <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">main</span>
       <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_tournaments</span>
     <span class="nt">parents</span><span class="p">:</span>
       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">load_data</span>
+<span class="c1"># ...</span>
+</code></pre></div>
 
-  <span class="nt">dim_arenas</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_arenas.sql</span>
-    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-    <span class="nt">destination</span><span class="p">:</span>
-      <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">main</span>
-      <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">main</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_arenas</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">load_data</span>
-
-  <span class="nt">dim_fighters</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_fighters.sql</span>
-    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-    <span class="nt">destination</span><span class="p">:</span>
-      <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">main</span>
-      <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">main</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_fighters</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">load_data</span>
-
-  <span class="nt">f_battles</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_battles.sql</span>
-    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-    <span class="nt">destination</span><span class="p">:</span>
-      <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">main</span>
-      <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">main</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_battles</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">load_data</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dim_tournaments</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dim_arenas</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dim_fighters</span>
-
-  <span class="nt">f_fighter_results</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_fighter_results.sql</span>
-    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-    <span class="nt">destination</span><span class="p">:</span>
-      <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">main</span>
-      <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">main</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_fighter_results</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">f_battles</span>
-
-  <span class="nt">f_rankings</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_rankings.sql</span>
-    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">view</span>
-    <span class="nt">destination</span><span class="p">:</span>
-      <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">main</span>
-      <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">main</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_rankings</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">f_fighter_results</span>
-</code></pre></div></p>
-<p>The following is defined:</p>
+</div>
+<p>The <code>tasks</code> entry contains a map of tasks definitions. In this case we're using 2 types of tasks:</p>
 <ul>
-<li><code>tasks</code>: the tasks of the DAG.</li>
+<li><code>python</code>: lets you define a task written in Python. Python tasks are useful to complete your extraction
+  and load layers if you're using an ELT tool or for data science models defined in Python.</li>
+<li><code>autosql</code>: lets you write a <code>SELECT</code> statement while SAYN manages the table or view creation
+  automatically for you. Our example has multiple <code>autosql</code> tasks which create models based on the
+  logs. </li>
 </ul>
-<p>Each task is defined by a <code>type</code> and various properties respective to its <code>type</code>. In our example, we use two task types:</p>
+<h2 id="load_data-task"><code>load_data</code> task<a class="headerlink" href="#load_data-task" title="Permanent link">&para;</a></h2>
+<p>In our example project the only python task is <code>load_data</code> which creates some synthetic logs and loads
+them to our database. The code can be found in the class <code>LoadData</code> in <code>python/load_data.py</code>. Let's have
+a look at the main elements of a python task</p>
+<div class="admonition example">
+<p class="admonition-title">python/load_data.py</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ...</span>
+<span class="kn">from</span> <span class="nn">sayn</span> <span class="kn">import</span> <span class="n">PythonTask</span>
+
+<span class="k">class</span> <span class="nc">LoadData</span><span class="p">(</span><span class="n">PythonTask</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Your code here</span>
+</code></pre></div>
+
+</div>
+<p>The above is the beginning of the python task. When the execution of <code>sayn run</code> hits the <code>load_data</code>
+task the code in the <code>run</code> method will execute.</p>
+<p>A task in SAYN can be split into multiple steps, which is useful for debugging when errors occur. In this
+case, we first generate all data and then we load each dataset one by one. We can define the steps a task
+will follow with the <code>self.set_run_steps</code> method.</p>
+<div class="admonition example">
+<p class="admonition-title">python/load_data.py</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># ...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_run_steps</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;Generate Data&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Load fighters&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Load arenas&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Load tournaments&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Load battles&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="c1"># ...</span>
+</code></pre></div>
+
+</div>
+<p>To indicate SAYN what step is executing, we can use the following construct:</p>
+<div class="admonition example">
+<p class="admonition-title">python/load_data.py</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># ...</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="s2">&quot;Generate Data&quot;</span><span class="p">):</span>
+            <span class="n">data_to_load</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">tournament_battles</span><span class="p">)</span>
+        <span class="c1"># ...</span>
+</code></pre></div>
+
+</div>
+<p>Here our "Generate Data" step calls a function in <code>python/utils.py</code> that creates the synthetic logs.</p>
+<p>The final core element is accessing databases. In our project we defined a single credential called
+<code>warehouse</code> and we made this the <code>default_db</code>. To access this we just need to use <code>self.default_db</code>.</p>
+<div class="admonition example">
+<p class="admonition-title">python/load_data.py</p>
+<div class="highlight"><pre><span></span><code><span class="bp">self</span><span class="o">.</span><span class="n">default_db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">q_create</span><span class="p">)</span>
+</code></pre></div>
+
+</div>
+<p>The main method in Database objects is <code>execute</code> which accepts a sql script via parameter and executes
+it in a transaction.</p>
+<p>For more information about how to build <code>python</code> tasks, visit the <a href="../../tasks/python/">python tasks section</a>.</p>
+<h2 id="autosql-tasks">Autosql tasks<a class="headerlink" href="#autosql-tasks" title="Permanent link">&para;</a></h2>
+<p>Let's have a look at one of the autosql tasks (<code>dim_tournaments</code>). As you can see in <code>dag/base.yaml</code>
+above, we specify a <code>file_name</code> which contains:</p>
+<div class="admonition example">
+<p class="admonition-title">sql/dim_tournaments.yaml</p>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="n">l</span><span class="p">.</span><span class="n">tournament_id</span>
+     <span class="p">,</span> <span class="n">l</span><span class="p">.</span><span class="n">tournament_name</span>
+  <span class="k">FROM</span> <span class="n">logs_tournaments</span> <span class="n">l</span>
+</code></pre></div>
+
+</div>
+<p>So a simple <code>SELECT</code> statement that SAYN will use when creating a table called <code>dim_tournaments</code> as
+defined in the <code>destination</code> field in the dag file.</p>
+<p>For more information about setting up <code>autosql</code> tasks, visit the <a href="../../tasks/autosql/">autosql tasks section</a>.</p>
+<h2 id="running-your-project">Running Your Project<a class="headerlink" href="#running-your-project" title="Permanent link">&para;</a></h2>
+<p>So far we've used <code>sayn run</code> to execute our project, however SAYN provides more options:</p>
 <ul>
-<li><code>python</code>: lets you run a Python process. The <code>load_data.py</code> is our only <code>python</code> task. It creates some synthetic logs and loads them to our database. For more information about how to build <code>python</code> tasks, visit the <a href="../../tasks/python/">Python section</a></li>
-<li><code>autosql</code>: lets you write a <code>SELECT</code> statement and SAYN then creates the table or view automatically for you. Our example has multiple <code>autosql</code> tasks which create models based on the logs. For more information about setting up <code>autosql</code> tasks, visit the <a href="../../tasks/autosql/">autosql section</a>.</li>
+<li><code>sayn run -p [profile_name]</code>: runs the whole project with the specific profile. In our case using
+  the profile <code>prod</code> will create a <code>prod.db</code> SQLite database and process all data there.</li>
+<li><code>sayn run -t [task_name]</code>: allows the filtering the tasks to run.</li>
 </ul>
-<h2 id="running-your-project">Running Your Project<a class="headerlink" href="#running-your-project" title="Permanent link">¶</a></h2>
-<p>You can now run your SAYN project with the following commands:</p>
-<ul>
-<li><code>sayn run</code>: runs the whole project</li>
-<li><code>sayn run -p [profile_name]</code>: runs the whole project with the specific profile. In our case using the profile <code>prod</code> will create a <code>prod.db</code> SQLite database and process all data there.</li>
-<li><code>sayn run -t [task_name]</code>: runs the specific task</li>
-</ul>
-<p>More options are available to run specific components of your SAYN project. All details can be found in the <a href="../../commands/">Commands</a> section.</p>
-<h2 id="what-next">What Next?<a class="headerlink" href="#what-next" title="Permanent link">¶</a></h2>
+<p>More options are available to run specific components of your SAYN project. All details can be
+found in the <a href="../../cli/">SAYN cli</a> section.</p>
+<h2 id="what-next">What Next?<a class="headerlink" href="#what-next" title="Permanent link">&para;</a></h2>
 <p>You now know the basics of SAYN, congratulations! You can continue learning by going through the <a href="../tutorial_part2/">Tutorial: Part 2</a> which shows you several tricks to make your SAYN project more dynamic and efficient.</p>
 <p>Otherwise, you can go through the rest of the documentation as SAYN has much more to offer!</p>
 <p>Enjoy SAYN :)</p>
-</article>
-</div>
-</div>
-</main>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
 <footer class="md-footer">
-<div class="md-footer-nav">
-<nav aria-label="Footer" class="md-footer-nav__inner md-grid">
-<a class="md-footer-nav__link md-footer-nav__link--prev" href="../.." rel="prev" title="Home">
-<div class="md-footer-nav__button md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
-</div>
-<div class="md-footer-nav__title">
-<div class="md-ellipsis">
-<span class="md-footer-nav__direction">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../../installation/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Home
+                Installation
               </div>
-</div>
-</a>
-<a class="md-footer-nav__link md-footer-nav__link--next" href="../tutorial_part2/" rel="next" title="Tutorial (Part 2)">
-<div class="md-footer-nav__title">
-<div class="md-ellipsis">
-<span class="md-footer-nav__direction">
+            </div>
+          </a>
+        
+        
+          <a href="../tutorial_part2/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
                   Next
                 </span>
                 Tutorial (Part 2)
               </div>
-</div>
-<div class="md-footer-nav__button md-icon">
-<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"></path></svg>
-</div>
-</a>
-</nav>
-</div>
-<div class="md-footer-meta md-typeset">
-<div class="md-footer-meta__inner md-grid">
-<div class="md-footer-copyright">
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
         
         Made with
-        <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
           Material for MkDocs
         </a>
-</div>
-<div class="md-footer-social">
-<a class="md-footer-social__link" href="https://github.com/173TECH" rel="noopener" target="_blank" title="github.com">
-<svg viewbox="0 0 496 512" xmlns="http://www.w3.org/2000/svg"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"></path></svg>
-</a>
-</div>
-</div>
-</div>
+      </div>
+      
+  <div class="md-footer-social">
+    
+      
+      
+        
+        
+      
+      <a href="https://github.com/173TECH" target="_blank" rel="noopener" title="github.com" class="md-footer-social__link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+      </a>
+    
+  </div>
+
+    </div>
+  </div>
 </footer>
-</div>
-<script src="../../assets/javascripts/vendor.d710d30a.min.js"></script>
-<script src="../../assets/javascripts/bundle.5f27aba8.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
-<script>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/vendor.77e55a48.min.js"></script>
+      <script src="../../assets/javascripts/bundle.9554a270.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
         app = initialize({
           base: "../..",
           features: [],
           search: Object.assign({
-            worker: "../../assets/javascripts/worker/search.27c6a5e6.min.js"
+            worker: "../../assets/javascripts/worker/search.4ac00218.min.js"
           }, typeof search !== "undefined" && search)
         })
       </script>
-</body>
+      
+    
+  </body>
 </html>
