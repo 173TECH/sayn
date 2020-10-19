@@ -39,6 +39,7 @@ plugins:
 
 extra_css:
   - css/mkdocstrings.css
+  - css/admonitions.css
 
 extra:
   social:
