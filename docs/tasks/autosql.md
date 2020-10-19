@@ -68,7 +68,7 @@ When using `incremental`, SAYN will do the following in the background:
 In order to make the `SELECT` statement incremental, SAYN provides the following arguments:
 
 * `full_load`: a flag defaulting to `False` and controlled by the `-f` flag in the SAYN command.
-  If `-f` is pass to the sayn command, the final table will be replaced with the temporary one
+  If `-f` is passed to the sayn command, the final table will be replaced with the temporary one
   in step 2 above, rather than performing a merge of the data.
 * `start_dt`: a date defaulting to "yesterday" and controlled by the `-s` flag in the SAYN command.
 * `end_dt`: a date defaulting to "yesterday" and controlled by the `-e` flag in the SAYN command.
@@ -85,13 +85,14 @@ In order to make the `SELECT` statement incremental, SAYN provides the following
 
 ## Defining DDLs
 
-Additionally, autosql tasks support the definition of DDL that will be used when creating the table.
+Additionally, autosql tasks support the definition of optional DDL that will be used when creating the table.
 Each supported database might have specific DDL related to it, but in general the following is supported:
 
+* columns: the list of columns as well as their type. If used, SAYN will enforce the types specified.
 * indexes: the indexes to add on the table.
   * primary_key: this should be added in the indexes section using the `primary_key` name for the index.
-* columns: the list of columns as well as their type. If used, SAYN will enforce the types specified.
-* permissions: the permissions you want to give to each role. You should map each role to the rights you want to grant separated by commas (e.g. SELECT, DELETE).
+* permissions: the permissions you want to give to each role. You should map each role to the rights
+  you want to grant separated by commas (e.g. SELECT, DELETE).
 
 !!! example "autosql with DDL"
     ```yaml

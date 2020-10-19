@@ -35,7 +35,7 @@ A `copy` task is defined as follows:
     * `schema`: the (optional) destination schema.
     * `table`: the name of the table to store data into.
 
-By default, tables will be copy in full every time SAYN runs, but it can be changed into an incremental
+By default, tables will be copied in full every time SAYN runs, but it can be changed into an incremental
 load by adding `incremental_key` and `delete_key`:
 
 * `incremental_key`: the column to use to determine what data is new. The process will transfer
