@@ -8,7 +8,7 @@ It currently supports the following databases:
 * [Redshift](redshift.md)
 * [Snowflake](snowflake.md)
 * [PostgreSQL](postgresql.md)
-* [Mysql](mysql.md)
+* [MySQL](mysql.md)
 * [SQLite](sqlite.md)
 
 ## Usage

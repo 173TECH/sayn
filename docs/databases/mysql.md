@@ -1,4 +1,4 @@
-# Mysql
+# MySQL
 
 The MySQL driver depends on [pymysql](https://github.com/PyMySQL/PyMySQL){target="\_blank"}
 and can be installed with:
