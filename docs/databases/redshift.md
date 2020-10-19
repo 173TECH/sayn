@@ -24,7 +24,7 @@ dialect for extra parameters.
 
 ## Connection types
 
-SAYN supports 2 conneciton models for Redshift: standard user/password connection and IAM based.
+SAYN supports 2 connection models for Redshift: standard user/password connection and IAM based.
 
 ### Standard user/password connection
 
