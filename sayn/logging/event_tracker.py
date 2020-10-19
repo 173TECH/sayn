@@ -4,10 +4,7 @@ import subprocess
 
 from .task_event_tracker import TaskEventTracker
 
-try:
-    from importlib import metadata
-except ImportError:
-    import importlib_metadata as metadata
+from sayn import __version__ as sayn_version
 
 
 class EventTracker:
@@ -18,7 +15,7 @@ class EventTracker:
     tasks = list()
     current_task = None
     current_task_n = 0
-    sayn_version = metadata.version("sayn")
+    sayn_version = sayn_version
     project_git_commit = None
     project_name = Path(".").absolute().name
 
