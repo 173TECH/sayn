@@ -11,7 +11,7 @@
       
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.0">
     
     
       
@@ -19,10 +19,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.38780c08.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.bc7e593a.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.3f72e892.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab28b872.min.css">
         
           
           
@@ -79,7 +79,9 @@
       
     </div>
     
-      <header class="md-header" data-md-component="header">
+      
+
+<header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid" aria-label="Header">
     <a href="https://173tech.github.io/sayn/" title="SAYN" class="md-header-nav__button md-logo" aria-label="SAYN">
       
@@ -164,7 +166,9 @@
               <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
-                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="https://173tech.github.io/sayn/" title="SAYN" class="md-nav__button md-logo" aria-label="SAYN">
       
@@ -809,7 +813,6 @@ do. They are extremely useful for data extraction or data science models.</p>
   <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python</span>
   <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">task_python.TaskPython</span>
 </code></pre></div>
-
 </div>
 <p>Where <code>class</code> is a python path to the Python class implementing the task. This code should be stored in the
 <code>python</code> of your project, which in itself is a python module that's dynamically loaded, so it needs an empty
@@ -831,7 +834,6 @@ do. They are extremely useful for data extraction or data science models.</p>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">success</span><span class="p">()</span>
 </code></pre></div>
-
 </div>
 <p>In this example:
 * We create a new class inheriting from SAYN's PythonTask.
@@ -871,7 +873,6 @@ is a good example of usage, as we define the <code>load_data</code> task as havi
        <span class="p">]</span>
    <span class="p">)</span>
 </code></pre></div>
-
 </div>
 <p>This code defines which steps form the task. Then we can define the start and end
 of that step with:</p>
@@ -880,14 +881,12 @@ of that step with:</p>
 <div class="highlight"><pre><span></span><code><span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="s1">&#39;Generate Data&#39;</span><span class="p">):</span>
     <span class="n">data_to_load</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">tournament_battles</span><span class="p">)</span>
 </code></pre></div>
-
 </div>
 <p>Which will output the following on the screen:</p>
 <div class="admonition example">
 <p class="admonition-title">CLI output</p>
 <div class="highlight"><pre><span></span><code><span class="o">[</span><span class="m">1</span>/7<span class="o">]</span> load_data <span class="o">(</span>started at <span class="m">15</span>:25<span class="o">)</span>: Step <span class="o">[</span><span class="m">1</span>/5<span class="o">]</span> Generate Data
 </code></pre></div>
-
 </div>
 <p>The default cli presentation will show only the current step being executed, which in the
 case of the tutorial project goes very quickly. However we can persist these messages using
@@ -908,7 +907,6 @@ the debug flag to the cli <code>sayn run -d</code> giving you this:</p>
   ✔ <span class="o">[</span><span class="m">5</span>/5<span class="o">]</span> <span class="o">[</span><span class="m">15</span>:29<span class="o">]</span> Load battles <span class="o">(</span><span class="m">210</span>.3ms<span class="o">)</span>
 ✔ Took <span class="o">(</span>273ms<span class="o">)</span>
 </code></pre></div>
-
 </div>
 <p>So you can see the time it takes to perform each step.</p>
 <p>Sometimes it's useful to output some extra text beyond steps. In those cases, the API provides
@@ -1005,8 +1003,8 @@ is an optional message string that will be showed on the screen.</p>
       
     </div>
     
-      <script src="../../assets/javascripts/vendor.77e55a48.min.js"></script>
-      <script src="../../assets/javascripts/bundle.9554a270.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      <script src="../../assets/javascripts/vendor.6a3d08fc.min.js"></script>
+      <script src="../../assets/javascripts/bundle.71201edf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
       
       <script>
         app = initialize({

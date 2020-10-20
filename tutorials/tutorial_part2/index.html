@@ -11,7 +11,7 @@
       
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.0">
     
     
       
@@ -19,10 +19,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.38780c08.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.bc7e593a.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.3f72e892.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab28b872.min.css">
         
           
           
@@ -79,7 +79,9 @@
       
     </div>
     
-      <header class="md-header" data-md-component="header">
+      
+
+<header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid" aria-label="Header">
     <a href="https://173tech.github.io/sayn/" title="SAYN" class="md-header-nav__button md-logo" aria-label="SAYN">
       
@@ -164,7 +166,9 @@
               <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
-                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="https://173tech.github.io/sayn/" title="SAYN" class="md-nav__button md-logo" aria-label="SAYN">
       
@@ -844,7 +848,6 @@ value.</p>
 <span class="nt">parameters</span><span class="p">:</span>
   <span class="nt">user_prefix</span><span class="p">:</span> <span class="s">&#39;&#39;</span> <span class="c1">#no prefix for prod</span>
 </code></pre></div>
-
 </div>
 <p>In this case we defined a parameter <code>user_prefix</code> that we will use to name tables. This is useful
 when multiple users are testing a project as it allows the final table name to be different between
@@ -862,7 +865,6 @@ collaborators.</p>
     <span class="nt">credentials</span><span class="p">:</span>
       <span class="nt">warehouse</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">prod_db</span>
 </code></pre></div>
-
 </div>
 <p>Note how we don't redefine the parameter in our prod profile as the default value is more appropriate.</p>
 <h3 id="step-2-making-tasks-dynamic-with-parameters">Step 2: Making Tasks Dynamic With <code>parameters</code><a class="headerlink" href="#step-2-making-tasks-dynamic-with-parameters" title="Permanent link">&para;</a></h3>
@@ -880,7 +882,6 @@ functions doing the data processing. You can look into <code>python/utils.py</co
                 <span class="n">q_create</span> <span class="o">=</span> <span class="n">get_create_table</span><span class="p">(</span><span class="n">log_type</span><span class="p">,</span> <span class="n">user_prefix</span><span class="p">)</span>
     <span class="c1"># ...</span>
 </code></pre></div>
-
 </div>
 <h4 id="in-autosql-tasks">In <code>autosql</code> tasks<a class="headerlink" href="#in-autosql-tasks" title="Permanent link">&para;</a></h4>
 <p>The files in the <code>sql</code> folder are always interpreted as <a href="https://palletsprojects.com/p/jinja/" target="_blank">Jinja</a>
@@ -894,7 +895,6 @@ task can be changed like this:</p>
 
 <span class="k">FROM</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">logs_arenas</span> <span class="n">l</span>
 </code></pre></div>
-
 </div>
 <p>Now <code>sayn run</code> will transform the above into valid SQL creating <code>compile/base/dim_arenas.sql</code>
 with it. The file path following the rule <code>compile/dag_name/autosql_task_name.sql</code>:</p>
@@ -905,7 +905,6 @@ with it. The file path following the rule <code>compile/dag_name/autosql_task_na
 
 <span class="k">FROM</span> <span class="n">up_logs_arenas</span> <span class="n">l</span>
 </code></pre></div>
-
 </div>
 <p>SAYN provides a <code>sayn compile</code> command that works like <code>sayn run</code> except that it won't execute
 the sql. What it does though, is generate these compiled files.</p>
@@ -928,7 +927,6 @@ generating. For that, let's take <code>dim_arenas</code> and modify it so that i
       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">load_data</span>
   <span class="c1"># ...</span>
 </code></pre></div>
-
 </div>
 <p>Note the value of destination.table is now some Jinja code that will compile to the value of
 <code>user_prefix</code> followed by the name of the task.</p>
@@ -954,7 +952,6 @@ tasks.</p>
     <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
   <span class="c1"># ...</span>
 </code></pre></div>
-
 </div>
 <p>Now the <code>modelling</code> preset has to dynamic properties:
 * <code>table</code>: defined like we did in the previous so that the create table contains the <code>user_prefix</code>
@@ -976,7 +973,6 @@ a task can override those values. Take <code>f_rankings</code> for example:</p>
     <span class="nt">parents</span><span class="p">:</span>
       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">f_fighter_results</span>
 </code></pre></div>
-
 </div>
 <p>Here we're overloading 2 properties:
 * <code>materialisation</code> which will make f_rankings a view rather than a table.
@@ -1085,8 +1081,8 @@ a task can override those values. Take <code>f_rankings</code> for example:</p>
       
     </div>
     
-      <script src="../../assets/javascripts/vendor.77e55a48.min.js"></script>
-      <script src="../../assets/javascripts/bundle.9554a270.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      <script src="../../assets/javascripts/vendor.6a3d08fc.min.js"></script>
+      <script src="../../assets/javascripts/bundle.71201edf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
       
       <script>
         app = initialize({
