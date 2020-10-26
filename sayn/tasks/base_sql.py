@@ -239,6 +239,6 @@ class BaseSqlTask(Task):
 
         if execute:
             data_iter = source_db.select_stream(get_data_query)
-            return self.default_db.load_data_stream(tmp_table, tmp_schema, data_iter)
+            return self.default_db.load_data(tmp_table, data_iter, schema=tmp_schema)
         else:
             return Ok()

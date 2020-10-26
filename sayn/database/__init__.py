@@ -91,10 +91,13 @@ class Database:
     #   - DROP CASCADE
     #   - NO SET SCHEMA
 
-    def setup_db(self, name, name_in_settings, db_type, engine):
+    def __init__(self, name, name_in_settings, db_type, common_params):
         self.name = name
         self.name_in_settings = name_in_settings
         self.db_type = db_type
+        self.load_batch_limit = common_params.get("load_batch_limit", 50000)
+
+    def set_engine(self, engine):
         self.engine = engine
         self.metadata = MetaData(self.engine)
 
@@ -173,17 +176,7 @@ class Database:
             for record in res:
                 yield dict(zip(res.keys(), record))
 
-    def load_data(self, table, schema, data):
-        """Loads a list of values into the database
-
-        The default loading mechanism is an INSERT...VALUES, but database drivers
-        will implement more appropriate methods.
-
-        Args:
-            table (str): The target table name
-            schema (str): The target schema or None
-            data (list): A list of dictionaries to load
-        """
+    def _load_data_batch(self, table, data, schema):
         result = self.get_table(table, schema)
         if result.is_ok:
             table_def = result.value
@@ -195,13 +188,31 @@ class Database:
 
         return Ok(len(data))
 
-    def load_data_stream(self, table, schema, data_iter):
+    def load_data(self, table, data, schema=None, batch_size=None, replace=False):
+        """Loads a list of values into the database
+
+        The default loading mechanism is an INSERT...VALUES, but database drivers
+        will implement more appropriate methods.
+
+        Args:
+            table (str): The target table name
+            schema (str): The target schema or None
+            data (list): A list of dictionaries to load
+        """
+        batch_size = batch_size or self.load_batch_limit
         loaded = 0
         buffer = list()
-        for i, record in enumerate(data_iter):
-            if i % 50000 == 0:
+        if replace:
+            self.drop_table(table, schema, execute=True)
+        if not self.table_exists(table, schema):
+            self.create_table(table, schema)
+
+        for i, record in enumerate(data):
+            if i % batch_size == 0:
                 if len(buffer) > 0:
-                    result = self.load_data(table, schema, buffer)
+                    if loaded == 0 and not self.table_exists(table, schema):
+                        pass
+                    result = self._load_data_batch(table, buffer, schema)
                     if result.is_err:
                         return result
                     else:
@@ -211,7 +222,7 @@ class Database:
             buffer.append(record)
 
         if len(buffer) > 0:
-            result = self.load_data(table, schema, buffer)
+            result = self._load_data_batch(table, buffer, schema)
             if result.is_err:
                 return result
             else:

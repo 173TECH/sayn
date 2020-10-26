@@ -16,9 +16,7 @@ db_parameters = [
 
 
 class Snowflake(Database):
-    def __init__(self, name, name_in_settings, settings):
-        db_type = settings.pop("type")
-
+    def create_engine(self, settings):
         from snowflake.sqlalchemy import URL
 
         url_params = dict()
@@ -26,9 +24,7 @@ class Snowflake(Database):
             if param in settings:
                 url_params[param] = settings.pop(param)
 
-        engine = create_engine(URL(**url_params), **settings)
-
-        self.setup_db(name, name_in_settings, db_type, engine)
+        return create_engine(URL(**url_params), **settings)
 
     def execute(self, script):
         try:

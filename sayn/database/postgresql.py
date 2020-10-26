@@ -11,9 +11,7 @@ db_parameters = ["host", "user", "password", "port", "dbname"]
 class Postgresql(Database):
     sql_features = ["DROP CASCADE"]
 
-    def __init__(self, name, name_in_settings, settings):
-        db_type = settings.pop("type")
-
+    def create_engine(self, settings):
         # Create engine using the connect_args argument to create_engine
         if "connect_args" not in settings:
             settings["connect_args"] = dict()
@@ -21,8 +19,7 @@ class Postgresql(Database):
             if param in settings:
                 settings["connect_args"][param] = settings.pop(param)
 
-        engine = create_engine("postgresql://", **settings)
-        self.setup_db(name, name_in_settings, db_type, engine)
+        return create_engine("postgresql://", **settings)
 
     def load_data(self, table, schema, data):
         full_table_name = f"{'' if schema is None else schema + '.'}{table}"

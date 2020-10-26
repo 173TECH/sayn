@@ -60,9 +60,7 @@ class RedshiftDDL(DDL):
 class Redshift(Database):
     sql_features = ["DROP CASCADE", "NO SET SCHEMA"]
 
-    def __init__(self, name, name_in_settings, settings):
-        db_type = settings.pop("type")
-
+    def create_engine(self, settings):
         # Create engine using the connect_args argument to create_engine
         if "connect_args" not in settings:
             settings["connect_args"] = dict()
@@ -107,8 +105,7 @@ class Redshift(Database):
             if param in settings:
                 settings["connect_args"][param] = settings.pop(param)
 
-        engine = create_engine("postgresql://", **settings)
-        self.setup_db(name, name_in_settings, db_type, engine)
+        return create_engine("postgresql://", **settings)
 
     def validate_ddl(self, ddl):
         if ddl is None:
