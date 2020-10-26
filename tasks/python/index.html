@@ -481,8 +481,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining-python-tasks-in-modelsyaml" class="md-nav__link">
-    Defining python Tasks In models.yaml
+  <a href="#defining-python-tasks" class="md-nav__link">
+    Defining python Tasks
   </a>
   
 </li>
@@ -748,8 +748,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining-python-tasks-in-modelsyaml" class="md-nav__link">
-    Defining python Tasks In models.yaml
+  <a href="#defining-python-tasks" class="md-nav__link">
+    Defining python Tasks
   </a>
   
 </li>
@@ -805,7 +805,7 @@
 <h2 id="about">About<a class="headerlink" href="#about" title="Permanent link">&para;</a></h2>
 <p>The <code>python</code> task allows you run python scripts. Therefore, those tasks can do anything Python can
 do. They are extremely useful for data extraction or data science models.</p>
-<h2 id="defining-python-tasks-in-modelsyaml">Defining <code>python</code> Tasks In <code>models.yaml</code><a class="headerlink" href="#defining-python-tasks-in-modelsyaml" title="Permanent link">&para;</a></h2>
+<h2 id="defining-python-tasks">Defining <code>python</code> Tasks<a class="headerlink" href="#defining-python-tasks" title="Permanent link">&para;</a></h2>
 <p>A <code>python</code> task is defined as follows:</p>
 <div class="admonition example">
 <p class="admonition-title">dags/base.yaml</p>
@@ -919,7 +919,7 @@ some methods for a more adhoc logging model:</p>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code>self.error</code> doesn't abort the execution of the task, nor it sets the final status to being failed. 
+<p><code>self.error</code> doesn't abort the execution of the task, nor it sets the final status to being failed.
 To indicate a python task has failed, use this construct: <code>return self.fail(text)</code> where text
 is an optional message string that will be showed on the screen.</p>
 </div>
