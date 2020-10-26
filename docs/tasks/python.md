@@ -5,7 +5,7 @@
 The `python` task allows you run python scripts. Therefore, those tasks can do anything Python can
 do. They are extremely useful for data extraction or data science models.
 
-## Defining `python` Tasks In `models.yaml`
+## Defining `python` Tasks
 
 A `python` task is defined as follows:
 
@@ -132,7 +132,7 @@ some methods for a more adhoc logging model:
 * `self.error(text)`: error log to console and file. Remains on the screen after the task finishes (look for red lines).
 
 !!! note
-    `self.error` doesn't abort the execution of the task, nor it sets the final status to being failed. 
+    `self.error` doesn't abort the execution of the task, nor it sets the final status to being failed.
     To indicate a python task has failed, use this construct: `return self.fail(text)` where text
     is an optional message string that will be showed on the screen.
 

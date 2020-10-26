@@ -1,8 +1,8 @@
-# SAYN cli
+# SAYN CLI
 
 ## About
 
-SAYN's cli tool is the main means for interacting with SAYN projects. Use `sayn --help` to see all options.
+SAYN's CLI tool is the main means for interacting with SAYN projects. Use `sayn --help` to see all options.
 
 ## Available commands
 
@@ -57,7 +57,7 @@ When the `sayn run` command is executed, these values define the `Period` specif
 
 Works like `run` except it doesn't execute the sql code. The same optional flags than for `sayn run` apply.
 
-### `dag-image`
+### `sayn dag-image`
 
 Generates a visualisation of the whole SAYN process. This requires `graphviz` installed in your
 [system](https://www.graphviz.org/download/){target="\_blank"} and the python package, which can be
