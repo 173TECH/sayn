@@ -6,9 +6,9 @@ class LoadData(PythonTask):
     def run(self):
         # we use this list to control how many battles we want per tournament
         tournament_battles = [
-            {"tournament_id": 1, "n_battles": 1000},
-            {"tournament_id": 2, "n_battles": 250},
-            {"tournament_id": 3, "n_battles": 500},
+            {"tournament_id": 1, "n_battles": 10},
+            {"tournament_id": 2, "n_battles": 25},
+            {"tournament_id": 3, "n_battles": 50},
         ]
 
         # Define the run steps
