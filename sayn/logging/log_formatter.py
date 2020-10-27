@@ -206,8 +206,8 @@ class LogFormatter:
         elif error.kind == "dag" and error.code == "missing_parents":
             level = "error"
             message = ["Some parents are missing from dag"] + [
-                self.red(f"In task {self.bright(task)}: {', '.join(parents)}")
-                for task, parents in error.details["missing"].items()
+                self.red(f"In task {', '.join(task)}: {self.bright(parents)}")
+                for parents, task in error.details["missing"].items()
             ]
 
         elif error.code == "wrong_credentials":
