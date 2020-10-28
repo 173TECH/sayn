@@ -7,8 +7,6 @@ SAYN.egg-info/
 build/
 settings.yaml
 .ipynb_checkpoints/
-README.rst
-setup.py
 
 #documentation
 site/
