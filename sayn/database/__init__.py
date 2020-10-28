@@ -6,6 +6,7 @@ from sqlalchemy import MetaData, Table, exc
 
 from ..core.errors import Err, Exc, Ok
 
+from ..utils.db_types import py2sqa
 from ..utils.misc import group_list
 
 
@@ -95,7 +96,7 @@ class Database:
         self.name = name
         self.name_in_settings = name_in_settings
         self.db_type = db_type
-        self.load_batch_limit = common_params.get("load_batch_limit", 50000)
+        self.max_batch_rows = common_params.get("load_batch_limit", 50000)
 
     def set_engine(self, engine):
         self.engine = engine
@@ -177,6 +178,16 @@ class Database:
                 yield dict(zip(res.keys(), record))
 
     def _load_data_batch(self, table, data, schema):
+        """Implements the load of a single data batch for `load_data`.
+
+        Defaults to an insert many statement, but it's overloaded for specific
+        database connector for more efficient methods.
+
+        Args:
+            table (str): The name of the target table
+            data (list): A list of dictionaries to load
+            schema (str): An optional schema to reference the table
+        """
         result = self.get_table(table, schema)
         if result.is_ok:
             table_def = result.value
@@ -188,36 +199,57 @@ class Database:
 
         return Ok(len(data))
 
-    def load_data(self, table, data, schema=None, batch_size=None, replace=False):
+    def load_data(
+        self, table, data, schema=None, batch_size=None, replace=False, ddl=None
+    ):
         """Loads a list of values into the database
 
         The default loading mechanism is an INSERT...VALUES, but database drivers
         will implement more appropriate methods.
 
         Args:
-            table (str): The target table name
-            schema (str): The target schema or None
+            table (str): The name of the target table
             data (list): A list of dictionaries to load
+            schema (str): An optional schema to reference the table
+            batch_size (int): The max size of each load batch. Defaults to
+              `max_batch_rows` in the credentials configuration (settings.yaml)
+            replace (bool): Indicates whether the target table is to be replaced
+              (True) or new records are to be appended to the existing table (default)
+            ddl (dict): An optional ddl specification in the same format as used
+              in autosql and copy tasks
         """
-        batch_size = batch_size or self.load_batch_limit
+        batch_size = batch_size or self.max_batch_rows
         loaded = 0
         buffer = list()
         if replace:
             self.drop_table(table, schema, execute=True)
-        if not self.table_exists(table, schema):
-            self.create_table(table, schema)
+
+        ddl = ddl or dict()
+        check_create = True
 
         for i, record in enumerate(data):
-            if i % batch_size == 0:
-                if len(buffer) > 0:
-                    if loaded == 0 and not self.table_exists(table, schema):
-                        pass
-                    result = self._load_data_batch(table, buffer, schema)
-                    if result.is_err:
-                        return result
-                    else:
-                        loaded += result.value
+            if i % batch_size == 0 and len(buffer) > 0:
+                result = self._load_data_batch(table, buffer, schema)
+                if result.is_err:
+                    return result
+                else:
+                    loaded += result.value
+
                 buffer = list()
+
+            if check_create and not self.table_exists(table, schema):
+                # Create the table if required
+                if len(ddl.get("columns", list())) == 0:
+                    # If no columns are specified in the ddl, figure that out
+                    # based on the python types of the first record
+                    columns = [
+                        {"name": col, "type": py2sqa(type(val), self.engine.dialect)}
+                        for col, val in record.items()
+                    ]
+                    ddl = dict(**ddl, columns=columns)
+
+                self.create_table_ddl(table, schema, ddl, execute=True)
+                check_create = False
 
             buffer.append(record)
 

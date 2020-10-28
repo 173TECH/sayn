@@ -12,7 +12,7 @@ drivers = {
     "redshift": Redshift,
 }
 
-db_params = ("load_batch_limit", "type")
+db_params = ("max_batch_rows", "type")
 
 
 def create_all(credentials):

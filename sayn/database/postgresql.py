@@ -21,7 +21,7 @@ class Postgresql(Database):
 
         return create_engine("postgresql://", **settings)
 
-    def load_data(self, table, schema, data):
+    def _load_data_batch(self, table, data, schema):
         full_table_name = f"{'' if schema is None else schema + '.'}{table}"
         copy_sql = f"COPY {full_table_name} FROM STDIN " "CSV DELIMITER ',' QUOTE '\"'"
 
