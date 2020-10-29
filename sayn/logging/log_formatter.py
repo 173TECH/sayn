@@ -269,8 +269,14 @@ class LogFormatter:
 
         elif error.kind == "parsing" and "filename" in error.details:
             level = "error"
-            x = error.details["filename"]
-            message = self.bad(f"File not found: {x}")
+            if "error" in error.details:
+                message = self.bad(
+                    f"""Parsing error in file: {error.details['filename']}
+                Details: {error.details['error']}
+                   Line: {error.details['line']}"""
+                )
+            else:
+                message = self.bad(f"File not found: {error.details['filename']}")
 
         elif error.kind == "task_type" and error.code == "invalid_task_type_error":
             level = "error"
