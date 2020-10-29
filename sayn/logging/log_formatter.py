@@ -179,7 +179,7 @@ class LogFormatter:
 
         return {"level": level, "message": out}
 
-    def error_result(self, duration, error):
+    def error_result(self, duration, error):  # noqa: C901
         level = "error"
         message = self.bad(error.__str__())
         duration = human(duration)
