@@ -272,6 +272,23 @@ class LogFormatter:
             x = error.details["filename"]
             message = self.bad(f"File not found: {x}")
 
+        elif error.kind == "task_type" and error.code == "invalid_task_type_error":
+            level = "error"
+            message = self.bad(
+                f"""Task error in DAG: {error.details['dag']}. Invalid task type: {error.details['type']}.
+
+            Current Valid Task Types:
+
+            - autosql
+            - sql
+            - python
+            - copy
+            - dummy
+
+            For more details please check SAYN documentation: https://173tech.github.io/sayn/tasks/overview/
+
+            """
+            )
         return {
             "level": level,
             "message": message,
