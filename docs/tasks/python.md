@@ -13,7 +13,7 @@ A `python` task is defined as follows:
     ```yaml
     task_python:
       type: python
-      class: task_python.TaskPython
+      class: file_name.ClassName
     ```
 
 Where `class` is a python path to the Python class implementing the task. This code should be stored in the
@@ -26,11 +26,11 @@ Where `class` is a python path to the Python class implementing the task. This c
 
 The basic code to construct a python task is:
 
-!!! example "python/task_python.py"
+!!! example "python/file_name.py"
     ``` python
     from sayn import PythonTask
 
-    class TaskPython(PythonTask):
+    class ClassName(PythonTask):
         def setup(self):
             # Do some checked
             return self.success()

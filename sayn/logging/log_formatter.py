@@ -289,6 +289,26 @@ class LogFormatter:
 
             """
             )
+
+        elif (
+            error.kind == "python_loader"
+            and error.code == "load_class_exception"
+            and "exception" in error.details
+        ):
+            level = "error"
+            x = (error.details["exception"].name).split(".", maxsplit=1)[1]
+            message = self.bad(f"File not found: {x}.py")
+
+        elif (
+            error.kind == "python_loader"
+            and error.code == "missing_class"
+            and "pyclass" in error.details
+        ):
+            level = "error"
+            message = self.bad(
+                f"Error in file: {error.details['module_path']}.py. Missing Class: {error.details['pyclass']}."
+            )
+
         return {
             "level": level,
             "message": message,
