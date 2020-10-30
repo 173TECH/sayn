@@ -302,8 +302,14 @@ class LogFormatter:
             and "exception" in error.details
         ):
             level = "error"
-            x = (error.details["exception"].name).split(".", maxsplit=1)[1]
-            message = self.bad(f"File not found: {x}.py")
+            try:
+                x = (error.details["exception"].name).split(".", maxsplit=1)[1]
+                message = self.bad(f"File not found: {x}.py")
+
+            except AttributeError:
+                message = self.bad(
+                    f"Error in DAG. Python task requires a valid class parameter to run."
+                )
 
         elif (
             error.kind == "python_loader"
@@ -311,9 +317,13 @@ class LogFormatter:
             and "pyclass" in error.details
         ):
             level = "error"
-            message = self.bad(
-                f"Error in file: {error.details['module_path']}.py. Missing Class: {error.details['pyclass']}."
-            )
+            path = error.details["module_path"]
+            if len(path) > 0:
+                message = self.bad(
+                    f"Error in file: {error.details['module_path']}.py. Missing Class: {error.details['pyclass']}."
+                )
+            else:
+                message = self.bad(f"Invalid path: {error.details['pyclass']}")
 
         return {
             "level": level,

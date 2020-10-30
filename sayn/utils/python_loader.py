@@ -38,9 +38,11 @@ class PythonLoader:
     def get_class(self, module_key, class_path):
         if f"sayn_{module_key}" not in self.modules:
             return Err("python_loader", "module_not_registered", module_key=module_key)
-
-        module_str = ".".join(class_path.split(".")[:-1])
-        class_name = class_path.split(".")[-1]
+        try:
+            module_str = ".".join(class_path.split(".")[:-1])
+            class_name = class_path.split(".")[-1]
+        except Exception as e:
+            return Err("python_loader", "load_class_exception", exception=e)
 
         if len(module_str) > 0:
             try:
