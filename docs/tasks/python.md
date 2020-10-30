@@ -42,6 +42,7 @@ The basic code to construct a python task is:
     ```
 
 In this example:
+
 * We create a new class inheriting from SAYN's PythonTask.
 * We define a setup method to do some sanity checks. This method can be skipped, but it's
   useful to check the validity of project parameters or so some initial setup.
@@ -49,6 +50,9 @@ In this example:
 * Both `setup` and `run` return the task status as successful `return self.success()`, however
   we can indicate a task failure to sayn with `return self.fail()`. Failing a python task
   forces child tasks to be skipped.
+
+???+ attention
+     Please note that python tasks need to return either `self.success()` or `self.fail()` in order to run.
 
 ### Using the SAYN API
 

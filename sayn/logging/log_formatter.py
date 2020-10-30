@@ -325,6 +325,12 @@ class LogFormatter:
             else:
                 message = self.bad(f"Invalid path: {error.details['pyclass']}")
 
+        elif error.kind == "copy_task" and error.code == "missing_location":
+            level = "error"
+            message = self.bad(
+                f"Copy task is missing parameter:{error.details['exception']}"
+            )
+
         return {
             "level": level,
             "message": message,
