@@ -72,8 +72,30 @@ class App:
 
         # Update parameters and credentials with environment
         if settings.environment is not None:
-            parameters.update(settings.environment.parameters or dict())
-            credentials.update(settings.environment.credentials or dict())
+
+            def get_values_case_insensitive(values, allowed_values):
+                out = dict()
+                lower_values = [v.lower() for v in allowed_values]
+                for k, v in values.items():
+                    if k in allowed_values:
+                        out[k] = v
+                    elif k.lower() in lower_values:
+                        out[allowed_values[lower_values.index(k.lower())]] = v
+                    else:
+                        out[k] = v
+
+                return out
+
+            parameters.update(
+                get_values_case_insensitive(
+                    settings.environment.parameters, self.project_parameters.keys()
+                )
+            )
+            credentials.update(
+                get_values_case_insensitive(
+                    settings.environment.credentials, self.credentials.keys()
+                )
+            )
 
         # Validate the given parameters
         error_items = set(parameters.keys()) - set(self.project_parameters.keys())
