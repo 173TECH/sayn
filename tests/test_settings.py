@@ -152,7 +152,10 @@ def test_env_01(tmpdir):
 
     with create_project(tmpdir, env=env):
         settings = read_settings().value
-        assert settings.get_settings().value == {
+        assert {
+            k1: {k.lower(): v for k, v in v1.items()}
+            for k1, v1 in settings.get_settings().value.items()
+        } == {
             "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
             "parameters": {"param1": "value1"},
         }
