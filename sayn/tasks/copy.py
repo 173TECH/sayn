@@ -59,21 +59,27 @@ class Config(BaseModel):
 
 class CopyTask(BaseSqlTask):
     def setup(self, **config):
-        config["source"].update(
-            {
-                "db_features": self.default_db.sql_features,
-                "db_type": self.default_db.db_type,
-                "all_dbs": [
-                    n for n, c in self.connections.items() if isinstance(c, Database)
-                ],
-            }
-        )
-        config["destination"].update(
-            {
-                "db_features": self.default_db.sql_features,
-                "db_type": self.default_db.db_type,
-            }
-        )
+        if isinstance(config.get("source"), dict):
+            config["source"].update(
+                {
+                    "db_features": self.default_db.sql_features,
+                    "db_type": self.default_db.db_type,
+                    "all_dbs": [
+                        n
+                        for n, c in self.connections.items()
+                        if isinstance(c, Database)
+                    ],
+                }
+            )
+
+        if isinstance(config.get("destination"), dict):
+            config["destination"].update(
+                {
+                    "db_features": self.default_db.sql_features,
+                    "db_type": self.default_db.db_type,
+                }
+            )
+
         self.config = Config(**config)
 
         self.source_db = self.connections[self.config.source.db]

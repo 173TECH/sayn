@@ -4,8 +4,11 @@ from ..core.errors import Err, Ok
 
 
 def _has_missing_parents(dag):
-    rev = reverse_dict(dag)
-    missing = {p: c for p, c in rev.items() if p not in dag}
+    missing = {}
+    for task, parents in dag.items():
+        missing_parents = [p for p in parents if p not in dag]
+        if len(missing_parents) > 0:
+            missing[task] = missing_parents
     if len(missing) > 0:
         return Err("dag", "missing_parents", missing=missing)
     return Ok(False)

@@ -25,7 +25,7 @@ All tasks share a number of common properties available:
 | Property | Description | Required |
 | -------- | ----------- | ---- |
 | type | The task type. | Required one of: `autosql`, `sql`, `python`, `copy`, `dummy` |
-| preset | A preset to inherit task properties from. Seee [the presets sectinon](../presets.md) for more info. | Optional name of preset |
+| preset | A preset to inherit task properties from. See [the presets section](../presets.md) for more info. | Optional name of preset |
 | parents | A list of tasks this one depends on. All tasks in this list is ensured to run before the child task. | Optional list |
 | tags | A list of tags used in `sayn run -t tag:tag_name`. This allows for advanced task filtering when we don't want to run all tasks in the project. | Optional list |
 

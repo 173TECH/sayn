@@ -179,7 +179,7 @@ class LogFormatter:
 
         return {"level": level, "message": out}
 
-    def error_result(self, duration, error):
+    def error_result(self, duration, error):  # noqa: C901
         level = "error"
         message = self.bad(error.__str__())
         duration = human(duration)
@@ -266,6 +266,64 @@ class LogFormatter:
         elif error.kind == "database" and error.code == "operational_error":
             level = "error"
             message = self.bad(error.details["message"])
+
+        elif error.kind == "parsing" and "filename" in error.details:
+            level = "error"
+            if "error" in error.details:
+                message = self.bad(
+                    f"""Parsing error in file: {error.details['filename']}
+                Details: {error.details['error']}
+                   Line: {error.details['line']}"""
+                )
+            else:
+                message = self.bad(f"File not found: {error.details['filename']}")
+
+        elif error.kind == "task_type" and error.code == "invalid_task_type_error":
+            level = "error"
+            message = self.bad(
+                f"""Task error in DAG: {error.details['dag']}. Invalid task type: {error.details['type']}.
+
+            Current Valid Task Types:
+
+            - autosql
+            - sql
+            - python
+            - copy
+            - dummy
+
+            For more details please check SAYN documentation: https://173tech.github.io/sayn/tasks/overview/
+
+            """
+            )
+
+        elif (
+            error.kind == "python_loader"
+            and error.code == "load_class_exception"
+            and "exception" in error.details
+        ):
+            level = "error"
+            try:
+                x = (error.details["exception"].name).split(".", maxsplit=1)[1]
+                message = self.bad(f"File not found: {x}.py")
+
+            except AttributeError:
+                message = self.bad(
+                    f"Error in DAG. Python task requires a valid class parameter to run."
+                )
+
+        elif (
+            error.kind == "python_loader"
+            and error.code == "missing_class"
+            and "pyclass" in error.details
+        ):
+            level = "error"
+            path = error.details["module_path"]
+            if len(path) > 0:
+                message = self.bad(
+                    f"Error in file: {error.details['module_path']}.py. Missing Class: {error.details['pyclass']}."
+                )
+            else:
+                message = self.bad(f"Invalid path: {error.details['pyclass']}")
 
         return {
             "level": level,

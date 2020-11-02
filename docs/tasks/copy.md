@@ -30,7 +30,7 @@ A `copy` task is defined as follows:
     * `db`: a credential from the `required_credentials` list in `project.yaml` that's one of the supported [databases](../databases/overview.md).
     * `schema`: the (optional) source schema.
     * `table`: the name of the table top copy.
-* `destination`: the destination details. The destination database is the `default_db` set in `models.yaml`.
+* `destination`: the destination details. The destination database is the `default_db` set in `project.yaml`.
     * `tmp_schema`: the (optional) staging schema used in the process of copying data.
     * `schema`: the (optional) destination schema.
     * `table`: the name of the table to store data into.
