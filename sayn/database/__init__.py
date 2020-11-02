@@ -97,7 +97,7 @@ class Database:
         self.name = name
         self.name_in_settings = name_in_settings
         self.db_type = db_type
-        self.max_batch_rows = common_params.get("load_batch_limit", 50000)
+        self.max_batch_rows = common_params.get("max_batch_rows", 50000)
 
     def _set_engine(self, engine):
         self.engine = engine
