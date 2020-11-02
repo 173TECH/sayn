@@ -158,7 +158,12 @@ class TaskWrapper:
 
             else:
                 return failed(
-                    Err("task_type", "invalid_task_type_error", type=self._type)
+                    Err(
+                        "task_type",
+                        "invalid_task_type_error",
+                        type=self._type,
+                        dag=self.dag,
+                    )
                 )
 
             # Call the object creation method
