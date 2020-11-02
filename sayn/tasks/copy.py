@@ -75,7 +75,7 @@ class CopyTask(BaseSqlTask):
             except Exception as e:
                 return Err("copy_task", "missing_location", exception=e)
 
-        elif isinstance(config["destination"], dict):
+        if isinstance(config["destination"], dict):
             try:
                 config["destination"].update(
                     {
