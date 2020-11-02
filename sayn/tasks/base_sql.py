@@ -1,6 +1,6 @@
 from sqlalchemy import or_, select
 
-from ..core.errors import Err, Ok
+from ..core.errors import Err, Exc, Ok
 from . import Task
 
 
@@ -34,20 +34,10 @@ class BaseSqlTask(Task):
         self.set_run_steps(self.steps)
 
         for step in self.steps:
-            self.start_step(step)
-            result = self.execute_step(step)
-            self.finish_current_step(result)
-            if result.is_err:
-                if "script" in result.error.details:
-                    self.write_compilation_output(
-                        result.error.details["script"], step.replace(" ", "_").lower()
-                    )
-                return result
-
-            elif isinstance(result.value, str) and self.run_arguments["debug"]:
-                self.write_compilation_output(
-                    result.value, step.replace(" ", "_").lower()
-                )
+            with self.step(step):
+                result = self.execute_step(step)
+                if result.is_err:
+                    return result
 
         return Ok()
 
@@ -96,7 +86,10 @@ class BaseSqlTask(Task):
             if self.run_arguments["debug"]:
                 self.write_compilation_output(query, step.replace(" ", "_").lower())
             if execute:
-                self.default_db.execute(query)
+                try:
+                    self.default_db.execute(query)
+                except Exception as e:
+                    return Exc(e)
 
             return Ok()
 

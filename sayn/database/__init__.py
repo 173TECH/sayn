@@ -2,9 +2,9 @@ from collections import Counter
 from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, validator
-from sqlalchemy import MetaData, Table, exc
+from sqlalchemy import MetaData, Table
 
-from ..core.errors import DBError, Err, Exc, Ok
+from ..core.errors import DBError, Exc, Ok
 
 from ..utils.db_types import py2sqa
 from ..utils.misc import group_list
@@ -137,27 +137,6 @@ class Database:
         """
         with self.engine.connect().execution_options(autocommit=True) as connection:
             connection.execute(script)
-        # try:
-        #     result = Ok()
-        # except exc.ProgrammingError as e:
-        #     result = Err(
-        #         "database_error",
-        #         "sql_execution_error",
-        #         message="\n ".join([s.strip() for s in e.args]),
-        #         exception=e,
-        #         db=self.name,
-        #         script=script,
-        #     )
-        # except Exception as e:
-        #     result = Err(
-        #         "database_error",
-        #         "sql_execution_error",
-        #         exception=e,
-        #         db=self.name,
-        #         script=script,
-        #     )
-        # finally:
-        #     return result
 
     def select(self, query, **params):
         """Executes the query and returns a list of dictionaries with the data.
