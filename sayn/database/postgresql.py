@@ -2,7 +2,6 @@ import csv
 import io
 from sqlalchemy import create_engine
 
-from ..core.errors import Ok
 from . import Database
 
 db_parameters = ["host", "user", "password", "port", "dbname"]
@@ -33,5 +32,3 @@ class Postgresql(Database):
         with connection.cursor() as cursor:
             cursor.copy_expert(copy_sql, buffer)
             connection.commit()
-
-        return Ok(len(data))

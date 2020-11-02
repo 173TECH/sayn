@@ -82,8 +82,6 @@ class LoadData(PythonTask):
         # Load logs
         for log_type, log_data in data_to_load.items():
             with self.step(f"Load {log_type}"):
-                result = self.default_db.load_data(f"logs_{log_type}", log_data)
-                if result.is_err:
-                    return result
+                self.default_db.load_data(f"logs_{log_type}", log_data)
 
         return self.success()

@@ -32,6 +32,6 @@ def create(name, name_in_settings, settings):
         settings = {k: v for k, v in settings.items() if k not in db_params}
 
         db_obj = drivers[db_type](name, name_in_settings, db_type, common_params)
-        db_obj.set_engine(db_obj.create_engine(settings))
+        db_obj._set_engine(db_obj.create_engine(settings))
 
         return db_obj

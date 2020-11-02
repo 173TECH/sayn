@@ -51,68 +51,69 @@ class BaseSqlTask(Task):
 
         return Ok()
 
+    def create_table_ddl(self, tmp_table, tmp_schema, ddl, execute):
+        q = self.default_db.create_table_ddl(tmp_table, tmp_schema, ddl, execute)
+        if execute:
+            self.default_db.execute(q)
+
+        return Ok(q)
+
     def execute_step(self, step):
         execute = self.run_arguments["command"] == "run"
 
-        if step == "Execute Query":
-            if execute:
-                return self.default_db.execute(self.sql_query)
-            else:
-                return Ok()
-
-        elif step == "Write Query":
-            return self.write_compilation_output(self.sql_query, "select")
-
-        elif step == "Cleanup":
-            return self.cleanup(self.tmp_table, self.tmp_schema, execute)
-
-        elif step == "Cleanup Target":
-            return self.cleanup(self.table, self.schema, execute)
-
-        elif step == "Create Temp":
-            return self.create_select(
-                self.tmp_table, self.tmp_schema, self.sql_query, self.ddl, execute
-            )
-
-        elif step == "Create Temp DDL":
-            return self.default_db.create_table_ddl(
-                self.tmp_table, self.tmp_schema, self.ddl, execute=execute
-            )
-
-        elif step == "Create View":
-            return self.default_db.create_table_select(
-                self.table, self.schema, self.sql_query, view=True, execute=execute
-            )
-
-        elif step == "Create Indexes":
-            return self.default_db.create_indexes(
-                self.tmp_table, self.tmp_schema, self.ddl, execute=execute
-            )
-
-        elif step == "Merge":
-            return self.default_db.merge_tables(
+        get_query_steps = {
+            "Create Temp": lambda: self.create_select(
+                self.tmp_table, self.tmp_schema, self.sql_query, self.ddl
+            ),
+            "Create Temp DDL": lambda: self.default_db.create_table_ddl(
+                self.tmp_table, self.tmp_schema, self.ddl
+            ),
+            "Create View": lambda: self.default_db.create_table_select(
+                self.table, self.schema, self.sql_query, view=True
+            ),
+            "Create Indexes": lambda: self.default_db.create_indexes(
+                self.tmp_table, self.tmp_schema, self.ddl
+            ),
+            "Merge": lambda: self.default_db.merge_tables(
                 self.tmp_table,
                 self.tmp_schema,
                 self.table,
                 self.schema,
                 self.delete_key,
-                execute=execute,
-            )
+            ),
+            "Move": lambda: self.default_db.move_table(
+                self.tmp_table, self.tmp_schema, self.table, self.schema, self.ddl,
+            ),
+            "Grant Permissions": lambda: self.default_db.grant_permissions(
+                self.table, self.schema, self.ddl["permissions"]
+            ),
+        }
 
-        elif step == "Move":
-            return self.default_db.move_table(
-                self.tmp_table,
-                self.tmp_schema,
-                self.table,
-                self.schema,
-                self.ddl,
-                execute=execute,
-            )
+        if step in get_query_steps:
+            # These steps are always: 1. Get the query, 2. Save to disk, 3. Execute
+            # For more complex steps, there are specific entries in this if construct
+            query = get_query_steps[step]()
+            if self.run_arguments["debug"]:
+                self.write_compilation_output(query, step.replace(" ", "_").lower())
+            if execute:
+                self.default_db.execute(query)
 
-        elif step == "Grant Permissions":
-            return self.default_db.grant_permissions(
-                self.table, self.schema, self.ddl["permissions"], execute=execute
-            )
+            return Ok()
+
+        elif step == "Write Query":
+            return self.write_compilation_output(self.sql_query, "select")
+
+        elif step == "Execute Query":
+            if execute:
+                self.default_db.execute(query)
+
+            return Ok()
+
+        elif step == "Cleanup":
+            return self.cleanup(self.tmp_table, self.tmp_schema, step, execute)
+
+        elif step == "Cleanup Target":
+            return self.cleanup(self.table, self.schema, step, execute)
 
         elif step == "Load Data":
             return self.load_data(
@@ -132,64 +133,48 @@ class BaseSqlTask(Task):
 
     # SQL execution steps methods
 
-    def cleanup(self, table, schema, execute):
-        out_sql = list()
-
-        try:
-            result = self.default_db.drop_table(
-                table, schema, view=False, execute=execute
-            )
-            if result.is_err:
-                out_sql.append(result.error.details["script"])
-            else:
-                out_sql.append(result.value)
-        except:
-            pass
-
-        try:
-            result = self.default_db.drop_table(
-                table, schema, view=True, execute=execute
-            )
-            if result.is_err:
-                out_sql.append(result.error.details["script"])
-            else:
-                out_sql.append(result.value)
-        except:
-            pass
-
-        return Ok("\n".join(out_sql))
-
-    def create_select(self, table, schema, select, ddl, execute):
+    def create_select(self, table, schema, select, ddl):
         out_sql = list()
 
         if len(ddl.get("columns")) == 0:
-            result = self.default_db.create_table_select(
-                table, schema, select, view=False, ddl=self.ddl, execute=execute
+            out_sql.append(
+                self.default_db.create_table_select(
+                    table, schema, select, view=False, ddl=self.ddl
+                )
             )
-            if result.is_err:
-                return result
-            else:
-                out_sql.append(result.value)
         else:
             # create table with DDL and insert the output of the select
-            result = self.default_db.create_table_ddl(
-                table, schema, ddl, execute=execute
-            )
-            if result.is_err:
-                return result
-            else:
-                out_sql.append(result.value)
+            out_sql.append(self.default_db.create_table_ddl(table, schema, ddl))
 
             ddl_column_names = [c["name"] for c in ddl.get("columns")]
-            result = self.default_db.insert(
-                table, schema, select, columns=ddl_column_names, execute=execute
+            out_sql.append(
+                self.default_db.insert(table, schema, select, columns=ddl_column_names)
             )
-            if result.is_err:
-                return result
-            else:
-                out_sql.append(result.value)
 
-        return Ok("\n".join(out_sql))
+        return "\n".join(out_sql)
+
+    def cleanup(self, table, schema, step, execute):
+        out_sql = list()
+
+        try:
+            out_sql.append(
+                self.default_db.drop_table(table, schema, view=False, execute=execute)
+            )
+        except:
+            pass
+
+        try:
+            out_sql.append(
+                self.default_db.drop_table(table, schema, view=True, execute=execute)
+            )
+        except:
+            pass
+
+        query = "\n".join(out_sql)
+        if self.run_arguments["debug"]:
+            self.write_compilation_output(query, step.replace(" ", "_").lower())
+
+        return Ok()
 
     def load_data(
         self,

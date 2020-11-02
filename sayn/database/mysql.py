@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
-from sqlalchemy.types import Boolean, DateTime, Text
+
+# from sqlalchemy.types import Boolean, DateTime, Text
 
 from . import Database
 
@@ -23,17 +24,17 @@ class Mysql(Database):
 
         return create_engine("mysql+pymysql://", **settings)
 
-    def transform_column_type(self, column_type, dialect):
-        ctype = column_type.compile().lower()
-        if ctype == "tinyint(1)":
-            return Boolean().compile(dialect=dialect)
-        elif ctype == "datetime":
-            return DateTime().compile(dialect=dialect)
-        elif ctype == "longtext":
-            return Text().compile(dialect=dialect)
-        elif ctype == "mediumtext":
-            return Text().compile(dialect=dialect)
-        elif "varchar" in ctype:
-            return Text().compile(dialect=dialect)
-        else:
-            return super().transform_column_type(column_type, dialect)
+    # def _transform_column_type(self, column_type, dialect):
+    #     ctype = column_type.compile().lower()
+    #     if ctype == "tinyint(1)":
+    #         return Boolean().compile(dialect=dialect)
+    #     elif ctype == "datetime":
+    #         return DateTime().compile(dialect=dialect)
+    #     elif ctype == "longtext":
+    #         return Text().compile(dialect=dialect)
+    #     elif ctype == "mediumtext":
+    #         return Text().compile(dialect=dialect)
+    #     elif "varchar" in ctype:
+    #         return Text().compile(dialect=dialect)
+    #     else:
+    #         return super()._transform_column_type(column_type, dialect)

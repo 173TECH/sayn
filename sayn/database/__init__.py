@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Union
 from pydantic import BaseModel, validator
 from sqlalchemy import MetaData, Table, exc
 
-from ..core.errors import Err, Exc, Ok
+from ..core.errors import DBError, Err, Exc, Ok
 
 from ..utils.db_types import py2sqa
 from ..utils.misc import group_list
@@ -84,6 +84,7 @@ class Database:
         metadata (sqlalchemy.MetaData): A metadata object associated with the engine.
     """
 
+    ddl_validation_class = DDL
     sql_features = []
     # Supported sql_features
     #   - CREATE IF NOT EXISTS
@@ -98,12 +99,33 @@ class Database:
         self.db_type = db_type
         self.max_batch_rows = common_params.get("load_batch_limit", 50000)
 
-    def set_engine(self, engine):
+    def _set_engine(self, engine):
         self.engine = engine
         self.metadata = MetaData(self.engine)
 
         # Force a query to test the connection
         engine.execute("select 1")
+
+    def _validate_ddl(self, ddl):
+        if ddl is None:
+            return Ok(self.ddl_validation_class().get_ddl())
+        else:
+            try:
+                return Ok(self.ddl_validation_class(**ddl).get_ddl())
+            except Exception as e:
+                return Exc(e, db=self.name, type=self.db_type)
+
+    def _transform_column_type(self, column_type, dialect):
+        return py2sqa(column_type.python_type, dialect=dialect)
+
+    def _refresh_metadata(self, only=None, schema=None):
+        """Refreshes the sqlalchemy metadata object.
+
+        Args:
+            only (list): A list of object names to filter the refresh on
+            schema (str): The schema name to filter on the refresh
+        """
+        self.metadata.reflect(only=only, schema=schema, extend_existing=True)
 
     # API
 
@@ -113,29 +135,29 @@ class Database:
         Args:
             script (sql): The SQL script to execute
         """
-        try:
-            with self.engine.connect().execution_options(autocommit=True) as connection:
-                connection.execute(script)
-            result = Ok()
-        except exc.ProgrammingError as e:
-            result = Err(
-                "database_error",
-                "sql_execution_error",
-                message="\n ".join([s.strip() for s in e.args]),
-                exception=e,
-                db=self.name,
-                script=script,
-            )
-        except Exception as e:
-            result = Err(
-                "database_error",
-                "sql_execution_error",
-                exception=e,
-                db=self.name,
-                script=script,
-            )
-        finally:
-            return result
+        with self.engine.connect().execution_options(autocommit=True) as connection:
+            connection.execute(script)
+        # try:
+        #     result = Ok()
+        # except exc.ProgrammingError as e:
+        #     result = Err(
+        #         "database_error",
+        #         "sql_execution_error",
+        #         message="\n ".join([s.strip() for s in e.args]),
+        #         exception=e,
+        #         db=self.name,
+        #         script=script,
+        #     )
+        # except Exception as e:
+        #     result = Err(
+        #         "database_error",
+        #         "sql_execution_error",
+        #         exception=e,
+        #         db=self.name,
+        #         script=script,
+        #     )
+        # finally:
+        #     return result
 
     def select(self, query, **params):
         """Executes the query and returns a list of dictionaries with the data.
@@ -188,16 +210,16 @@ class Database:
             data (list): A list of dictionaries to load
             schema (str): An optional schema to reference the table
         """
-        result = self.get_table(table, schema)
-        if result.is_ok:
-            table_def = result.value
-        else:
-            return result
+        table_def = self.get_table(table, schema)
+        if table_def is None:
+            raise DBError(
+                self.name,
+                self.db_type,
+                f"Table {schema + '.' if schema is not None else ''}{table} does not exists",
+            )
 
         with self.engine.connect().execution_options(autocommit=True) as connection:
             connection.execute(table_def.insert().values(data))
-
-        return Ok(len(data))
 
     def load_data(
         self, table, data, schema=None, batch_size=None, replace=False, ddl=None
@@ -219,24 +241,23 @@ class Database:
               in autosql and copy tasks
         """
         batch_size = batch_size or self.max_batch_rows
-        loaded = 0
         buffer = list()
         if replace:
             self.drop_table(table, schema, execute=True)
 
-        ddl = ddl or dict()
+        result = self._validate_ddl(ddl)
+        if result.is_err:
+            raise DBError(
+                self.name,
+                self.db_type,
+                "Incorrect ddl provided",
+                errors=result.error["errors"],
+            )
+        else:
+            ddl = result.value
         check_create = True
 
         for i, record in enumerate(data):
-            if i % batch_size == 0 and len(buffer) > 0:
-                result = self._load_data_batch(table, buffer, schema)
-                if result.is_err:
-                    return result
-                else:
-                    loaded += result.value
-
-                buffer = list()
-
             if check_create and not self.table_exists(table, schema):
                 # Create the table if required
                 if len(ddl.get("columns", list())) == 0:
@@ -246,42 +267,19 @@ class Database:
                         {"name": col, "type": py2sqa(type(val), self.engine.dialect)}
                         for col, val in record.items()
                     ]
-                    ddl = dict(**ddl, columns=columns)
+                    ddl = dict(ddl, columns=columns)
 
                 self.create_table_ddl(table, schema, ddl, execute=True)
                 check_create = False
 
+            if i % batch_size == 0 and len(buffer) > 0:
+                self._load_data_batch(table, buffer, schema)
+                buffer = list()
+
             buffer.append(record)
 
         if len(buffer) > 0:
-            result = self._load_data_batch(table, buffer, schema)
-            if result.is_err:
-                return result
-            else:
-                loaded += result.value
-
-        return Ok(loaded)
-
-    def validate_ddl(self, ddl):
-        if ddl is None:
-            return Ok(DDL().get_ddl())
-        else:
-            try:
-                return Ok(DDL(**ddl).get_ddl())
-            except Exception as e:
-                return Exc(e, db=self.name, type=self.db_type)
-
-    def transform_column_type(self, column_type, dialect):
-        return column_type.compile(dialect=dialect)
-
-    def refresh_metadata(self, only=None, schema=None):
-        """Refreshes the sqlalchemy metadata object.
-
-        Args:
-            only (list): A list of object names to filter the refresh on
-            schema (str): The schema name to filter on the refresh
-        """
-        self.metadata.reflect(only=only, schema=schema, extend_existing=True)
+            self._load_data_batch(table, buffer, schema)
 
     def get_table(self, table, schema):
         """Create a SQLAlchemy Table object.
@@ -293,33 +291,22 @@ class Database:
         Returns:
             sqlalchemy.Table: A table object from sqlalchemy
         """
-        try:
-            table_def = Table(table, self.metadata, schema=schema, extend_existing=True)
-        except Exception as e:
-            return Exc(e)
+        table_def = Table(table, self.metadata, schema=schema, extend_existing=True)
 
         if table_def.exists():
             table_def = Table(
                 table, self.metadata, schema=schema, extend_existing=True, autoload=True
             )
-            return Ok(table_def)
-        else:
-            return Err(
-                "database_error",
-                "table_not_exists",
-                db=self.name,
-                table=table,
-                schema=schema,
-            )
+            return table_def
 
     def table_exists(self, table, schema):
-        table_def = self.get_table(table, schema)
-        if table_def.is_ok:
-            return table_def.value.exists()
-        else:
-            return False
+        return self.get_table(table, schema) is not None
 
-    # ETL steps return SQL code ready for execution
+    # ETL steps
+    # =========
+    # Methods that build sql used in autosql and
+    # copy tasks. Can optionally also execute the
+    # sql if `execute=True`
 
     def create_table_select(
         self, table, schema, select, view=False, ddl=dict(), execute=False
@@ -351,11 +338,9 @@ class Database:
             q += f"CREATE {table_or_view}{if_not_exists} {table} AS (\n{select}\n);"
 
         if execute:
-            result = self.execute(q)
-            if result.is_err:
-                return result
+            self.execute(q)
 
-        return Ok(q)
+        return q
 
     def create_table_ddl(self, table, schema, ddl, execute=False):
         """Returns SQL code for a create table from a select statment.
@@ -370,12 +355,8 @@ class Database:
             str: A SQL script for the CREATE TABLE statement
         """
         if len(ddl["columns"]) == 0:
-            return Err(
-                "database",
-                "create_table_ddl_missing_columns",
-                table=table,
-                schema=schema,
-                ddl=ddl,
+            raise DBError(
+                self.name, self.db_type, "DDL is missing columns specification"
             )
         table_name = table
         table = f"{schema+'.' if schema else ''}{table_name}"
@@ -405,11 +386,9 @@ class Database:
         q += f"CREATE TABLE{if_not_exists} {table} (\n      {columns}\n);"
 
         if execute:
-            result = self.execute(q)
-            if result.is_err:
-                return result
+            self.execute(q)
 
-        return Ok(q)
+        return q
 
     def create_indexes(self, table, schema, ddl, execute=False):
         """Returns SQL to create indexes from ddl.
@@ -445,11 +424,9 @@ class Database:
         )
 
         if execute:
-            result = self.execute(q)
-            if result.is_err:
-                return result
+            self.execute(q)
 
-        return Ok(q)
+        return q
 
     def grant_permissions(self, table, schema, ddl, execute=False):
         """Returns a set of GRANT statments.
@@ -471,11 +448,9 @@ class Database:
         )
 
         if execute:
-            result = self.execute(q)
-            if result.is_err:
-                return result
+            self.execute(q)
 
-        return Ok(q)
+        return q
 
     def drop_table(self, table, schema, view=False, execute=False):
         """Returns a DROP statement.
@@ -500,11 +475,9 @@ class Database:
             q += ";"
 
         if execute:
-            result = self.execute(q)
-            if result.is_err:
-                return result
+            self.execute(q)
 
-        return Ok(q)
+        return q
 
     def insert(self, table, schema, select, columns=None, execute=False):
         """Returns an INSERT statment from a SELECT query.
@@ -534,11 +507,9 @@ class Database:
             q = f"INSERT INTO {table} {columns} (\n{select}\n);"
 
         if execute:
-            result = self.execute(q)
-            if result.is_err:
-                return result
+            self.execute(q)
 
-        return Ok(q)
+        return q
 
     def move_table(
         self, src_table, src_schema, dst_table, dst_schema, ddl, execute=False
@@ -587,11 +558,9 @@ class Database:
         q = "\n".join([rename, change_schema] + idx_alter)
 
         if execute:
-            result = self.execute(q)
-            if result.is_err:
-                return result
+            self.execute(q)
 
-        return Ok(q)
+        return q
 
     def merge_tables(
         self,
@@ -634,16 +603,10 @@ class Database:
         )
 
         select = f"SELECT * FROM {src}"
-        result = self.insert(dst_table, dst_schema, select, columns=columns)
-        if result.is_ok:
-            insert = result.value
-        else:
-            return result
+        insert = self.insert(dst_table, dst_schema, select, columns=columns)
         q = "\n".join((delete, insert))
 
         if execute:
-            result = self.execute(q)
-            if result.is_err:
-                return result
+            self.execute(q)
 
-        return Ok(q)
+        return q
