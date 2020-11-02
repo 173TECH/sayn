@@ -72,8 +72,12 @@ class App:
 
         # Update parameters and credentials with environment
         if settings.environment is not None:
-
+            # Try to lower case values before adding to the dict
+            # This is because of Windows, where env var names are
+            # always upper case
             def get_values_case_insensitive(values, allowed_values):
+                if values is None:
+                    return dict()
                 out = dict()
                 lower_values = [v.lower() for v in allowed_values]
                 for k, v in values.items():
@@ -88,12 +92,13 @@ class App:
 
             parameters.update(
                 get_values_case_insensitive(
-                    settings.environment.parameters, self.project_parameters.keys()
+                    settings.environment.parameters,
+                    list(self.project_parameters.keys()),
                 )
             )
             credentials.update(
                 get_values_case_insensitive(
-                    settings.environment.credentials, self.credentials.keys()
+                    settings.environment.credentials, list(self.credentials.keys())
                 )
             )
 
