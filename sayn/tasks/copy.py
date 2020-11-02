@@ -96,7 +96,7 @@ class CopyTask(BaseSqlTask):
 
         self.is_full_load = self.run_arguments["full_load"] or self.delete_key is None
 
-        result = self.default_db.validate_ddl(self.config.ddl)
+        result = self.default_db._validate_ddl(self.config.ddl)
         if result.is_ok:
             self.ddl = result.value
         else:
@@ -169,7 +169,7 @@ class CopyTask(BaseSqlTask):
                 self.ddl["columns"] = [
                     {
                         "name": c.name,
-                        "type": self.source_db.transform_column_type(
+                        "type": self.source_db._transform_column_type(
                             c.type, self.default_db.engine.dialect
                         ),
                     }
@@ -189,7 +189,7 @@ class CopyTask(BaseSqlTask):
                     )
 
                 if "type" not in column:
-                    column["type"] = self.source_db.transform_column_type(
+                    column["type"] = self.source_db._transform_column_type(
                         self.source_table_def.columns[column["name"]].type,
                         self.default_db.engine.dialect,
                     )

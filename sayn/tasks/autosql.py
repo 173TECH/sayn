@@ -70,7 +70,7 @@ class AutoSqlTask(BaseSqlTask):
         self.tmp_table = f"sayn_tmp_{self.table}"
         self.delete_key = self.config.delete_key
 
-        result = self.default_db.validate_ddl(self.config.ddl)
+        result = self.default_db._validate_ddl(self.config.ddl)
         if result.is_err:
             return result
         else:
