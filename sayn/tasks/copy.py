@@ -59,32 +59,26 @@ class Config(BaseModel):
 
 class CopyTask(BaseSqlTask):
     def setup(self, **config):
-        if isinstance(config["source"], dict):
-            try:
-                config["source"].update(
-                    {
-                        "db_features": self.default_db.sql_features,
-                        "db_type": self.default_db.db_type,
-                        "all_dbs": [
-                            n
-                            for n, c in self.connections.items()
-                            if isinstance(c, Database)
-                        ],
-                    }
-                )
-            except Exception as e:
-                return Err("copy_task", "missing_location", exception=e)
+        if isinstance(config.get("source"), dict):
+            config["source"].update(
+                {
+                    "db_features": self.default_db.sql_features,
+                    "db_type": self.default_db.db_type,
+                    "all_dbs": [
+                        n
+                        for n, c in self.connections.items()
+                        if isinstance(c, Database)
+                    ],
+                }
+            )
 
-        if isinstance(config["destination"], dict):
-            try:
-                config["destination"].update(
-                    {
-                        "db_features": self.default_db.sql_features,
-                        "db_type": self.default_db.db_type,
-                    }
-                )
-            except Exception as e:
-                return Err("copy_task", "missing_location", exception=e)
+        if isinstance(config.get("destination"), dict):
+            config["destination"].update(
+                {
+                    "db_features": self.default_db.sql_features,
+                    "db_type": self.default_db.db_type,
+                }
+            )
 
         self.config = Config(**config)
 
