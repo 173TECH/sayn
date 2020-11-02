@@ -10,24 +10,24 @@ collaborating on the project and is automatically ignored by git.
 !!! example "settings.yaml"
     ``` yaml
     default_profile: dev
-    
+
     profiles:
       dev:
         credentials:
           warehouse: snowflake-songoku
-    
+
         parameters:
           table_prefix: songoku_
           schema_logs: analytics_logs
           schema_staging: analytics_adhoc
           schema_models: analytics_adhoc
-    
+
       prod:
         credentials:
           warehouse: snowflake-prod
-    
-        # no need for prod parameters as those are read from models.yaml
-    
+
+        # no need for prod parameters as those are read from project.yaml
+
     credentials:
       snowflake-songoku:
         type: snowflake
@@ -38,7 +38,7 @@ collaborating on the project and is automatically ignored by git.
         schema: [schema]
         warehouse: [warehouse]
         role: [role]
-    
+
       snowflake-prod:
         type: snowflake
         account: [snowflake-account]

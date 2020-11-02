@@ -92,7 +92,10 @@ def read_dags(dags):
         if result.is_err:
             return result
         else:
-            out[name] = Dag(**result.value)
+            try:
+                out[name] = Dag(**result.value)
+            except ValidationError as e:
+                return Exc(e, where="read_dags")
 
     return Ok(out)
 
