@@ -1,5 +1,13 @@
 # Change Log
 
+## Next
+
+### Changed
+
+- Database methods raise exceptions rather than return Result objects
+- load_data automatically creates tables
+- max_batch_rows introduced to allow manipulating the size of batches in load_data
+
 ## [0.4.0] - 2020-10-19
 
 ### Changed
