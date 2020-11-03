@@ -14,7 +14,7 @@ profiles:
       warehouse: prod_db
 
 # The profile to can be change with the -p option when running sayn commands
-# Example: sayn run -p prd
+# Example: sayn run -p prod
 default_profile: dev
 
 credentials:
