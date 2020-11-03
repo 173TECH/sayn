@@ -2,7 +2,6 @@ import csv
 import io
 from sqlalchemy import create_engine
 
-from ..core.errors import Ok
 from . import Database
 
 db_parameters = ["host", "user", "password", "port", "dbname"]
@@ -11,9 +10,7 @@ db_parameters = ["host", "user", "password", "port", "dbname"]
 class Postgresql(Database):
     sql_features = ["DROP CASCADE"]
 
-    def __init__(self, name, name_in_settings, settings):
-        db_type = settings.pop("type")
-
+    def create_engine(self, settings):
         # Create engine using the connect_args argument to create_engine
         if "connect_args" not in settings:
             settings["connect_args"] = dict()
@@ -21,10 +18,9 @@ class Postgresql(Database):
             if param in settings:
                 settings["connect_args"][param] = settings.pop(param)
 
-        engine = create_engine("postgresql://", **settings)
-        self.setup_db(name, name_in_settings, db_type, engine)
+        return create_engine("postgresql://", **settings)
 
-    def load_data(self, table, schema, data):
+    def _load_data_batch(self, table, data, schema):
         full_table_name = f"{'' if schema is None else schema + '.'}{table}"
         copy_sql = f"COPY {full_table_name} FROM STDIN " "CSV DELIMITER ',' QUOTE '\"'"
 
@@ -36,5 +32,3 @@ class Postgresql(Database):
         with connection.cursor() as cursor:
             cursor.copy_expert(copy_sql, buffer)
             connection.commit()
-
-        return Ok(len(data))

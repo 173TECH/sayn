@@ -3,7 +3,7 @@ from typing import List, Optional
 from pydantic import BaseModel, constr, validator
 from sqlalchemy import create_engine
 
-from ..core.errors import Ok, Exc
+from ..core.errors import DBError
 from . import Database, DDL
 
 db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
@@ -58,11 +58,11 @@ class RedshiftDDL(DDL):
 
 
 class Redshift(Database):
+    ddl_validation_class = RedshiftDDL
+
     sql_features = ["DROP CASCADE", "NO SET SCHEMA"]
 
-    def __init__(self, name, name_in_settings, settings):
-        db_type = settings.pop("type")
-
+    def create_engine(self, settings):
         # Create engine using the connect_args argument to create_engine
         if "connect_args" not in settings:
             settings["connect_args"] = dict()
@@ -107,17 +107,7 @@ class Redshift(Database):
             if param in settings:
                 settings["connect_args"][param] = settings.pop(param)
 
-        engine = create_engine("postgresql://", **settings)
-        self.setup_db(name, name_in_settings, db_type, engine)
-
-    def validate_ddl(self, ddl):
-        if ddl is None:
-            return Ok(RedshiftDDL().get_ddl())
-        else:
-            try:
-                return Ok(RedshiftDDL(**ddl).get_ddl())
-            except Exception as e:
-                return Exc(e, db=self.name, type=self.db_type)
+        return create_engine("postgresql://", **settings)
 
     def _get_table_attributes(self, ddl):
         if ddl["sorting"] is None and ddl["distribution"] is None:
@@ -160,15 +150,17 @@ class Redshift(Database):
         q += f" AS (\n{select}\n);"
 
         if execute:
-            result = self.execute(q)
-            if result.is_err:
-                return result
+            self.execute(q)
 
-        return Ok(q)
+        return q
 
     def create_table_ddl(self, table, schema, ddl, execute=False):
         """Returns SQL code for a create table from a select statment
         """
+        if len(ddl["columns"]) == 0:
+            raise DBError(
+                self.name, self.db_type, "DDL is missing columns specification"
+            )
         table_name = table
         table = f"{schema+'.' if schema else ''}{table_name}"
 
@@ -189,8 +181,6 @@ class Redshift(Database):
         q += f" AS (\n      {columns}\n);"
 
         if execute:
-            result = self.execute(q)
-            if result.is_err:
-                return result
+            self.execute(q)
 
-        return Ok(q)
+        return q
