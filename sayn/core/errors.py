@@ -114,3 +114,14 @@ def Exc(exc, **kwargs):
         return Result(
             error=Error("exception", "unhandled_exception", {"exception": exc})
         )
+
+
+class DBError(Exception):
+    db_name = None
+    db_type = None
+
+    def __init__(self, db_name, db_type, *args, **kwargs):
+        self.db_name = db_name
+        self.db_type = db_type
+
+        super(sqlalchemy.SQLAlchemyError, self).__init__(*args, **kwargs)

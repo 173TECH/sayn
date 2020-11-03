@@ -41,10 +41,7 @@ tutorial
 │   └── base.yaml
 ├── python
 │   ├── __init__.py
-│   ├── load_data.py
-│   └── utils
-│       ├── __init__.py
-│       └── log_creator.py
+│   └── load_data.py
 ├── sql
 │   ├── dim_arenas.sql
 │   ├── dim_fighters.sql
@@ -192,7 +189,8 @@ will follow with the `self.set_run_steps` method.
             # ...
             self.set_run_steps(
                 [
-                    "Generate Data",
+                    "Generate Dimensions",
+                    "Generate Battles",
                     "Load fighters",
                     "Load arenas",
                     "Load tournaments",
@@ -208,12 +206,23 @@ To indicate SAYN what step is executing, we can use the following construct:
     ```python
         def run(self):
             # ...
-            with self.step("Generate Data"):
-                data_to_load = get_data(tournament_battles)
-            # ...
+            with self.step("Generate Dimensions"):
+                # Add ids to the dimensions
+                fighters = [
+                    {"fighter_id": str(uuid4()), "fighter_name": val}
+                    for id, val in enumerate(self.fighters)
+                ]
+                arenas = [
+                    {"arena_id": str(uuid4()), "arena_name": val}
+                    for id, val in enumerate(self.arenas)
+                ]
+                tournaments = [
+                    {"tournament_id": str(uuid4()), "tournament_name": val}
+                    for id, val in enumerate(self.tournaments)
+                ]
     ```
 
-Here our "Generate Data" step calls a function in `python/utils.py` that creates the synthetic logs.
+Here our "Generate Dimensions" step simply generates the dimension variables with an id.
 
 The final core element is accessing databases. In our project we defined a single credential called
 `warehouse` and we made this the `default_db`. To access this we just need to use `self.default_db`.
@@ -224,7 +233,8 @@ The final core element is accessing databases. In our project we defined a singl
     ```
 
 The main method in Database objects is `execute` which accepts a sql script via parameter and executes
-it in a transaction.
+it in a transaction. Another method used in this tutorial is `load_data` which loads a dataset into
+the database automatically creating a table for it first.
 
 For more information about how to build `python` tasks, visit the [python tasks section](../tasks/python.md).
 
