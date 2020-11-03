@@ -11,7 +11,7 @@
       
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.0">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
     
     
       
@@ -19,10 +19,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.bc7e593a.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.38780c08.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab28b872.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.3f72e892.min.css">
         
           
           
@@ -79,9 +79,7 @@
       
     </div>
     
-      
-
-<header class="md-header" data-md-component="header">
+      <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid" aria-label="Header">
     <a href="https://173tech.github.io/sayn/" title="SAYN" class="md-header-nav__button md-logo" aria-label="SAYN">
       
@@ -166,9 +164,7 @@
               <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="https://173tech.github.io/sayn/" title="SAYN" class="md-nav__button md-logo" aria-label="SAYN">
       
@@ -780,6 +776,7 @@
     <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">task_autosql</span>
 <span class="nn">...</span>
 </code></pre></div>
+
 </div>
 <p>An <code>autosql</code> task is defined by the following attributes:</p>
 <ul>
@@ -815,6 +812,7 @@ refresh (<code>materialisation: table</code>) would be infeasible.</p>
   <span class="nt">delete_key</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dt</span>
 <span class="nn">...</span>
 </code></pre></div>
+
 </div>
 <p>When using <code>incremental</code>, SAYN will do the following in the background:</p>
 <ol>
@@ -839,6 +837,7 @@ refresh (<code>materialisation: table</code>) would be infeasible.</p>
  <span class="k">WHERE</span> <span class="n">dt</span> <span class="k">BETWEEN</span> <span class="err">{{</span> <span class="n">start_dt</span> <span class="err">}}</span> <span class="k">AND</span> <span class="err">{{</span> <span class="n">end_dt</span> <span class="err">}}</span>
  <span class="k">GROUP</span> <span class="k">BY</span> <span class="mi">1</span><span class="p">,</span><span class="mi">2</span>
 </code></pre></div>
+
 </div>
 <h2 id="defining-ddls">Defining DDLs<a class="headerlink" href="#defining-ddls" title="Permanent link">&para;</a></h2>
 <p>Additionally, autosql tasks support the definition of optional DDL that will be used when creating the table.
@@ -875,6 +874,7 @@ Each supported database might have specific DDL related to it, but in general th
     <span class="nt">role_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">SELECT</span>
 <span class="nn">...</span>
 </code></pre></div>
+
 </div>
                 
               
@@ -955,8 +955,8 @@ Each supported database might have specific DDL related to it, but in general th
       
     </div>
     
-      <script src="../../assets/javascripts/vendor.6a3d08fc.min.js"></script>
-      <script src="../../assets/javascripts/bundle.71201edf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      <script src="../../assets/javascripts/vendor.77e55a48.min.js"></script>
+      <script src="../../assets/javascripts/bundle.9554a270.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
       
       <script>
         app = initialize({

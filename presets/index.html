@@ -11,7 +11,7 @@
       
       
       <link rel="shortcut icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.0">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
     
     
       
@@ -19,10 +19,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.bc7e593a.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.38780c08.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab28b872.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.3f72e892.min.css">
         
           
           
@@ -79,9 +79,7 @@
       
     </div>
     
-      
-
-<header class="md-header" data-md-component="header">
+      <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid" aria-label="Header">
     <a href="https://173tech.github.io/sayn/" title="SAYN" class="md-header-nav__button md-logo" aria-label="SAYN">
       
@@ -166,9 +164,7 @@
               <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="https://173tech.github.io/sayn/" title="SAYN" class="md-nav__button md-logo" aria-label="SAYN">
       
@@ -749,6 +745,7 @@ repetition.</p>
       <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_models</span>
       <span class="nt">table</span><span class="p">:</span> <span class="s">&#39;{{task.name}}&#39;</span>
 </code></pre></div>
+
 </div>
 <p>The above defines a preset called <code>modelling</code>. Every <code>task</code> referring to it will be an <code>autosql</code>
 task and inherit all other attributes from it. For a task to use this configuration, we use the <code>preset</code>
@@ -760,6 +757,7 @@ property in the task.</p>
     <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
     <span class="c1">#other task properties</span>
 </code></pre></div>
+
 </div>
 <p>Presets can be defined both in <code>project.yaml</code> and in any dag file.</p>
 <h2 id="preset-inheritance">Preset inheritance<a class="headerlink" href="#preset-inheritance" title="Permanent link">&para;</a></h2>
@@ -779,6 +777,7 @@ property in the task.</p>
     <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
     <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">view</span>
 </code></pre></div>
+
 </div>
 <p>In the above example, <code>modelling_view</code> is a preset with exactly the same properties as preset <code>modelling</code>
 except it will generate a view when materialising an autosql task.</p>
@@ -861,8 +860,8 @@ except it will generate a view when materialising an autosql task.</p>
       
     </div>
     
-      <script src="../assets/javascripts/vendor.6a3d08fc.min.js"></script>
-      <script src="../assets/javascripts/bundle.71201edf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      <script src="../assets/javascripts/vendor.77e55a48.min.js"></script>
+      <script src="../assets/javascripts/bundle.9554a270.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
       
       <script>
         app = initialize({

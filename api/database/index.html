@@ -11,7 +11,7 @@
       
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.0">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
     
     
       
@@ -19,10 +19,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.bc7e593a.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.38780c08.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab28b872.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.3f72e892.min.css">
         
           
           
@@ -79,9 +79,7 @@
       
     </div>
     
-      
-
-<header class="md-header" data-md-component="header">
+      <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid" aria-label="Header">
     <a href="https://173tech.github.io/sayn/" title="SAYN" class="md-header-nav__button md-logo" aria-label="SAYN">
       
@@ -166,9 +164,7 @@
               <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="https://173tech.github.io/sayn/" title="SAYN" class="md-nav__button md-logo" aria-label="SAYN">
       
@@ -734,13 +730,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#sayn.database.Database.refresh_metadata" class="md-nav__link">
-    refresh_metadata()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#sayn.database.Database.select" class="md-nav__link">
     select()
   </a>
@@ -892,13 +881,6 @@
           <li class="md-nav__item">
   <a href="#sayn.database.Database.move_table" class="md-nav__link">
     move_table()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sayn.database.Database.refresh_metadata" class="md-nav__link">
-    refresh_metadata()
   </a>
   
 </li>
@@ -1565,7 +1547,7 @@ insert<span class="p">(</span><span class="bp">self</span><span class="p">,</spa
 <h3 class="doc doc-heading" id="sayn.database.Database.load_data">
 
         <code class="highlight language-python">
-load_data<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>        </code>
+load_data<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ddl</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>        </code>
 
 
       <a class="headerlink" href="#sayn.database.Database.load_data" title="Permanent link">&para;</a></h3>
@@ -1588,15 +1570,7 @@ will implement more appropriate methods.</p>
 <td><code>table</code></td>
 <td><code>str</code></td>
 <td>
-<p>The target table name</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>schema</code></td>
-<td><code>str</code></td>
-<td>
-<p>The target schema or None</p>
+<p>The name of the target table</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -1607,6 +1581,41 @@ will implement more appropriate methods.</p>
 <p>A list of dictionaries to load</p>
 </td>
 <td><em>required</em></td>
+</tr>
+<tr>
+<td><code>schema</code></td>
+<td><code>str</code></td>
+<td>
+<p>An optional schema to reference the table</p>
+</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>batch_size</code></td>
+<td><code>int</code></td>
+<td>
+<p>The max size of each load batch. Defaults to
+<code>max_batch_rows</code> in the credentials configuration (settings.yaml)</p>
+</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>replace</code></td>
+<td><code>bool</code></td>
+<td>
+<p>Indicates whether the target table is to be replaced
+(True) or new records are to be appended to the existing table (default)</p>
+</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>ddl</code></td>
+<td><code>dict</code></td>
+<td>
+<p>An optional ddl specification in the same format as used
+in autosql and copy tasks</p>
+</td>
+<td><code>None</code></td>
 </tr>
 </tbody>
 </table>
@@ -1819,47 +1828,6 @@ move_table<span class="p">(</span><span class="bp">self</span><span class="p">,<
 </div>
 </div>
 <div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="sayn.database.Database.refresh_metadata">
-
-        <code class="highlight language-python">
-refresh_metadata<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">only</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>        </code>
-
-
-      <a class="headerlink" href="#sayn.database.Database.refresh_metadata" title="Permanent link">&para;</a></h3>
-<div class="doc doc-contents ">
-<p>Refreshes the sqlalchemy metadata object.</p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>only</code></td>
-<td><code>list</code></td>
-<td>
-<p>A list of object names to filter the refresh on</p>
-</td>
-<td><code>None</code></td>
-</tr>
-<tr>
-<td><code>schema</code></td>
-<td><code>str</code></td>
-<td>
-<p>The schema name to filter on the refresh</p>
-</td>
-<td><code>None</code></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="doc doc-object doc-method">
 <h3 class="doc doc-heading" id="sayn.database.Database.select">
 
         <code class="highlight language-python">
@@ -2064,8 +2032,8 @@ cursor (sqlalchemy stream_results = True).</p>
       
     </div>
     
-      <script src="../../assets/javascripts/vendor.6a3d08fc.min.js"></script>
-      <script src="../../assets/javascripts/bundle.71201edf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      <script src="../../assets/javascripts/vendor.77e55a48.min.js"></script>
+      <script src="../../assets/javascripts/bundle.9554a270.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
       
       <script>
         app = initialize({

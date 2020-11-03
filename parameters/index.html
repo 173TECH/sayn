@@ -11,7 +11,7 @@
       
       
       <link rel="shortcut icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.0">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
     
     
       
@@ -19,10 +19,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.bc7e593a.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.38780c08.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab28b872.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.3f72e892.min.css">
         
           
           
@@ -79,9 +79,7 @@
       
     </div>
     
-      
-
-<header class="md-header" data-md-component="header">
+      <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid" aria-label="Header">
     <a href="https://173tech.github.io/sayn/" title="SAYN" class="md-header-nav__button md-logo" aria-label="SAYN">
       
@@ -166,9 +164,7 @@
               <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="https://173tech.github.io/sayn/" title="SAYN" class="md-nav__button md-logo" aria-label="SAYN">
       
@@ -814,6 +810,7 @@
   <span class="nt">schema_staging</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_staging</span>
   <span class="nt">schema_models</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_models</span>
 </code></pre></div>
+
 </div>
 <p>The value set in <code>project.yaml</code> is the default value those parameters will have. This should match
 with the value used on production.</p>
@@ -846,6 +843,7 @@ environment we can do the following:</p>
     <span class="nt">credentials</span><span class="p">:</span>
       <span class="c1"># ...</span>
 </code></pre></div>
+
 </div>
 <p>In the above, we're overriding the values of the project parameters for the <code>dev</code> profile,
 but not for the <code>prod</code> profile.</p>
@@ -866,6 +864,7 @@ the same code:</p>
   <span class="nt">parameters</span><span class="p">:</span>
     <span class="nt">src_table</span><span class="p">:</span> <span class="s">&#39;table2&#39;</span>
 </code></pre></div>
+
 </div>
 <div class="admonition example">
 <p class="admonition-title">sql/task_template.yaml</p>
@@ -874,6 +873,7 @@ the same code:</p>
   <span class="k">FROM</span> <span class="err">{{</span> <span class="n">src_table</span> <span class="err">}}</span>
  <span class="k">GROUP</span> <span class="k">BY</span> <span class="mi">1</span>
 </code></pre></div>
+
 </div>
 <p>In the above example both <code>task1</code> and <code>task2</code> are sql tasks pointing at the same file
 <code>sql/task_template.sql</code>, the difference between the 2 is the value of the <code>src_table</code> parameter
@@ -894,6 +894,7 @@ task:</p>
     <span class="nt">schema</span><span class="p">:</span> <span class="s">&#39;{{</span><span class="nv"> </span><span class="s">schema_models</span><span class="nv"> </span><span class="s">}}&#39;</span>
     <span class="nt">table</span><span class="p">:</span> <span class="s">&#39;{{</span><span class="nv"> </span><span class="s">user_prefix</span><span class="nv"> </span><span class="s">}}task_autosql_param&#39;</span>
 </code></pre></div>
+
 </div>
 <p>In this example we're using <code>schema_staging</code>, <code>schema_models</code> and <code>user_prefix</code> project parameters
 so that the values would change depending on the profile. Note the use of quotation in the yaml file
@@ -911,6 +912,7 @@ which we set as default above and evaluate as:</p>
     <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_adhoc</span>
     <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">songoku_task_autosql_param</span>
 </code></pre></div>
+
 </div>
 <p>If we used the <code>prod</code> profile instead (<code>sayn run -t task_autosql_param -p prod</code>) the task will evaluate as:</p>
 <div class="admonition example">
@@ -924,6 +926,7 @@ which we set as default above and evaluate as:</p>
     <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_models</span>
     <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">task_autosql_param</span>
 </code></pre></div>
+
 </div>
 <p>This task example is even more powerful when used in presets in combination with the jinja variable <code>task</code>:</p>
 <div class="admonition example">
@@ -942,6 +945,7 @@ which we set as default above and evaluate as:</p>
   <span class="nt">task_autosql_param</span><span class="p">:</span>
     <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">preset_auto_param</span>
 </code></pre></div>
+
 </div>
 <p>Here we extract all values from <code>task_autosql_param</code> into a preset <code>preset_auto_param</code> that can be reused
 in multiple tasks. The name of the task is then used to reference the correct sql file and the correct
@@ -954,6 +958,7 @@ table name using <code>{{ task.name }}</code></p>
 <div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="n">mt</span><span class="p">.</span><span class="o">*</span>
   <span class="k">FROM</span> <span class="err">{{</span><span class="n">schema_models</span><span class="err">}}</span><span class="p">.</span><span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">my_table</span> <span class="k">AS</span> <span class="n">mt</span>
 </code></pre></div>
+
 </div>
 <p>This SQL query would then be compiled with the relevant <code>paramaters</code> based on the profile of the execution.
 If using the <code>dev</code> profile, this would therefore be compiled as:</p>
@@ -962,6 +967,7 @@ If using the <code>dev</code> profile, this would therefore be compiled as:</p>
 <div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="n">mt</span><span class="p">.</span><span class="o">*</span>
   <span class="k">FROM</span> <span class="n">analytics_adhoc</span><span class="p">.</span><span class="n">songoku_my_table</span> <span class="k">AS</span> <span class="n">mt</span>
 </code></pre></div>
+
 </div>
 <h3 id="in-python-tasks">In Python Tasks<a class="headerlink" href="#in-python-tasks" title="Permanent link">&para;</a></h3>
 <p>Parameters are accessible to python tasks as well as properties of the task class with
@@ -980,6 +986,7 @@ dictionary.</p>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">success</span><span class="p">()</span>
 </code></pre></div>
+
 </div>
                 
               
@@ -1060,8 +1067,8 @@ dictionary.</p>
       
     </div>
     
-      <script src="../assets/javascripts/vendor.6a3d08fc.min.js"></script>
-      <script src="../assets/javascripts/bundle.71201edf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      <script src="../assets/javascripts/vendor.77e55a48.min.js"></script>
+      <script src="../assets/javascripts/bundle.9554a270.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
       
       <script>
         app = initialize({

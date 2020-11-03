@@ -11,7 +11,7 @@
       
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.0">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.0.2">
     
     
       
@@ -19,10 +19,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.bc7e593a.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.38780c08.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab28b872.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.3f72e892.min.css">
         
           
           
@@ -79,9 +79,7 @@
       
     </div>
     
-      
-
-<header class="md-header" data-md-component="header">
+      <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid" aria-label="Header">
     <a href="https://173tech.github.io/sayn/" title="SAYN" class="md-header-nav__button md-logo" aria-label="SAYN">
       
@@ -166,9 +164,7 @@
               <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="https://173tech.github.io/sayn/" title="SAYN" class="md-nav__button md-logo" aria-label="SAYN">
       
@@ -840,12 +836,13 @@ It currently supports the following databases:</p>
     <span class="nt">host</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">...</span>
     <span class="c1"># other connection parameters ...</span>
 </code></pre></div>
+
 </div>
 <p>You can check the list of connection parameters in the database specific pages of this section.
 If a parameter that is not listed on the database page is included in <code>settings.yaml</code>, that parameter
 will be passed to <a href="https://docs.sqlalchemy.org/en/13/core/engines.html#sqlalchemy.create_engine" target="_blank">sqlalchemy.create_engine</a>.
 Refer to sqlalchemy's documentation if you need to fine tune the connection.</p>
-<p>For example, to specify override the default timezone for a Snowflake connection, this can be
+<p>For example, to specify the default timezone for a Snowflake connection, this can be
 specified in the <code>connect_args</code> parameter:</p>
 <div class="admonition example">
 <p class="admonition-title">settings.yaml</p>
@@ -859,10 +856,25 @@ specified in the <code>connect_args</code> parameter:</p>
     <span class="nt">connect_args</span><span class="p">:</span>
       <span class="nt">timezone</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">UTC</span>
 </code></pre></div>
+
+</div>
+<p>All databases support a parameter <code>max_batch_rows</code> that controls the default size of a batch
+when using <code>load_data</code> or in copy tasks. If you get an error when running SAYN indicating the
+amount of data is too large, adjust this value.</p>
+<div class="admonition example">
+<p class="admonition-title">settings.yaml</p>
+<div class="highlight"><pre><span></span><code><span class="nt">credentials</span><span class="p">:</span>
+  <span class="nt">dev_db</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sqlite</span>
+    <span class="nt">database</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dev.db</span>
+    <span class="nt">max_batch_rows</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">200</span>
+</code></pre></div>
+
 </div>
 <h2 id="using-databases-in-python-tasks">Using databases in Python tasks<a class="headerlink" href="#using-databases-in-python-tasks" title="Permanent link">&para;</a></h2>
 <p>Databases and other credentials defined in the SAYN project are available to Python tasks via
-<code>self.connections</code>. For convenience though, all Python tasks have a <code>default_db</code>.</p>
+<code>self.connections</code>. For convenience though, all Python tasks have a <code>default_db</code> property that
+gives you access to the default database declared in <code>project.yaml</code>.</p>
 <p>The <a href="../../api/database/">database python class</a> provides several methods and properties to make it
 easier to work with python tasks. For example, <code>self.default_db.engine</code> can be used to to call 
 <code>DataFrame.read_sql</code> from pandas, but also provides some other convenient methods.</p>
@@ -876,6 +888,7 @@ easier to work with python tasks. For example, <code>self.default_db.engine</cod
 </span>
         <span class="c1"># do something with that data</span>
 </code></pre></div>
+
 </div>
 <h2 id="database-class">Database class<a class="headerlink" href="#database-class" title="Permanent link">&para;</a></h2>
 <div class="doc doc-object doc-class">
@@ -970,7 +983,7 @@ execute<span class="p">(</span><span class="bp">self</span><span class="p">,</sp
 <h2 class="doc doc-heading" id="sayn.database.Database.load_data">
 
         <code class="highlight language-python">
-load_data<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>        </code>
+load_data<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ddl</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>        </code>
 
 
       <a class="headerlink" href="#sayn.database.Database.load_data" title="Permanent link">&para;</a></h2>
@@ -993,15 +1006,7 @@ will implement more appropriate methods.</p>
 <td><code>table</code></td>
 <td><code>str</code></td>
 <td>
-<p>The target table name</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>schema</code></td>
-<td><code>str</code></td>
-<td>
-<p>The target schema or None</p>
+<p>The name of the target table</p>
 </td>
 <td><em>required</em></td>
 </tr>
@@ -1012,6 +1017,41 @@ will implement more appropriate methods.</p>
 <p>A list of dictionaries to load</p>
 </td>
 <td><em>required</em></td>
+</tr>
+<tr>
+<td><code>schema</code></td>
+<td><code>str</code></td>
+<td>
+<p>An optional schema to reference the table</p>
+</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>batch_size</code></td>
+<td><code>int</code></td>
+<td>
+<p>The max size of each load batch. Defaults to
+<code>max_batch_rows</code> in the credentials configuration (settings.yaml)</p>
+</td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>replace</code></td>
+<td><code>bool</code></td>
+<td>
+<p>Indicates whether the target table is to be replaced
+(True) or new records are to be appended to the existing table (default)</p>
+</td>
+<td><code>False</code></td>
+</tr>
+<tr>
+<td><code>ddl</code></td>
+<td><code>dict</code></td>
+<td>
+<p>An optional ddl specification in the same format as used
+in autosql and copy tasks</p>
+</td>
+<td><code>None</code></td>
 </tr>
 </tbody>
 </table>
@@ -1158,8 +1198,8 @@ select<span class="p">(</span><span class="bp">self</span><span class="p">,</spa
       
     </div>
     
-      <script src="../../assets/javascripts/vendor.6a3d08fc.min.js"></script>
-      <script src="../../assets/javascripts/bundle.71201edf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      <script src="../../assets/javascripts/vendor.77e55a48.min.js"></script>
+      <script src="../../assets/javascripts/bundle.9554a270.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
       
       <script>
         app = initialize({
