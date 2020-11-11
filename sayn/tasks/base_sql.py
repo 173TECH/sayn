@@ -98,7 +98,7 @@ class BaseSqlTask(Task):
 
         elif step == "Execute Query":
             if execute:
-                self.default_db.execute(query)
+                self.default_db.execute(self.sql_query)
 
             return Ok()
 
