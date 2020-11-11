@@ -7,6 +7,7 @@
 - Database methods raise exceptions rather than return Result objects
 - load_data automatically creates tables
 - max_batch_rows introduced to allow manipulating the size of batches in load_data
+- Fixed bug preventing SQL task execution introduced in 0.4.1
 
 ## [0.4.0] - 2020-10-19
 
