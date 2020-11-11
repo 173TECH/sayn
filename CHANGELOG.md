@@ -2,6 +2,14 @@
 
 ## Next
 
+## [0.4.2] - 2020-11-11
+
+### Changed
+
+- Fixed bug preventing SQL task execution introduced in 0.4.1
+
+## [0.4.1] - 2020-11-03
+
 ### Changed
 
 - Database methods raise exceptions rather than return Result objects

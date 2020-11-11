@@ -115,7 +115,7 @@ Each supported database might have specific DDL related to it, but in general th
           idx1:
             columns:
               - column1
-      permissions:
-        role_name: SELECT
+        permissions:
+          role_name: SELECT
     ...
     ```
