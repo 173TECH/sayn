@@ -8,7 +8,7 @@ from sayn.tasks.sql import SqlTask
 from sayn.database.creator import create as create_db
 from . import inside_dir
 
-sql_query = "CREATE TABLE test_sql_task AS SELECT 1"
+sql_query = "CREATE TABLE test_sql_task AS SELECT 1 AS x"
 
 
 # create empty tracker class to enable the run to go through
@@ -56,6 +56,7 @@ def test_sql_task():
         sql_task.setup("sql_task_test.sql")
         sql_task.run()
 
+    task_result = sql_task.default_db.select("SELECT * FROM test_sql_task")
+
     assert sql_task.sql_query == sql_query
-    # task_result = conn.execute("SELECT * FROM test_sql_tak")
-    # assert task_result[0] == 1
+    assert task_result[0]["x"] == 1
