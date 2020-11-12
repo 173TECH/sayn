@@ -2,6 +2,10 @@ from contextlib import contextmanager
 import os
 from pathlib import Path
 import subprocess
+from jinja2 import Environment, FileSystemLoader, StrictUndefined
+
+from sayn.database.creator import create as create_db
+from sayn.tasks.sql import SqlTask
 
 
 @contextmanager
@@ -49,3 +53,45 @@ def run_sayn(*args):
     return subprocess.check_output(
         f"sayn {' '.join(args)}", shell=True, stderr=subprocess.STDOUT
     )
+
+
+# Task Simulators
+
+# create empty tracker class to enable the run to go through
+class VoidTracker:
+    def set_run_steps(self, steps):
+        pass
+
+    def start_step(self, step):
+        pass
+
+    def finish_current_step(self):
+        pass
+
+
+vd = VoidTracker()
+
+
+def simulate_sql_task():
+    sql_task = SqlTask()
+    sql_task.name = "test_sql_task"  # set for compilation output during run
+    sql_task.dag = "test_dag"  # set for compilation output during run
+    sql_task.run_arguments = {
+        "folders": {"sql": "sql", "compile": "compile"},
+        "command": "run",
+    }
+    sql_task.connections = {
+        "test_db": create_db(
+            "test_db", "test_db", {"type": "sqlite", "database": ":memory:"}
+        )
+    }
+    sql_task._default_db = "test_db"
+    sql_task.tracker = vd
+
+    sql_task.jinja_env = Environment(
+        loader=FileSystemLoader(os.getcwd()),
+        undefined=StrictUndefined,
+        keep_trailing_newline=True,
+    )
+
+    return sql_task
