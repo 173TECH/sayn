@@ -43,8 +43,8 @@ def test_autosql_task_table():
     ]
     assert task_result[0]["x"] == 1
     assert len(task_table) == 1
-    assert setup_result.is_err is False
-    assert run_result.is_err is False
+    assert setup_result.is_ok
+    assert run_result.is_ok
 
 
 def test_autosql_task_view():
@@ -73,8 +73,8 @@ def test_autosql_task_view():
     assert task.steps == ["Write Query", "Cleanup Target", "Create View"]
     assert task_result[0]["x"] == 1
     assert len(task_table) == 1
-    assert setup_result.is_err is False
-    assert run_result.is_err is False
+    assert setup_result.is_ok
+    assert run_result.is_ok
 
 
 def test_autosql_task_compile():
@@ -104,8 +104,8 @@ def test_autosql_task_compile():
         "Cleanup Target",
         "Move",
     ]
-    assert setup_result.is_err is False
-    assert run_result.is_err is False
+    assert setup_result.is_ok
+    assert run_result.is_ok
 
 
 def test_autosql_task_param():
@@ -130,8 +130,8 @@ def test_autosql_task_param():
     task_result = task.default_db.select("SELECT * FROM test_autosql_task")
 
     assert task_result[0]["x"] == 1
-    assert setup_result.is_err is False
-    assert run_result.is_err is False
+    assert setup_result.is_ok
+    assert run_result.is_ok
 
 
 def test_autosql_task_config_error1():
@@ -150,7 +150,7 @@ def test_autosql_task_config_error1():
         fpath.write_text(sql_query)
         setup_result = task.setup(**task.config)
 
-    assert setup_result.is_err is True
+    assert setup_result.is_err
 
 
 def test_autosql_task_config_error2():
@@ -169,7 +169,7 @@ def test_autosql_task_config_error2():
         fpath.write_text(sql_query)
         setup_result = task.setup(**task.config)
 
-    assert setup_result.is_err is True
+    assert setup_result.is_err
 
 
 def test_autosql_task_run_error():
@@ -189,5 +189,5 @@ def test_autosql_task_run_error():
         setup_result = task.setup(**task.config)
         run_result = task.run()
 
-    assert setup_result.is_err is False
-    assert run_result.is_err is True
+    assert setup_result.is_ok
+    assert run_result.is_err

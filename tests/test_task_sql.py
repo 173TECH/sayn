@@ -27,8 +27,8 @@ def test_sql_task():
     assert sql_task.sql_query == sql_query
     assert sql_task.steps == ["Write Query", "Execute Query"]
     assert task_result[0]["x"] == 1
-    assert setup_result.is_err is False
-    assert run_result.is_err is False
+    assert setup_result.is_ok
+    assert run_result.is_ok
 
 
 def test_sql_task_compile():
@@ -45,8 +45,8 @@ def test_sql_task_compile():
 
     assert sql_task.sql_query == sql_query
     assert sql_task.steps == ["Write Query"]
-    assert setup_result.is_err is False
-    assert run_result.is_err is False
+    assert setup_result.is_ok
+    assert run_result.is_ok
 
 
 def test_sql_task_param():
@@ -66,8 +66,8 @@ def test_sql_task_param():
 
     assert sql_task.sql_query == "CREATE TABLE tu_test_sql_task AS SELECT 1 AS x"
     assert task_result[0]["x"] == 1
-    assert setup_result.is_err is False
-    assert run_result.is_err is False
+    assert setup_result.is_ok
+    assert run_result.is_ok
 
 
 def test_sql_task_param_err():
@@ -80,7 +80,7 @@ def test_sql_task_param_err():
         fpath.write_text(sql_query_param)
         setup_result = sql_task.setup("sql_task_test_param_err.sql")
 
-    assert setup_result.is_err is True
+    assert setup_result.is_err
 
 
 def test_sql_task_run_err():
@@ -94,6 +94,6 @@ def test_sql_task_run_err():
         setup_result = sql_task.setup("sql_task_test_run_err.sql")
         with pytest.raises(sqlite3.OperationalError):
             run_result = sql_task.run()
-            assert run_result.is_err is True
+            assert run_result.is_err
 
-    assert setup_result.is_err is False
+    assert setup_result.is_ok
