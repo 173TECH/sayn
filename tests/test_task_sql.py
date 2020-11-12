@@ -32,6 +32,24 @@ def test_sql_task():
     assert run_result.error is None
 
 
+def test_sql_task_compile():
+    sql_task = simulate_sql_task()
+    sql_task.run_arguments.update({"command": "compile"})
+
+    tmp_path = tempfile.mkdtemp("tmp_test")
+    with inside_dir(str(tmp_path)):
+        fpath = Path(str(tmp_path), "sql", "sql_task_test_compile.sql")
+        fpath.parent.mkdir(parents=True, exist_ok=True)
+        fpath.write_text(sql_query)
+        setup_result = sql_task.setup("sql_task_test_compile.sql")
+        run_result = sql_task.run()
+
+    assert sql_task.sql_query == sql_query
+    assert sql_task.steps == ["Write Query"]
+    assert setup_result.error is None
+    assert run_result.error is None
+
+
 def test_sql_task_param():
     sql_task = simulate_sql_task()
     sql_task.task_parameters = {"user_prefix": "tu_"}
