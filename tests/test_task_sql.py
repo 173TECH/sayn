@@ -1,5 +1,4 @@
 import tempfile
-import os
 import sqlite3
 from pathlib import Path
 import pytest
@@ -13,7 +12,7 @@ sql_query_err = "SELECT * FROM non_existing_table"
 
 
 def test_sql_task():
-    sql_task = simulate_sql_task()
+    sql_task = simulate_sql_task("sql")
 
     tmp_path = tempfile.mkdtemp("tmp_test")
     with inside_dir(str(tmp_path)):
@@ -28,12 +27,12 @@ def test_sql_task():
     assert sql_task.sql_query == sql_query
     assert sql_task.steps == ["Write Query", "Execute Query"]
     assert task_result[0]["x"] == 1
-    assert setup_result.error is None
-    assert run_result.error is None
+    assert setup_result.is_err is False
+    assert run_result.is_err is False
 
 
 def test_sql_task_compile():
-    sql_task = simulate_sql_task()
+    sql_task = simulate_sql_task("sql")
     sql_task.run_arguments.update({"command": "compile"})
 
     tmp_path = tempfile.mkdtemp("tmp_test")
@@ -46,12 +45,12 @@ def test_sql_task_compile():
 
     assert sql_task.sql_query == sql_query
     assert sql_task.steps == ["Write Query"]
-    assert setup_result.error is None
-    assert run_result.error is None
+    assert setup_result.is_err is False
+    assert run_result.is_err is False
 
 
 def test_sql_task_param():
-    sql_task = simulate_sql_task()
+    sql_task = simulate_sql_task("sql")
     sql_task.task_parameters = {"user_prefix": "tu_"}
     sql_task.jinja_env.globals.update(**sql_task.task_parameters)
 
@@ -67,12 +66,12 @@ def test_sql_task_param():
 
     assert sql_task.sql_query == "CREATE TABLE tu_test_sql_task AS SELECT 1 AS x"
     assert task_result[0]["x"] == 1
-    assert setup_result.error is None
-    assert run_result.error is None
+    assert setup_result.is_err is False
+    assert run_result.is_err is False
 
 
 def test_sql_task_param_err():
-    sql_task = simulate_sql_task()
+    sql_task = simulate_sql_task("sql")
 
     tmp_path = tempfile.mkdtemp("tmp_test")
     with inside_dir(str(tmp_path)):
@@ -81,11 +80,11 @@ def test_sql_task_param_err():
         fpath.write_text(sql_query_param)
         setup_result = sql_task.setup("sql_task_test_param_err.sql")
 
-    assert setup_result.error is not None
+    assert setup_result.is_err is True
 
 
 def test_sql_task_run_err():
-    sql_task = simulate_sql_task()
+    sql_task = simulate_sql_task("sql")
 
     tmp_path = tempfile.mkdtemp("tmp_test")
     with inside_dir(str(tmp_path)):
@@ -95,6 +94,6 @@ def test_sql_task_run_err():
         setup_result = sql_task.setup("sql_task_test_run_err.sql")
         with pytest.raises(sqlite3.OperationalError):
             run_result = sql_task.run()
-            assert run_result.error is not None
+            assert run_result.is_err is True
 
-    assert setup_result.error is None
+    assert setup_result.is_err is False

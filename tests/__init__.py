@@ -6,6 +6,7 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 from sayn.database.creator import create as create_db
 from sayn.tasks.sql import SqlTask
+from sayn.tasks.autosql import AutoSqlTask
 
 
 @contextmanager
@@ -72,26 +73,32 @@ class VoidTracker:
 vd = VoidTracker()
 
 
-def simulate_sql_task():
-    sql_task = SqlTask()
-    sql_task.name = "test_sql_task"  # set for compilation output during run
-    sql_task.dag = "test_dag"  # set for compilation output during run
-    sql_task.run_arguments = {
+def simulate_sql_task(type):
+    if type == "sql":
+        task = SqlTask()
+    elif type == "autosql":
+        task = AutoSqlTask()
+    else:
+        pass
+
+    task.name = "test_sql_task"  # set for compilation output during run
+    task.dag = "test_dag"  # set for compilation output during run
+    task.run_arguments = {
         "folders": {"sql": "sql", "compile": "compile"},
         "command": "run",
     }
-    sql_task.connections = {
+    task.connections = {
         "test_db": create_db(
             "test_db", "test_db", {"type": "sqlite", "database": ":memory:"}
         )
     }
-    sql_task._default_db = "test_db"
-    sql_task.tracker = vd
+    task._default_db = "test_db"
+    task.tracker = vd
 
-    sql_task.jinja_env = Environment(
+    task.jinja_env = Environment(
         loader=FileSystemLoader(os.getcwd()),
         undefined=StrictUndefined,
         keep_trailing_newline=True,
     )
 
-    return sql_task
+    return task
