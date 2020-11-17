@@ -74,7 +74,7 @@ class VoidTracker:
 vd = VoidTracker()
 
 
-def simulate_task(type):
+def simulate_task(type, **kwargs):
     if type == "sql":
         task = SqlTask()
     elif type == "autosql":
@@ -104,25 +104,31 @@ def simulate_task(type):
         keep_trailing_newline=True,
     )
 
+    if type in ["sql", "autosql"]:
+        # fpath = Path(str(tmp_path), "sql", kwargs["file_name"])
+        fpath = Path("sql", "test.sql")
+        fpath.parent.mkdir(parents=True, exist_ok=True)
+        fpath.write_text(kwargs["sql_query"])
+
     return task
 
 
-def simulate_task_setup(task, **kwargs):
-    if isinstance(task, (SqlTask, AutoSqlTask)):
-        tmp_path = tempfile.mkdtemp("tmp_test")
-        with inside_dir(str(tmp_path)):
-            fpath = Path(str(tmp_path), "sql", "test.sql")
-            fpath.parent.mkdir(parents=True, exist_ok=True)
-            fpath.write_text(kwargs["sql_query"])
-            if isinstance(task, SqlTask):
-                setup_result = task.setup("test.sql")
-            if isinstance(task, AutoSqlTask):
-                setup_result = task.setup(**kwargs["task_config"])
+# def simulate_task_setup(task, **kwargs):
+#    if isinstance(task, (SqlTask, AutoSqlTask)):
+#        tmp_path = tempfile.mkdtemp("tmp_test")
+#        with inside_dir(str(tmp_path)):
+#            fpath = Path(str(tmp_path), "sql", "test.sql")
+#            fpath.parent.mkdir(parents=True, exist_ok=True)
+#            fpath.write_text(kwargs["sql_query"])
+#            if isinstance(task, SqlTask):
+#                setup_result = task.setup("test.sql")
+#            if isinstance(task, AutoSqlTask):
+#                setup_result = task.setup(**kwargs["task_config"])
 
-    return setup_result
+#    return setup_result
 
 
-def simulate_task_setup_run(task, **kwargs):
-    setup_result = simulate_task_setup(task, **kwargs)
-    run_result = task.run()
-    return setup_result, run_result
+# def simulate_task_setup_run(task, **kwargs):
+#    setup_result = simulate_task_setup(task, **kwargs)
+#    run_result = task.run()
+#    return setup_result, run_result
