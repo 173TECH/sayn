@@ -3,7 +3,7 @@ import sqlite3
 from pathlib import Path
 import pytest
 
-from . import inside_dir, simulate_sql_task
+from . import inside_dir, simulate_task, simulate_task_setup, simulate_task_setup_run
 from sayn.core.errors import Result
 
 sql_query = "CREATE TABLE test_sql_task AS SELECT 1 AS x"
@@ -12,88 +12,53 @@ sql_query_err = "SELECT * FROM non_existing_table"
 
 
 def test_sql_task():
-    sql_task = simulate_sql_task("sql")
+    task = simulate_task("sql")
+    setup_result, run_result = simulate_task_setup_run(task, sql_query=sql_query)
 
-    tmp_path = tempfile.mkdtemp("tmp_test")
-    with inside_dir(str(tmp_path)):
-        fpath = Path(str(tmp_path), "sql", "sql_task_test.sql")
-        fpath.parent.mkdir(parents=True, exist_ok=True)
-        fpath.write_text(sql_query)
-        setup_result = sql_task.setup("sql_task_test.sql")
-        run_result = sql_task.run()
+    task_result = task.default_db.select("SELECT * FROM test_sql_task")
 
-    task_result = sql_task.default_db.select("SELECT * FROM test_sql_task")
-
-    assert sql_task.sql_query == sql_query
-    assert sql_task.steps == ["Write Query", "Execute Query"]
+    assert task.sql_query == sql_query
+    assert task.steps == ["Write Query", "Execute Query"]
     assert task_result[0]["x"] == 1
     assert setup_result.is_ok
     assert run_result.is_ok
 
 
 def test_sql_task_compile():
-    sql_task = simulate_sql_task("sql")
-    sql_task.run_arguments.update({"command": "compile"})
+    task = simulate_task("sql")
+    task.run_arguments.update({"command": "compile"})
+    setup_result, run_result = simulate_task_setup_run(task, sql_query=sql_query)
 
-    tmp_path = tempfile.mkdtemp("tmp_test")
-    with inside_dir(str(tmp_path)):
-        fpath = Path(str(tmp_path), "sql", "sql_task_test_compile.sql")
-        fpath.parent.mkdir(parents=True, exist_ok=True)
-        fpath.write_text(sql_query)
-        setup_result = sql_task.setup("sql_task_test_compile.sql")
-        run_result = sql_task.run()
-
-    assert sql_task.sql_query == sql_query
-    assert sql_task.steps == ["Write Query"]
+    assert task.sql_query == sql_query
+    assert task.steps == ["Write Query"]
     assert setup_result.is_ok
     assert run_result.is_ok
 
 
 def test_sql_task_param():
-    sql_task = simulate_sql_task("sql")
-    sql_task.task_parameters = {"user_prefix": "tu_"}
-    sql_task.jinja_env.globals.update(**sql_task.task_parameters)
+    task = simulate_task("sql")
+    task.task_parameters = {"user_prefix": "tu_"}
+    task.jinja_env.globals.update(**task.task_parameters)
+    setup_result, run_result = simulate_task_setup_run(task, sql_query=sql_query_param)
 
-    tmp_path = tempfile.mkdtemp("tmp_test")
-    with inside_dir(str(tmp_path)):
-        fpath = Path(str(tmp_path), "sql", "sql_task_test_param.sql")
-        fpath.parent.mkdir(parents=True, exist_ok=True)
-        fpath.write_text(sql_query_param)
-        setup_result = sql_task.setup("sql_task_test_param.sql")
-        run_result = sql_task.run()
+    task_result = task.default_db.select("SELECT * FROM tu_test_sql_task")
 
-    task_result = sql_task.default_db.select("SELECT * FROM tu_test_sql_task")
-
-    assert sql_task.sql_query == "CREATE TABLE tu_test_sql_task AS SELECT 1 AS x"
+    assert task.sql_query == "CREATE TABLE tu_test_sql_task AS SELECT 1 AS x"
     assert task_result[0]["x"] == 1
     assert setup_result.is_ok
     assert run_result.is_ok
 
 
 def test_sql_task_param_err():
-    sql_task = simulate_sql_task("sql")
-
-    tmp_path = tempfile.mkdtemp("tmp_test")
-    with inside_dir(str(tmp_path)):
-        fpath = Path(str(tmp_path), "sql", "sql_task_test_param_err.sql")
-        fpath.parent.mkdir(parents=True, exist_ok=True)
-        fpath.write_text(sql_query_param)
-        setup_result = sql_task.setup("sql_task_test_param_err.sql")
+    task = simulate_task("sql")
+    setup_result = simulate_task_setup(task, sql_query=sql_query_param)
 
     assert setup_result.is_err
 
 
 def test_sql_task_run_err():
-    sql_task = simulate_sql_task("sql")
-
-    tmp_path = tempfile.mkdtemp("tmp_test")
-    with inside_dir(str(tmp_path)):
-        fpath = Path(str(tmp_path), "sql", "sql_task_test_run_err.sql")
-        fpath.parent.mkdir(parents=True, exist_ok=True)
-        fpath.write_text(sql_query_err)
-        setup_result = sql_task.setup("sql_task_test_run_err.sql")
-        with pytest.raises(sqlite3.OperationalError):
-            run_result = sql_task.run()
-            assert run_result.is_err
+    task = simulate_task("sql")
+    setup_result, run_result = simulate_task_setup_run(task, sql_query=sql_query_err)
 
     assert setup_result.is_ok
+    assert run_result.is_err

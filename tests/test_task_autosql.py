@@ -3,7 +3,7 @@ import sqlite3
 from pathlib import Path
 import pytest
 
-from . import inside_dir, simulate_sql_task
+from . import inside_dir, simulate_task, simulate_task_setup, simulate_task_setup_run
 from sayn.core.errors import Result
 
 sql_query = "SELECT 1 AS x"
@@ -12,21 +12,15 @@ sql_query_err = "SELECTS * FROM non_existing_table"
 
 
 def test_autosql_task_table():
-    task = simulate_sql_task("autosql")
-    task.run_arguments.update({"debug": False, "full_load": False})
+    task = simulate_task("autosql")
     task.config = {
-        "file_name": "autosql_task_test.sql",
+        "file_name": "test.sql",
         "materialisation": "table",
         "destination": {"table": "test_autosql_task"},
     }
-
-    tmp_path = tempfile.mkdtemp("tmp_test")
-    with inside_dir(str(tmp_path)):
-        fpath = Path(str(tmp_path), "sql", "autosql_task_test.sql")
-        fpath.parent.mkdir(parents=True, exist_ok=True)
-        fpath.write_text(sql_query)
-        setup_result = task.setup(**task.config)
-        run_result = task.run()
+    setup_result, run_result = simulate_task_setup_run(
+        task, sql_query=sql_query, task_config=task.config
+    )
 
     task_result = task.default_db.select("SELECT * FROM test_autosql_task")
     task_table = task.default_db.select(
@@ -48,21 +42,15 @@ def test_autosql_task_table():
 
 
 def test_autosql_task_view():
-    task = simulate_sql_task("autosql")
-    task.run_arguments.update({"debug": False, "full_load": False})
+    task = simulate_task("autosql")
     task.config = {
-        "file_name": "autosql_task_test.sql",
+        "file_name": "test.sql",
         "materialisation": "view",
         "destination": {"table": "test_autosql_task"},
     }
-
-    tmp_path = tempfile.mkdtemp("tmp_test")
-    with inside_dir(str(tmp_path)):
-        fpath = Path(str(tmp_path), "sql", "autosql_task_test.sql")
-        fpath.parent.mkdir(parents=True, exist_ok=True)
-        fpath.write_text(sql_query)
-        setup_result = task.setup(**task.config)
-        run_result = task.run()
+    setup_result, run_result = simulate_task_setup_run(
+        task, sql_query=sql_query, task_config=task.config
+    )
 
     task_result = task.default_db.select("SELECT * FROM test_autosql_task")
     task_table = task.default_db.select(
@@ -78,23 +66,16 @@ def test_autosql_task_view():
 
 
 def test_autosql_task_compile():
-    task = simulate_sql_task("autosql")
-    task.run_arguments.update(
-        {"command": "compile", "debug": False, "full_load": False}
-    )
+    task = simulate_task("autosql")
+    task.run_arguments.update({"command": "compile"})
     task.config = {
-        "file_name": "autosql_task_test.sql",
+        "file_name": "test.sql",
         "materialisation": "table",
         "destination": {"table": "test_autosql_task"},
     }
-
-    tmp_path = tempfile.mkdtemp("tmp_test")
-    with inside_dir(str(tmp_path)):
-        fpath = Path(str(tmp_path), "sql", "autosql_task_test.sql")
-        fpath.parent.mkdir(parents=True, exist_ok=True)
-        fpath.write_text(sql_query)
-        setup_result = task.setup(**task.config)
-        run_result = task.run()
+    setup_result, run_result = simulate_task_setup_run(
+        task, sql_query=sql_query, task_config=task.config
+    )
 
     assert task.sql_query == sql_query
     assert task.steps == [
@@ -109,23 +90,18 @@ def test_autosql_task_compile():
 
 
 def test_autosql_task_param():
-    task = simulate_sql_task("autosql")
-    task.run_arguments.update({"debug": False, "full_load": False})
+    task = simulate_task("autosql")
     task.task_parameters = {"number": 1}
     task.jinja_env.globals.update(**task.task_parameters)
     task.config = {
-        "file_name": "autosql_task_test.sql",
+        "file_name": "test.sql",
         "materialisation": "table",
         "destination": {"table": "test_autosql_task"},
     }
 
-    tmp_path = tempfile.mkdtemp("tmp_test")
-    with inside_dir(str(tmp_path)):
-        fpath = Path(str(tmp_path), "sql", "autosql_task_test.sql")
-        fpath.parent.mkdir(parents=True, exist_ok=True)
-        fpath.write_text(sql_query_param)
-        setup_result = task.setup(**task.config)
-        run_result = task.run()
+    setup_result, run_result = simulate_task_setup_run(
+        task, sql_query=sql_query_param, task_config=task.config
+    )
 
     task_result = task.default_db.select("SELECT * FROM test_autosql_task")
 
@@ -135,59 +111,85 @@ def test_autosql_task_param():
 
 
 def test_autosql_task_config_error1():
-    task = simulate_sql_task("autosql")
-    task.run_arguments.update({"debug": False, "full_load": False})
+    task = simulate_task("autosql")
     task.config = {
-        "file_nam": "autosql_task_test.sql",
+        "file_nam": "test.sql",
         "materialisation": "table",
         "destination": {"table": "test_autosql_task"},
     }
 
-    tmp_path = tempfile.mkdtemp("tmp_test")
-    with inside_dir(str(tmp_path)):
-        fpath = Path(str(tmp_path), "sql", "autosql_task_test.sql")
-        fpath.parent.mkdir(parents=True, exist_ok=True)
-        fpath.write_text(sql_query)
-        setup_result = task.setup(**task.config)
+    setup_result = simulate_task_setup(
+        task, sql_query=sql_query, task_config=task.config
+    )
 
     assert setup_result.is_err
 
 
 def test_autosql_task_config_error2():
-    task = simulate_sql_task("autosql")
-    task.run_arguments.update({"debug": False, "full_load": False})
+    task = simulate_task("autosql")
     task.config = {
-        "file_name": "autosql_task_test.sql",
+        "file_name": "test.sql",
         "materialisation": "wrong",
         "destination": {"table": "test_autosql_task"},
     }
 
-    tmp_path = tempfile.mkdtemp("tmp_test")
-    with inside_dir(str(tmp_path)):
-        fpath = Path(str(tmp_path), "sql", "autosql_task_test.sql")
-        fpath.parent.mkdir(parents=True, exist_ok=True)
-        fpath.write_text(sql_query)
-        setup_result = task.setup(**task.config)
+    setup_result = simulate_task_setup(
+        task, sql_query=sql_query, task_config=task.config
+    )
 
     assert setup_result.is_err
 
 
 def test_autosql_task_run_error():
-    task = simulate_sql_task("autosql")
-    task.run_arguments.update({"debug": False, "full_load": False})
+    task = simulate_task("autosql")
     task.config = {
-        "file_name": "autosql_task_test.sql",
+        "file_name": "test.sql",
         "materialisation": "table",
         "destination": {"table": "test_autosql_task"},
     }
 
-    tmp_path = tempfile.mkdtemp("tmp_test")
-    with inside_dir(str(tmp_path)):
-        fpath = Path(str(tmp_path), "sql", "autosql_task_test.sql")
-        fpath.parent.mkdir(parents=True, exist_ok=True)
-        fpath.write_text(sql_query_err)
-        setup_result = task.setup(**task.config)
-        run_result = task.run()
+    setup_result, run_result = simulate_task_setup_run(
+        task, sql_query=sql_query_err, task_config=task.config
+    )
 
     assert setup_result.is_ok
     assert run_result.is_err
+
+
+def test_autosql_task_run_ddl():
+    task = simulate_task("autosql")
+    task.config = {
+        "file_name": "test.sql",
+        "materialisation": "table",
+        "destination": {"table": "test_autosql_task"},
+        "ddl": {"indexes": {"primary_key": {"columns": ["x"]}}},
+    }
+
+    setup_result, run_result = simulate_task_setup_run(
+        task, sql_query=sql_query, task_config=task.config
+    )
+
+    assert setup_result.is_ok
+    assert run_result.is_err
+    assert task.steps == [
+        "Write Query",
+        "Cleanup",
+        "Create Temp",
+        "Create Indexes",
+        "Cleanup Target",
+        "Move",
+    ]
+
+
+# def test_autosql_task_ddl_config_error():
+#    task = simulate_task("autosql")
+#    task.config = {
+#        "file_name": "test.sql",
+#        "materialisation": "table",
+#        "destination": {"table": "test_autosql_task"},
+#        "ddll": {"indexes": {"primary_key": {"columns": ["x"]}}}
+#    }
+#
+#    setup_result = simulate_task_setup(task, sql_query=sql_query, task_config=task.config)
+#
+#    assert setup_result.is_err

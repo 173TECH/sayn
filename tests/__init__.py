@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 import os
+import tempfile
 from pathlib import Path
 import subprocess
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
@@ -73,7 +74,7 @@ class VoidTracker:
 vd = VoidTracker()
 
 
-def simulate_sql_task(type):
+def simulate_task(type):
     if type == "sql":
         task = SqlTask()
     elif type == "autosql":
@@ -81,11 +82,13 @@ def simulate_sql_task(type):
     else:
         pass
 
-    task.name = "test_sql_task"  # set for compilation output during run
+    task.name = "test_task"  # set for compilation output during run
     task.dag = "test_dag"  # set for compilation output during run
     task.run_arguments = {
         "folders": {"sql": "sql", "compile": "compile"},
         "command": "run",
+        "debug": False,
+        "full_load": False,
     }
     task.connections = {
         "test_db": create_db(
@@ -102,3 +105,24 @@ def simulate_sql_task(type):
     )
 
     return task
+
+
+def simulate_task_setup(task, **kwargs):
+    if isinstance(task, (SqlTask, AutoSqlTask)):
+        tmp_path = tempfile.mkdtemp("tmp_test")
+        with inside_dir(str(tmp_path)):
+            fpath = Path(str(tmp_path), "sql", "test.sql")
+            fpath.parent.mkdir(parents=True, exist_ok=True)
+            fpath.write_text(kwargs["sql_query"])
+            if isinstance(task, SqlTask):
+                setup_result = task.setup("test.sql")
+            if isinstance(task, AutoSqlTask):
+                setup_result = task.setup(**kwargs["task_config"])
+
+    return setup_result
+
+
+def simulate_task_setup_run(task, **kwargs):
+    setup_result = simulate_task_setup(task, **kwargs)
+    run_result = task.run()
+    return setup_result, run_result
