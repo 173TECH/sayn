@@ -74,7 +74,7 @@ class VoidTracker:
 vd = VoidTracker()
 
 
-def simulate_task(type, **kwargs):
+def simulate_task(type, sql_query):
     if type == "sql":
         task = SqlTask()
     elif type == "autosql":
@@ -104,11 +104,11 @@ def simulate_task(type, **kwargs):
         keep_trailing_newline=True,
     )
 
-    if type in ["sql", "autosql"]:
+    if type in ["sql", "autosql"] and sql_query is not None:
         # fpath = Path(str(tmp_path), "sql", kwargs["file_name"])
         fpath = Path("sql", "test.sql")
         fpath.parent.mkdir(parents=True, exist_ok=True)
-        fpath.write_text(kwargs["sql_query"])
+        fpath.write_text(sql_query)
 
     return task
 
