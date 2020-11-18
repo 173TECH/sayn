@@ -15,11 +15,9 @@ def test_autosql_task_table(tmp_path):
 
         # setup
         setup_result = task.setup(
-            **{
-                "file_name": "test.sql",
-                "materialisation": "table",
-                "destination": {"table": "test_autosql_task"},
-            }
+            file_name="test.sql",
+            materialisation="table",
+            destination={"table": "test_autosql_task"},
         )
         assert setup_result.is_ok
         assert task.sql_query == sql_query
@@ -48,11 +46,9 @@ def test_autosql_task_view(tmp_path):
 
         # setup
         setup_result = task.setup(
-            **{
-                "file_name": "test.sql",
-                "materialisation": "view",
-                "destination": {"table": "test_autosql_task"},
-            }
+            file_name="test.sql",
+            materialisation="view",
+            destination={"table": "test_autosql_task"},
         )
         assert setup_result.is_ok
         assert task.sql_query == sql_query
@@ -85,12 +81,10 @@ def test_autosql_task_incremental(tmp_path):
 
         # setup
         setup_result = task.setup(
-            **{
-                "file_name": "test.sql",
-                "materialisation": "incremental",
-                "destination": {"table": "test_autosql_task"},
-                "delete_key": "id",
-            }
+            file_name="test.sql",
+            materialisation="incremental",
+            destination={"table": "test_autosql_task"},
+            delete_key="id",
         )
         assert setup_result.is_ok
         assert task.sql_query == sql_query_incremental
@@ -119,11 +113,9 @@ def test_autosql_task_compile(tmp_path):
 
         # setup
         setup_result = task.setup(
-            **{
-                "file_name": "test.sql",
-                "materialisation": "table",
-                "destination": {"table": "test_autosql_task"},
-            }
+            file_name="test.sql",
+            materialisation="table",
+            destination={"table": "test_autosql_task"},
         )
         assert task.sql_query == sql_query
         assert task.steps == [
@@ -148,11 +140,9 @@ def test_autosql_task_param(tmp_path):
 
         # setup
         setup_result = task.setup(
-            **{
-                "file_name": "test.sql",
-                "materialisation": "table",
-                "destination": {"table": "test_autosql_task"},
-            }
+            file_name="test.sql",
+            materialisation="table",
+            destination={"table": "test_autosql_task"},
         )
         assert setup_result.is_ok
 
@@ -169,11 +159,9 @@ def test_autosql_task_config_error1(tmp_path):
 
         # setup
         setup_result = task.setup(
-            **{
-                "file_nam": "test.sql",
-                "materialisation": "table",
-                "destination": {"table": "test_autosql_task"},
-            }
+            file_nam="test.sql",
+            materialisation="table",
+            destination={"table": "test_autosql_task"},
         )
         assert setup_result.is_err
 
@@ -184,11 +172,9 @@ def test_autosql_task_config_error2(tmp_path):
 
         # setup
         setup_result = task.setup(
-            **{
-                "file_name": "test.sql",
-                "materialisation": "wrong",
-                "destination": {"table": "test_autosql_task"},
-            }
+            file_name="test.sql",
+            materialisation="wrong",
+            destination={"table": "test_autosql_task"},
         )
         assert setup_result.is_err
 
@@ -200,11 +186,9 @@ def test_autosql_task_config_error3(tmp_path):
 
         # setup
         setup_result = task.setup(
-            **{
-                "file_name": "test.sql",
-                "materialisation": "table",
-                "destination": {"table": "test_autosql_task"},
-            }
+            file_name="test.sql",
+            materialisation="table",
+            destination={"table": "test_autosql_task"},
         )
         assert setup_result.is_err
 
@@ -216,11 +200,9 @@ def test_autosql_task_run_error(tmp_path):
 
         # setup
         setup_result = task.setup(
-            **{
-                "file_name": "test.sql",
-                "materialisation": "table",
-                "destination": {"table": "test_autosql_task"},
-            }
+            file_name="test.sql",
+            materialisation="table",
+            destination={"table": "test_autosql_task"},
         )
         assert setup_result.is_ok
 
@@ -235,12 +217,10 @@ def test_autosql_task_run_ddl(tmp_path):
 
         # setup
         setup_result = task.setup(
-            **{
-                "file_name": "test.sql",
-                "materialisation": "table",
-                "destination": {"table": "test_autosql_task"},
-                "ddl": {"indexes": {"primary_key": {"columns": ["x"]}}},
-            }
+            file_name="test.sql",
+            materialisation="table",
+            destination={"table": "test_autosql_task"},
+            ddl={"indexes": {"primary_key": {"columns": ["x"]}}},
         )
         assert setup_result.is_ok
         assert task.steps == [
@@ -265,17 +245,15 @@ def test_autosql_task_run_ddl_diff_col_order(tmp_path):
 
         # setup
         setup_result = task.setup(
-            **{
-                "file_name": "test.sql",
-                "materialisation": "table",
-                "destination": {"table": "test_autosql_task"},
-                "ddl": {
-                    "columns": [
-                        {"name": "x", "type": "text"},
-                        {"name": "y", "type": "int"},
-                    ]
-                },
-            }
+            file_name="test.sql",
+            materialisation="table",
+            destination={"table": "test_autosql_task"},
+            ddl={
+                "columns": [
+                    {"name": "x", "type": "text"},
+                    {"name": "y", "type": "int"},
+                ]
+            },
         )
         assert setup_result.is_ok
         assert task.steps == [

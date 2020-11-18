@@ -13,10 +13,8 @@ def test_copy_task():
 
     # setup
     setup_result = task.setup(
-        **{
-            "source": {"db": "source_db", "table": "source_table"},
-            "destination": {"db": "test_db", "table": "dst_table"},
-        }
+        source={"db": "source_db", "table": "source_table"},
+        destination={"db": "test_db", "table": "dst_table"},
     )
     assert setup_result.is_ok
     assert task.steps == [
@@ -48,11 +46,9 @@ def test_copy_task_ddl():
 
     # setup
     setup_result = task.setup(
-        **{
-            "source": {"db": "source_db", "table": "source_table"},
-            "destination": {"db": "test_db", "table": "dst_table"},
-            "ddl": {"columns": [{"name": "x", "type": "int"}]},
-        }
+        source={"db": "source_db", "table": "source_table"},
+        destination={"db": "test_db", "table": "dst_table"},
+        ddl={"columns": [{"name": "x", "type": "int"}]},
     )
     assert setup_result.is_ok
     assert task.steps == [
@@ -84,10 +80,8 @@ def test_copy_task_error():
 
     # setup
     setup_result = task.setup(
-        **{
-            "src": {"db": "source_db", "table": "source_table"},
-            "dst": {"db": "test_db", "table": "dst_table"},
-        }
+        src={"db": "source_db", "table": "source_table"},
+        dst={"db": "test_db", "table": "dst_table"},
     )
     assert setup_result.is_err
 
@@ -110,12 +104,10 @@ def test_copy_task_incremental():
 
     # setup
     setup_result = task.setup(
-        **{
-            "source": {"db": "source_db", "table": "source_table"},
-            "destination": {"db": "test_db", "table": "dst_table"},
-            "incremental_key": "id",
-            "delete_key": "id",
-        }
+        source={"db": "source_db", "table": "source_table"},
+        destination={"db": "test_db", "table": "dst_table"},
+        incremental_key="id",
+        delete_key="id",
     )
     assert setup_result.is_ok
     assert task.steps == ["Cleanup", "Create Temp DDL", "Load Data", "Merge"]
@@ -148,12 +140,10 @@ def test_copy_task_incremental2():
 
     # setup
     setup_result = task.setup(
-        **{
-            "source": {"db": "source_db", "table": "source_table"},
-            "destination": {"db": "test_db", "table": "dst_table"},
-            "incremental_key": "updated_at",
-            "delete_key": "id",
-        }
+        source={"db": "source_db", "table": "source_table"},
+        destination={"db": "test_db", "table": "dst_table"},
+        incremental_key="updated_at",
+        delete_key="id",
     )
     assert setup_result.is_ok
 
