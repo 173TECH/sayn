@@ -112,17 +112,22 @@ class BaseSqlTask(Task):
             return self.cleanup(self.table, self.schema, step, execute)
 
         elif step == "Load Data":
-            return self.load_data(
-                self.source_table_def,
-                self.source_db,
-                self.table,
-                self.schema,
-                self.tmp_table,
-                self.tmp_schema,
-                self.incremental_key,
-                self.ddl,
-                execute,
-            )
+            try:
+                self.load_data(
+                    self.source_table_def,
+                    self.source_db,
+                    self.table,
+                    self.schema,
+                    self.tmp_table,
+                    self.tmp_schema,
+                    self.incremental_key,
+                    self.ddl,
+                    execute,
+                )
+            except Exception as e:
+                return Exc(e)
+
+            return Ok()
 
         else:
             return Err("task_execution", "unknown_step", step=step)

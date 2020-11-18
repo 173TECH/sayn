@@ -8,6 +8,7 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from sayn.database.creator import create as create_db
 from sayn.tasks.sql import SqlTask
 from sayn.tasks.autosql import AutoSqlTask
+from sayn.tasks.copy import CopyTask
 
 
 @contextmanager
@@ -79,6 +80,8 @@ def simulate_task(type, sql_query=None):
         task = SqlTask()
     elif type == "autosql":
         task = AutoSqlTask()
+    elif type == "copy":
+        task = CopyTask()
     else:
         pass
 
@@ -95,6 +98,15 @@ def simulate_task(type, sql_query=None):
             "test_db", "test_db", {"type": "sqlite", "database": ":memory:"}
         )
     }
+    if type == "copy":
+        task.connections.update(
+            {
+                "source_db": create_db(
+                    "source_db", "source_db", {"type": "sqlite", "database": ":memory:"}
+                )
+            }
+        )
+
     task._default_db = "test_db"
     task.tracker = vd
 
