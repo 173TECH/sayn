@@ -1,4 +1,4 @@
-from . import inside_dir, simulate_task
+from . import inside_dir, simulate_task, validate_table
 
 sql_query = "SELECT 1 AS x"
 sql_query_param = "SELECT {{number}} AS x"
@@ -31,13 +31,16 @@ def test_autosql_task_table(tmp_path):
 
         # run
         run_result = task.run()
-        task_result = task.default_db.select("SELECT * FROM test_autosql_task")
-        task_table = task.default_db.select(
-            'SELECT * FROM sqlite_master WHERE type="table" AND NAME = "test_autosql_task"'
-        )
         assert run_result.is_ok
-        assert task_result[0]["x"] == 1
-        assert len(task_table) == 1
+        assert validate_table(task.default_db, "test_autosql_task", [{"x": 1}],)
+        assert (
+            len(
+                task.default_db.select(
+                    'SELECT * FROM sqlite_master WHERE type="table" AND NAME = "test_autosql_task"'
+                )
+            )
+            == 1
+        )
 
 
 def test_autosql_task_view(tmp_path):
@@ -56,13 +59,16 @@ def test_autosql_task_view(tmp_path):
 
         # run
         run_result = task.run()
-        task_result = task.default_db.select("SELECT * FROM test_autosql_task")
-        task_table = task.default_db.select(
-            'SELECT * FROM sqlite_master WHERE type="view" AND NAME = "test_autosql_task"'
-        )
         assert run_result.is_ok
-        assert task_result[0]["x"] == 1
-        assert len(task_table) == 1
+        assert validate_table(task.default_db, "test_autosql_task", [{"x": 1}],)
+        assert (
+            len(
+                task.default_db.select(
+                    'SELECT * FROM sqlite_master WHERE type="view" AND NAME = "test_autosql_task"'
+                )
+            )
+            == 1
+        )
 
 
 def test_autosql_task_incremental(tmp_path):
@@ -98,18 +104,22 @@ def test_autosql_task_incremental(tmp_path):
         # run
         run_result = task.run()
         assert run_result.is_ok
-        task_result = task.default_db.select("SELECT * FROM test_autosql_task")
-        assert len(task_result) == 3
-        assert task_result[0]["id"] == 1
-        assert task_result[0]["name"] == "x"
-        assert task_result[1]["id"] == 2
-        assert task_result[1]["name"] == "y1"
+        assert validate_table(
+            task.default_db,
+            "test_autosql_task",
+            [
+                {"id": 1, "updated_at": 1, "name": "x"},
+                {"id": 2, "updated_at": 2, "name": "y1"},
+                {"id": 3, "updated_at": None, "name": "z"},
+            ],
+        )
 
 
 def test_autosql_task_compile(tmp_path):
     with inside_dir(str(tmp_path)):
-        task = simulate_task("autosql", sql_query=sql_query)
-        task.run_arguments.update({"command": "compile"})
+        task = simulate_task(
+            "autosql", sql_query=sql_query, run_arguments={"command": "compile"}
+        )
 
         # setup
         setup_result = task.setup(
@@ -134,9 +144,9 @@ def test_autosql_task_compile(tmp_path):
 
 def test_autosql_task_param(tmp_path):
     with inside_dir(str(tmp_path)):
-        task = simulate_task("autosql", sql_query=sql_query_param)
-        task.task_parameters = {"number": 1}
-        task.jinja_env.globals.update(**task.task_parameters)
+        task = simulate_task(
+            "autosql", sql_query=sql_query_param, task_params={"number": 1}
+        )
 
         # setup
         setup_result = task.setup(
@@ -148,9 +158,8 @@ def test_autosql_task_param(tmp_path):
 
         # run
         run_result = task.run()
-        task_result = task.default_db.select("SELECT * FROM test_autosql_task")
         assert run_result.is_ok
-        assert task_result[0]["x"] == 1
+        assert validate_table(task.default_db, "test_autosql_task", [{"x": 1}],)
 
 
 def test_autosql_task_config_error1(tmp_path):
@@ -267,7 +276,6 @@ def test_autosql_task_run_ddl_diff_col_order(tmp_path):
         # run
         run_result = task.run()
         assert run_result.is_ok
-        task_result = task.default_db.select("SELECT * FROM test_autosql_task")
-        assert len(task_result) == 1
-        table_result = task.default_db.get_table("test_autosql_task", None)
-        assert table_result.columns.keys() == ["x", "y"]
+        assert validate_table(
+            task.default_db, "test_autosql_task", [{"x": "1", "y": 1}],
+        )

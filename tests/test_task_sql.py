@@ -1,4 +1,4 @@
-from . import inside_dir, simulate_task
+from . import inside_dir, simulate_task, validate_table
 
 sql_query = "CREATE TABLE test_sql_task AS SELECT 1 AS x"
 sql_query_param = "CREATE TABLE {{user_prefix}}test_sql_task AS SELECT 1 AS x"
@@ -22,16 +22,15 @@ def test_sql_task(tmp_path):
         # run
         run_result = task.run()
         assert run_result.is_ok
-
-        task_result = task.default_db.select("SELECT * FROM test_sql_task")
-        assert task_result[0]["x"] == 1
+        assert validate_table(task.default_db, "test_sql_task", [{"x": 1}],)
 
 
 def test_sql_task_compile(tmp_path):
     # test correct setup and compile for correct sql
     with inside_dir(str(tmp_path)):
-        task = simulate_task("sql", sql_query=sql_query)
-        task.run_arguments.update({"command": "compile"})
+        task = simulate_task(
+            "sql", sql_query=sql_query, run_arguments={"command": "compile"}
+        )
 
         # setup
         setup_result = task.setup("test.sql")
@@ -47,9 +46,9 @@ def test_sql_task_compile(tmp_path):
 def test_sql_task_param(tmp_path):
     # test correct setup and run for correct sql with parameter
     with inside_dir(str(tmp_path)):
-        task = simulate_task("sql", sql_query=sql_query_param)
-        task.task_parameters = {"user_prefix": "tu_"}
-        task.jinja_env.globals.update(**task.task_parameters)
+        task = simulate_task(
+            "sql", sql_query=sql_query_param, task_params={"user_prefix": "tu_"}
+        )
 
         # setup
         setup_result = task.setup("test.sql")
@@ -59,9 +58,7 @@ def test_sql_task_param(tmp_path):
         # run
         run_result = task.run()
         assert run_result.is_ok
-
-        task_result = task.default_db.select("SELECT * FROM tu_test_sql_task")
-        assert task_result[0]["x"] == 1
+        assert validate_table(task.default_db, "tu_test_sql_task", [{"x": 1}],)
 
 
 def test_sql_task_param_err(tmp_path):
@@ -102,8 +99,5 @@ def test_sql_task_run_multi_statements(tmp_path):
         # run
         run_result = task.run()
         assert run_result.is_ok
-
-        task_result1 = task.default_db.select("SELECT * FROM test_t1")
-        task_result2 = task.default_db.select("SELECT * FROM test_t2")
-        assert task_result1[0]["x"] == 1
-        assert task_result2[0]["x"] == 2
+        assert validate_table(task.default_db, "test_t1", [{"x": 1}],)
+        assert validate_table(task.default_db, "test_t2", [{"x": 2}],)

@@ -75,7 +75,7 @@ class VoidTracker:
 vd = VoidTracker()
 
 
-def simulate_task(type, sql_query=None):
+def simulate_task(type, sql_query=None, run_arguments=dict(), task_params=dict()):
     if type == "sql":
         task = SqlTask()
     elif type == "autosql":
@@ -92,6 +92,7 @@ def simulate_task(type, sql_query=None):
         "command": "run",
         "debug": False,
         "full_load": False,
+        **run_arguments,
     }
     task.connections = {
         "test_db": create_db(
@@ -115,6 +116,7 @@ def simulate_task(type, sql_query=None):
         undefined=StrictUndefined,
         keep_trailing_newline=True,
     )
+    task.jinja_env.globals.update(**task_params)
 
     if type in ["sql", "autosql"] and sql_query is not None:
         fpath = Path("sql", "test.sql")
@@ -122,3 +124,13 @@ def simulate_task(type, sql_query=None):
         fpath.write_text(sql_query)
 
     return task
+
+
+def validate_table(db, table_name, expected_data):
+    result = db.select(f"select * from {table_name}")
+    if len(result) != len(expected_data):
+        return False
+    for i in range(len(result)):
+        if result[i] != expected_data[i]:
+            return False
+    return True

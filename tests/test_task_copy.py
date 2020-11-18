@@ -1,4 +1,4 @@
-from . import simulate_task
+from . import simulate_task, validate_table
 
 
 def test_copy_task():
@@ -28,10 +28,7 @@ def test_copy_task():
     # run
     run_result = task.run()
     assert run_result.is_ok
-    task_result = task.connections["test_db"].select("SELECT * FROM dst_table")
-    assert len(task_result) == 3
-    assert task_result[0]["x"] == 1
-    assert task_result[2]["x"] == 3
+    assert validate_table(task.default_db, "dst_table", [{"x": 1}, {"x": 2}, {"x": 3}],)
 
 
 def test_copy_task_ddl():
@@ -62,10 +59,7 @@ def test_copy_task_ddl():
     # run
     run_result = task.run()
     assert run_result.is_ok
-    task_result = task.connections["test_db"].select("SELECT * FROM dst_table")
-    assert len(task_result) == 3
-    assert task_result[0]["x"] == 1
-    assert task_result[2]["x"] == 3
+    assert validate_table(task.default_db, "dst_table", [{"x": 1}, {"x": 2}, {"x": 3}],)
 
 
 def test_copy_task_error():
@@ -99,7 +93,7 @@ def test_copy_task_incremental():
     # create table destination with one value
     destination_db = task.connections["test_db"]
     destination_db.execute(
-        'CREATE TABLE source_table AS SELECT CAST(1 AS INTEGER) AS id, CAST("x" AS TEXT) AS name'
+        'CREATE TABLE dst_table AS SELECT CAST(1 AS INTEGER) AS id, CAST("x" AS TEXT) AS name'
     )  # cast otherwise SQLite sets the type as NULL
 
     # setup
@@ -115,11 +109,11 @@ def test_copy_task_incremental():
     # run
     run_result = task.run()
     assert run_result.is_ok
-    task_result = task.connections["test_db"].select("SELECT * FROM dst_table")
-    assert len(task_result) == 3
-    assert task_result[0]["id"] == 1
-    assert task_result[0]["name"] == "x"
-    assert task_result[2]["name"] == "z"
+    assert validate_table(
+        task.default_db,
+        "dst_table",
+        [{"id": 1, "name": "x"}, {"id": 2, "name": "y"}, {"id": 3, "name": "z"}],
+    )
 
 
 def test_copy_task_incremental2():
@@ -129,13 +123,13 @@ def test_copy_task_incremental2():
     # create table to transfer
     source_db = task.connections["source_db"]
     source_db.execute(
-        'CREATE TABLE source_table AS SELECT CAST(1 AS INTEGER) AS id, CAST(2 AS INTEGER) AS updated_at, CAST("x1" AS TEXT) AS name UNION SELECT 2 AS id, 2 AS updated_at, "y" AS name'
+        'CREATE TABLE source_table AS SELECT CAST(1 AS INTEGER) AS id, CAST(2 AS INTEGER) AS updated_at, CAST("x1" AS TEXT) AS name UNION SELECT 2 AS id, NULL AS updated_at, "y" AS name'
     )  # cast otherwise SQLite sets the type as NULL
 
     # create table destination with one value
     destination_db = task.connections["test_db"]
     destination_db.execute(
-        'CREATE TABLE source_table AS SELECT CAST(1 AS INTEGER) AS id, CAST(1 AS INTEGER) AS updated_at, CAST("x" AS TEXT) AS name'
+        'CREATE TABLE dst_table AS SELECT CAST(1 AS INTEGER) AS id, CAST(1 AS INTEGER) AS updated_at, CAST("x" AS TEXT) AS name'
     )  # cast otherwise SQLite sets the type as NULL
 
     # setup
@@ -150,8 +144,11 @@ def test_copy_task_incremental2():
     # run
     run_result = task.run()
     assert run_result.is_ok
-    task_result = task.connections["test_db"].select("SELECT * FROM dst_table")
-    assert len(task_result) == 2
-    assert task_result[0]["id"] == 1
-    assert task_result[0]["name"] == "x1"
-    assert task_result[1]["name"] == "y"
+    assert validate_table(
+        task.default_db,
+        "dst_table",
+        [
+            {"id": 1, "updated_at": 2, "name": "x1"},
+            {"id": 2, "updated_at": None, "name": "y"},
+        ],
+    )
