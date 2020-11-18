@@ -220,7 +220,7 @@ def test_autosql_task_run_error(tmp_path):
         assert run_result.is_err
 
 
-def test_autosql_task_run_ddl(tmp_path):
+def test_autosql_task_run_ddl_columns(tmp_path):
     with inside_dir(str(tmp_path)):
         task = simulate_task("autosql", sql_query=sql_query)
 
@@ -229,22 +229,51 @@ def test_autosql_task_run_ddl(tmp_path):
             file_name="test.sql",
             materialisation="table",
             destination={"table": "test_autosql_task"},
-            ddl={"indexes": {"primary_key": {"columns": ["x"]}}},
+            ddl={"columns": [{"name": "x", "primary": True}]},
         )
         assert setup_result.is_ok
         assert task.steps == [
             "Write Query",
             "Cleanup",
             "Create Temp",
-            "Create Indexes",
             "Cleanup Target",
             "Move",
         ]
 
         # run
-        # this needs to be reimplemented when PRIMARY KEY setup fixed for SQLite
-        # run_result = task.run()
-        # assert run_result.is_ok
+        run_result = task.run()
+        assert run_result.is_ok
+
+
+def test_autosql_task_run_indexes_pk(tmp_path):
+    # test indexes with the primary key
+    # for SQLite this returns an error as primary keys can only be defined in the Create DDL statement
+    with inside_dir(str(tmp_path)):
+        task = simulate_task("autosql", sql_query=sql_query)
+
+        # setup
+        setup_result = task.setup(
+            file_name="test.sql",
+            materialisation="table",
+            destination={"table": "test_autosql_task"},
+            ddl={"indexes": [{"primary_key": "x"}]},
+        )
+        if "PRIMARY KEY CREATE DDL ONLY" not in task.default_db.sql_features:
+            assert setup_result.is_ok
+            assert task.steps == [
+                "Write Query",
+                "Cleanup",
+                "Create Temp",
+                "Cleanup Target",
+                "Move",
+            ]
+        else:
+            assert setup_result.is_err
+
+        # run
+        if "PRIMARY KEY CREATE DDL ONLY" not in task.default_db.sql_features:
+            run_result = task.run()
+            assert run_result.is_ok
 
 
 def test_autosql_task_run_ddl_diff_col_order(tmp_path):

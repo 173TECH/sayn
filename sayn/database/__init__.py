@@ -92,6 +92,7 @@ class Database:
     #   - INSERT TABLE NO PARENTHESES
     #   - DROP CASCADE
     #   - NO SET SCHEMA
+    #   - PRIMARY KEY CREATE DDL ONLY
 
     def __init__(self, name, name_in_settings, db_type, common_params):
         self.name = name
