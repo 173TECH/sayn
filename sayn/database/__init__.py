@@ -354,6 +354,7 @@ class Database:
                 (
                     f'{c["name"]} {c["type"]}'
                     f'{" NOT NULL" if c.get("not_null", False) else ""}'
+                    f'{" PRIMARY KEY" if c.get("primary", False) and c.get("indexes", {}).get("primary_key") is None else ""}'  # we only define the PRIMARY KEY here if not mentioned in the indexes
                 )
                 for c in columns
             ]
@@ -391,10 +392,22 @@ class Database:
             if idx != "primary_key"
         }
 
+        # set the primary key, setting it from indexes takes precedence
         q = ""
         if "primary_key" in ddl.get("indexes", dict()):
             pk_cols = ", ".join(ddl["indexes"]["primary_key"]["columns"])
             q += f"ALTER TABLE {table} ADD PRIMARY KEY ({pk_cols});"
+        else:
+            # collate primary key from columns if exists -- should be refactored so this is done when ddl is interpreted and we don't have to implement this logic here
+            pk_cols_list = []
+            if ddl.get("columns") is not None:
+                for c_def in ddl.get("columns"):
+                    if c_def.get("primary") is True:
+                        pk_cols.append(c_def.get("name"))
+
+            if pk_cols_list:
+                pk_cols = ", ".join(pk_cols_list)
+                q += f"ALTER TABLE {table} ADD PRIMARY KEY ({pk_cols});"
 
         q += "\n".join(
             [
