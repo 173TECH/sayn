@@ -234,10 +234,12 @@ class Database:
             )
         else:
             ddl = result.value
+
         check_create = True
+        table_exists_prior_load = self.table_exists(table, schema)
 
         for i, record in enumerate(data):
-            if check_create and not self.table_exists(table, schema):
+            if check_create and not table_exists_prior_load:
                 # Create the table if required
                 if len(ddl.get("columns", list())) == 0:
                     # If no columns are specified in the ddl, figure that out
