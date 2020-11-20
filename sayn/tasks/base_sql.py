@@ -106,10 +106,18 @@ class BaseSqlTask(Task):
             return Ok()
 
         elif step == "Cleanup":
-            return self.cleanup(self.tmp_table, self.tmp_schema, step, execute)
+            result = self.cleanup(self.tmp_table, self.tmp_schema, step, execute)
+            if result.is_err:
+                return result
+
+            return Ok()
 
         elif step == "Cleanup Target":
-            return self.cleanup(self.table, self.schema, step, execute)
+            result = self.cleanup(self.table, self.schema, step, execute)
+            if result.is_err:
+                return result
+
+            return Ok()
 
         elif step == "Load Data":
             try:
@@ -157,25 +165,32 @@ class BaseSqlTask(Task):
     def cleanup(self, table, schema, step, execute):
         out_sql = list()
 
+        # using those flags to capture error here. Not sure how to best capture a genuine error fail (e.g. permissions). To investigate.
+        cleanup_table_failed = False
+        cleanup_view_failed = False
+
         try:
             out_sql.append(
                 self.default_db.drop_table(table, schema, view=False, execute=execute)
             )
         except:
-            pass
+            cleanup_table_failed = True
 
         try:
             out_sql.append(
                 self.default_db.drop_table(table, schema, view=True, execute=execute)
             )
         except:
-            pass
+            cleanup_view_failed = True
 
         query = "\n".join(out_sql)
         if self.run_arguments["debug"]:
             self.write_compilation_output(query, step.replace(" ", "_").lower())
 
-        return Ok()
+        if cleanup_table_failed and cleanup_view_failed:
+            return Err("task_step", step, table=table, schema=schema)
+        else:
+            return Ok()
 
     def load_data(
         self,
