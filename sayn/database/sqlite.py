@@ -9,7 +9,6 @@ db_parameters = ["database"]
 class SQLiteDDL(DDL):
     @validator("columns")
     def pk_in_columns(cls, v, values):
-        print(values)
         for c in v:
             if c.primary:
                 raise ValueError(
