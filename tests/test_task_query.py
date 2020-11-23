@@ -4,13 +4,13 @@ from sayn.utils.task_query import get_query
 
 
 tasks = {
-    "task1": {"dag": "dag1", "tags": list()},
-    "task2": {"dag": "dag1", "tags": ["tag1"]},
-    "task3": {"dag": "dag2", "tags": ["tag1"]},
-    "task4": {"dag": "dag2", "tags": list()},
-    "task5": {"dag": "dag3", "tags": ["tag1", "tag2"]},
-    "task6": {"dag": "dag3", "tags": list()},
-    "task7": {"dag": "dag3", "tags": list()},
+    "task1": {"task_group": "group1", "tags": list()},
+    "task2": {"task_group": "group1", "tags": ["tag1"]},
+    "task3": {"task_group": "group2", "tags": ["tag1"]},
+    "task4": {"task_group": "group2", "tags": list()},
+    "task5": {"task_group": "group3", "tags": ["tag1", "tag2"]},
+    "task6": {"task_group": "group3", "tags": list()},
+    "task7": {"task_group": "group3", "tags": list()},
 }
 
 
@@ -46,8 +46,8 @@ def test_simple04():
     ]
 
 
-def test_dag01():
-    assert get_query(tasks, include=["dag:dag1"]).value == [
+def test_group01():
+    assert get_query(tasks, include=["group:group1"]).value == [
         {
             "operation": "include",
             "task": "task1",
@@ -95,11 +95,11 @@ def test_error_identifier02():
 
 
 def test_error_identifier03():
-    assert get_query(tasks, include=["dag:dag_undefined"]).is_err
+    assert get_query(tasks, include=["group:group_undefined"]).is_err
 
 
 def test_full_query02():
-    assert get_query(tasks, include=["tag:tag1"], exclude=["dag:dag2"]).value == [
+    assert get_query(tasks, include=["tag:tag1"], exclude=["group:group2"]).value == [
         {
             "operation": "include",
             "task": "task2",
@@ -137,7 +137,7 @@ def test_full_query03():
     assert get_query(
         tasks,
         include=["task1", "task2+", "tag:tag1", "+task2"],
-        exclude=["dag:dag3", "+task3"],
+        exclude=["group:group3", "+task3"],
     ).value == [
         {
             "operation": "include",
