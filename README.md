@@ -33,7 +33,7 @@ SAYN has the following key features:
 
 SAYN aims to empower data engineers and analysts through its  three core design principles:
 
-* **Simplicity**: data models and processes should be easy to create, scale and maintain. So your team can focus on data transformation instead of writing processes. SAYN orchestrates all your tasks systematically and provides a lot of automation features.
+* **Simplicity**: data processes should be easy to create, scale and maintain. So your team can focus on data transformation instead of writing processes. SAYN orchestrates all your tasks systematically and provides a lot of automation features.
 * **Flexibility**: the power of data is unlimited and so should your tooling. SAYN supports both SQL and Python so your analysts can choose the most optimal solution for each process.
 * **Centralisation**: all analytics code should live in one place, making your life easier and allowing dependencies throughout the whole analytics process.
 
