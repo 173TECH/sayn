@@ -86,7 +86,7 @@ def simulate_task(type, sql_query=None, run_arguments=dict(), task_params=dict()
         pass
 
     task.name = "test_task"  # set for compilation output during run
-    task.dag = "test_dag"  # set for compilation output during run
+    task.task_group = "test_group"  # set for compilation output during run
     task.run_arguments = {
         "folders": {"sql": "sql", "compile": "compile"},
         "command": "run",
