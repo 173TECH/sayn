@@ -9,7 +9,7 @@ executing `UPDATE` statments for example, that wouldn't be covered by `autosql`.
 
 A `sql` task is defined as follows:
 
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     task_sql:
       type: sql

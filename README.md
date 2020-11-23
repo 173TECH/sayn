@@ -6,22 +6,24 @@
 
 #
 
-SAYN is a data-modelling and processing framework for automating Python and SQL tasks. It enables analytics teams to build robust data infrastructures in minutes.
+SAYN is a modern data processing and modelling framework. It empowers data engineers and analysts reach data zen whilst gaining significant efficiency through three core principles: simplicity, flexibility, centralisation.
+
+Its several task types (covering Python, automated SQL transformations and more) facilitate processes automation and the creation of robust data infrastructures in minutes. SAYN is currently used in production for ETL/ELT processes with hundreds of tasks.
 
 ## Use Cases
 
 SAYN can be used for multiple purposes across the analytics workflow:
 
 * Data extraction: complement tools such as Fivetran or Stitch with customised extraction processes.
-* Data modelling: transform raw data in your data warehouse.
+* Data modelling: transform raw data in your data warehouse (e.g. aggregate activity or sessions, calculate marketing campaign ROI, etc.).
 * Data science: integrate and execute data science models.
 
 ## Key Features
 
 SAYN has the following key features:
 
-* YAML based creation of [DAGs](https://173tech.github.io/sayn/dags/) (Direct Acyclic Graph). This means all analysts, including non Python proficient ones, can contribute to building ETL processes.
-* [SQL SELECT statements](https://173tech.github.io/sayn/tasks/autosql/): turn your queries into managed tables and views automatically.
+* YAML based DAG (Direct Acyclic Graph) creation. This means all analysts, including non Python proficient ones, can easily add tasks to ETL processes with SAYN.
+* [Automated SQL transformations](https://173tech.github.io/sayn/tasks/autosql/): write your SELECT statement. SAYN turns it into a table/view and manages everything for you.
 * [Jinja parameters](https://173tech.github.io/sayn/parameters/): switch easily between development and product environment and other tricks with Jinja templating.
 * [Python tasks](https://173tech.github.io/sayn/tasks/python/): use Python scripts to complement your extraction and loading layer and build data science models.
 * Multiple [databases](https://173tech.github.io/sayn/databases/overview/) supported.
@@ -32,7 +34,7 @@ SAYN has the following key features:
 SAYN aims to empower data engineers and analysts through its  three core design principles:
 
 * **Simplicity**: data models and processes should be easy to create, scale and maintain. So your team can focus on data transformation instead of writing processes. SAYN orchestrates all your tasks systematically and provides a lot of automation features.
-* **Flexibility**: the power of data is unlimited and so should your tooling. SAYN currently supports both SQL and Python so your analysts can choose the most optimal solution for each process.
+* **Flexibility**: the power of data is unlimited and so should your tooling. SAYN supports both SQL and Python so your analysts can choose the most optimal solution for each process.
 * **Centralisation**: all analytics code should live in one place, making your life easier and allowing dependencies throughout the whole analytics process.
 
 ## Quick Start

@@ -37,7 +37,7 @@ The `sayn_tutorial` folder has the following structure:
 tutorial
 ├── project.yaml
 ├── settings.yaml
-├── dags
+├── tasks
 │   └── base.yaml
 ├── python
 │   ├── __init__.py
@@ -60,7 +60,7 @@ The main files are:
 * `project.yaml`: defines the SAYN project. It is **shared across all collaborators**.
 * `settings.yaml`: defines the individual user's settings. It is **unique for each collaborator and
    should never be pushed to git** as it contains credentials.
-* `dags`: folder where DAG files are stored. SAYN tasks are defined in those files.
+* `tasks`: folder where the task files are stored. Each file is considered a task group.
 * `python`: folder where `python` tasks are stored.
 * `sql`: folder where `sql` and `autosql` tasks are stored.
 * `logs`: folder where SAYN logs are written.
@@ -78,11 +78,8 @@ The `project.yaml` file is at the root level of your directory and contains:
     ```yaml
     required_credentials:
       - warehouse
-    
+
     default_db: warehouse
-    
-    dags:
-      - base
     ```
 
 The following is defined:
@@ -91,7 +88,6 @@ The following is defined:
   credential called `warehouse`. The connection details will be defined in `settings.yaml`.
 * `default_db`: the database used by sql and autosql tasks. Since we only have 1 credential, this
   field can be skipped.
-* `dags`: the list of files in the dags folder that contain this project's task definitions.
 
 ### Step 2: Define your individual settings with `settings.yaml`
 
@@ -106,9 +102,9 @@ The `settings.yaml` file at the root level of your directory and contains:
       prod:
         credentials:
           warehouse: prod_db
-    
+
     default_profile: dev
-    
+
     credentials:
       dev_db:
         type: sqlite
@@ -120,27 +116,21 @@ The `settings.yaml` file at the root level of your directory and contains:
 
 The following is defined:
 
-* `profiles`: the definion of profiles for the project. A profile defines the connection between
-  credentials in the `project.yaml` file and credentials defined below. In this case we define 2
-  profiles dev and prod.
-* `default_profile`: the profile used by default at execution time. It can be overriden using
-  `sayn run -p prod`.
-* `credentials`: here we define the credentials. In this case we have 2 for dev and prod, that are
-  used as `warehouse` on each profile.
+* `profiles`: the definion of profiles for the project. A profile defines the connection between credentials in the `project.yaml` file and credentials defined below. In this case we define 2 profiles dev and prod.
+* `default_profile`: the profile used by default at execution time. It can be overriden using `sayn run -p prod`.
+* `credentials`: here we define the credentials. In this case we have 2 for dev and prod, that are used as `warehouse` on each profile.
 
-### Step 3: Define your DAG(s)
+### Step 3: Define your tasks
 
-In SAYN, DAGs are defined in `yaml` files within the `dags` folder. As seen before, those `dags` are imported in the `project.yaml` file in order to be executed. When importing the DAGs in the `project.yaml` file, you should write the name without the `.yaml` extension.
+In SAYN, tasks are defined in `yaml` files within the `tasks` folder. Each file is considered a task group. Our project contains only one task group: `base.yaml`:
 
-Our project contains only one DAG: `base.yaml`. Below is the file:
-
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     tasks:
       load_data:
         type: python
         class: load_data.LoadData
-    
+
       dim_tournaments:
         type: autosql
         file_name: dim_tournaments.sql
@@ -154,17 +144,15 @@ Our project contains only one DAG: `base.yaml`. Below is the file:
 
 The `tasks` entry contains a map of tasks definitions. In this case we're using 2 types of tasks:
 
-* `python`: lets you define a task written in Python. Python tasks are useful to complete your extraction
-  and load layers if you're using an ELT tool or for data science models defined in Python.
-* `autosql`: lets you write a `SELECT` statement while SAYN manages the table or view creation
-  automatically for you. Our example has multiple `autosql` tasks which create models based on the
-  logs. 
+* `python`: lets you define a task written in Python. Python tasks are useful to complete your extraction and load layers if you're using an ELT tool or for data science models defined in Python.
+* `autosql`: lets you write a `SELECT` statement while SAYN manages the table or view creation automatically for you. Our example has multiple `autosql` tasks which create models based on the logs.
 
-## `load_data` task
+!!! tip
+    Although this tutorial only has one file in the `tasks` folder, you can separate tasks in multiple files. SAYN automatically includes any file from the `tasks` folder with a `.yaml` extension when creating the DAG. Each file is considered a [task group](../tasks/task_group.md).
 
-In our example project the only python task is `load_data` which creates some synthetic logs and loads
-them to our database. The code can be found in the class `LoadData` in `python/load_data.py`. Let's have
-a look at the main elements of a python task
+#### `load_data` task
+
+In our example project the only python task is `load_data` which creates some synthetic logs and loads them to our database. The code can be found in the class `LoadData` in `python/load_data.py`. Let's have a look at the main elements of a python task:
 
 !!! example "python/load_data.py"
     ```python
@@ -179,9 +167,7 @@ a look at the main elements of a python task
 The above is the beginning of the python task. When the execution of `sayn run` hits the `load_data`
 task the code in the `run` method will execute.
 
-A task in SAYN can be split into multiple steps, which is useful for debugging when errors occur. In this
-case, we first generate all data and then we load each dataset one by one. We can define the steps a task
-will follow with the `self.set_run_steps` method.
+A task in SAYN can be split into multiple steps, which is useful for debugging when errors occur. In this case, we first generate all data and then we load each dataset one by one. We can define the steps a task will follow with the `self.set_run_steps` method.
 
 !!! example "python/load_data.py"
     ```python
@@ -224,23 +210,20 @@ To indicate SAYN what step is executing, we can use the following construct:
 
 Here our "Generate Dimensions" step simply generates the dimension variables with an id.
 
-The final core element is accessing databases. In our project we defined a single credential called
-`warehouse` and we made this the `default_db`. To access this we just need to use `self.default_db`.
+The final core element is accessing databases. In our project we defined a single credential called `warehouse` and we made this the `default_db`. To access this we just need to use `self.default_db`.
 
 !!! example "python/load_data.py"
     ```python
     self.default_db.execute(q_create)
     ```
 
-The main method in Database objects is `execute` which accepts a sql script via parameter and executes
-it in a transaction. Another method used in this tutorial is `load_data` which loads a dataset into
-the database automatically creating a table for it first.
+The main method in Database objects is `execute` which accepts a sql script via parameter and executes it in a transaction. Another method used in this tutorial is `load_data` which loads a dataset into the database automatically creating a table for it first.
 
 For more information about how to build `python` tasks, visit the [python tasks section](../tasks/python.md).
 
-## Autosql tasks
+#### Autosql tasks
 
-Let's have a look at one of the autosql tasks (`dim_tournaments`). As you can see in `dag/base.yaml`
+Let's have a look at one of the autosql tasks (`dim_tournaments`). As you can see in `tasks/base.yaml`
 above, we specify a `file_name` which contains:
 
 !!! example "sql/dim_tournaments.yaml"
@@ -250,8 +233,7 @@ above, we specify a `file_name` which contains:
       FROM logs_tournaments l
     ```
 
-So a simple `SELECT` statement that SAYN will use when creating a table called `dim_tournaments` as
-defined in the `destination` field in the dag file.
+This is a simple `SELECT` statement that SAYN will use when creating a table called `dim_tournaments` as defined in the `destination` field in the `base.yaml` file.
 
 For more information about setting up `autosql` tasks, visit the [autosql tasks section](../tasks/autosql.md).
 
@@ -259,12 +241,10 @@ For more information about setting up `autosql` tasks, visit the [autosql tasks 
 
 So far we've used `sayn run` to execute our project, however SAYN provides more options:
 
-* `sayn run -p [profile_name]`: runs the whole project with the specific profile. In our case using
-  the profile `prod` will create a `prod.db` SQLite database and process all data there.
+* `sayn run -p [profile_name]`: runs the whole project with the specific profile. In our case using the profile `prod` will create a `prod.db` SQLite database and process all data there.
 * `sayn run -t [task_name]`: allows the filtering the tasks to run.
 
-More options are available to run specific components of your SAYN project. All details can be
-found in the [SAYN cli](../cli.md) section.
+More options are available to run specific components of your SAYN project. All details can be found in the [SAYN cli](../cli.md) section.
 
 ## What Next?
 
