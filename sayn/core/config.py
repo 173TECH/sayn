@@ -52,7 +52,7 @@ class Project(BaseModel):
     default_db: Optional[str]
     parameters: Optional[Dict[str, Any]] = dict()
     presets: Optional[Dict[str, Dict[str, Any]]] = dict()
-    task_groups = []
+    task_groups: List[str] = []
 
     @validator("required_credentials")
     def required_credentials_are_unique(cls, v):
@@ -64,28 +64,20 @@ class Project(BaseModel):
             raise ValueError(f'default_db value "{v}" not in required_credentials')
         return v
 
-    def set_task_groups(self):
-        task_groups = []
+    @validator("task_groups", pre=True, always=True)
+    def set_task_groups(cls, v):
         for file_name in os.listdir(Path("tasks")):
             if file_name.endswith(".yaml"):
-                task_groups.append(file_name.replace(".yaml", ""))
+                v.append(file_name.replace(".yaml", ""))
+        return v
 
-        # check there is at least 1 task group
-        if len(task_groups) == 0:
-            return Err(
-                "set_project_task_groups", "no_task_group", task_groups=task_groups
+    @validator("task_groups")
+    def task_groups_not_empty(cls, v):
+        if len(v) == 0:
+            raise ValueError(
+                "No YAML file found in the tasks folder. Make sure you are using .yaml extension."
             )
-
-        # check there is no duplicate task group
-        if len(task_groups) != len(set(task_groups)):
-            return Err(
-                "set_project_task_groups",
-                "duplicate_task_groups",
-                task_groups=task_groups,
-            )
-
-        self.task_groups = task_groups
-        return self
+        return v
 
 
 def read_project():
@@ -94,8 +86,7 @@ def read_project():
         return result
 
     try:
-        project = Project(**result.value).set_task_groups()
-        return Ok(project)
+        return Ok(Project(**result.value))
     except ValidationError as e:
         return Exc(e, where="read_project")
 
