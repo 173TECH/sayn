@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field, validator
 
-from ..core.errors import Err, Ok
+from ..core.errors import Err, Exc, Ok
 from ..database import Database
 from .base_sql import BaseSqlTask
 
@@ -22,6 +22,15 @@ class Source(BaseModel):
         else:
             return v
 
+    @validator("db_schema")
+    def can_use_schema(cls, v, values):
+        if v is not None and "NO SET SCHEMA" in values["db_features"]:
+            raise ValueError(
+                f'schema not supported for database of type {values["db_type"]}'
+            )
+
+        return v
+
 
 class Destination(BaseModel):
     db_features: List[str]
@@ -35,6 +44,15 @@ class Destination(BaseModel):
         if v is not None and "NO SET SCHEMA" in values["db_features"]:
             raise ValueError(
                 f'tmp_schema not supported for database of type {values["db_type"]}'
+            )
+
+        return v
+
+    @validator("db_schema")
+    def can_use_schema(cls, v, values):
+        if v is not None and "NO SET SCHEMA" in values["db_features"]:
+            raise ValueError(
+                f'schema not supported for database of type {values["db_type"]}'
             )
 
         return v
@@ -62,8 +80,10 @@ class CopyTask(BaseSqlTask):
         if isinstance(config.get("source"), dict):
             config["source"].update(
                 {
-                    "db_features": self.default_db.sql_features,
-                    "db_type": self.default_db.db_type,
+                    "db_features": self.connections[
+                        config["source"]["db"]
+                    ].sql_features,
+                    "db_type": self.connections[config["source"]["db"]].db_type,
                     "all_dbs": [
                         n
                         for n, c in self.connections.items()
@@ -75,12 +95,17 @@ class CopyTask(BaseSqlTask):
         if isinstance(config.get("destination"), dict):
             config["destination"].update(
                 {
-                    "db_features": self.default_db.sql_features,
-                    "db_type": self.default_db.db_type,
+                    "db_features": self.connections[
+                        config["destination"]["db"]
+                    ].sql_features,
+                    "db_type": self.connections[config["destination"]["db"]].db_type,
                 }
             )
 
-        self.config = Config(**config)
+        try:
+            self.config = Config(**config)
+        except Exception as e:
+            return Exc(e)
 
         self.source_db = self.connections[self.config.source.db]
         self.source_schema = self.config.source.db_schema
@@ -126,22 +151,26 @@ class CopyTask(BaseSqlTask):
 
     def get_columns(self):
         # We get the source table definition
-        result = self.source_db.get_table(
+        source_table_def = self.source_db.get_table(
             self.source_table,
             self.source_schema,
             # columns=[c["name"] for c in self.ddl["columns"]],
             # required_existing=True,
         )
-        if result.is_err:
-            return result
-        self.source_table_def = result.value
+        if source_table_def is None:
+            return Err(
+                "Could not find table {schema}.{table} in database {db}.".format(
+                    schema=self.source_schema,
+                    table=self.source_table,
+                    source_db=self.source_db.name,
+                )
+            )
+        self.source_table_def = source_table_def
 
         if len(self.ddl["columns"]) == 0:
             dst_table_def = None
             if not self.is_full_load:
-                result = self.default_db.get_table(self.table, self.schema)
-                if result.is_ok:
-                    dst_table_def = result.value
+                dst_table_def = self.default_db.get_table(self.table, self.schema)
 
             if dst_table_def is not None:
                 # In incremental loads we use the destination table to determine the columns

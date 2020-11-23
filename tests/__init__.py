@@ -1,7 +1,14 @@
 from contextlib import contextmanager
 import os
+import tempfile
 from pathlib import Path
 import subprocess
+from jinja2 import Environment, FileSystemLoader, StrictUndefined
+
+from sayn.database.creator import create as create_db
+from sayn.tasks.sql import SqlTask
+from sayn.tasks.autosql import AutoSqlTask
+from sayn.tasks.copy import CopyTask
 
 
 @contextmanager
@@ -49,3 +56,81 @@ def run_sayn(*args):
     return subprocess.check_output(
         f"sayn {' '.join(args)}", shell=True, stderr=subprocess.STDOUT
     )
+
+
+# Task Simulators
+
+# create empty tracker class to enable the run to go through
+class VoidTracker:
+    def set_run_steps(self, steps):
+        pass
+
+    def start_step(self, step):
+        pass
+
+    def finish_current_step(self):
+        pass
+
+
+vd = VoidTracker()
+
+
+def simulate_task(type, sql_query=None, run_arguments=dict(), task_params=dict()):
+    if type == "sql":
+        task = SqlTask()
+    elif type == "autosql":
+        task = AutoSqlTask()
+    elif type == "copy":
+        task = CopyTask()
+    else:
+        pass
+
+    task.name = "test_task"  # set for compilation output during run
+    task.dag = "test_dag"  # set for compilation output during run
+    task.run_arguments = {
+        "folders": {"sql": "sql", "compile": "compile"},
+        "command": "run",
+        "debug": False,
+        "full_load": False,
+        **run_arguments,
+    }
+    task.connections = {
+        "test_db": create_db(
+            "test_db", "test_db", {"type": "sqlite", "database": ":memory:"}
+        )
+    }
+    if type == "copy":
+        task.connections.update(
+            {
+                "source_db": create_db(
+                    "source_db", "source_db", {"type": "sqlite", "database": ":memory:"}
+                )
+            }
+        )
+
+    task._default_db = "test_db"
+    task.tracker = vd
+
+    task.jinja_env = Environment(
+        loader=FileSystemLoader(os.getcwd()),
+        undefined=StrictUndefined,
+        keep_trailing_newline=True,
+    )
+    task.jinja_env.globals.update(**task_params)
+
+    if type in ["sql", "autosql"] and sql_query is not None:
+        fpath = Path("sql", "test.sql")
+        fpath.parent.mkdir(parents=True, exist_ok=True)
+        fpath.write_text(sql_query)
+
+    return task
+
+
+def validate_table(db, table_name, expected_data):
+    result = db.select(f"select * from {table_name}")
+    if len(result) != len(expected_data):
+        return False
+    for i in range(len(result)):
+        if result[i] != expected_data[i]:
+            return False
+    return True
