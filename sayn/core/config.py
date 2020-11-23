@@ -52,15 +52,15 @@ class Project(BaseModel):
     default_db: Optional[str]
     parameters: Optional[Dict[str, Any]] = dict()
     presets: Optional[Dict[str, Dict[str, Any]]] = dict()
-    dags: List[str]
+    task_groups: List[str]
 
     @validator("required_credentials")
     def required_credentials_are_unique(cls, v):
         return is_unique("required_credentials", v)
 
-    @validator("dags")
-    def dags_are_unique(cls, v):
-        return is_unique("dags", v)
+    @validator("task_groups")
+    def task_groups_are_unique(cls, v):
+        return is_unique("task_groups", v)
 
     @validator("default_db")
     def default_db_exists(cls, v, values, **kwargs):
@@ -85,17 +85,17 @@ class Dag(BaseModel):
     tasks: Dict[str, Dict[str, Any]]
 
 
-def read_dags(dags):
+def read_task_groups(task_groups):
     out = dict()
-    for name in dags:
-        result = read_yaml_file(Path("dags", f"{name}.yaml"))
+    for name in task_groups:
+        result = read_yaml_file(Path("tasks", f"{name}.yaml"))
         if result.is_err:
             return result
         else:
             try:
                 out[name] = Dag(**result.value)
             except ValidationError as e:
-                return Exc(e, where="read_dags")
+                return Exc(e, where="read_tasks")
 
     return Ok(out)
 
