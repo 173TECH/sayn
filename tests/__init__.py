@@ -26,12 +26,14 @@ def inside_dir(dirpath):
 
 
 @contextmanager
-def create_project(dirpath, settings=None, project=None, dags=dict(), env=dict()):
+def create_project(
+    dirpath, settings=None, project=None, task_groups=dict(), env=dict()
+):
     """
     Execute code from inside the given directory, creating the sayn project files
     :param settings: String, yaml for a settings.yaml file
     :param project: String, yaml for a project.yaml file
-    :param dags: Dict, dict of yaml for the contents of the dags folder
+    :param task_groups: Dict, dict of yaml for the contents of the tasks folder
     """
     old_path = os.getcwd()
     try:
@@ -40,9 +42,9 @@ def create_project(dirpath, settings=None, project=None, dags=dict(), env=dict()
             Path(dirpath, "settings.yaml").write_text(settings)
         if project is not None:
             Path(dirpath, "project.yaml").write_text(project)
-        if len(dags) > 0:
-            for name, dag in dags.items():
-                Path(dirpath, f"{name}.yaml").write_text(dag)
+        if len(task_groups) > 0:
+            for name, task_group in task_groups.items():
+                Path(dirpath, f"{name}.yaml").write_text(task_group)
         if len(env) > 0:
             os.environ.update(env)
         yield

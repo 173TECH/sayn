@@ -280,8 +280,10 @@ class LogFormatter:
 
         elif error.kind == "task_type" and error.code == "invalid_task_type_error":
             level = "error"
+            task_group = error.details["task_group"]
+            task_type = error.details["type"]
             message = self.bad(
-                f"""Task error in DAG: {error.details['dag']}. Invalid task type: {error.details['type']}.
+                f"""Task error in task group: {task_group}. Invalid task type: {task_type}.
 
             Current Valid Task Types:
 

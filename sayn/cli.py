@@ -116,13 +116,13 @@ def click_filter(func):
         "--tasks",
         "-t",
         multiple=True,
-        help="Task query to INCLUDE in the execution: [+]task_name[+], dag:dag_name, tag:tag_name",
+        help="Task query to INCLUDE in the execution: [+]task_name[+], group:group_name, tag:tag_name",
     )(func)
     func = click.option(
         "--exclude",
         "-x",
         multiple=True,
-        help="Task query to EXCLUDE in the execution: [+]task_name[+], dag:dag_name, tag:tag_name",
+        help="Task query to EXCLUDE in the execution: [+]task_name[+], group:group_name, tag:tag_name",
     )(func)
     return func
 
