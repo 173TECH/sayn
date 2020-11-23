@@ -302,14 +302,7 @@ class LogFormatter:
             and "exception" in error.details
         ):
             level = "error"
-            try:
-                x = (error.details["exception"].name).split(".", maxsplit=1)[1]
-                message = self.bad(f"File not found: {x}.py")
-
-            except AttributeError:
-                message = self.bad(
-                    f"Error in DAG. Python task requires a valid class parameter to run."
-                )
+            message = self.bad(str(error.details["exception"]))
 
         elif (
             error.kind == "python_loader"
