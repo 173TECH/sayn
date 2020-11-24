@@ -10,7 +10,7 @@ sql_query_multi = (
 
 def test_sql_task(tmp_path):
     # test correct setup and run based for correct sql
-    with inside_dir(str(tmp_path)):
+    with inside_dir(tmp_path):
         task = simulate_task("sql", sql_query=sql_query)
 
         # setup
@@ -27,7 +27,7 @@ def test_sql_task(tmp_path):
 
 def test_sql_task_compile(tmp_path):
     # test correct setup and compile for correct sql
-    with inside_dir(str(tmp_path)):
+    with inside_dir(tmp_path):
         task = simulate_task(
             "sql", sql_query=sql_query, run_arguments={"command": "compile"}
         )
@@ -45,7 +45,7 @@ def test_sql_task_compile(tmp_path):
 
 def test_sql_task_param(tmp_path):
     # test correct setup and run for correct sql with parameter
-    with inside_dir(str(tmp_path)):
+    with inside_dir(tmp_path):
         task = simulate_task(
             "sql", sql_query=sql_query_param, task_params={"user_prefix": "tu_"}
         )
@@ -63,7 +63,7 @@ def test_sql_task_param(tmp_path):
 
 def test_sql_task_param_err(tmp_path):
     # test setup error for correct sql but missing parameter
-    with inside_dir(str(tmp_path)):
+    with inside_dir(tmp_path):
         task = simulate_task("sql", sql_query=sql_query_param)
 
         # setup
@@ -73,7 +73,7 @@ def test_sql_task_param_err(tmp_path):
 
 def test_sql_task_run_err(tmp_path):
     # test correct setup and run error for incorrect sql
-    with inside_dir(str(tmp_path)):
+    with inside_dir(tmp_path):
         task = simulate_task("sql", sql_query=sql_query_err)
 
         # setup
@@ -87,7 +87,7 @@ def test_sql_task_run_err(tmp_path):
 
 def test_sql_task_run_multi_statements(tmp_path):
     # test correct setup and run for multiple sql statements
-    with inside_dir(str(tmp_path)):
+    with inside_dir(tmp_path):
         task = simulate_task("sql", sql_query=sql_query_multi)
 
         # setup
