@@ -1,9 +1,8 @@
-# This tutorial is composed of one DAG
-# Please see the DAG section of the documentation for more details:
-# https://173tech.github.io/sayn/dags/
+# This tutorial is composed of one task group (base)
+# Please see the task overview section of the documentation for more details:
+# https://173tech.github.io/sayn/tasks/overview/
 
-# DAGs define at minimum a set of tasks
-# Those will be run for this DAG when SAYN runs
+# Task groups define at minimum a set of tasks
 # To run the tutorial, run the command 'sayn run' from the project folder's root
 tasks:
   # python

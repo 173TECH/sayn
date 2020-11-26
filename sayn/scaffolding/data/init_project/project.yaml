@@ -7,7 +7,3 @@ required_credentials:
 
 # Credential used by sql and autosql tasks
 default_db: warehouse
-
-dags:
-  # List of yaml files in the dags folder to be considered by this project
-  - base

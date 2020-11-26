@@ -9,7 +9,7 @@ do. They are extremely useful for data extraction or data science models.
 
 A `python` task is defined as follows:
 
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     task_python:
       type: python

@@ -1,4 +1,4 @@
-This is an example SAYN project. It shows you how to implement and use SAYN for data modelling and processing.
+This is an example SAYN project. It shows you how to implement and use SAYN for data processing and modelling.
 
 For more details, you can see the documentation here: https://173tech.github.io/sayn/
 
@@ -10,14 +10,14 @@ SAYN uses 2 key files to control the project:
   - project.yaml: project settings which are shared across all collaborators on the project
 
 SAYN code is stored in 3 main folders:
-  - dags: where the SAYN dags and tasks are defined
-  - sql: for SQL tasks
-  - python: for python tasks
+  - tasks: where the SAYN tasks are defined. Each YAML file in this folder represents a task group.
+  - sql: code for SQL tasks
+  - python: code for python tasks
 
 SAYN uses some key commands for run:
   - sayn run: run the whole project
     - -p flag to specify a profile when running sayn: e.g. sayn run -p prod
     - -t flag to specify tasks to run: e.g. sayn run -t task_name
-    - -t dag:dag_name to specify a dag to run: e.g. sayn run -t dag:dag_name
+    - -t group:group_name to specify a task group to run: e.g. sayn run -t group:group_name
   - sayn compile: compiles the code (similar flags apply)
   - sayn --help for full detail on commands

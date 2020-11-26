@@ -6,7 +6,7 @@ SAYN projects are structured as follows:
 tutorial
 ├── project.yaml
 ├── settings.yaml
-├── dags
+├── tasks
 │   └── base.yaml
 ├── python
 │   ├── __init__.py
@@ -29,7 +29,7 @@ tutorial
 
 * `project.yaml`: defines the core components of the SAYN project. It is **shared across all collaborators**.
 * `settings.yaml`: defines the individual user's settings. It is **unique for each collaborator and should never be pushed to git** as it contains credentials.
-* `dags`: folder where `dag` files are stored. SAYN tasks are defined in those files.
+* `tasks`: folder where the task files are stored. Each file is considered a task group.
 * `python`: folder where `python` tasks are stored.
 * `sql`: folder where `sql` and `autosql` tasks are stored.
 * `logs`: folder where SAYN logs are written.

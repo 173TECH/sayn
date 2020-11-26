@@ -519,7 +519,7 @@ class Database:
         """
         table = f"{schema+'.' if schema else ''}{table}"
 
-        # we reshape the insert statement to avoid conflict if columns are not specified in same order between query and dag file
+        # we reshape the insert statement to avoid conflict if columns are not specified in same order between query and task group file
         if columns is not None:
             select = "SELECT i." + "\n, i.".join(columns) + f"\n\nFROM ({select}) AS i"
             columns = "(" + ", ".join(columns) + ")"

@@ -10,7 +10,7 @@ sql_query_incremental = (
 
 
 def test_autosql_task_table(tmp_path):
-    with inside_dir(str(tmp_path)):
+    with inside_dir(tmp_path):
         task = simulate_task("autosql", sql_query=sql_query)
 
         # setup
@@ -44,7 +44,7 @@ def test_autosql_task_table(tmp_path):
 
 
 def test_autosql_task_view(tmp_path):
-    with inside_dir(str(tmp_path)):
+    with inside_dir(tmp_path):
         task = simulate_task("autosql", sql_query=sql_query)
 
         # setup
@@ -72,7 +72,7 @@ def test_autosql_task_view(tmp_path):
 
 
 def test_autosql_task_incremental(tmp_path):
-    with inside_dir(str(tmp_path)):
+    with inside_dir(tmp_path):
         task = simulate_task("autosql", sql_query=sql_query_incremental)
 
         # create source table
@@ -116,7 +116,7 @@ def test_autosql_task_incremental(tmp_path):
 
 
 def test_autosql_task_compile(tmp_path):
-    with inside_dir(str(tmp_path)):
+    with inside_dir(tmp_path):
         task = simulate_task(
             "autosql", sql_query=sql_query, run_arguments={"command": "compile"}
         )
@@ -143,7 +143,7 @@ def test_autosql_task_compile(tmp_path):
 
 
 def test_autosql_task_param(tmp_path):
-    with inside_dir(str(tmp_path)):
+    with inside_dir(tmp_path):
         task = simulate_task(
             "autosql", sql_query=sql_query_param, task_params={"number": 1}
         )
@@ -163,7 +163,7 @@ def test_autosql_task_param(tmp_path):
 
 
 def test_autosql_task_config_error1(tmp_path):
-    with inside_dir(str(tmp_path)):
+    with inside_dir(tmp_path):
         task = simulate_task("autosql", sql_query=sql_query)
 
         # setup
@@ -176,7 +176,7 @@ def test_autosql_task_config_error1(tmp_path):
 
 
 def test_autosql_task_config_error2(tmp_path):
-    with inside_dir(str(tmp_path)):
+    with inside_dir(tmp_path):
         task = simulate_task("autosql", sql_query=sql_query)
 
         # setup
@@ -190,7 +190,7 @@ def test_autosql_task_config_error2(tmp_path):
 
 def test_autosql_task_config_error3(tmp_path):
     # tests missing parameters for jinja compilation
-    with inside_dir(str(tmp_path)):
+    with inside_dir(tmp_path):
         task = simulate_task("autosql", sql_query=sql_query_param)
 
         # setup
@@ -204,7 +204,7 @@ def test_autosql_task_config_error3(tmp_path):
 
 def test_autosql_task_run_error(tmp_path):
     # tests failure with erratic sql
-    with inside_dir(str(tmp_path)):
+    with inside_dir(tmp_path):
         task = simulate_task("autosql", sql_query=sql_query_err)
 
         # setup
@@ -279,7 +279,7 @@ def test_autosql_task_run_error(tmp_path):
 
 def test_autosql_task_run_ddl_diff_col_order(tmp_path):
     # test that autosql with ddl columns creates a table with order similar to ddl definition
-    with inside_dir(str(tmp_path)):
+    with inside_dir(tmp_path):
         task = simulate_task("autosql", sql_query=sql_query_ddl_diff_col_order)
 
         # setup

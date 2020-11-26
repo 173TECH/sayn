@@ -13,7 +13,7 @@ from .core.app import App
 from .core.config import (
     cleanup_compilation,
     read_project,
-    read_dags,
+    read_task_groups,
     read_settings,
     get_tasks_dict,
 )
@@ -61,7 +61,7 @@ class CliApp(App):
 
         # Read the project configuration
         project = self.check_abort(read_project())
-        dags = self.check_abort(read_dags(project.dags))
+        task_groups = self.check_abort(read_task_groups(project.task_groups))
         self.set_project(project)
         settings = self.check_abort(read_settings())
         self.check_abort(self.set_settings(settings))
@@ -76,7 +76,7 @@ class CliApp(App):
             )
 
         # Set tasks and dag from it
-        tasks_dict = self.check_abort(get_tasks_dict(project.presets, dags))
+        tasks_dict = self.check_abort(get_tasks_dict(project.presets, task_groups))
         task_query = self.check_abort(
             get_query(tasks_dict, include=include, exclude=exclude)
         )
@@ -116,13 +116,13 @@ def click_filter(func):
         "--tasks",
         "-t",
         multiple=True,
-        help="Task query to INCLUDE in the execution: [+]task_name[+], dag:dag_name, tag:tag_name",
+        help="Task query to INCLUDE in the execution: [+]task_name[+], group:group_name, tag:tag_name",
     )(func)
     func = click.option(
         "--exclude",
         "-x",
         multiple=True,
-        help="Task query to EXCLUDE in the execution: [+]task_name[+], dag:dag_name, tag:tag_name",
+        help="Task query to EXCLUDE in the execution: [+]task_name[+], group:group_name, tag:tag_name",
     )(func)
     return func
 
@@ -198,13 +198,13 @@ def dag_image(debug, tasks, exclude):
     else:
         project = result.value
 
-    result = read_dags(project.dags)
+    result = read_task_groups(project.task_groups)
     if result.is_err:
         handle_error()
     else:
-        dags = result.value
+        task_groups = result.value
 
-    result = get_tasks_dict(project.presets, dags)
+    result = get_tasks_dict(project.presets, task_groups)
     if result.is_err:
         handle_error()
     else:

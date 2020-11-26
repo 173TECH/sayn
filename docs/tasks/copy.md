@@ -9,7 +9,7 @@ ingest data from operational databases (e.g. PostgreSQL) to your analytics wareh
 
 A `copy` task is defined as follows:
 
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     task_copy:
       type: copy
@@ -44,7 +44,7 @@ load by adding `incremental_key` and `delete_key`:
   will delete any data in the destination table with a `delete_key` value found in the new dataset
   obtained before inserting.
 
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     task_copy:
       type: copy
@@ -70,7 +70,7 @@ based on the `id`s found in this new dataset.
 specification, we can override the default behaviour of copy when it comes to column types by enforcing
 specific column types in the final table:
 
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     task_copy:
       type: copy

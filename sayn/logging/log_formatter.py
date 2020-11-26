@@ -280,8 +280,10 @@ class LogFormatter:
 
         elif error.kind == "task_type" and error.code == "invalid_task_type_error":
             level = "error"
+            task_group = error.details["task_group"]
+            task_type = error.details["type"]
             message = self.bad(
-                f"""Task error in DAG: {error.details['dag']}. Invalid task type: {error.details['type']}.
+                f"""Task error in task group: {task_group}. Invalid task type: {task_type}.
 
             Current Valid Task Types:
 
@@ -302,14 +304,7 @@ class LogFormatter:
             and "exception" in error.details
         ):
             level = "error"
-            try:
-                x = (error.details["exception"].name).split(".", maxsplit=1)[1]
-                message = self.bad(f"File not found: {x}.py")
-
-            except AttributeError:
-                message = self.bad(
-                    f"Error in DAG. Python task requires a valid class parameter to run."
-                )
+            message = self.bad(str(error.details["exception"]))
 
         elif (
             error.kind == "python_loader"
