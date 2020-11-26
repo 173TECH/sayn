@@ -6,13 +6,11 @@
 
 #
 
-SAYN is a modern data processing and modelling framework. It empowers data engineers and analysts reach data zen whilst gaining significant efficiency through three core principles: simplicity, flexibility, centralisation.
-
-Its several task types (covering Python, automated SQL transformations and more) facilitate processes automation and the creation of robust data infrastructures in minutes. SAYN is currently used in production for ETL/ELT processes with hundreds of tasks.
+SAYN is a modern data processing and modelling framework. Users define tasks (incl. Python, automated SQL transformations and more) and their relationships, SAYN takes care of the rest. It is designed for simplicity, flexibility and centralisation in order to bring significant efficiency gains to the data engineering workflow.
 
 ## Use Cases
 
-SAYN can be used for multiple purposes across the analytics workflow:
+SAYN can be used for multiple purposes across the data engineering and analytics workflows:
 
 * Data extraction: complement tools such as Fivetran or Stitch with customised extraction processes.
 * Data modelling: transform raw data in your data warehouse (e.g. aggregate activity or sessions, calculate marketing campaign ROI, etc.).

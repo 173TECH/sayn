@@ -75,14 +75,6 @@ class Project(BaseModel):
 
         return task_groups
 
-    # @validator("task_groups")
-    # def task_groups_not_empty(cls, v):
-    #    if len(v) == 0:
-    #        raise ValueError(
-    #            "No YAML file found in the tasks folder. Make sure you are using .yaml extension."
-    #        )
-    #    return v
-
 
 def read_project():
     result = read_yaml_file(Path("project.yaml"))
