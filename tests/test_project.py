@@ -3,6 +3,8 @@ from pathlib import Path
 from sayn.core.config import read_project
 from . import inside_dir
 
+# utils
+
 
 def setup_project_and_tasks(project_yaml=None, base_yaml=None):
     # create the project.yaml file
@@ -17,6 +19,9 @@ def setup_project_and_tasks(project_yaml=None, base_yaml=None):
         fpath2.write_text(base_yaml)
     else:
         Path("tasks").mkdir(parents=True, exist_ok=True)
+
+
+# tests
 
 
 def test_project(tmp_path):

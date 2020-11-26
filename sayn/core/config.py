@@ -66,18 +66,22 @@ class Project(BaseModel):
 
     @validator("task_groups", pre=True, always=True)
     def set_task_groups(cls, v):
-        for file_name in os.listdir(Path("tasks")):
-            if file_name.endswith(".yaml"):
-                v.append(file_name.replace(".yaml", ""))
-        return v
+        task_groups = [f.name[:-5] for f in Path("tasks").glob("*.yaml")]
 
-    @validator("task_groups")
-    def task_groups_not_empty(cls, v):
-        if len(v) == 0:
+        if len(task_groups) == 0:
             raise ValueError(
                 "No YAML file found in the tasks folder. Make sure you are using .yaml extension."
             )
-        return v
+
+        return task_groups
+
+    # @validator("task_groups")
+    # def task_groups_not_empty(cls, v):
+    #    if len(v) == 0:
+    #        raise ValueError(
+    #            "No YAML file found in the tasks folder. Make sure you are using .yaml extension."
+    #        )
+    #    return v
 
 
 def read_project():

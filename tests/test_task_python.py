@@ -3,6 +3,8 @@ from pathlib import Path
 from sayn.utils.python_loader import PythonLoader
 from . import inside_dir
 
+# utils
+
 
 def initiate_python_setup(module=None, module_content=None):
     fpath = Path("python", "__init__.py")
@@ -12,6 +14,9 @@ def initiate_python_setup(module=None, module_content=None):
     if module is not None:
         fpath = Path("python", f"{module}.py")
         fpath.write_text(module_content)
+
+
+# tests
 
 
 def test_python(tmp_path):
