@@ -276,6 +276,8 @@ def test_autosql_task_run_error(tmp_path):
 #            run_result = task.run()
 #            assert run_result.is_ok
 
+# add test pk defined differently in indexes and columns returns error
+
 
 def test_autosql_task_run_ddl_diff_col_order(tmp_path):
     # test that autosql with ddl columns creates a table with order similar to ddl definition

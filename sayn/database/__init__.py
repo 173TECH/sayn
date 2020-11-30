@@ -23,6 +23,9 @@ class DDL(BaseModel):
 
     columns: Optional[List[Union[str, Column]]] = list()
     indexes: Optional[Dict[str, Index]] = dict()
+    primary_key: Optional[
+        List[str]
+    ] = []  # logic field - i.e. not added by the user in the ddl definition
     permissions: Optional[Dict[str, str]] = dict()
 
     @validator("columns")
@@ -59,15 +62,15 @@ class DDL(BaseModel):
 
         return v
 
-    @validator("indexes")
-    def pk_match(cls, v, values):
+    @validator("primary_key", pre=True, always=True)
+    def set_pk(cls, v, values):
         columns_pk = set()
         for c in values.get("columns"):
             if c.primary:
                 columns_pk.add(c.name)
         indexes_pk = set()
-        if v.get("primary_key") is not None:
-            indexes_pk = set(v.get("primary_key").columns)
+        if values.get("indexes", {}).get("primary_key") is not None:
+            indexes_pk = set(values.get("indexes").get("primary_key").columns)
         if len(columns_pk) > 0 and len(indexes_pk) > 0:
             if columns_pk != indexes_pk:
                 columns_pk_str = " ,".join(columns_pk)
@@ -76,18 +79,10 @@ class DDL(BaseModel):
                     f"Primary key defined in indexes ({indexes_pk_str}) does not match primary key defined in columns ({columns_pk_str})."
                 )
 
-        return v
+        pk = columns_pk if len(columns_pk) > 0 else indexes_pk
+        pk = [c for c in pk]
 
-    # def get_pk(self):
-    #    pk = []
-    #    for c in self.columns:
-    #        if c.primary:
-    #            pk.append(c.name)
-    #    if len(pk) == 0:
-    #        if self.indexes.get("primary_key") is not None:
-    #            pk = self.indexes.get("primary_key").columns
-    #    pk = pk if len(pk) > 0 else None
-    #    return pk
+        return pk
 
     def get_ddl(self):
         return {
@@ -96,7 +91,7 @@ class DDL(BaseModel):
             ],
             "indexes": {k: v.dict() for k, v in self.indexes.items()},
             "permissions": self.permissions,
-            # "primary_key": self.get_pk()
+            "primary_key": self.primary_key,
         }
 
 
@@ -123,7 +118,7 @@ class Database:
     #   - INSERT TABLE NO PARENTHESES
     #   - DROP CASCADE
     #   - NO SET SCHEMA
-    #   - PRIMARY KEY CREATE DDL ONLY
+    #   - NO ALTER INDEXES
 
     def __init__(self, name, name_in_settings, db_type, common_params):
         self.name = name
@@ -392,11 +387,19 @@ class Database:
             ]
         )
 
+        if len(ddl["primary_key"]) > 0:
+            pk = " ,".join(
+                ddl.pop("primary_key")
+            )  # we pop the primary key to ensure it is not used again in the create_indexes step
+            pk = f", PRIMARY KEY ({pk})"
+        else:
+            pk = ""
+
         q = ""
         if_not_exists = (
             " IF NOT EXISTS" if "CREATE IF NOT EXISTS" in self.sql_features else ""
         )
-        q += f"CREATE TABLE{if_not_exists} {table} (\n      {columns}\n);"
+        q += f"CREATE TABLE{if_not_exists} {table} (\n      {columns}\n{pk}\n);"
 
         if execute:
             self.execute(q)
@@ -424,22 +427,10 @@ class Database:
             if idx != "primary_key"
         }
 
-        # set the primary key, setting it from indexes takes precedence
         q = ""
-        if "primary_key" in ddl.get("indexes", dict()):
-            pk_cols = ", ".join(ddl["indexes"]["primary_key"]["columns"])
+        if len(ddl.get("primary_key", {})) > 0:
+            pk_cols = ", ".join(ddl.get("primary_key"))
             q += f"ALTER TABLE {table} ADD PRIMARY KEY ({pk_cols});"
-        # else:
-        #    # collate primary key from columns if exists -- should be refactored so this is done when ddl is interpreted and we don't have to implement this logic here
-        #    pk_cols_list = []
-        #    if ddl.get("columns") is not None:
-        #        for c_def in ddl.get("columns"):
-        #            if c_def.get("primary") is True:
-        #                pk_cols.append(c_def.get("name"))
-        #
-        #    if pk_cols_list:
-        #        pk_cols = ", ".join(pk_cols_list)
-        #        q += f"ALTER TABLE {table} ADD PRIMARY KEY ({pk_cols});"
 
         q += "\n".join(
             [
@@ -566,21 +557,29 @@ class Database:
         else:
             change_schema = ""
 
+        pk_alter = []
+        if len(ddl.get("primary_key", {})) > 0:
+            # Change primary key name
+            pk_alter.append(
+                f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_pkey RENAME TO {dst_table}_pkey;"
+            )
+
         idx_alter = []
         if ddl.get("indexes") is not None:
             # Change index names
             for idx in ddl["indexes"].keys():
-                if idx == "primary_key":
-                    # Primary keys are called as the table
-                    idx_alter.append(
-                        f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_pkey RENAME TO {dst_table}_pkey;"
-                    )
-                else:
-                    idx_alter.append(
-                        f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx} RENAME TO {dst_table}_{idx};"
-                    )
+                if idx != "primary_key":
+                    if "NO ALTER INDEXES" in self.sql_features:
+                        idx_cols = " ,".join(ddl["indexes"][idx]["columns"])
+                        idx_alter.append(
+                            f"DROP INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx};\nCREATE INDEX {dst_table}_{idx} ON {dst_table}({idx_cols});"
+                        )
+                    else:
+                        idx_alter.append(
+                            f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx} RENAME TO {dst_table}_{idx};"
+                        )
 
-        q = "\n".join([rename, change_schema] + idx_alter)
+        q = "\n".join([rename, change_schema] + pk_alter + idx_alter)
 
         if execute:
             self.execute(q)
