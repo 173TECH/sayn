@@ -165,7 +165,7 @@ class Database:
         with self.engine.connect().execution_options(autocommit=True) as connection:
             connection.execute(script)
 
-    def select(self, query, **params):
+    def read_data(self, query, **params):
         """Executes the query and returns a list of dictionaries with the data.
 
         Args:
@@ -184,10 +184,10 @@ class Database:
 
         return [dict(zip(res.keys(), r)) for r in res.fetchall()]
 
-    def select_stream(self, query, **params):
+    def _read_data_stream(self, query, **params):
         """Executes the query and returns an iterator dictionaries with the data.
 
-        The main difference with select() is that this method executes the query with a server-side
+        The main difference with read_data() is that this method executes the query with a server-side
         cursor (sqlalchemy stream_results = True).
 
         Args:
@@ -216,7 +216,7 @@ class Database:
             data (list): A list of dictionaries to load
             schema (str): An optional schema to reference the table
         """
-        table_def = self.get_table(table, schema)
+        table_def = self._get_table(table, schema)
         if table_def is None:
             raise DBError(
                 self.name,
@@ -249,7 +249,7 @@ class Database:
         batch_size = batch_size or self.max_batch_rows
         buffer = list()
         if replace:
-            self.drop_table(table, schema, execute=True)
+            self._drop_table(table, schema, execute=True)
 
         result = self._validate_ddl(ddl)
         if result.is_err:
@@ -263,7 +263,7 @@ class Database:
             ddl = result.value
 
         check_create = True
-        table_exists_prior_load = self.table_exists(table, schema)
+        table_exists_prior_load = self._table_exists(table, schema)
 
         for i, record in enumerate(data):
             if check_create and not table_exists_prior_load:
@@ -277,7 +277,7 @@ class Database:
                     ]
                     ddl = dict(ddl, columns=columns)
 
-                self.create_table_ddl(table, schema, ddl, execute=True)
+                self._create_table_ddl(table, schema, ddl, execute=True)
                 check_create = False
 
             if i % batch_size == 0 and len(buffer) > 0:
@@ -289,7 +289,7 @@ class Database:
         if len(buffer) > 0:
             self._load_data_batch(table, buffer, schema)
 
-    def get_table(self, table, schema):
+    def _get_table(self, table, schema):
         """Create a SQLAlchemy Table object.
 
         Args:
@@ -307,8 +307,8 @@ class Database:
             )
             return table_def
 
-    def table_exists(self, table, schema):
-        return self.get_table(table, schema) is not None
+    def _table_exists(self, table, schema):
+        return self._get_table(table, schema) is not None
 
     # ETL steps
     # =========
@@ -316,10 +316,10 @@ class Database:
     # copy tasks. Can optionally also execute the
     # sql if `execute=True`
 
-    def create_table_select(
+    def _create_table_select(
         self, table, schema, select, view=False, ddl=dict(), execute=False
     ):
-        """Returns SQL code for a create table from a select statment.
+        """Returns SQL code for a create table from a select statement.
 
         Args:
             table (str): The target table name
@@ -350,8 +350,8 @@ class Database:
 
         return q
 
-    def create_table_ddl(self, table, schema, ddl, execute=False):
-        """Returns SQL code for a create table from a select statment.
+    def _create_table_ddl(self, table, schema, ddl, execute=False):
+        """Returns SQL code for a create table from a select statement.
 
         Args:
             table (str): The target table name
@@ -406,7 +406,7 @@ class Database:
 
         return q
 
-    def create_indexes(self, table, schema, ddl, execute=False):
+    def _create_indexes(self, table, schema, ddl, execute=False):
         """Returns SQL to create indexes from ddl.
 
         Args:
@@ -445,7 +445,7 @@ class Database:
         return q
 
     def grant_permissions(self, table, schema, ddl, execute=False):
-        """Returns a set of GRANT statments.
+        """Returns a set of GRANT statements.
 
         Args:
             table (str): The target table name
@@ -468,7 +468,7 @@ class Database:
 
         return q
 
-    def drop_table(self, table, schema, view=False, execute=False):
+    def _drop_table(self, table, schema, view=False, execute=False):
         """Returns a DROP statement.
 
         Args:
@@ -495,8 +495,8 @@ class Database:
 
         return q
 
-    def insert(self, table, schema, select, columns=None, execute=False):
-        """Returns an INSERT statment from a SELECT query.
+    def _insert(self, table, schema, select, columns=None, execute=False):
+        """Returns an INSERT statement from a SELECT query.
 
         Args:
             table (str): The target table name
@@ -527,13 +527,13 @@ class Database:
 
         return q
 
-    def move_table(
+    def _move_table(
         self, src_table, src_schema, dst_table, dst_schema, ddl, execute=False
     ):
         """Returns SQL code to rename a table and change schema.
 
         Note:
-            Table movement is performed as a series of ALTER statments:
+            Table movement is performed as a series of ALTER statements:
 
               * ALTER TABLE RENAME
               * ALTER TABLE SET SCHEMA (if the database supports it)
@@ -586,7 +586,7 @@ class Database:
 
         return q
 
-    def merge_tables(
+    def _merge_tables(
         self,
         src_table,
         src_schema,
@@ -627,7 +627,7 @@ class Database:
         )
 
         select = f"SELECT * FROM {src}"
-        insert = self.insert(dst_table, dst_schema, select, columns=columns)
+        insert = self._insert(dst_table, dst_schema, select, columns=columns)
         q = "\n".join((delete, insert))
 
         if execute:

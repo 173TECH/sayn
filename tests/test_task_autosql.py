@@ -35,7 +35,7 @@ def test_autosql_task_table(tmp_path):
         assert validate_table(task.default_db, "test_autosql_task", [{"x": 1}],)
         assert (
             len(
-                task.default_db.select(
+                task.default_db.read_data(
                     'SELECT * FROM sqlite_master WHERE type="table" AND NAME = "test_autosql_task"'
                 )
             )
@@ -63,7 +63,7 @@ def test_autosql_task_view(tmp_path):
         assert validate_table(task.default_db, "test_autosql_task", [{"x": 1}],)
         assert (
             len(
-                task.default_db.select(
+                task.default_db.read_data(
                     'SELECT * FROM sqlite_master WHERE type="view" AND NAME = "test_autosql_task"'
                 )
             )

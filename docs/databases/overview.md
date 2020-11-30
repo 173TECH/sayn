@@ -67,8 +67,7 @@ Databases and other credentials defined in the SAYN project are available to Pyt
 gives you access to the default database declared in `project.yaml`.
 
 The [database python class](../api/database.md) provides several methods and properties to make it
-easier to work with python tasks. For example, `self.default_db.engine` can be used to to call 
-`DataFrame.read_sql` from pandas, but also provides some other convenient methods.
+easier to work with python tasks. For example you can easily read or load data with `self.default_db` (see example below) or use `self.default_db.engine` to call `DataFrame.read_sql` from pandas.
 
 !!! example "Example PythonTask"
     ``` python hl_lines="5"
@@ -76,16 +75,7 @@ easier to work with python tasks. For example, `self.default_db.engine` can be u
 
     class TaskPython(PythonTask):
         def run(self):
-            data = self.default_db.select("SELECT * FROM test_table")
+            data = self.default_db.read_data("SELECT * FROM test_table")
 
             # do something with that data
     ```
-
-## Database class
-
-::: sayn.database.Database
-    selection:
-      members:
-        - execute
-        - select
-        - load_data
