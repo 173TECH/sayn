@@ -129,7 +129,7 @@ def simulate_task(type, sql_query=None, run_arguments=dict(), task_params=dict()
 
 
 def validate_table(db, table_name, expected_data):
-    result = db.select(f"select * from {table_name}")
+    result = db.read_data(f"select * from {table_name}")
     if len(result) != len(expected_data):
         return False
     for i in range(len(result)):

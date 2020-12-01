@@ -7,19 +7,18 @@ db_parameters = ["database"]
 
 
 class SQLiteDDL(DDL):
-    @validator("columns")
-    def pk_in_columns(cls, v, values):
-        for c in v:
-            if c.primary:
-                raise ValueError(
-                    "Primary key not currently supported for SQLite in SAYN."
-                )
-        return v
-
     @validator("indexes")
+    # for SQLite, primary_key is only allowed in indexes if defined as well in columns as SQLite does not support ALTER for primary keys
     def pk_in_indexes(cls, v, values):
         if "primary_key" in v.keys():
-            raise ValueError("Primary key not currently supported for SQLite in SAYN.")
+            col_pk = False
+            for c in values.get("columns", []):
+                if c.primary:
+                    col_pk = True
+            if not col_pk:
+                raise ValueError(
+                    "Setting a primary key for SQLite in SAYN requires to use the columns definition in the ddl entry."
+                )
         return v
 
 
@@ -30,7 +29,7 @@ class Sqlite(Database):
         "CREATE TABLE NO PARENTHESES",
         "INSERT TABLE NO PARENTHESES",
         "NO SET SCHEMA",
-        # "PRIMARY KEY CREATE DDL ONLY",
+        "NO ALTER INDEXES",
     ]
 
     def create_engine(self, settings):

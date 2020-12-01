@@ -31,7 +31,7 @@ class Snowflake(Database):
         conn.connection.commit()
         conn.connection.close()
 
-    def move_table(
+    def _move_table(
         self, src_table, src_schema, dst_table, dst_schema, ddl, execute=False
     ):
         drop = (

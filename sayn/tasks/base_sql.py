@@ -17,7 +17,7 @@ class BaseSqlTask(Task):
         # For incremental loads, manipulate the "Merge" steps depending on whether
         # the target table exists or not. This is done so we can delay the introspection
         if "Merge" in self.steps and self.run_arguments["command"] == "run":
-            self.target_table_exists = self.default_db.table_exists(
+            self.target_table_exists = self.default_db._table_exists(
                 self.table, self.schema
             )
 
@@ -42,7 +42,7 @@ class BaseSqlTask(Task):
         return Ok()
 
     def create_table_ddl(self, tmp_table, tmp_schema, ddl, execute):
-        q = self.default_db.create_table_ddl(tmp_table, tmp_schema, ddl, execute)
+        q = self.default_db._create_table_ddl(tmp_table, tmp_schema, ddl, execute)
         if execute:
             self.default_db.execute(q)
 
@@ -55,23 +55,23 @@ class BaseSqlTask(Task):
             "Create Temp": lambda: self.create_select(
                 self.tmp_table, self.tmp_schema, self.sql_query, self.ddl
             ),
-            "Create Temp DDL": lambda: self.default_db.create_table_ddl(
+            "Create Temp DDL": lambda: self.default_db._create_table_ddl(
                 self.tmp_table, self.tmp_schema, self.ddl
             ),
-            "Create View": lambda: self.default_db.create_table_select(
+            "Create View": lambda: self.default_db._create_table_select(
                 self.table, self.schema, self.sql_query, view=True
             ),
-            "Create Indexes": lambda: self.default_db.create_indexes(
+            "Create Indexes": lambda: self.default_db._create_indexes(
                 self.tmp_table, self.tmp_schema, self.ddl
             ),
-            "Merge": lambda: self.default_db.merge_tables(
+            "Merge": lambda: self.default_db._merge_tables(
                 self.tmp_table,
                 self.tmp_schema,
                 self.table,
                 self.schema,
                 self.delete_key,
             ),
-            "Move": lambda: self.default_db.move_table(
+            "Move": lambda: self.default_db._move_table(
                 self.tmp_table, self.tmp_schema, self.table, self.schema, self.ddl,
             ),
             "Grant Permissions": lambda: self.default_db.grant_permissions(
@@ -147,17 +147,17 @@ class BaseSqlTask(Task):
 
         if len(ddl.get("columns")) == 0:
             out_sql.append(
-                self.default_db.create_table_select(
+                self.default_db._create_table_select(
                     table, schema, select, view=False, ddl=self.ddl
                 )
             )
         else:
             # create table with DDL and insert the output of the select
-            out_sql.append(self.default_db.create_table_ddl(table, schema, ddl))
+            out_sql.append(self.default_db._create_table_ddl(table, schema, ddl))
 
             ddl_column_names = [c["name"] for c in ddl.get("columns")]
             out_sql.append(
-                self.default_db.insert(table, schema, select, columns=ddl_column_names)
+                self.default_db._insert(table, schema, select, columns=ddl_column_names)
             )
 
         return "\n".join(out_sql)
@@ -171,14 +171,14 @@ class BaseSqlTask(Task):
 
         try:
             out_sql.append(
-                self.default_db.drop_table(table, schema, view=False, execute=execute)
+                self.default_db._drop_table(table, schema, view=False, execute=execute)
             )
         except:
             cleanup_table_failed = True
 
         try:
             out_sql.append(
-                self.default_db.drop_table(table, schema, view=True, execute=execute)
+                self.default_db._drop_table(table, schema, view=True, execute=execute)
             )
         except:
             cleanup_view_failed = True
@@ -221,7 +221,7 @@ class BaseSqlTask(Task):
 
         if not self.is_full_load and self.target_table_exists:
             if execute:
-                res = self.default_db.select(last_incremental_value_query)
+                res = self.default_db.read_data(last_incremental_value_query)
                 if len(res) == 1:
                     last_incremental_value = res[0]["value"]
             else:
@@ -239,7 +239,7 @@ class BaseSqlTask(Task):
             self.write_compilation_output(get_data_query, "get_data")
 
         if execute:
-            data_iter = source_db.select_stream(get_data_query)
+            data_iter = source_db._read_data_stream(get_data_query)
             return self.default_db.load_data(tmp_table, data_iter, schema=tmp_schema)
         else:
             return Ok()

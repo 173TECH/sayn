@@ -151,7 +151,7 @@ class CopyTask(BaseSqlTask):
 
     def get_columns(self):
         # We get the source table definition
-        source_table_def = self.source_db.get_table(
+        source_table_def = self.source_db._get_table(
             self.source_table,
             self.source_schema,
             # columns=[c["name"] for c in self.ddl["columns"]],
@@ -170,7 +170,7 @@ class CopyTask(BaseSqlTask):
         if len(self.ddl["columns"]) == 0:
             dst_table_def = None
             if not self.is_full_load:
-                dst_table_def = self.default_db.get_table(self.table, self.schema)
+                dst_table_def = self.default_db._get_table(self.table, self.schema)
 
             if dst_table_def is not None:
                 # In incremental loads we use the destination table to determine the columns

@@ -23,6 +23,9 @@ class DDL(BaseModel):
 
     columns: Optional[List[Union[str, Column]]] = list()
     indexes: Optional[Dict[str, Index]] = dict()
+    primary_key: Optional[
+        List[str]
+    ] = []  # logic field - i.e. not added by the user in the ddl definition
     permissions: Optional[Dict[str, str]] = dict()
 
     @validator("columns")
@@ -59,15 +62,15 @@ class DDL(BaseModel):
 
         return v
 
-    @validator("indexes")
-    def pk_match(cls, v, values):
+    @validator("primary_key", pre=True, always=True)
+    def set_pk(cls, v, values):
         columns_pk = set()
         for c in values.get("columns"):
             if c.primary:
                 columns_pk.add(c.name)
         indexes_pk = set()
-        if v.get("primary_key") is not None:
-            indexes_pk = set(v.get("primary_key").columns)
+        if values.get("indexes", {}).get("primary_key") is not None:
+            indexes_pk = set(values.get("indexes").get("primary_key").columns)
         if len(columns_pk) > 0 and len(indexes_pk) > 0:
             if columns_pk != indexes_pk:
                 columns_pk_str = " ,".join(columns_pk)
@@ -76,18 +79,10 @@ class DDL(BaseModel):
                     f"Primary key defined in indexes ({indexes_pk_str}) does not match primary key defined in columns ({columns_pk_str})."
                 )
 
-        return v
+        pk = columns_pk if len(columns_pk) > 0 else indexes_pk
+        pk = [c for c in pk]
 
-    # def get_pk(self):
-    #    pk = []
-    #    for c in self.columns:
-    #        if c.primary:
-    #            pk.append(c.name)
-    #    if len(pk) == 0:
-    #        if self.indexes.get("primary_key") is not None:
-    #            pk = self.indexes.get("primary_key").columns
-    #    pk = pk if len(pk) > 0 else None
-    #    return pk
+        return pk
 
     def get_ddl(self):
         return {
@@ -96,7 +91,7 @@ class DDL(BaseModel):
             ],
             "indexes": {k: v.dict() for k, v in self.indexes.items()},
             "permissions": self.permissions,
-            # "primary_key": self.get_pk()
+            "primary_key": self.primary_key,
         }
 
 
@@ -123,7 +118,7 @@ class Database:
     #   - INSERT TABLE NO PARENTHESES
     #   - DROP CASCADE
     #   - NO SET SCHEMA
-    #   - PRIMARY KEY CREATE DDL ONLY
+    #   - NO ALTER INDEXES
 
     def __init__(self, name, name_in_settings, db_type, common_params):
         self.name = name
@@ -170,7 +165,7 @@ class Database:
         with self.engine.connect().execution_options(autocommit=True) as connection:
             connection.execute(script)
 
-    def select(self, query, **params):
+    def read_data(self, query, **params):
         """Executes the query and returns a list of dictionaries with the data.
 
         Args:
@@ -189,10 +184,10 @@ class Database:
 
         return [dict(zip(res.keys(), r)) for r in res.fetchall()]
 
-    def select_stream(self, query, **params):
+    def _read_data_stream(self, query, **params):
         """Executes the query and returns an iterator dictionaries with the data.
 
-        The main difference with select() is that this method executes the query with a server-side
+        The main difference with read_data() is that this method executes the query with a server-side
         cursor (sqlalchemy stream_results = True).
 
         Args:
@@ -221,7 +216,7 @@ class Database:
             data (list): A list of dictionaries to load
             schema (str): An optional schema to reference the table
         """
-        table_def = self.get_table(table, schema)
+        table_def = self._get_table(table, schema)
         if table_def is None:
             raise DBError(
                 self.name,
@@ -254,7 +249,7 @@ class Database:
         batch_size = batch_size or self.max_batch_rows
         buffer = list()
         if replace:
-            self.drop_table(table, schema, execute=True)
+            self._drop_table(table, schema, execute=True)
 
         result = self._validate_ddl(ddl)
         if result.is_err:
@@ -268,7 +263,7 @@ class Database:
             ddl = result.value
 
         check_create = True
-        table_exists_prior_load = self.table_exists(table, schema)
+        table_exists_prior_load = self._table_exists(table, schema)
 
         for i, record in enumerate(data):
             if check_create and not table_exists_prior_load:
@@ -282,7 +277,7 @@ class Database:
                     ]
                     ddl = dict(ddl, columns=columns)
 
-                self.create_table_ddl(table, schema, ddl, execute=True)
+                self._create_table_ddl(table, schema, ddl, execute=True)
                 check_create = False
 
             if i % batch_size == 0 and len(buffer) > 0:
@@ -294,7 +289,7 @@ class Database:
         if len(buffer) > 0:
             self._load_data_batch(table, buffer, schema)
 
-    def get_table(self, table, schema):
+    def _get_table(self, table, schema):
         """Create a SQLAlchemy Table object.
 
         Args:
@@ -312,8 +307,8 @@ class Database:
             )
             return table_def
 
-    def table_exists(self, table, schema):
-        return self.get_table(table, schema) is not None
+    def _table_exists(self, table, schema):
+        return self._get_table(table, schema) is not None
 
     # ETL steps
     # =========
@@ -321,10 +316,10 @@ class Database:
     # copy tasks. Can optionally also execute the
     # sql if `execute=True`
 
-    def create_table_select(
+    def _create_table_select(
         self, table, schema, select, view=False, ddl=dict(), execute=False
     ):
-        """Returns SQL code for a create table from a select statment.
+        """Returns SQL code for a create table from a select statement.
 
         Args:
             table (str): The target table name
@@ -355,8 +350,8 @@ class Database:
 
         return q
 
-    def create_table_ddl(self, table, schema, ddl, execute=False):
-        """Returns SQL code for a create table from a select statment.
+    def _create_table_ddl(self, table, schema, ddl, execute=False):
+        """Returns SQL code for a create table from a select statement.
 
         Args:
             table (str): The target table name
@@ -392,18 +387,26 @@ class Database:
             ]
         )
 
+        if len(ddl["primary_key"]) > 0:
+            pk = " ,".join(
+                ddl.pop("primary_key")
+            )  # we pop the primary key to ensure it is not used again in the create_indexes step
+            pk = f", PRIMARY KEY ({pk})"
+        else:
+            pk = ""
+
         q = ""
         if_not_exists = (
             " IF NOT EXISTS" if "CREATE IF NOT EXISTS" in self.sql_features else ""
         )
-        q += f"CREATE TABLE{if_not_exists} {table} (\n      {columns}\n);"
+        q += f"CREATE TABLE{if_not_exists} {table} (\n      {columns}\n{pk}\n);"
 
         if execute:
             self.execute(q)
 
         return q
 
-    def create_indexes(self, table, schema, ddl, execute=False):
+    def _create_indexes(self, table, schema, ddl, execute=False):
         """Returns SQL to create indexes from ddl.
 
         Args:
@@ -424,22 +427,10 @@ class Database:
             if idx != "primary_key"
         }
 
-        # set the primary key, setting it from indexes takes precedence
         q = ""
-        if "primary_key" in ddl.get("indexes", dict()):
-            pk_cols = ", ".join(ddl["indexes"]["primary_key"]["columns"])
+        if len(ddl.get("primary_key", {})) > 0:
+            pk_cols = ", ".join(ddl.get("primary_key"))
             q += f"ALTER TABLE {table} ADD PRIMARY KEY ({pk_cols});"
-        # else:
-        #    # collate primary key from columns if exists -- should be refactored so this is done when ddl is interpreted and we don't have to implement this logic here
-        #    pk_cols_list = []
-        #    if ddl.get("columns") is not None:
-        #        for c_def in ddl.get("columns"):
-        #            if c_def.get("primary") is True:
-        #                pk_cols.append(c_def.get("name"))
-        #
-        #    if pk_cols_list:
-        #        pk_cols = ", ".join(pk_cols_list)
-        #        q += f"ALTER TABLE {table} ADD PRIMARY KEY ({pk_cols});"
 
         q += "\n".join(
             [
@@ -454,7 +445,7 @@ class Database:
         return q
 
     def grant_permissions(self, table, schema, ddl, execute=False):
-        """Returns a set of GRANT statments.
+        """Returns a set of GRANT statements.
 
         Args:
             table (str): The target table name
@@ -477,7 +468,7 @@ class Database:
 
         return q
 
-    def drop_table(self, table, schema, view=False, execute=False):
+    def _drop_table(self, table, schema, view=False, execute=False):
         """Returns a DROP statement.
 
         Args:
@@ -504,8 +495,8 @@ class Database:
 
         return q
 
-    def insert(self, table, schema, select, columns=None, execute=False):
-        """Returns an INSERT statment from a SELECT query.
+    def _insert(self, table, schema, select, columns=None, execute=False):
+        """Returns an INSERT statement from a SELECT query.
 
         Args:
             table (str): The target table name
@@ -536,13 +527,13 @@ class Database:
 
         return q
 
-    def move_table(
+    def _move_table(
         self, src_table, src_schema, dst_table, dst_schema, ddl, execute=False
     ):
         """Returns SQL code to rename a table and change schema.
 
         Note:
-            Table movement is performed as a series of ALTER statments:
+            Table movement is performed as a series of ALTER statements:
 
               * ALTER TABLE RENAME
               * ALTER TABLE SET SCHEMA (if the database supports it)
@@ -566,28 +557,36 @@ class Database:
         else:
             change_schema = ""
 
+        pk_alter = []
+        if len(ddl.get("primary_key", {})) > 0:
+            # Change primary key name
+            pk_alter.append(
+                f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_pkey RENAME TO {dst_table}_pkey;"
+            )
+
         idx_alter = []
         if ddl.get("indexes") is not None:
             # Change index names
             for idx in ddl["indexes"].keys():
-                if idx == "primary_key":
-                    # Primary keys are called as the table
-                    idx_alter.append(
-                        f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_pkey RENAME TO {dst_table}_pkey;"
-                    )
-                else:
-                    idx_alter.append(
-                        f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx} RENAME TO {dst_table}_{idx};"
-                    )
+                if idx != "primary_key":
+                    if "NO ALTER INDEXES" in self.sql_features:
+                        idx_cols = " ,".join(ddl["indexes"][idx]["columns"])
+                        idx_alter.append(
+                            f"DROP INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx};\nCREATE INDEX {dst_table}_{idx} ON {dst_table}({idx_cols});"
+                        )
+                    else:
+                        idx_alter.append(
+                            f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx} RENAME TO {dst_table}_{idx};"
+                        )
 
-        q = "\n".join([rename, change_schema] + idx_alter)
+        q = "\n".join([rename, change_schema] + pk_alter + idx_alter)
 
         if execute:
             self.execute(q)
 
         return q
 
-    def merge_tables(
+    def _merge_tables(
         self,
         src_table,
         src_schema,
@@ -628,7 +627,7 @@ class Database:
         )
 
         select = f"SELECT * FROM {src}"
-        insert = self.insert(dst_table, dst_schema, select, columns=columns)
+        insert = self._insert(dst_table, dst_schema, select, columns=columns)
         q = "\n".join((delete, insert))
 
         if execute:

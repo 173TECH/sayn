@@ -134,10 +134,10 @@ class Redshift(Database):
 
         return table_attributes + "\n"
 
-    def create_table_select(
+    def _create_table_select(
         self, table, schema, select, view=False, ddl=dict(), execute=True
     ):
-        """Returns SQL code for a create table from a select statment
+        """Returns SQL code for a create table from a select statement
         """
         table = f"{schema+'.' if schema else ''}{table}"
         table_or_view = "VIEW" if view else "TABLE"
@@ -154,8 +154,8 @@ class Redshift(Database):
 
         return q
 
-    def create_table_ddl(self, table, schema, ddl, execute=False):
-        """Returns SQL code for a create table from a select statment
+    def _create_table_ddl(self, table, schema, ddl, execute=False):
+        """Returns SQL code for a create table from a select statement
         """
         if len(ddl["columns"]) == 0:
             raise DBError(
