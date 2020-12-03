@@ -220,6 +220,54 @@ def test_autosql_task_run_error(tmp_path):
         assert run_result.is_err
 
 
+# Destination tests
+
+
+def test_autosql_task_table_db_dst(tmp_path):
+    # test autosql with db destination set
+    with inside_dir(tmp_path):
+        task = simulate_task("autosql", sql_query=sql_query)
+
+        # setup
+        setup_result = task.setup(
+            file_name="test.sql",
+            materialisation="table",
+            destination={"db": "target_db", "table": "test_autosql_task"},
+        )
+        assert setup_result.is_ok
+
+        # run
+        run_result = task.run()
+        assert run_result.is_ok
+        target_db = task.connections["target_db"]
+        assert validate_table(target_db, "test_autosql_task", [{"x": 1}],)
+        assert (
+            len(
+                target_db.read_data(
+                    'SELECT * FROM sqlite_master WHERE type="table" AND NAME = "test_autosql_task"'
+                )
+            )
+            == 1
+        )
+
+
+def test_autosql_task_table_wrong_db_dst(tmp_path):
+    # test autosql with db destination set but does not exist in connections
+    with inside_dir(tmp_path):
+        task = simulate_task("autosql", sql_query=sql_query)
+
+        # setup
+        setup_result = task.setup(
+            file_name="test.sql",
+            materialisation="table",
+            destination={"db": "wrong_dst", "table": "test_autosql_task"},
+        )
+        assert setup_result.is_err
+
+
+# DDL tests
+
+
 def test_autosql_task_run_ddl_columns(tmp_path):
     with inside_dir(str(tmp_path)):
         task = simulate_task("autosql", sql_query=sql_query)

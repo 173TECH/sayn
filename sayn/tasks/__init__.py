@@ -57,17 +57,13 @@ class Task:
         return {**self.project_parameters, **self.task_parameters}
 
     @property
-    def db(self):
+    def default_db(self):
         return self.connections[self._default_db]
 
     # Making it backwards compatible
     @property
     def logger(self):
         return self.tracker
-
-    @property
-    def default_db(self):
-        return self.connections[self._default_db]
 
     # Task lifetime methods
 

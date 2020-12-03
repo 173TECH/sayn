@@ -12,15 +12,7 @@ class Source(BaseModel):
     db_type: str
     db_schema: Optional[str] = Field(None, alias="schema")
     table: str
-    all_dbs: List[str]
     db: str
-
-    @validator("db")
-    def source_db_exists(cls, v, values):
-        if v not in values["all_dbs"]:
-            raise ValueError(f'"{v}" is not a valid database')
-        else:
-            return v
 
     @validator("db_schema")
     def can_use_schema(cls, v, values):
@@ -38,6 +30,7 @@ class Destination(BaseModel):
     tmp_schema: Optional[str]
     db_schema: Optional[str] = Field(None, alias="schema")
     table: str
+    db: Optional[str]
 
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
@@ -77,6 +70,38 @@ class Config(BaseModel):
 
 class CopyTask(BaseSqlTask):
     def setup(self, **config):
+        conn_names_list = [
+            n for n, c in self.connections.items() if isinstance(c, Database)
+        ]
+
+        # check the source db exists in settings
+        if (
+            isinstance(config.get("source"), dict)
+            and config["source"].get("db") is not None
+        ):
+            if config["source"]["db"] not in conn_names_list:
+                return Err(
+                    "task_definition",
+                    "source_db_not_in_settings",
+                    db=config["source"]["db"],
+                )
+
+        # set the target db for execution
+        # this check needs to happen here so we can pass db_features and db_type to the validator
+        if (
+            isinstance(config.get("destination"), dict)
+            and config["destination"].get("db") is not None
+        ):
+            if config["destination"]["db"] not in conn_names_list:
+                return Err(
+                    "task_definition",
+                    "destination_db_not_in_settings",
+                    db=config["destination"]["db"],
+                )
+            self._target_db = config["destination"]["db"]
+        else:
+            self._target_db = self._default_db
+
         if isinstance(config.get("source"), dict):
             config["source"].update(
                 {
@@ -84,21 +109,14 @@ class CopyTask(BaseSqlTask):
                         config["source"]["db"]
                     ].sql_features,
                     "db_type": self.connections[config["source"]["db"]].db_type,
-                    "all_dbs": [
-                        n
-                        for n, c in self.connections.items()
-                        if isinstance(c, Database)
-                    ],
                 }
             )
 
         if isinstance(config.get("destination"), dict):
             config["destination"].update(
                 {
-                    "db_features": self.connections[
-                        config["destination"]["db"]
-                    ].sql_features,
-                    "db_type": self.connections[config["destination"]["db"]].db_type,
+                    "db_features": self.target_db.sql_features,
+                    "db_type": self.target_db.db_type,
                 }
             )
 
@@ -121,7 +139,7 @@ class CopyTask(BaseSqlTask):
 
         self.is_full_load = self.run_arguments["full_load"] or self.delete_key is None
 
-        result = self.default_db._validate_ddl(self.config.ddl)
+        result = self.target_db._validate_ddl(self.config.ddl)
         if result.is_ok:
             self.ddl = result.value
         else:
@@ -159,18 +177,18 @@ class CopyTask(BaseSqlTask):
         )
         if source_table_def is None:
             return Err(
-                "Could not find table {schema}.{table} in database {db}.".format(
-                    schema=self.source_schema,
-                    table=self.source_table,
-                    source_db=self.source_db.name,
-                )
+                "database_error",
+                "source_db_missing_source_table",
+                schema=self.source_schema,
+                table=self.source_table,
+                db=self.source_db.name,
             )
         self.source_table_def = source_table_def
 
         if len(self.ddl["columns"]) == 0:
             dst_table_def = None
             if not self.is_full_load:
-                dst_table_def = self.default_db._get_table(self.table, self.schema)
+                dst_table_def = self.target_db._get_table(self.table, self.schema)
 
             if dst_table_def is not None:
                 # In incremental loads we use the destination table to determine the columns
@@ -199,7 +217,7 @@ class CopyTask(BaseSqlTask):
                     {
                         "name": c.name,
                         "type": self.source_db._transform_column_type(
-                            c.type, self.default_db.engine.dialect
+                            c.type, self.target_db.engine.dialect
                         ),
                     }
                     for c in self.source_table_def.columns
@@ -220,7 +238,7 @@ class CopyTask(BaseSqlTask):
                 if "type" not in column:
                     column["type"] = self.source_db._transform_column_type(
                         self.source_table_def.columns[column["name"]].type,
-                        self.default_db.engine.dialect,
+                        self.target_db.engine.dialect,
                     )
 
         return Ok()
