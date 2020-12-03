@@ -100,19 +100,20 @@ def simulate_task(type, sql_query=None, run_arguments=dict(), task_params=dict()
     task.connections = {
         "target_db": create_db(
             "target_db", "target_db", {"type": "sqlite", "database": ":memory:"}
-        )
+        ),
+        "target_db2": create_db(
+            "target_db2", "target_db2", {"type": "sqlite", "database": ":memory:"}
+        ),
     }
 
-    task.connections.update(
-        {
-            "target_db2": create_db(
-                "target_db2", "target_db2", {"type": "sqlite", "database": ":memory:"}
-            ),
-            "source_db": create_db(
-                "source_db", "source_db", {"type": "sqlite", "database": ":memory:"}
-            ),
-        }
-    )
+    if type == "copy":
+        task.connections.update(
+            {
+                "source_db": create_db(
+                    "source_db", "source_db", {"type": "sqlite", "database": ":memory:"}
+                ),
+            }
+        )
 
     task._default_db = "target_db"
     task.tracker = vd
