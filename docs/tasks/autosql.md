@@ -29,10 +29,18 @@ An `autosql` task is defined by the following attributes:
 * `file_name`: the name of the file **within the sql folder of the project's root**.
 * `materialisation`: this should be either `table`, `view` or `incremental`. `table` will create a table, `view` will create a view. `incremental` will create a table and will load the data incrementally based on a delete key (see more detail on `incremental` below).
 * `destination`: this sets the details of the data processing.
-    * `tmp_schema`: specifies the schema which will be used to store any necessary temporary object created in the process. This is optional.
-    * `schema`: is the destination schema where the object will be created. This is optional.
+    * `tmp_schema`: the (optional) schema which will be used to store any necessary temporary object created in the process.
+    * `schema`: the (optional) destination schema where the object will be created.
     * `table`: is the name of the object that will be created.
+    * `db`: the (optional) destination database.
 * `delete_key`: specifies the incremental process delete key. This is for `incremental` `materialisation` only.
+
+!!! info
+    You do not need to specify `db` unless you want the destination database to be different than the `default_db` you define in `project.yaml` (which is the default database used by SAYN). If you define the `db` attribute, it needs to:
+
+      * Be a credential from the `required_credentials` list in `project.yaml`.
+      * Be defined in your `settings.yaml`.
+      * Be one of the supported [databases](../databases/overview.md).
 
 ## Using `autosql` In `incremental` Mode
 
