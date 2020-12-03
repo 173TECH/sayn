@@ -96,21 +96,30 @@ def simulate_task(type, sql_query=None, run_arguments=dict(), task_params=dict()
         "full_load": False,
         **run_arguments,
     }
+
     task.connections = {
-        "test_db": create_db(
-            "test_db", "test_db", {"type": "sqlite", "database": ":memory:"}
+        "target_db": create_db(
+            "target_db", "target_db", {"type": "sqlite", "database": ":memory:"}
         )
     }
-    if type == "copy":
-        task.connections.update(
-            {
-                "source_db": create_db(
-                    "source_db", "source_db", {"type": "sqlite", "database": ":memory:"}
-                )
-            }
-        )
 
-    task._default_db = "test_db"
+    task.connections.update(
+        {
+            "target_db2": create_db(
+                "target_db2", "target_db2", {"type": "sqlite", "database": ":memory:"}
+            )
+        }
+    )
+
+    task.connections.update(
+        {
+            "source_db": create_db(
+                "source_db", "source_db", {"type": "sqlite", "database": ":memory:"}
+            )
+        }
+    )
+
+    task._default_db = "target_db"
     task.tracker = vd
 
     task.jinja_env = Environment(

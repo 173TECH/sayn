@@ -3,13 +3,15 @@ from typing import Dict, Any, List, Optional
 
 from pydantic import BaseModel, Field, FilePath, validator
 
-from ..core.errors import Exc, Ok
+from ..core.errors import Exc, Ok, Err
+from ..database import Database
 from .base_sql import BaseSqlTask
 
 
 class Destination(BaseModel):
     db_features: List[str]
     db_type: str
+    db: Optional[str]
     tmp_schema: Optional[str]
     db_schema: Optional[str] = Field(None, alias="schema")
     table: str
@@ -50,12 +52,34 @@ class Config(BaseModel):
 
 class AutoSqlTask(BaseSqlTask):
     def setup(self, **config):
-        config["destination"].update(
-            {
-                "db_features": self.default_db.sql_features,
-                "db_type": self.default_db.db_type,
-            }
-        )
+        conn_names_list = [
+            n for n, c in self.connections.items() if isinstance(c, Database)
+        ]
+
+        # set the target db for execution
+        # this check needs to happen here so we can pass db_features and db_type to the validator
+        if (
+            isinstance(config.get("destination"), dict)
+            and config["destination"].get("db") is not None
+        ):
+            if config["destination"]["db"] not in conn_names_list:
+                return Err(
+                    "task_definition",
+                    "destination_db_not_in_settings",
+                    db=config["destination"]["db"],
+                )
+            self._target_db = config["destination"]["db"]
+        else:
+            self._target_db = self._default_db
+
+        if isinstance(config.get("destination"), dict):
+            config["destination"].update(
+                {
+                    "db_features": self.target_db.sql_features,
+                    "db_type": self.target_db.db_type,
+                }
+            )
+
         try:
             self.config = Config(
                 sql_folder=self.run_arguments["folders"]["sql"], **config
@@ -70,7 +94,7 @@ class AutoSqlTask(BaseSqlTask):
         self.tmp_table = f"sayn_tmp_{self.table}"
         self.delete_key = self.config.delete_key
 
-        result = self.default_db._validate_ddl(self.config.ddl)
+        result = self.target_db._validate_ddl(self.config.ddl)
         if result.is_err:
             return result
         else:
