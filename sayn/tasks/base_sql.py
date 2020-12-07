@@ -21,7 +21,7 @@ class BaseSqlTask(Task):
     def execute_steps(self):
         # For incremental loads, manipulate the "Merge" steps depending on whether
         # the target table exists or not. This is done so we can delay the introspection
-        if "Merge" in self.steps and self.run_arguments["command"] == "run":
+        if "Merge" in self.steps:
             self.target_table_exists = self.target_db._table_exists(
                 self.table, self.schema
             )
@@ -29,10 +29,18 @@ class BaseSqlTask(Task):
             if not self.target_table_exists:
                 tmp = self.steps[self.steps.index("Merge") + 1 :]
                 self.steps = self.steps[: self.steps.index("Merge")]
-                if len(self.ddl["indexes"]) > 0:
+
+                cols_no_type = [c for c in self.ddl["columns"] if c["type"] is None]
+                if len(self.ddl["indexes"]) > 0 or (
+                    len(self.ddl["primary_key"]) > 0
+                    and len(self.ddl["columns"]) > 0
+                    and len(cols_no_type) > 0
+                ):
                     self.steps.append("Create Indexes")
                 self.steps.extend(["Cleanup Target", "Move"])
+
                 self.steps.extend(tmp)
+                print(self.steps)
             else:
                 self.steps.append("Cleanup")
 
@@ -45,13 +53,6 @@ class BaseSqlTask(Task):
                     return result
 
         return Ok()
-
-    def create_table_ddl(self, tmp_table, tmp_schema, ddl, execute):
-        q = self.target_db._create_table_ddl(tmp_table, tmp_schema, ddl, execute)
-        if execute:
-            self.target_db.execute(q)
-
-        return Ok(q)
 
     def execute_step(self, step):
         execute = self.run_arguments["command"] == "run"
@@ -66,7 +67,7 @@ class BaseSqlTask(Task):
             "Create View": lambda: self.target_db._create_table_select(
                 self.table, self.schema, self.sql_query, view=True
             ),
-            "Create Indexes": lambda: self.target_db._create_indexes(
+            "Create Indexes": lambda: self.create_indexes(
                 self.tmp_table, self.tmp_schema, self.ddl
             ),
             "Merge": lambda: self.target_db._merge_tables(
@@ -150,7 +151,8 @@ class BaseSqlTask(Task):
     def create_select(self, table, schema, select, ddl):
         out_sql = list()
 
-        if len(ddl.get("columns")) == 0:
+        cols_no_type = [c for c in self.ddl["columns"] if c["type"] is None]
+        if len(ddl.get("columns")) == 0 or len(cols_no_type) > 0:
             out_sql.append(
                 self.target_db._create_table_select(
                     table, schema, select, view=False, ddl=self.ddl
@@ -166,6 +168,16 @@ class BaseSqlTask(Task):
             )
 
         return "\n".join(out_sql)
+
+    def create_indexes(self, tmp_table, tmp_schema, ddl):
+        cols_no_type = [c for c in self.ddl["columns"] if c["type"] is None]
+        if not (len(ddl.get("columns")) == 0 or len(cols_no_type) > 0):
+            # Based on create_select: this condition means we're issuing a
+            # create_table_ddl, in which case we don't need an alter to
+            # add the primary key
+            ddl = {k: v if k != "primary_key" else dict() for k, v in ddl.items()}
+
+        return self.target_db._create_indexes(tmp_table, tmp_schema, ddl)
 
     def cleanup(self, table, schema, step, execute):
         out_sql = list()

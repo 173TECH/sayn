@@ -277,7 +277,7 @@ def test_autosql_task_run_ddl_columns(tmp_path):
             file_name="test.sql",
             materialisation="table",
             destination={"table": "test_autosql_task"},
-            ddl={"columns": [{"name": "x", "primary": True}]},
+            ddl={"columns": [{"name": "x", "type": "integer", "primary": True}]},
         )
         assert setup_result.is_ok
         assert task.steps == [

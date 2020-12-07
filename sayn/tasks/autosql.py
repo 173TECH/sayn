@@ -94,12 +94,27 @@ class AutoSqlTask(BaseSqlTask):
         self.tmp_table = f"sayn_tmp_{self.table}"
         self.delete_key = self.config.delete_key
 
+        # DDL validation
         result = self.target_db._validate_ddl(self.config.ddl)
         if result.is_err:
             return result
         else:
             self.ddl = result.value
 
+        # If we have columns with no type, we can't issue a create table ddl
+        # and will issue a create table as select instead.
+        # However, if the db doesn't support alter idx then we can't have a
+        # primary key
+        cols_no_type = [c for c in self.ddl["columns"] if c["type"] is None]
+        if (
+            len(self.ddl["primary_key"]) > 0
+            and "NO ALTER INDEXES" in self.target_db.sql_features
+        ) and (len(self.ddl["columns"]) == 0 or len(cols_no_type) > 0):
+            return Err(
+                "task_definition", "missing_column_types_pk", columns=cols_no_type,
+            )
+
+        # Template compilation
         result = self.get_template(self.config.file_name)
         if result.is_err:
             return result
@@ -112,6 +127,7 @@ class AutoSqlTask(BaseSqlTask):
         else:
             self.sql_query = result.value
 
+        # Materialisation type
         self.is_full_load = (
             self.materialisation == "table" or self.run_arguments["full_load"]
         )
@@ -126,12 +142,18 @@ class AutoSqlTask(BaseSqlTask):
             self.steps.extend(["Cleanup", "Create Temp"])
 
             if self.is_full_load:
-                if len(self.ddl["indexes"]) > 0:
+                print("is full load")
+                if len(self.ddl["indexes"]) > 0 or (
+                    len(self.ddl["primary_key"]) > 0
+                    and len(self.ddl["columns"]) > 0
+                    and len(cols_no_type) > 0
+                ):
                     self.steps.append("Create Indexes")
                 self.steps.extend(["Cleanup Target", "Move"])
 
             else:
-                self.steps.extend(["Merge"])
+                print("not full load")
+                self.steps.append("Merge")
 
         if len(self.ddl.get("permissions")) > 0:
             self.steps.append("Grant Permissions")
