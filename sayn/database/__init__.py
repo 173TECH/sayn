@@ -389,7 +389,7 @@ class Database:
         if len(ddl["primary_key"]) > 0:
             # we pop the primary key to ensure it is not used again in the create_indexes step
             pk = " ,".join(ddl["primary_key"])
-            pk = f", PRIMARY KEY ({pk})"
+            pk = f"    , PRIMARY KEY ({pk})"
         else:
             pk = ""
 
