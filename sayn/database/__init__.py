@@ -1,7 +1,7 @@
 from collections import Counter
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, conlist
 from sqlalchemy import MetaData, Table
 
 from ..core.errors import DBError, Exc, Ok
@@ -19,7 +19,7 @@ class DDL(BaseModel):
         unique: Optional[bool] = False
 
     class Index(BaseModel):
-        columns: List[str]
+        columns: conlist(str, min_items=1)
 
     columns: Optional[List[Column]] = list()
     indexes: Optional[Dict[str, Index]] = dict()
@@ -32,16 +32,12 @@ class DDL(BaseModel):
     def transform_str_cols(cls, v, values):
         if v is not None and isinstance(v, List):
             return [{"name": c} if isinstance(c, str) else c for c in v]
+        else:
+            return v
 
     @validator("columns")
     def columns_unique(cls, v, values):
-        dupes = {
-            k
-            for k, v in Counter(
-                [e.name if isinstance(e, cls.Column) else e for e in v]
-            ).items()
-            if v > 1
-        }
+        dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
         if len(dupes) > 0:
             raise ValueError(f"Duplicate columns: {','.join(dupes)}")
         else:
@@ -49,7 +45,7 @@ class DDL(BaseModel):
 
     @validator("indexes")
     def index_columns_exists(cls, v, values):
-        cols = [c for i in v.values() for c in i.columns]
+        cols = [c.name for c in values.get("columns", list())]
         if len(cols) > 0:
             missing_cols = group_list(
                 [
