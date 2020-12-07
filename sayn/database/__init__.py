@@ -65,8 +65,8 @@ class DDL(BaseModel):
     @validator("primary_key", pre=True, always=True)
     def set_pk(cls, v, values):
         columns_pk = set()
-        for c in values.get("columns"):
-            if c.primary:
+        for c in values.get("columns", []):
+            if isinstance(c, cls.Column) and c.primary:
                 columns_pk.add(c.name)
         indexes_pk = set()
         if values.get("indexes", {}).get("primary_key") is not None:
