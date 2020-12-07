@@ -89,7 +89,9 @@ class DDL(BaseModel):
             "columns": [
                 {"name": c} if isinstance(c, str) else c.dict() for c in self.columns
             ],
-            "indexes": {k: v.dict() for k, v in self.indexes.items()},
+            "indexes": {
+                k: v.dict() for k, v in self.indexes.items() if k != "primary_key"
+            },
             "permissions": self.permissions,
             "primary_key": self.primary_key,
         }
