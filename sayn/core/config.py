@@ -66,6 +66,9 @@ class Project(BaseModel):
 
     @validator("task_groups", pre=True, always=True)
     def set_task_groups(cls, v):
+        if not os.path.isdir(Path("tasks")):
+            raise ValueError("'tasks' folder cannot be found in project directory.")
+
         task_groups = [f.name[:-5] for f in Path("tasks").glob("*.yaml")]
 
         if len(task_groups) == 0:
