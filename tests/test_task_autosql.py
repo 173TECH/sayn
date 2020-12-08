@@ -277,7 +277,7 @@ def test_autosql_task_run_ddl_columns(tmp_path):
             file_name="test.sql",
             materialisation="table",
             destination={"table": "test_autosql_task"},
-            ddl={"columns": [{"name": "x", "primary": True}]},
+            ddl={"columns": [{"name": "x", "type": "integer", "primary": True}]},
         )
         assert setup_result.is_ok
         assert task.steps == [
@@ -296,7 +296,7 @@ def test_autosql_task_run_ddl_columns(tmp_path):
         assert pk_info[0]["pk"] == 1
 
 
-def test_autosql_task_run_indexes_pk(tmp_path):
+def test_autosql_task_run_indexes_pk01(tmp_path):
     # test indexes with the primary key only returns error on SQLite
     # this is because SQLite requires primary keys to be defined in create table statement so columns definition is needed
     with inside_dir(str(tmp_path)):
@@ -309,22 +309,21 @@ def test_autosql_task_run_indexes_pk(tmp_path):
             destination={"table": "test_autosql_task"},
             ddl={"indexes": [{"primary_key": "x"}]},
         )
-        if "NO ALTER INDEXES" not in task.default_db.sql_features:
-            assert setup_result.is_ok
-            assert task.steps == [
-                "Write Query",
-                "Cleanup",
-                "Create Temp",
-                "Cleanup Target",
-                "Move",
-            ]
-        else:
-            assert setup_result.is_err
+        assert setup_result.is_err
 
-        # run
-        if "NO ALTER INDEXES" not in task.default_db.sql_features:
-            run_result = task.run()
-            assert run_result.is_ok
+
+def test_autosql_task_run_indexes_pk02(tmp_path):
+    with inside_dir(str(tmp_path)):
+        task = simulate_task("autosql", sql_query=sql_query)
+
+        # setup
+        setup_result = task.setup(
+            file_name="test.sql",
+            materialisation="table",
+            destination={"table": "test_autosql_task"},
+            ddl={"columns": ["x"], "indexes": [{"primary_key": "x"}]},
+        )
+        assert setup_result.is_err
 
 
 def test_autosql_task_ddl_diff_pk_err(tmp_path):

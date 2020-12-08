@@ -1,7 +1,7 @@
 from collections import Counter
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, conlist
 from sqlalchemy import MetaData, Table
 
 from ..core.errors import DBError, Exc, Ok
@@ -19,24 +19,25 @@ class DDL(BaseModel):
         unique: Optional[bool] = False
 
     class Index(BaseModel):
-        columns: List[str]
+        columns: conlist(str, min_items=1)
 
-    columns: Optional[List[Union[str, Column]]] = list()
+    columns: Optional[List[Column]] = list()
     indexes: Optional[Dict[str, Index]] = dict()
     primary_key: Optional[
         List[str]
     ] = []  # logic field - i.e. not added by the user in the ddl definition
     permissions: Optional[Dict[str, str]] = dict()
 
+    @validator("columns", pre=True)
+    def transform_str_cols(cls, v, values):
+        if v is not None and isinstance(v, List):
+            return [{"name": c} if isinstance(c, str) else c for c in v]
+        else:
+            return v
+
     @validator("columns")
     def columns_unique(cls, v, values):
-        dupes = {
-            k
-            for k, v in Counter(
-                [e.name if isinstance(e, cls.Column) else e for e in v]
-            ).items()
-            if v > 1
-        }
+        dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
         if len(dupes) > 0:
             raise ValueError(f"Duplicate columns: {','.join(dupes)}")
         else:
@@ -44,7 +45,7 @@ class DDL(BaseModel):
 
     @validator("indexes")
     def index_columns_exists(cls, v, values):
-        cols = [c for i in v.values() for c in i.columns]
+        cols = [c.name for c in values.get("columns", list())]
         if len(cols) > 0:
             missing_cols = group_list(
                 [
@@ -62,17 +63,16 @@ class DDL(BaseModel):
 
         return v
 
-    @validator("primary_key", pre=True, always=True)
+    @validator("primary_key", always=True)
     def set_pk(cls, v, values):
-        columns_pk = set()
-        for c in values.get("columns"):
-            if c.primary:
-                columns_pk.add(c.name)
-        indexes_pk = set()
+        columns_pk = [c.name for c in values.get("columns", []) if c.primary]
+
+        indexes_pk = list()
         if values.get("indexes", {}).get("primary_key") is not None:
-            indexes_pk = set(values.get("indexes").get("primary_key").columns)
+            indexes_pk = values.get("indexes").get("primary_key").columns
+
         if len(columns_pk) > 0 and len(indexes_pk) > 0:
-            if columns_pk != indexes_pk:
+            if set(columns_pk) != set(indexes_pk):
                 columns_pk_str = " ,".join(columns_pk)
                 indexes_pk_str = " ,".join(indexes_pk)
                 raise ValueError(
@@ -80,16 +80,15 @@ class DDL(BaseModel):
                 )
 
         pk = columns_pk if len(columns_pk) > 0 else indexes_pk
-        pk = [c for c in pk]
 
         return pk
 
     def get_ddl(self):
         return {
-            "columns": [
-                {"name": c} if isinstance(c, str) else c.dict() for c in self.columns
-            ],
-            "indexes": {k: v.dict() for k, v in self.indexes.items()},
+            "columns": [c.dict() for c in self.columns],
+            "indexes": {
+                k: v.dict() for k, v in self.indexes.items() if k != "primary_key"
+            },
             "permissions": self.permissions,
             "primary_key": self.primary_key,
         }
@@ -388,10 +387,9 @@ class Database:
         )
 
         if len(ddl["primary_key"]) > 0:
-            pk = " ,".join(
-                ddl.pop("primary_key")
-            )  # we pop the primary key to ensure it is not used again in the create_indexes step
-            pk = f", PRIMARY KEY ({pk})"
+            # we pop the primary key to ensure it is not used again in the create_indexes step
+            pk = " ,".join(ddl["primary_key"])
+            pk = f"    , PRIMARY KEY ({pk})"
         else:
             pk = ""
 
@@ -424,12 +422,11 @@ class Database:
         indexes = {
             idx: idx_def["columns"]
             for idx, idx_def in ddl.get("indexes", dict()).items()
-            if idx != "primary_key"
         }
 
         q = ""
-        if len(ddl.get("primary_key", {})) > 0:
-            pk_cols = ", ".join(ddl.get("primary_key"))
+        if len(ddl["primary_key"]) > 0:
+            pk_cols = ", ".join(ddl["primary_key"])
             q += f"ALTER TABLE {table} ADD PRIMARY KEY ({pk_cols});"
 
         q += "\n".join(
@@ -558,26 +555,27 @@ class Database:
             change_schema = ""
 
         pk_alter = []
-        if len(ddl.get("primary_key", {})) > 0:
+        if "NO ALTER INDEXES" not in self.sql_features and len(ddl["primary_key"]) > 0:
             # Change primary key name
             pk_alter.append(
                 f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_pkey RENAME TO {dst_table}_pkey;"
             )
 
         idx_alter = []
-        if ddl.get("indexes") is not None:
+        if len(ddl["indexes"]) > 0:
             # Change index names
             for idx in ddl["indexes"].keys():
-                if idx != "primary_key":
-                    if "NO ALTER INDEXES" in self.sql_features:
-                        idx_cols = " ,".join(ddl["indexes"][idx]["columns"])
-                        idx_alter.append(
-                            f"DROP INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx};\nCREATE INDEX {dst_table}_{idx} ON {dst_table}({idx_cols});"
-                        )
-                    else:
-                        idx_alter.append(
-                            f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx} RENAME TO {dst_table}_{idx};"
-                        )
+                if "NO ALTER INDEXES" in self.sql_features:
+                    idx_cols = " ,".join(ddl["indexes"][idx]["columns"])
+                    idx_alter.append(
+                        f"DROP INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx};\n"
+                        f"CREATE INDEX {dst_table}_{idx} ON {dst_table}({idx_cols});"
+                    )
+                else:
+                    idx_alter.append(
+                        f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx} "
+                        f"RENAME TO {dst_table}_{idx};"
+                    )
 
         q = "\n".join([rename, change_schema] + pk_alter + idx_alter)
 
