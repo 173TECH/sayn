@@ -40,7 +40,6 @@ class BaseSqlTask(Task):
                 self.steps.extend(["Cleanup Target", "Move"])
 
                 self.steps.extend(tmp)
-                print(self.steps)
             else:
                 self.steps.append("Cleanup")
 

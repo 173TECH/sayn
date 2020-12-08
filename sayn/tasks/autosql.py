@@ -142,7 +142,6 @@ class AutoSqlTask(BaseSqlTask):
             self.steps.extend(["Cleanup", "Create Temp"])
 
             if self.is_full_load:
-                print("is full load")
                 if len(self.ddl["indexes"]) > 0 or (
                     len(self.ddl["primary_key"]) > 0
                     and len(self.ddl["columns"]) > 0
@@ -152,7 +151,6 @@ class AutoSqlTask(BaseSqlTask):
                 self.steps.extend(["Cleanup Target", "Move"])
 
             else:
-                print("not full load")
                 self.steps.append("Merge")
 
         if len(self.ddl.get("permissions")) > 0:
