@@ -2,6 +2,18 @@
 
 ## Next
 
+## [0.5.0] - 2020-12-09
+
+### Changed
+
+- Changed concept of dags to tasks
+- Added automated detection of task files in tasks folder
+- Added option to change database destination
+
+### Fixed
+
+- Fixed issues with primary key DDLs
+
 ## [0.4.2] - 2020-11-11
 
 ### Changed
