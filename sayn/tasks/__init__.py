@@ -28,7 +28,7 @@ class Task:
 
     Attributes:
         name (str): Name of the task as defined in the task group.
-        task_group (str): Name of the task group where the task was defined.
+        group (str): Name of the task group where the task was defined.
         run_arguments (dict): Dictionary containing the values for the arguments specified in the cli.
         task_parameters (dict): Provides access to the parameters specified in the task.
         project_parameters (dict): Provides access to the global parameters of the project.
@@ -39,7 +39,7 @@ class Task:
     """
 
     name = None
-    task_group = None
+    group = None
     tags = list()
     run_arguments = dict()
     task_parameters = dict()
@@ -206,7 +206,7 @@ class Task:
     def write_compilation_output(self, content, suffix=None):
         path = Path(
             self.run_arguments["folders"]["compile"],
-            self.task_group,
+            self.group,
             Path(f"{self.name}{'_'+suffix if suffix is not None else ''}.sql"),
         )
 

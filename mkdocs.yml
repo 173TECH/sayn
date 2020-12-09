@@ -59,7 +59,6 @@ nav:
     - project.yaml: settings/project_yaml.md
     - settings.yaml: settings/settings_yaml.md
     - Tasks: tasks/overview.md
-    - Task Groups: tasks/task_group.md
     - Presets: presets.md
     - Parameters: parameters.md
   - Tasks:
