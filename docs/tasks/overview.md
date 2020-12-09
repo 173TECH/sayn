@@ -117,7 +117,7 @@ Task attributes can be used when defining tasks in a dynamic way. The following 
     tasks:
       sql_task:
         type: sql
-        file_name: '{{task.group}}/{{task.name}}'
+        file_name: '{{task.group}}/{{task.name}}.sql'
     ```
 
 This will effectively tell the task to look for a file located at `base/sql_task.sql` in the `sql` folder.
