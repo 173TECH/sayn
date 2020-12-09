@@ -350,8 +350,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../dags/" class="md-nav__link">
-      DAGs
+    <a href="../../tasks/overview/" class="md-nav__link">
+      Tasks
     </a>
   </li>
 
@@ -362,8 +362,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tasks/overview/" class="md-nav__link">
-      Tasks
+    <a href="../../tasks/task_group/" class="md-nav__link">
+      Task Groups
     </a>
   </li>
 
@@ -680,9 +680,6 @@
 
 <span class="nt">default_db</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">warehouse</span>
 
-<span class="nt">dags</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">base</span>
-
 <span class="nt">parameters</span><span class="p">:</span>
   <span class="nt">user_prefix</span><span class="p">:</span> <span class="s">&#39;&#39;</span>
   <span class="nt">schema_logs</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_logs</span>
@@ -714,11 +711,6 @@
 <td>default_db</td>
 <td>The credential used by default by sql and autosql tasks.</td>
 <td>Entry in <code>required_credentials</code> if only 1 defined</td>
-</tr>
-<tr>
-<td>dags</td>
-<td>List of files from the dag folder that contains all tasks definitions.</td>
-<td>Required</td>
 </tr>
 <tr>
 <td>parameters</td>

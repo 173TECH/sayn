@@ -341,8 +341,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../dags/" class="md-nav__link">
-      DAGs
+    <a href="../tasks/overview/" class="md-nav__link">
+      Tasks
     </a>
   </li>
 
@@ -353,8 +353,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../tasks/overview/" class="md-nav__link">
-      Tasks
+    <a href="../tasks/task_group/" class="md-nav__link">
+      Task Groups
     </a>
   </li>
 
@@ -751,7 +751,7 @@ repetition.</p>
 task and inherit all other attributes from it. For a task to use this configuration, we use the <code>preset</code>
 property in the task.</p>
 <div class="admonition example">
-<p class="admonition-title">dags/base.yaml</p>
+<p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
   <span class="nt">task_name</span><span class="p">:</span>
     <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
@@ -759,7 +759,7 @@ property in the task.</p>
 </code></pre></div>
 
 </div>
-<p>Presets can be defined both in <code>project.yaml</code> and in any dag file.</p>
+<p>Presets can be defined both in <code>project.yaml</code> and in any task group file (files in the <code>tasks</code> folder).</p>
 <h2 id="preset-inheritance">Preset inheritance<a class="headerlink" href="#preset-inheritance" title="Permanent link">&para;</a></h2>
 <p>Presets can reference other presets, the behaviour of this reference being exactly as it works for task.</p>
 <div class="admonition example">
@@ -799,7 +799,7 @@ except it will generate a view when materialising an autosql task.</p>
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
         
-          <a href="../tasks/overview/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../tasks/task_group/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-footer-nav__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
             </div>
@@ -808,7 +808,7 @@ except it will generate a view when materialising an autosql task.</p>
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Tasks
+                Task Groups
               </div>
             </div>
           </a>

@@ -339,8 +339,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../dags/" class="md-nav__link">
-      DAGs
+    <a href="../overview/" class="md-nav__link">
+      Tasks
     </a>
   </li>
 
@@ -351,8 +351,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../overview/" class="md-nav__link">
-      Tasks
+    <a href="../task_group/" class="md-nav__link">
+      Task Groups
     </a>
   </li>
 
@@ -482,6 +482,26 @@
   <a href="#defining-ddls" class="md-nav__link">
     Defining DDLs
   </a>
+  
+    <nav class="md-nav" aria-label="Defining DDLs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#alter-table-ddls" class="md-nav__link">
+    ALTER TABLE DDLs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-table-ddls" class="md-nav__link">
+    CREATE TABLE DDLs
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -742,6 +762,26 @@
     Defining DDLs
   </a>
   
+    <nav class="md-nav" aria-label="Defining DDLs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#alter-table-ddls" class="md-nav__link">
+    ALTER TABLE DDLs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-table-ddls" class="md-nav__link">
+    CREATE TABLE DDLs
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -784,13 +824,23 @@
 <li><code>file_name</code>: the name of the file <strong>within the sql folder of the project's root</strong>.</li>
 <li><code>materialisation</code>: this should be either <code>table</code>, <code>view</code> or <code>incremental</code>. <code>table</code> will create a table, <code>view</code> will create a view. <code>incremental</code> will create a table and will load the data incrementally based on a delete key (see more detail on <code>incremental</code> below).</li>
 <li><code>destination</code>: this sets the details of the data processing.<ul>
-<li><code>tmp_schema</code>: specifies the schema which will be used to store any necessary temporary object created in the process. This is optional.</li>
-<li><code>schema</code>: is the destination schema where the object will be created. This is optional.</li>
+<li><code>tmp_schema</code>: the (optional) schema which will be used to store any necessary temporary object created in the process.</li>
+<li><code>schema</code>: the (optional) destination schema where the object will be created.</li>
 <li><code>table</code>: is the name of the object that will be created.</li>
+<li><code>db</code>: the (optional) destination database.</li>
 </ul>
 </li>
 <li><code>delete_key</code>: specifies the incremental process delete key. This is for <code>incremental</code> <code>materialisation</code> only.</li>
 </ul>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You do not need to specify <code>db</code> unless you want the destination database to be different than the <code>default_db</code> you define in <code>project.yaml</code> (which is the default database used by SAYN). If you define the <code>db</code> attribute, it needs to:</p>
+<ul>
+<li>Be a credential from the <code>required_credentials</code> list in <code>project.yaml</code>.</li>
+<li>Be defined in your <code>settings.yaml</code>.</li>
+<li>Be one of the supported <a href="../../databases/overview/">databases</a>.</li>
+</ul>
+</div>
 <h2 id="using-autosql-in-incremental-mode">Using <code>autosql</code> In <code>incremental</code> Mode<a class="headerlink" href="#using-autosql-in-incremental-mode" title="Permanent link">&para;</a></h2>
 <p><code>autosql</code> tasks support loads incrementally, which is extremely useful for large data volumes when full
 refresh (<code>materialisation: table</code>) would be infeasible.</p>
@@ -840,14 +890,17 @@ refresh (<code>materialisation: table</code>) would be infeasible.</p>
 
 </div>
 <h2 id="defining-ddls">Defining DDLs<a class="headerlink" href="#defining-ddls" title="Permanent link">&para;</a></h2>
-<p>Additionally, autosql tasks support the definition of optional DDL that will be used when creating the table.
-Each supported database might have specific DDL related to it, but in general the following is supported:</p>
+<p>Autosql tasks support the definition of optional DDL. Each DDL entry is independent to others (you can define only DDLs which are relevant to you).</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Each supported database might have specific DDL related to it. Below are the DDLs that SAYN supports across all databases. For DDLs related to specific databases see the database-specific pages.</p>
+</div>
+<h3 id="alter-table-ddls">ALTER TABLE DDLs<a class="headerlink" href="#alter-table-ddls" title="Permanent link">&para;</a></h3>
+<p>The following DDLs will be issued by SAYN with <code>ALTER TABLE</code> statements:</p>
 <ul>
-<li>columns: the list of columns as well as their type. If used, SAYN will enforce the types specified.</li>
 <li>indexes: the indexes to add on the table.</li>
 <li>primary_key: this should be added in the indexes section using the <code>primary_key</code> name for the index.</li>
-<li>permissions: the permissions you want to give to each role. You should map each role to the rights
-  you want to grant separated by commas (e.g. SELECT, DELETE).</li>
+<li>permissions: the permissions you want to give to each role. You should map each role to the rights you want to grant separated by commas (e.g. SELECT, DELETE).</li>
 </ul>
 <div class="admonition example">
 <p class="admonition-title">autosql with DDL</p>
@@ -870,6 +923,49 @@ Each supported database might have specific DDL related to it, but in general th
       <span class="nt">idx1</span><span class="p">:</span>
         <span class="nt">columns</span><span class="p">:</span>
           <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">column1</span>
+    <span class="nt">permissions</span><span class="p">:</span>
+      <span class="nt">role_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">SELECT</span>
+<span class="nn">...</span>
+</code></pre></div>
+
+</div>
+<h3 id="create-table-ddls">CREATE TABLE DDLs<a class="headerlink" href="#create-table-ddls" title="Permanent link">&para;</a></h3>
+<p>SAYN also lets you control the CREATE TABLE statement if you need more specification. This is done with:</p>
+<ul>
+<li>columns: the list of columns including their definitions.</li>
+</ul>
+<p><code>columns</code> can define the following attributes:</p>
+<ul>
+<li>name: the column name.</li>
+<li>type: the column type.</li>
+<li>primary: set to <code>True</code> if the column is part of the primary key.</li>
+<li>unique: set to <code>True</code> to enforce a unique constraint on the column.</li>
+<li>not_null: set to <code>True</code> to enforce a non null constraint on the column.</li>
+</ul>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>If the a primary key is defined in both the <code>columns</code> and <code>indexes</code> DDL entries, the primary key will be set as part of the <code>CREATE TABLE</code> statement only.</p>
+</div>
+<div class="admonition example">
+<p class="admonition-title">autosql with columns DDL</p>
+<div class="highlight"><pre><span></span><code><span class="nn">...</span>
+
+<span class="nt">task_autosql</span><span class="p">:</span>
+  <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
+  <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">task_autosql.sql</span>
+  <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
+  <span class="nt">destination</span><span class="p">:</span>
+    <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_staging</span>
+    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_models</span>
+    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">task_autosql</span>
+  <span class="nt">ddl</span><span class="p">:</span>
+    <span class="nt">columns</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">x</span>
+        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">int</span>
+        <span class="nt">primary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">y</span>
+        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">varchar</span>
+        <span class="nt">unique</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
     <span class="nt">permissions</span><span class="p">:</span>
       <span class="nt">role_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">SELECT</span>
 <span class="nn">...</span>

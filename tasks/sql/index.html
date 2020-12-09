@@ -339,8 +339,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../dags/" class="md-nav__link">
-      DAGs
+    <a href="../overview/" class="md-nav__link">
+      Tasks
     </a>
   </li>
 
@@ -351,8 +351,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../overview/" class="md-nav__link">
-      Tasks
+    <a href="../task_group/" class="md-nav__link">
+      Task Groups
     </a>
   </li>
 
@@ -732,19 +732,31 @@
                 <h1 id="sql-task"><code>sql</code> Task<a class="headerlink" href="#sql-task" title="Permanent link">&para;</a></h1>
 <h2 id="about">About<a class="headerlink" href="#about" title="Permanent link">&para;</a></h2>
 <p>The <code>sql</code> task lets you execute a SQL script with one or many statements. This is useful for
-executing <code>UPDATE</code> statments for example, that wouldn't be covered by <code>autosql</code>.</p>
+executing <code>UPDATE</code> statements for example, that wouldn't be covered by <code>autosql</code>.</p>
 <h2 id="defining-sql-tasks">Defining <code>sql</code> tasks<a class="headerlink" href="#defining-sql-tasks" title="Permanent link">&para;</a></h2>
 <p>A <code>sql</code> task is defined as follows:</p>
 <div class="admonition example">
-<p class="admonition-title">dags/base.yaml</p>
+<p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">task_sql</span><span class="p">:</span>
   <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sql</span>
   <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sql_task.sql</span>
 </code></pre></div>
 
 </div>
-<p>Where <code>file_name</code> is the path to a file under the <code>sql</code> folder containing the
-SQL script to execute.</p>
+<p>A <code>sql</code> task is defined by the following attributes:</p>
+<ul>
+<li><code>file_name</code>: path to a file under the <code>sql</code> folder containing the SQL script to execute.</li>
+<li><code>db</code>: the (optional) destination database.</li>
+</ul>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You do not need to specify <code>db</code> unless you want the destination database to be different than the <code>default_db</code> you define in <code>project.yaml</code> (which is the default database used by SAYN). If you define the <code>db</code> attribute, it needs to:</p>
+<ul>
+<li>Be a credential from the <code>required_credentials</code> list in <code>project.yaml</code>.</li>
+<li>Be defined in your <code>settings.yaml</code>.</li>
+<li>Be one of the supported <a href="../../databases/overview/">databases</a>.</li>
+</ul>
+</div>
                 
               
               

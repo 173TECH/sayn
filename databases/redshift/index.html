@@ -339,8 +339,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../dags/" class="md-nav__link">
-      DAGs
+    <a href="../../tasks/overview/" class="md-nav__link">
+      Tasks
     </a>
   </li>
 
@@ -351,8 +351,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tasks/overview/" class="md-nav__link">
-      Tasks
+    <a href="../../tasks/task_group/" class="md-nav__link">
+      Task Groups
     </a>
   </li>
 
@@ -866,7 +866,7 @@ in the <code>ddl</code> entry in the task definition.</p>
 <h1 id="sorting">Sorting<a class="headerlink" href="#sorting" title="Permanent link">&para;</a></h1>
 <p>Table sorting can be specified under the <code>ddl</code> entry in the task definition</p>
 <div class="admonition example">
-<p class="admonition-title">dags/base.yaml</p>
+<p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
   <span class="nt">f_battles</span><span class="p">:</span>
     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
@@ -885,7 +885,7 @@ in the <code>ddl</code> entry in the task definition.</p>
 <p>With the above example, the table <code>f_battles</code> will be sorted by <code>arena_name</code> and <code>fighter1_name</code>
 using a compound key (Redshift default). The type of sorting can be changed to interleaved.</p>
 <div class="admonition example">
-<p class="admonition-title">dags/base.yaml</p>
+<p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
   <span class="nt">f_battles</span><span class="p">:</span>
     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
@@ -906,7 +906,7 @@ using a compound key (Redshift default). The type of sorting can be changed to i
 <h1 id="distribution">Distribution<a class="headerlink" href="#distribution" title="Permanent link">&para;</a></h1>
 <p>We can also specify the type of distribution: even, all or key based. If not specified, the Redshift default is even distribution.</p>
 <div class="admonition example">
-<p class="admonition-title">dags/base.yaml</p>
+<p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
   <span class="nt">f_battles</span><span class="p">:</span>
     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
@@ -921,7 +921,7 @@ using a compound key (Redshift default). The type of sorting can be changed to i
 </div>
 <p>If we want to distribute the table by a given column use the following:</p>
 <div class="admonition example">
-<p class="admonition-title">dags/base.yaml</p>
+<p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
   <span class="nt">f_battles</span><span class="p">:</span>
     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>

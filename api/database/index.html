@@ -339,8 +339,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../dags/" class="md-nav__link">
-      DAGs
+    <a href="../../tasks/overview/" class="md-nav__link">
+      Tasks
     </a>
   </li>
 
@@ -351,8 +351,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tasks/overview/" class="md-nav__link">
-      Tasks
+    <a href="../../tasks/task_group/" class="md-nav__link">
+      Task Groups
     </a>
   </li>
 
@@ -653,43 +653,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#sayn.database.Database.create_indexes" class="md-nav__link">
-    create_indexes()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sayn.database.Database.create_table_ddl" class="md-nav__link">
-    create_table_ddl()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sayn.database.Database.create_table_select" class="md-nav__link">
-    create_table_select()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sayn.database.Database.drop_table" class="md-nav__link">
-    drop_table()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#sayn.database.Database.execute" class="md-nav__link">
     execute()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sayn.database.Database.get_table" class="md-nav__link">
-    get_table()
   </a>
   
 </li>
@@ -702,13 +667,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#sayn.database.Database.insert" class="md-nav__link">
-    insert()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#sayn.database.Database.load_data" class="md-nav__link">
     load_data()
   </a>
@@ -716,29 +674,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#sayn.database.Database.merge_tables" class="md-nav__link">
-    merge_tables()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sayn.database.Database.move_table" class="md-nav__link">
-    move_table()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sayn.database.Database.select" class="md-nav__link">
-    select()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sayn.database.Database.select_stream" class="md-nav__link">
-    select_stream()
+  <a href="#sayn.database.Database.read_data" class="md-nav__link">
+    read_data()
   </a>
   
 </li>
@@ -809,43 +746,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#sayn.database.Database.create_indexes" class="md-nav__link">
-    create_indexes()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sayn.database.Database.create_table_ddl" class="md-nav__link">
-    create_table_ddl()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sayn.database.Database.create_table_select" class="md-nav__link">
-    create_table_select()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sayn.database.Database.drop_table" class="md-nav__link">
-    drop_table()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#sayn.database.Database.execute" class="md-nav__link">
     execute()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sayn.database.Database.get_table" class="md-nav__link">
-    get_table()
   </a>
   
 </li>
@@ -858,13 +760,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#sayn.database.Database.insert" class="md-nav__link">
-    insert()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#sayn.database.Database.load_data" class="md-nav__link">
     load_data()
   </a>
@@ -872,29 +767,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#sayn.database.Database.merge_tables" class="md-nav__link">
-    merge_tables()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sayn.database.Database.move_table" class="md-nav__link">
-    move_table()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sayn.database.Database.select" class="md-nav__link">
-    select()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sayn.database.Database.select_stream" class="md-nav__link">
-    select_stream()
+  <a href="#sayn.database.Database.read_data" class="md-nav__link">
+    read_data()
   </a>
   
 </li>
@@ -984,319 +858,6 @@ when working in python tasks without the need for calling create_engine.</p>
 </table>
 <div class="doc doc-children">
 <div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="sayn.database.Database.create_indexes">
-
-        <code class="highlight language-python">
-create_indexes<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">ddl</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>        </code>
-
-
-      <a class="headerlink" href="#sayn.database.Database.create_indexes" title="Permanent link">&para;</a></h3>
-<div class="doc doc-contents ">
-<p>Returns SQL to create indexes from ddl.</p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>table</code></td>
-<td><code>str</code></td>
-<td>
-<p>The target table name</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>schema</code></td>
-<td><code>str</code></td>
-<td>
-<p>The target schema or None</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>ddl</code></td>
-<td><code>dict</code></td>
-<td>
-<p>A ddl task definition</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>execute</code></td>
-<td><code>bool</code></td>
-<td>
-<p>Execute the query before returning it</p>
-</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>str</code></td>
-<td>
-<p>A SQL script for the CREATE INDEX statements</p>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="sayn.database.Database.create_table_ddl">
-
-        <code class="highlight language-python">
-create_table_ddl<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">ddl</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>        </code>
-
-
-      <a class="headerlink" href="#sayn.database.Database.create_table_ddl" title="Permanent link">&para;</a></h3>
-<div class="doc doc-contents ">
-<p>Returns SQL code for a create table from a select statment.</p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>table</code></td>
-<td><code>str</code></td>
-<td>
-<p>The target table name</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>schema</code></td>
-<td><code>str</code></td>
-<td>
-<p>The target schema or None</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>ddl</code></td>
-<td><code>dict</code></td>
-<td>
-<p>A ddl task definition</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>execute</code></td>
-<td><code>bool</code></td>
-<td>
-<p>Execute the query before returning it</p>
-</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>str</code></td>
-<td>
-<p>A SQL script for the CREATE TABLE statement</p>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="sayn.database.Database.create_table_select">
-
-        <code class="highlight language-python">
-create_table_select<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">select</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ddl</span><span class="o">=</span><span class="p">{},</span> <span class="n">execute</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>        </code>
-
-
-      <a class="headerlink" href="#sayn.database.Database.create_table_select" title="Permanent link">&para;</a></h3>
-<div class="doc doc-contents ">
-<p>Returns SQL code for a create table from a select statment.</p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>table</code></td>
-<td><code>str</code></td>
-<td>
-<p>The target table name</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>schema</code></td>
-<td><code>str</code></td>
-<td>
-<p>The target schema or None</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>select</code></td>
-<td><code>str</code></td>
-<td>
-<p>A SQL SELECT query to build the table with</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>view</code></td>
-<td><code>bool</code></td>
-<td>
-<p>Indicates if the object to create is a view. Defaults to creating a table</p>
-</td>
-<td><code>False</code></td>
-</tr>
-<tr>
-<td><code>ddl</code></td>
-<td><code>dict</code></td>
-<td>
-<p>Optionally specify a ddl dict. If provided, a <code>CREATE</code> with column specification
-followed by an <code>INSERT</code> rather than a <code>CREATE ... AS SELECT ...</code> will be issued</p>
-</td>
-<td><code>{}</code></td>
-</tr>
-<tr>
-<td><code>execute</code></td>
-<td><code>bool</code></td>
-<td>
-<p>Execute the query before returning it</p>
-</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>str</code></td>
-<td>
-<p>A SQL script for the CREATE...AS</p>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="sayn.database.Database.drop_table">
-
-        <code class="highlight language-python">
-drop_table<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>        </code>
-
-
-      <a class="headerlink" href="#sayn.database.Database.drop_table" title="Permanent link">&para;</a></h3>
-<div class="doc doc-contents ">
-<p>Returns a DROP statement.</p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>table</code></td>
-<td><code>str</code></td>
-<td>
-<p>The target table name</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>schema</code></td>
-<td><code>str</code></td>
-<td>
-<p>The target schema or None</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>view</code></td>
-<td><code>bool</code></td>
-<td>
-<p>Indicates if the object to drop is a view. Defaults to dropping a table</p>
-</td>
-<td><code>False</code></td>
-</tr>
-<tr>
-<td><code>execute</code></td>
-<td><code>bool</code></td>
-<td>
-<p>Execute the query before returning it</p>
-</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>str</code></td>
-<td>
-<p>A SQL script for the DROP statements</p>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="doc doc-object doc-method">
 <h3 class="doc doc-heading" id="sayn.database.Database.execute">
 
         <code class="highlight language-python">
@@ -1330,64 +891,6 @@ execute<span class="p">(</span><span class="bp">self</span><span class="p">,</sp
 </div>
 </div>
 <div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="sayn.database.Database.get_table">
-
-        <code class="highlight language-python">
-get_table<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">schema</span><span class="p">)</span>        </code>
-
-
-      <a class="headerlink" href="#sayn.database.Database.get_table" title="Permanent link">&para;</a></h3>
-<div class="doc doc-contents ">
-<p>Create a SQLAlchemy Table object.</p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>table</code></td>
-<td><code>str</code></td>
-<td>
-<p>The table name</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>schema</code></td>
-<td><code>str</code></td>
-<td>
-<p>The schema or None</p>
-</td>
-<td><em>required</em></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>sqlalchemy.Table</code></td>
-<td>
-<p>A table object from sqlalchemy</p>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="doc doc-object doc-method">
 <h3 class="doc doc-heading" id="sayn.database.Database.grant_permissions">
 
         <code class="highlight language-python">
@@ -1396,7 +899,7 @@ grant_permissions<span class="p">(</span><span class="bp">self</span><span class
 
       <a class="headerlink" href="#sayn.database.Database.grant_permissions" title="Permanent link">&para;</a></h3>
 <div class="doc doc-contents ">
-<p>Returns a set of GRANT statments.</p>
+<p>Returns a set of GRANT statements.</p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -1455,88 +958,6 @@ grant_permissions<span class="p">(</span><span class="bp">self</span><span class
 <td><code>str</code></td>
 <td>
 <p>A SQL script for the GRANT statements</p>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="sayn.database.Database.insert">
-
-        <code class="highlight language-python">
-insert<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">select</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>        </code>
-
-
-      <a class="headerlink" href="#sayn.database.Database.insert" title="Permanent link">&para;</a></h3>
-<div class="doc doc-contents ">
-<p>Returns an INSERT statment from a SELECT query.</p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>table</code></td>
-<td><code>str</code></td>
-<td>
-<p>The target table name</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>schema</code></td>
-<td><code>str</code></td>
-<td>
-<p>The target schema or None</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>select</code></td>
-<td><code>str</code></td>
-<td>
-<p>The SELECT statement to issue</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>columns</code></td>
-<td><code>list</code></td>
-<td>
-<p>The list of column names specified in DDL. If provided, the insert will be reordered based on this order</p>
-</td>
-<td><code>None</code></td>
-</tr>
-<tr>
-<td><code>execute</code></td>
-<td><code>bool</code></td>
-<td>
-<p>Execute the query before returning it</p>
-</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>str</code></td>
-<td>
-<p>A SQL script for the INSERT statement</p>
 </td>
 </tr>
 </tbody>
@@ -1622,282 +1043,15 @@ in autosql and copy tasks</p>
 </div>
 </div>
 <div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="sayn.database.Database.merge_tables">
+<h3 class="doc doc-heading" id="sayn.database.Database.read_data">
 
         <code class="highlight language-python">
-merge_tables<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_table</span><span class="p">,</span> <span class="n">src_schema</span><span class="p">,</span> <span class="n">dst_table</span><span class="p">,</span> <span class="n">dst_schema</span><span class="p">,</span> <span class="n">delete_key</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>        </code>
+read_data<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>        </code>
 
 
-      <a class="headerlink" href="#sayn.database.Database.merge_tables" title="Permanent link">&para;</a></h3>
-<div class="doc doc-contents ">
-<p>Returns SQL to merge data in incremental loads.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Data merge is performed by issuing these statements:</p>
-<ul>
-<li>DELETE from target WHERE data exists in source</li>
-<li>INSERT into target SELECT * from source</li>
-</ul>
-</div>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>src_table</code></td>
-<td><code>str</code></td>
-<td>
-<p>The source table name</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>src_schema</code></td>
-<td><code>str</code></td>
-<td>
-<p>The source schema or None</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>dst_table</code></td>
-<td><code>str</code></td>
-<td>
-<p>The target table name</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>dst_schema</code></td>
-<td><code>str</code></td>
-<td>
-<p>The target schema or None</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>delete_key</code></td>
-<td><code>str</code></td>
-<td>
-<p>The column name to use for deleting records from the target table</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>columns</code></td>
-<td><code>list</code></td>
-<td>
-<p>The list of column names specified in DDL. If provided, the insert will be reordered based on this order</p>
-</td>
-<td><code>None</code></td>
-</tr>
-<tr>
-<td><code>execute</code></td>
-<td><code>bool</code></td>
-<td>
-<p>Execute the query before returning it</p>
-</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>str</code></td>
-<td>
-<p>A SQL script for moving the table</p>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="sayn.database.Database.move_table">
-
-        <code class="highlight language-python">
-move_table<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_table</span><span class="p">,</span> <span class="n">src_schema</span><span class="p">,</span> <span class="n">dst_table</span><span class="p">,</span> <span class="n">dst_schema</span><span class="p">,</span> <span class="n">ddl</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>        </code>
-
-
-      <a class="headerlink" href="#sayn.database.Database.move_table" title="Permanent link">&para;</a></h3>
-<div class="doc doc-contents ">
-<p>Returns SQL code to rename a table and change schema.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Table movement is performed as a series of ALTER statments:</p>
-<ul>
-<li>ALTER TABLE RENAME</li>
-<li>ALTER TABLE SET SCHEMA (if the database supports it)</li>
-<li>ALTER INDEX RENAME (to ensure consistency in the naming). Index names
-      are taken from the ddl field</li>
-</ul>
-</div>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>src_table</code></td>
-<td><code>str</code></td>
-<td>
-<p>The source table name</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>src_schema</code></td>
-<td><code>str</code></td>
-<td>
-<p>The source schema or None</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>dst_table</code></td>
-<td><code>str</code></td>
-<td>
-<p>The target table name</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>dst_schema</code></td>
-<td><code>str</code></td>
-<td>
-<p>The target schema or None</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>ddl</code></td>
-<td><code>dict</code></td>
-<td>
-<p>A ddl task definition</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>execute</code></td>
-<td><code>bool</code></td>
-<td>
-<p>Execute the query before returning it</p>
-</td>
-<td><code>False</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>str</code></td>
-<td>
-<p>A SQL script for moving the table</p>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="sayn.database.Database.select">
-
-        <code class="highlight language-python">
-select<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>        </code>
-
-
-      <a class="headerlink" href="#sayn.database.Database.select" title="Permanent link">&para;</a></h3>
+      <a class="headerlink" href="#sayn.database.Database.read_data" title="Permanent link">&para;</a></h3>
 <div class="doc doc-contents ">
 <p>Executes the query and returns a list of dictionaries with the data.</p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>query</code></td>
-<td><code>str</code></td>
-<td>
-<p>The SELECT query to execute</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>params</code></td>
-<td><code>dict</code></td>
-<td>
-<p>sqlalchemy parameters to use when building the final query as per
-<a href="https://docs.sqlalchemy.org/en/13/core/connections.html#sqlalchemy.engine.Connection.execute">sqlalchemy.engine.Connection.execute</a></p>
-</td>
-<td><code>{}</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>list</code></td>
-<td>
-<p>A list of dictionaries with the results of the query</p>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="doc doc-object doc-method">
-<h3 class="doc doc-heading" id="sayn.database.Database.select_stream">
-
-        <code class="highlight language-python">
-select_stream<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>        </code>
-
-
-      <a class="headerlink" href="#sayn.database.Database.select_stream" title="Permanent link">&para;</a></h3>
-<div class="doc doc-contents ">
-<p>Executes the query and returns an iterator dictionaries with the data.</p>
-<p>The main difference with select() is that this method executes the query with a server-side
-cursor (sqlalchemy stream_results = True).</p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>

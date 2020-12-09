@@ -350,8 +350,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../dags/" class="md-nav__link">
-      DAGs
+    <a href="../tasks/overview/" class="md-nav__link">
+      Tasks
     </a>
   </li>
 
@@ -362,8 +362,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../tasks/overview/" class="md-nav__link">
-      Tasks
+    <a href="../tasks/task_group/" class="md-nav__link">
+      Task Groups
     </a>
   </li>
 
@@ -676,7 +676,7 @@
 <div class="highlight"><pre><span></span><code>tutorial
 ├── project.yaml
 ├── settings.yaml
-├── dags
+├── tasks
 │   └── base.yaml
 ├── python
 │   ├── __init__.py
@@ -700,7 +700,7 @@
 <ul>
 <li><code>project.yaml</code>: defines the core components of the SAYN project. It is <strong>shared across all collaborators</strong>.</li>
 <li><code>settings.yaml</code>: defines the individual user's settings. It is <strong>unique for each collaborator and should never be pushed to git</strong> as it contains credentials.</li>
-<li><code>dags</code>: folder where <code>dag</code> files are stored. SAYN tasks are defined in those files.</li>
+<li><code>tasks</code>: folder where the task files are stored. Each file is considered a task group.</li>
 <li><code>python</code>: folder where <code>python</code> tasks are stored.</li>
 <li><code>sql</code>: folder where <code>sql</code> and <code>autosql</code> tasks are stored.</li>
 <li><code>logs</code>: folder where SAYN logs are written.</li>

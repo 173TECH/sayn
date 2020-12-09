@@ -440,8 +440,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../dags/" class="md-nav__link">
-      DAGs
+    <a href="../tasks/overview/" class="md-nav__link">
+      Tasks
     </a>
   </li>
 
@@ -452,8 +452,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../tasks/overview/" class="md-nav__link">
-      Tasks
+    <a href="../tasks/task_group/" class="md-nav__link">
+      Task Groups
     </a>
   </li>
 
@@ -865,11 +865,10 @@ following arguments to filter:</p>
 <li><code>sayn run -t task1 -t task2</code>: runs <code>task1</code> and <code>task2</code> only.</li>
 <li><code>sayn run -t +task_name</code>: run <code>task_name</code> and all its ancestors.</li>
 <li><code>sayn run -t task_name+</code>: run <code>task_name</code> and all its descendants.</li>
-<li><code>sayn run -t dag:dag_name</code>: run all tasks specified in the dag <code>dag_name</code>.</li>
+<li><code>sayn run -t group:group_name</code>: run all tasks specified in the group <code>group_name</code>.</li>
 <li><code>sayn run -t tag:tag_name</code> run all tasks tagged with <code>tag_name</code>.</li>
 <li><code>sayn run -x task_name</code>: run all tasks except <code>task_name</code>.</li>
-<li><code>sayn run -t dag:marketing -x +task_name</code>: run all tasks in the <code>marketing</code> DAG except <code>task_name</code> and
-  its ancestors.</li>
+<li><code>sayn run -t group:marketing -x +task_name</code>: run all tasks in the <code>marketing</code> task group except <code>task_name</code> and its ancestors.</li>
 </ul>
 <h4 id="incremental-tasks-options">Incremental tasks options<a class="headerlink" href="#incremental-tasks-options" title="Permanent link">&para;</a></h4>
 <p>SAYN uses 3 arguments to manage incremental executions: <code>full_load</code>, <code>start_dt</code> and <code>end_dt</code>; which can

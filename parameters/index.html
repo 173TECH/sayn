@@ -341,8 +341,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../dags/" class="md-nav__link">
-      DAGs
+    <a href="../tasks/overview/" class="md-nav__link">
+      Tasks
     </a>
   </li>
 
@@ -353,8 +353,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../tasks/overview/" class="md-nav__link">
-      Tasks
+    <a href="../tasks/task_group/" class="md-nav__link">
+      Task Groups
     </a>
   </li>
 
@@ -851,7 +851,7 @@ but not for the <code>prod</code> profile.</p>
 <p>Tasks can also define parameters. This is useful if there's a way for several tasks to share
 the same code:</p>
 <div class="admonition example">
-<p class="admonition-title">dags/base.yaml</p>
+<p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">task1</span><span class="p">:</span>
   <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sql</span>
   <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">task_template.sql</span>
@@ -884,7 +884,7 @@ which is used to change the source table in the SQL.</p>
 parameters. Therefore, you can make the tasks' definition dynamic. This example uses an <code>autosql</code>
 task:</p>
 <div class="admonition example">
-<p class="admonition-title">dags/base.yaml</p>
+<p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">task_autosql_param</span><span class="p">:</span>
   <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
   <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">task_autosql_param.sql</span>
@@ -930,7 +930,7 @@ which we set as default above and evaluate as:</p>
 </div>
 <p>This task example is even more powerful when used in presets in combination with the jinja variable <code>task</code>:</p>
 <div class="admonition example">
-<p class="admonition-title">dags/base.yaml</p>
+<p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">presets</span><span class="p">:</span>
   <span class="nt">preset_auto_param</span><span class="p">:</span>
     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>

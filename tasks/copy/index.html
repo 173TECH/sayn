@@ -339,8 +339,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../dags/" class="md-nav__link">
-      DAGs
+    <a href="../overview/" class="md-nav__link">
+      Tasks
     </a>
   </li>
 
@@ -351,8 +351,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../overview/" class="md-nav__link">
-      Tasks
+    <a href="../task_group/" class="md-nav__link">
+      Task Groups
     </a>
   </li>
 
@@ -750,7 +750,7 @@ ingest data from operational databases (e.g. PostgreSQL) to your analytics wareh
 <h2 id="defining-copy-tasks">Defining <code>copy</code> tasks<a class="headerlink" href="#defining-copy-tasks" title="Permanent link">&para;</a></h2>
 <p>A <code>copy</code> task is defined as follows:</p>
 <div class="admonition example">
-<p class="admonition-title">dags/base.yaml</p>
+<p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">task_copy</span><span class="p">:</span>
   <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">copy</span>
   <span class="nt">source</span><span class="p">:</span>
@@ -768,18 +768,28 @@ ingest data from operational databases (e.g. PostgreSQL) to your analytics wareh
 <ul>
 <li><code>type</code>: <code>copy</code>.</li>
 <li><code>source</code>: the source details<ul>
-<li><code>db</code>: a credential from the <code>required_credentials</code> list in <code>project.yaml</code> that's one of the supported <a href="../../databases/overview/">databases</a>.</li>
+<li><code>db</code>: the source database.</li>
 <li><code>schema</code>: the (optional) source schema.</li>
 <li><code>table</code>: the name of the table top copy.</li>
 </ul>
 </li>
-<li><code>destination</code>: the destination details. The destination database is the <code>default_db</code> set in <code>project.yaml</code>.<ul>
+<li><code>destination</code>: the destination details.<ul>
 <li><code>tmp_schema</code>: the (optional) staging schema used in the process of copying data.</li>
 <li><code>schema</code>: the (optional) destination schema.</li>
 <li><code>table</code>: the name of the table to store data into.</li>
+<li><code>db</code>: the (optional) destination database.</li>
 </ul>
 </li>
 </ul>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You do not need to specify <code>db</code> unless you want the destination database to be different than the <code>default_db</code> you define in <code>project.yaml</code> (which is the default database used by SAYN). If you define the <code>db</code> attribute, it needs to:</p>
+<ul>
+<li>Be a credential from the <code>required_credentials</code> list in <code>project.yaml</code>.</li>
+<li>Be defined in your <code>settings.yaml</code>.</li>
+<li>Be one of the supported <a href="../../databases/overview/">databases</a>.</li>
+</ul>
+</div>
 <p>By default, tables will be copied in full every time SAYN runs, but it can be changed into an incremental
 load by adding <code>incremental_key</code> and <code>delete_key</code>:</p>
 <ul>
@@ -790,7 +800,7 @@ load by adding <code>incremental_key</code> and <code>delete_key</code>:</p>
   obtained before inserting.</li>
 </ul>
 <div class="admonition example">
-<p class="admonition-title">dags/base.yaml</p>
+<p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">task_copy</span><span class="p">:</span>
   <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">copy</span>
   <span class="nt">source</span><span class="p">:</span>
@@ -814,7 +824,7 @@ based on the <code>id</code>s found in this new dataset.</p>
 specification, we can override the default behaviour of copy when it comes to column types by enforcing
 specific column types in the final table:</p>
 <div class="admonition example">
-<p class="admonition-title">dags/base.yaml</p>
+<p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">task_copy</span><span class="p">:</span>
   <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">copy</span>
   <span class="nt">source</span><span class="p">:</span>

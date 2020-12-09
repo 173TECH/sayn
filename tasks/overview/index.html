@@ -339,8 +339,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../dags/" class="md-nav__link">
-      DAGs
+    <a href="./" class="md-nav__link">
+      Tasks
     </a>
   </li>
 
@@ -351,8 +351,8 @@
 
 
   <li class="md-nav__item">
-    <a href="./" class="md-nav__link">
-      Tasks
+    <a href="../task_group/" class="md-nav__link">
+      Task Groups
     </a>
   </li>
 
@@ -456,19 +456,6 @@
   <a href="#defining-tasks" class="md-nav__link">
     Defining Tasks
   </a>
-  
-    <nav class="md-nav" aria-label="Defining Tasks">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#type-specific-attributes" class="md-nav__link">
-    type specific attributes
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -734,19 +721,6 @@
     Defining Tasks
   </a>
   
-    <nav class="md-nav" aria-label="Defining Tasks">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#type-specific-attributes" class="md-nav__link">
-    type specific attributes
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -771,11 +745,28 @@
                 
                 <h1 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h1>
 <h2 id="about">About<a class="headerlink" href="#about" title="Permanent link">&para;</a></h2>
-<p>Tasks are the core components of your SAYN DAGs (Directed Acyclic Graph). Through tasks, SAYN provides a lot of automation under the hood, so make sure you explore the various task types SAYN offers! Tasks will be executed in an order based on the parents you define.</p>
+<p>Tasks are the backbone of your SAYN project. They are used by SAYN to create a DAG (Directed Acyclic Graph).</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>A Directed Acyclic Graph is a concept which enables to conveniently model tasks and dependencies. It uses the following key principles</p>
+<ul>
+<li><code>graph</code>: a specific data structure which consists of <code>nodes</code> connected by <code>edges</code>.</li>
+<li><code>directed</code>: dependencies have a direction. If there is an <code>edge</code> (i.e. a dependency) between two tasks, one will run before the other.</li>
+<li><code>acyclic</code>: there are no circular dependencies. If you process the whole graph, you will never encounter the same task twice.</li>
+</ul>
+</div>
+<p>Dependencies between tasks are defined with the <code>parents</code> list. To relate back to the DAG concept, this implies each task in SAYN represents a <code>node</code> and <code>edges</code> are defined by the <code>parents</code> attribute of each task. For example, the SAYN tutorial defines the following DAG:</p>
+<p><img alt="Tutorial" src="../../dag.png" /></p>
+<p>Through tasks, SAYN provides a lot of automation under the hood, so make sure you explore the various task types SAYN offers!</p>
 <h2 id="defining-tasks">Defining Tasks<a class="headerlink" href="#defining-tasks" title="Permanent link">&para;</a></h2>
-<p>Tasks are defined in <a href="../../dags/">DAG</a> files under the <code>tasks</code> entry.</p>
+<p>Tasks are defined in YAML files located under the <code>tasks</code> folder at the root level of your SAYN project. Each file in the <code>tasks</code> folder represents a <a href="../task_group/">task group</a> and can be executed independently. By default, SAYN includes any file in the <code>tasks</code> folder ending with a <code>.yaml</code> extension when creating the DAG.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>When growing a SAYN project, it is good practice to start separating your tasks in multiple groups (e.g. extracts, core models, marketing models, finance models, data science, etc.) in order to organise processes.</p>
+</div>
+<p>Within each YAML file, tasks are defined in the <code>tasks</code> entry.</p>
 <div class="admonition example">
-<p class="admonition-title">dags/base.yaml</p>
+<p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
   <span class="nt">task_1</span><span class="p">:</span>
     <span class="c1"># Task properties</span>
@@ -819,8 +810,10 @@
 </tr>
 </tbody>
 </table>
-<h3 id="type-specific-attributes"><code>type</code> specific attributes<a class="headerlink" href="#type-specific-attributes" title="Permanent link">&para;</a></h3>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
 <p>Different task types have different attributes. Make sure that you check each task type's specific documentation to understand how to define it.</p>
+</div>
 <h2 id="task-types">Task Types<a class="headerlink" href="#task-types" title="Permanent link">&para;</a></h2>
 <p>Please see below the available SAYN task types:</p>
 <ul>

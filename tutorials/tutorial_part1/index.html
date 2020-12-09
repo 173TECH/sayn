@@ -310,8 +310,23 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-3-define-your-dags" class="md-nav__link">
-    Step 3: Define your DAG(s)
+  <a href="#step-3-define-your-tasks" class="md-nav__link">
+    Step 3: Define your tasks
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 3: Define your tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#load_data-task" class="md-nav__link">
+    load_data task
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#autosql-tasks" class="md-nav__link">
+    Autosql tasks
   </a>
   
 </li>
@@ -320,18 +335,9 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#load_data-task" class="md-nav__link">
-    load_data task
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#autosql-tasks" class="md-nav__link">
-    Autosql tasks
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -448,8 +454,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../dags/" class="md-nav__link">
-      DAGs
+    <a href="../../tasks/overview/" class="md-nav__link">
+      Tasks
     </a>
   </li>
 
@@ -460,8 +466,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tasks/overview/" class="md-nav__link">
-      Tasks
+    <a href="../../tasks/task_group/" class="md-nav__link">
+      Task Groups
     </a>
   </li>
 
@@ -801,8 +807,23 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-3-define-your-dags" class="md-nav__link">
-    Step 3: Define your DAG(s)
+  <a href="#step-3-define-your-tasks" class="md-nav__link">
+    Step 3: Define your tasks
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 3: Define your tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#load_data-task" class="md-nav__link">
+    load_data task
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#autosql-tasks" class="md-nav__link">
+    Autosql tasks
   </a>
   
 </li>
@@ -811,18 +832,9 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#load_data-task" class="md-nav__link">
-    load_data task
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#autosql-tasks" class="md-nav__link">
-    Autosql tasks
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -879,7 +891,7 @@ battles from various tournaments.</p>
 <div class="highlight"><pre><span></span><code>tutorial
 ├── project.yaml
 ├── settings.yaml
-├── dags
+├── tasks
 │   └── base.yaml
 ├── python
 │   ├── __init__.py
@@ -902,7 +914,7 @@ battles from various tournaments.</p>
 <li><code>project.yaml</code>: defines the SAYN project. It is <strong>shared across all collaborators</strong>.</li>
 <li><code>settings.yaml</code>: defines the individual user's settings. It is <strong>unique for each collaborator and
    should never be pushed to git</strong> as it contains credentials.</li>
-<li><code>dags</code>: folder where DAG files are stored. SAYN tasks are defined in those files.</li>
+<li><code>tasks</code>: folder where the task files are stored. Each file is considered a task group.</li>
 <li><code>python</code>: folder where <code>python</code> tasks are stored.</li>
 <li><code>sql</code>: folder where <code>sql</code> and <code>autosql</code> tasks are stored.</li>
 <li><code>logs</code>: folder where SAYN logs are written.</li>
@@ -918,9 +930,6 @@ battles from various tournaments.</p>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">warehouse</span>
 
 <span class="nt">default_db</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">warehouse</span>
-
-<span class="nt">dags</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">base</span>
 </code></pre></div>
 
 </div>
@@ -930,7 +939,6 @@ battles from various tournaments.</p>
   credential called <code>warehouse</code>. The connection details will be defined in <code>settings.yaml</code>.</li>
 <li><code>default_db</code>: the database used by sql and autosql tasks. Since we only have 1 credential, this
   field can be skipped.</li>
-<li><code>dags</code>: the list of files in the dags folder that contain this project's task definitions.</li>
 </ul>
 <h3 id="step-2-define-your-individual-settings-with-settingsyaml">Step 2: Define your individual settings with <code>settings.yaml</code><a class="headerlink" href="#step-2-define-your-individual-settings-with-settingsyaml" title="Permanent link">&para;</a></h3>
 <p>The <code>settings.yaml</code> file at the root level of your directory and contains:</p>
@@ -958,19 +966,14 @@ battles from various tournaments.</p>
 </div>
 <p>The following is defined:</p>
 <ul>
-<li><code>profiles</code>: the definion of profiles for the project. A profile defines the connection between
-  credentials in the <code>project.yaml</code> file and credentials defined below. In this case we define 2
-  profiles dev and prod.</li>
-<li><code>default_profile</code>: the profile used by default at execution time. It can be overriden using
-  <code>sayn run -p prod</code>.</li>
-<li><code>credentials</code>: here we define the credentials. In this case we have 2 for dev and prod, that are
-  used as <code>warehouse</code> on each profile.</li>
+<li><code>profiles</code>: the definion of profiles for the project. A profile defines the connection between credentials in the <code>project.yaml</code> file and credentials defined below. In this case we define 2 profiles dev and prod.</li>
+<li><code>default_profile</code>: the profile used by default at execution time. It can be overriden using <code>sayn run -p prod</code>.</li>
+<li><code>credentials</code>: here we define the credentials. In this case we have 2 for dev and prod, that are used as <code>warehouse</code> on each profile.</li>
 </ul>
-<h3 id="step-3-define-your-dags">Step 3: Define your DAG(s)<a class="headerlink" href="#step-3-define-your-dags" title="Permanent link">&para;</a></h3>
-<p>In SAYN, DAGs are defined in <code>yaml</code> files within the <code>dags</code> folder. As seen before, those <code>dags</code> are imported in the <code>project.yaml</code> file in order to be executed. When importing the DAGs in the <code>project.yaml</code> file, you should write the name without the <code>.yaml</code> extension.</p>
-<p>Our project contains only one DAG: <code>base.yaml</code>. Below is the file:</p>
+<h3 id="step-3-define-your-tasks">Step 3: Define your tasks<a class="headerlink" href="#step-3-define-your-tasks" title="Permanent link">&para;</a></h3>
+<p>In SAYN, tasks are defined in <code>yaml</code> files within the <code>tasks</code> folder. Each file is considered a task group. Our project contains only one task group: <code>base.yaml</code>:</p>
 <div class="admonition example">
-<p class="admonition-title">dags/base.yaml</p>
+<p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
   <span class="nt">load_data</span><span class="p">:</span>
     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python</span>
@@ -990,16 +993,15 @@ battles from various tournaments.</p>
 </div>
 <p>The <code>tasks</code> entry contains a map of tasks definitions. In this case we're using 2 types of tasks:</p>
 <ul>
-<li><code>python</code>: lets you define a task written in Python. Python tasks are useful to complete your extraction
-  and load layers if you're using an ELT tool or for data science models defined in Python.</li>
-<li><code>autosql</code>: lets you write a <code>SELECT</code> statement while SAYN manages the table or view creation
-  automatically for you. Our example has multiple <code>autosql</code> tasks which create models based on the
-  logs. </li>
+<li><code>python</code>: lets you define a task written in Python. Python tasks are useful to complete your extraction and load layers if you're using an ELT tool or for data science models defined in Python.</li>
+<li><code>autosql</code>: lets you write a <code>SELECT</code> statement while SAYN manages the table or view creation automatically for you. Our example has multiple <code>autosql</code> tasks which create models based on the logs.</li>
 </ul>
-<h2 id="load_data-task"><code>load_data</code> task<a class="headerlink" href="#load_data-task" title="Permanent link">&para;</a></h2>
-<p>In our example project the only python task is <code>load_data</code> which creates some synthetic logs and loads
-them to our database. The code can be found in the class <code>LoadData</code> in <code>python/load_data.py</code>. Let's have
-a look at the main elements of a python task</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Although this tutorial only has one file in the <code>tasks</code> folder, you can separate tasks in multiple files. SAYN automatically includes any file from the <code>tasks</code> folder with a <code>.yaml</code> extension when creating the DAG. Each file is considered a <a href="../../tasks/task_group/">task group</a>.</p>
+</div>
+<h4 id="load_data-task"><code>load_data</code> task<a class="headerlink" href="#load_data-task" title="Permanent link">&para;</a></h4>
+<p>In our example project the only python task is <code>load_data</code> which creates some synthetic logs and loads them to our database. The code can be found in the class <code>LoadData</code> in <code>python/load_data.py</code>. Let's have a look at the main elements of a python task:</p>
 <div class="admonition example">
 <p class="admonition-title">python/load_data.py</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># ...</span>
@@ -1013,9 +1015,7 @@ a look at the main elements of a python task</p>
 </div>
 <p>The above is the beginning of the python task. When the execution of <code>sayn run</code> hits the <code>load_data</code>
 task the code in the <code>run</code> method will execute.</p>
-<p>A task in SAYN can be split into multiple steps, which is useful for debugging when errors occur. In this
-case, we first generate all data and then we load each dataset one by one. We can define the steps a task
-will follow with the <code>self.set_run_steps</code> method.</p>
+<p>A task in SAYN can be split into multiple steps, which is useful for debugging when errors occur. In this case, we first generate all data and then we load each dataset one by one. We can define the steps a task will follow with the <code>self.set_run_steps</code> method.</p>
 <div class="admonition example">
 <p class="admonition-title">python/load_data.py</p>
 <div class="highlight"><pre><span></span><code>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1057,20 +1057,17 @@ will follow with the <code>self.set_run_steps</code> method.</p>
 
 </div>
 <p>Here our "Generate Dimensions" step simply generates the dimension variables with an id.</p>
-<p>The final core element is accessing databases. In our project we defined a single credential called
-<code>warehouse</code> and we made this the <code>default_db</code>. To access this we just need to use <code>self.default_db</code>.</p>
+<p>The final core element is accessing databases. In our project we defined a single credential called <code>warehouse</code> and we made this the <code>default_db</code>. To access this we just need to use <code>self.default_db</code>.</p>
 <div class="admonition example">
 <p class="admonition-title">python/load_data.py</p>
 <div class="highlight"><pre><span></span><code><span class="bp">self</span><span class="o">.</span><span class="n">default_db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">q_create</span><span class="p">)</span>
 </code></pre></div>
 
 </div>
-<p>The main method in Database objects is <code>execute</code> which accepts a sql script via parameter and executes
-it in a transaction. Another method used in this tutorial is <code>load_data</code> which loads a dataset into
-the database automatically creating a table for it first.</p>
+<p>The main method in Database objects is <code>execute</code> which accepts a sql script via parameter and executes it in a transaction. Another method used in this tutorial is <code>load_data</code> which loads a dataset into the database automatically creating a table for it first.</p>
 <p>For more information about how to build <code>python</code> tasks, visit the <a href="../../tasks/python/">python tasks section</a>.</p>
-<h2 id="autosql-tasks">Autosql tasks<a class="headerlink" href="#autosql-tasks" title="Permanent link">&para;</a></h2>
-<p>Let's have a look at one of the autosql tasks (<code>dim_tournaments</code>). As you can see in <code>dag/base.yaml</code>
+<h4 id="autosql-tasks">Autosql tasks<a class="headerlink" href="#autosql-tasks" title="Permanent link">&para;</a></h4>
+<p>Let's have a look at one of the autosql tasks (<code>dim_tournaments</code>). As you can see in <code>tasks/base.yaml</code>
 above, we specify a <code>file_name</code> which contains:</p>
 <div class="admonition example">
 <p class="admonition-title">sql/dim_tournaments.yaml</p>
@@ -1080,18 +1077,15 @@ above, we specify a <code>file_name</code> which contains:</p>
 </code></pre></div>
 
 </div>
-<p>So a simple <code>SELECT</code> statement that SAYN will use when creating a table called <code>dim_tournaments</code> as
-defined in the <code>destination</code> field in the dag file.</p>
+<p>This is a simple <code>SELECT</code> statement that SAYN will use when creating a table called <code>dim_tournaments</code> as defined in the <code>destination</code> field in the <code>base.yaml</code> file.</p>
 <p>For more information about setting up <code>autosql</code> tasks, visit the <a href="../../tasks/autosql/">autosql tasks section</a>.</p>
 <h2 id="running-your-project">Running Your Project<a class="headerlink" href="#running-your-project" title="Permanent link">&para;</a></h2>
 <p>So far we've used <code>sayn run</code> to execute our project, however SAYN provides more options:</p>
 <ul>
-<li><code>sayn run -p [profile_name]</code>: runs the whole project with the specific profile. In our case using
-  the profile <code>prod</code> will create a <code>prod.db</code> SQLite database and process all data there.</li>
+<li><code>sayn run -p [profile_name]</code>: runs the whole project with the specific profile. In our case using the profile <code>prod</code> will create a <code>prod.db</code> SQLite database and process all data there.</li>
 <li><code>sayn run -t [task_name]</code>: allows the filtering the tasks to run.</li>
 </ul>
-<p>More options are available to run specific components of your SAYN project. All details can be
-found in the <a href="../../cli/">SAYN cli</a> section.</p>
+<p>More options are available to run specific components of your SAYN project. All details can be found in the <a href="../../cli/">SAYN cli</a> section.</p>
 <h2 id="what-next">What Next?<a class="headerlink" href="#what-next" title="Permanent link">&para;</a></h2>
 <p>You now know the basics of SAYN, congratulations! You can continue learning by going through the <a href="../tutorial_part2/">Tutorial: Part 2</a> which shows you several tricks to make your SAYN project more dynamic and efficient.</p>
 <p>Otherwise, you can go through the rest of the documentation as SAYN has much more to offer!</p>

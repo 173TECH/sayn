@@ -339,8 +339,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../dags/" class="md-nav__link">
-      DAGs
+    <a href="../../tasks/overview/" class="md-nav__link">
+      Tasks
     </a>
   </li>
 
@@ -351,8 +351,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tasks/overview/" class="md-nav__link">
-      Tasks
+    <a href="../../tasks/task_group/" class="md-nav__link">
+      Task Groups
     </a>
   </li>
 
@@ -564,41 +564,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#database-class" class="md-nav__link">
-    Database class
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sayn.database.Database" class="md-nav__link">
-    sayn.database.Database
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sayn.database.Database.execute" class="md-nav__link">
-    execute()
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sayn.database.Database.load_data" class="md-nav__link">
-    load_data()
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sayn.database.Database.select" class="md-nav__link">
-    select()
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -765,41 +730,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#database-class" class="md-nav__link">
-    Database class
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sayn.database.Database" class="md-nav__link">
-    sayn.database.Database
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sayn.database.Database.execute" class="md-nav__link">
-    execute()
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sayn.database.Database.load_data" class="md-nav__link">
-    load_data()
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#sayn.database.Database.select" class="md-nav__link">
-    select()
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -876,248 +806,18 @@ amount of data is too large, adjust this value.</p>
 <code>self.connections</code>. For convenience though, all Python tasks have a <code>default_db</code> property that
 gives you access to the default database declared in <code>project.yaml</code>.</p>
 <p>The <a href="../../api/database/">database python class</a> provides several methods and properties to make it
-easier to work with python tasks. For example, <code>self.default_db.engine</code> can be used to to call 
-<code>DataFrame.read_sql</code> from pandas, but also provides some other convenient methods.</p>
+easier to work with python tasks. For example you can easily read or load data with <code>self.default_db</code> (see example below) or use <code>self.default_db.engine</code> to call <code>DataFrame.read_sql</code> from pandas.</p>
 <div class="admonition example">
 <p class="admonition-title">Example PythonTask</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sayn</span> <span class="kn">import</span> <span class="n">PythonTask</span>
 
 <span class="k">class</span> <span class="nc">TaskPython</span><span class="p">(</span><span class="n">PythonTask</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="hll">        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_db</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;SELECT * FROM test_table&quot;</span><span class="p">)</span>
+<span class="hll">        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_db</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span><span class="s2">&quot;SELECT * FROM test_table&quot;</span><span class="p">)</span>
 </span>
         <span class="c1"># do something with that data</span>
 </code></pre></div>
 
-</div>
-<h2 id="database-class">Database class<a class="headerlink" href="#database-class" title="Permanent link">&para;</a></h2>
-<div class="doc doc-object doc-class">
-<h2 class="hidden-toc" href="#sayn.database.Database" id="sayn.database.Database" style="visibility: hidden; position: absolute;">
-        <a class="headerlink" href="#sayn.database.Database" title="Permanent link">&para;</a></h2>
-<div class="doc doc-contents first">
-<p>Base class for databases in SAYN.</p>
-<p>Databases are implemented using sqlalchemy, and the <code>engine</code> attribute is available
-when working in python tasks without the need for calling create_engine.</p>
-<p><strong>Attributes:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>engine</code></td>
-<td><code>sqlalchemy.Engine</code></td>
-<td>
-<p>A sqlalchemy engine referencing the database.</p>
-</td>
-</tr>
-<tr>
-<td><code>name</code></td>
-<td><code>str</code></td>
-<td>
-<p>Name of the db as defined in <code>required_credentials</code> in <code>project.yaml</code>.</p>
-</td>
-</tr>
-<tr>
-<td><code>name_in_yaml</code></td>
-<td><code>str</code></td>
-<td>
-<p>Name of db under <code>credentials</code> in <code>settings.yaml</code>.</p>
-</td>
-</tr>
-<tr>
-<td><code>db_type</code></td>
-<td><code>str</code></td>
-<td>
-<p>Type of the database.</p>
-</td>
-</tr>
-<tr>
-<td><code>metadata</code></td>
-<td><code>sqlalchemy.MetaData</code></td>
-<td>
-<p>A metadata object associated with the engine.</p>
-</td>
-</tr>
-</tbody>
-</table>
-<div class="doc doc-children">
-<div class="doc doc-object doc-method">
-<h2 class="doc doc-heading" id="sayn.database.Database.execute">
-
-        <code class="highlight language-python">
-execute<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">)</span>        </code>
-
-
-      <a class="headerlink" href="#sayn.database.Database.execute" title="Permanent link">&para;</a></h2>
-<div class="doc doc-contents ">
-<p>Executes a script in the database. Multiple statements are supported.</p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>script</code></td>
-<td><code>sql</code></td>
-<td>
-<p>The SQL script to execute</p>
-</td>
-<td><em>required</em></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="doc doc-object doc-method">
-<h2 class="doc doc-heading" id="sayn.database.Database.load_data">
-
-        <code class="highlight language-python">
-load_data<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ddl</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>        </code>
-
-
-      <a class="headerlink" href="#sayn.database.Database.load_data" title="Permanent link">&para;</a></h2>
-<div class="doc doc-contents ">
-<p>Loads a list of values into the database</p>
-<p>The default loading mechanism is an INSERT...VALUES, but database drivers
-will implement more appropriate methods.</p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>table</code></td>
-<td><code>str</code></td>
-<td>
-<p>The name of the target table</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>data</code></td>
-<td><code>list</code></td>
-<td>
-<p>A list of dictionaries to load</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>schema</code></td>
-<td><code>str</code></td>
-<td>
-<p>An optional schema to reference the table</p>
-</td>
-<td><code>None</code></td>
-</tr>
-<tr>
-<td><code>batch_size</code></td>
-<td><code>int</code></td>
-<td>
-<p>The max size of each load batch. Defaults to
-<code>max_batch_rows</code> in the credentials configuration (settings.yaml)</p>
-</td>
-<td><code>None</code></td>
-</tr>
-<tr>
-<td><code>replace</code></td>
-<td><code>bool</code></td>
-<td>
-<p>Indicates whether the target table is to be replaced
-(True) or new records are to be appended to the existing table (default)</p>
-</td>
-<td><code>False</code></td>
-</tr>
-<tr>
-<td><code>ddl</code></td>
-<td><code>dict</code></td>
-<td>
-<p>An optional ddl specification in the same format as used
-in autosql and copy tasks</p>
-</td>
-<td><code>None</code></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="doc doc-object doc-method">
-<h2 class="doc doc-heading" id="sayn.database.Database.select">
-
-        <code class="highlight language-python">
-select<span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>        </code>
-
-
-      <a class="headerlink" href="#sayn.database.Database.select" title="Permanent link">&para;</a></h2>
-<div class="doc doc-contents ">
-<p>Executes the query and returns a list of dictionaries with the data.</p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>query</code></td>
-<td><code>str</code></td>
-<td>
-<p>The SELECT query to execute</p>
-</td>
-<td><em>required</em></td>
-</tr>
-<tr>
-<td><code>params</code></td>
-<td><code>dict</code></td>
-<td>
-<p>sqlalchemy parameters to use when building the final query as per
-<a href="https://docs.sqlalchemy.org/en/13/core/connections.html#sqlalchemy.engine.Connection.execute">sqlalchemy.engine.Connection.execute</a></p>
-</td>
-<td><code>{}</code></td>
-</tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>list</code></td>
-<td>
-<p>A list of dictionaries with the results of the query</p>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-</div>
 </div>
                 
               
