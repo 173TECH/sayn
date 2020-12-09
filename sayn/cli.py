@@ -13,7 +13,7 @@ from .core.app import App
 from .core.config import (
     cleanup_compilation,
     read_project,
-    read_task_groups,
+    read_groups,
     read_settings,
     get_tasks_dict,
 )
@@ -61,7 +61,7 @@ class CliApp(App):
 
         # Read the project configuration
         project = self.check_abort(read_project())
-        task_groups = self.check_abort(read_task_groups(project.task_groups))
+        groups = self.check_abort(read_groups(project.groups))
         self.set_project(project)
         settings = self.check_abort(read_settings())
         self.check_abort(self.set_settings(settings))
@@ -76,7 +76,7 @@ class CliApp(App):
             )
 
         # Set tasks and dag from it
-        tasks_dict = self.check_abort(get_tasks_dict(project.presets, task_groups))
+        tasks_dict = self.check_abort(get_tasks_dict(project.presets, groups))
         task_query = self.check_abort(
             get_query(tasks_dict, include=include, exclude=exclude)
         )
@@ -198,13 +198,13 @@ def dag_image(debug, tasks, exclude):
     else:
         project = result.value
 
-    result = read_task_groups(project.task_groups)
+    result = read_groups(project.groups)
     if result.is_err:
         handle_error()
     else:
-        task_groups = result.value
+        groups = result.value
 
-    result = get_tasks_dict(project.presets, task_groups)
+    result = get_tasks_dict(project.presets, groups)
     if result.is_err:
         handle_error()
     else:

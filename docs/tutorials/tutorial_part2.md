@@ -1,7 +1,6 @@
 # Tutorial: Part 2
 
-This tutorial builds upon the [Tutorial: Part 1](tutorial_part1.md) and introduces
-you to SAYN concepts which will enable you to make your projects more dynamic and efficient.
+This tutorial builds upon the [Tutorial: Part 1](tutorial_part1.md) and introduces you to SAYN concepts which will enable you to make your projects more dynamic and efficient.
 
 In [Tutorial: Part 1](tutorial_part1.md) we implemented our first ETL process with SAYN. We will now expand on that by adding `parameters` and `presets`.
 
@@ -11,8 +10,7 @@ A [Github repository](https://github.com/173TECH/sayn_tutorial_part2){target="\_
 
 You can use `parameters` in order to make your SAYN tasks' code dynamic. We will set one project parameter called `user_prefix`. This will enable us to distinguish which user generated tables.
 
-First, add `paramaters` add the end of `project.yaml`. This is a yaml map which defines the default
-value.
+First, add `paramaters` at the end of `project.yaml`. This is a YAML map which defines the default value.
 
 !!! example "project.yaml"
     ``` yaml
@@ -153,8 +151,7 @@ When a task references a preset, we're not restricted to the values defined in t
 
 Here we're overloading 2 properties:
 * `materialisation` which will make f_rankings a view rather than a table.
-* `parents` which will make `f_ranking` depend on `f_fighter_results` besides `load_data` as defined
-  in the preset.
+* `parents` which will make `f_ranking` depend on `f_fighter_results` as well as `load_data` as defined in the preset.
 
 ## Running Our New Project
 

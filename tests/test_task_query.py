@@ -4,13 +4,13 @@ from sayn.utils.task_query import get_query
 
 
 tasks = {
-    "task1": {"task_group": "group1", "tags": list()},
-    "task2": {"task_group": "group1", "tags": ["tag1"]},
-    "task3": {"task_group": "group2", "tags": ["tag1"]},
-    "task4": {"task_group": "group2", "tags": list()},
-    "task5": {"task_group": "group3", "tags": ["tag1", "tag2"]},
-    "task6": {"task_group": "group3", "tags": list()},
-    "task7": {"task_group": "group3", "tags": list()},
+    "task1": {"group": "group1", "tags": list()},
+    "task2": {"group": "group1", "tags": ["tag1"]},
+    "task3": {"group": "group2", "tags": ["tag1"]},
+    "task4": {"group": "group2", "tags": list()},
+    "task5": {"group": "group3", "tags": ["tag1", "tag2"]},
+    "task6": {"group": "group3", "tags": list()},
+    "task7": {"group": "group3", "tags": list()},
 }
 
 

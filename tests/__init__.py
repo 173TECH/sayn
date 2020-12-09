@@ -26,14 +26,12 @@ def inside_dir(dirpath):
 
 
 @contextmanager
-def create_project(
-    dirpath, settings=None, project=None, task_groups=dict(), env=dict()
-):
+def create_project(dirpath, settings=None, project=None, groups=dict(), env=dict()):
     """
     Execute code from inside the given directory, creating the sayn project files
     :param settings: String, yaml for a settings.yaml file
     :param project: String, yaml for a project.yaml file
-    :param task_groups: Dict, dict of yaml for the contents of the tasks folder
+    :param groups: Dict, dict of yaml for the contents of the tasks folder
     """
     old_path = os.getcwd()
     try:
@@ -42,9 +40,9 @@ def create_project(
             Path(dirpath, "settings.yaml").write_text(settings)
         if project is not None:
             Path(dirpath, "project.yaml").write_text(project)
-        if len(task_groups) > 0:
-            for name, task_group in task_groups.items():
-                Path(dirpath, f"{name}.yaml").write_text(task_group)
+        if len(groups) > 0:
+            for name, group in groups.items():
+                Path(dirpath, f"{name}.yaml").write_text(group)
         if len(env) > 0:
             os.environ.update(env)
         yield
@@ -88,7 +86,7 @@ def simulate_task(type, sql_query=None, run_arguments=dict(), task_params=dict()
         pass
 
     task.name = "test_task"  # set for compilation output during run
-    task.task_group = "test_group"  # set for compilation output during run
+    task.group = "test_group"  # set for compilation output during run
     task.run_arguments = {
         "folders": {"sql": "sql", "compile": "compile"},
         "command": "run",

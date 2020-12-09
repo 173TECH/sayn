@@ -19,7 +19,7 @@ RE_TASK_QUERY = re.compile(
 
 def _get_query_component(tasks, query):
     tasks = {
-        k: {"task_group": v["task_group"], "tags": v.get("tags", list())}
+        k: {"group": v["group"], "tags": v.get("tags", list())}
         for k, v in tasks.items()
     }
     match = RE_TASK_QUERY.match(query)
@@ -41,12 +41,10 @@ def _get_query_component(tasks, query):
             )
 
         if match_components.get("group") is not None:
-            task_group = match_components["group"]
-            relevant_tasks = {
-                k: v for k, v in tasks.items() if task_group == v.get("task_group")
-            }
+            group = match_components["group"]
+            relevant_tasks = {k: v for k, v in tasks.items() if group == v.get("group")}
             if len(relevant_tasks) == 0:
-                return Err("task_query", "undefined_task_group", task_group=task_group,)
+                return Err("task_query", "undefined_group", group=group,)
             return Ok(
                 [
                     {"task": task, "upstream": False, "downstream": False}

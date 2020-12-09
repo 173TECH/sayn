@@ -16,7 +16,7 @@ A `dummy` task has no additional properties other than the properties shared by 
 
 ## Usage
 
-`dummy` tasks come in useful when you have multiple tasks that depend upon a long list of parents. Let's consider the following setup in your task group `task_group.yaml`:
+`dummy` tasks come in useful when you have multiple tasks that depend upon a long list of parents. Let's consider the following setup in your task group `group.yaml`:
 
 !!! example
     ```yaml

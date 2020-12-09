@@ -1,16 +1,13 @@
 # Tutorial: Part 1
 
-This tutorial covers the basic concepts of SAYN and will get you going quickly. It uses the example
-project created by `sayn init`. It assumes SAYN is setup as described in the
+This tutorial covers the basic concepts of SAYN and will get you going quickly. It uses the example project created by `sayn init`. It assumes SAYN is setup as described in the
 [installation section](../installation.md).
 
-This project generates some random data with a `python` task and performs some modelling on it with
-`autosql` tasks.
+This project generates some random data with a `python` task and performs some modelling on it with `autosql` tasks.
 
 ## Running SAYN
 
-To get started, open a terminal, activate your virtual environment (`source sayn_venv/bin/activate`)
-and run the following:
+To get started, open a terminal, activate your virtual environment (`source sayn_venv/bin/activate`) and run the following:
 
 ```bash
 sayn init sayn_tutorial
@@ -23,9 +20,7 @@ This will create a new project with the contents of this tutorial and execute it
 ![`sayn run` execution](sayn_run1.gif)
 
 You can open `dev.db` and see the tables and views created by `sayn run`. You can use
-[DB Browser for SQLite](https://sqlitebrowser.org/dl/){target="\_blank"} in order to view the
-content of the database. As you can observe, `sayn run` created a small ETL process which models
-battles from various tournaments.
+[DB Browser for SQLite](https://sqlitebrowser.org/dl/){target="\_blank"} in order to view the content of the database. As you can observe, `sayn run` created a small ETL process which models battles from various tournaments.
 
 That's it, you made your first SAYN run! We will now explain what happens in the background.
 
@@ -58,11 +53,10 @@ tutorial
 The main files are:
 
 * `project.yaml`: defines the SAYN project. It is **shared across all collaborators**.
-* `settings.yaml`: defines the individual user's settings. It is **unique for each collaborator and
-   should never be pushed to git** as it contains credentials.
+* `settings.yaml`: defines the individual user's settings. It is **unique for each collaborator and should never be pushed to git** as it contains credentials.
 * `tasks`: folder where the task files are stored. Each file is considered a task group.
-* `python`: folder where `python` tasks are stored.
-* `sql`: folder where `sql` and `autosql` tasks are stored.
+* `python`: folder where scripts for `python` tasks are stored.
+* `sql`: folder where SQL files for `sql` and `autosql` tasks are stored.
 * `logs`: folder where SAYN logs are written.
 * `compile`: folder where compiled SQL queries before execution.
 
@@ -84,10 +78,8 @@ The `project.yaml` file is at the root level of your directory and contains:
 
 The following is defined:
 
-* `required_credentials`: the list of credentials used by the project. In this case we have a single
-  credential called `warehouse`. The connection details will be defined in `settings.yaml`.
-* `default_db`: the database used by sql and autosql tasks. Since we only have 1 credential, this
-  field can be skipped.
+* `required_credentials`: the list of credentials used by the project. In this case we have a single credential called `warehouse`. The connection details will be defined in `settings.yaml`.
+* `default_db`: the database used by sql and autosql tasks. Since we only have 1 credential, this field could be skipped.
 
 ### Step 2: Define your individual settings with `settings.yaml`
 
@@ -118,11 +110,11 @@ The following is defined:
 
 * `profiles`: the definion of profiles for the project. A profile defines the connection between credentials in the `project.yaml` file and credentials defined below. In this case we define 2 profiles dev and prod.
 * `default_profile`: the profile used by default at execution time. It can be overriden using `sayn run -p prod`.
-* `credentials`: here we define the credentials. In this case we have 2 for dev and prod, that are used as `warehouse` on each profile.
+* `credentials`: here we define the credentials. In this case we have two for dev and prod, that are used as `warehouse` on each profile.
 
 ### Step 3: Define your tasks
 
-In SAYN, tasks are defined in `yaml` files within the `tasks` folder. Each file is considered a task group. Our project contains only one task group: `base.yaml`:
+In SAYN, tasks are defined in `yaml` files within the `tasks` folder. Each file is considered a [task group](../tasks/overview.md#task_groups). Our project contains only one task group: `base.yaml`:
 
 !!! example "tasks/base.yaml"
     ```yaml
@@ -142,13 +134,13 @@ In SAYN, tasks are defined in `yaml` files within the `tasks` folder. Each file 
     # ...
     ```
 
-The `tasks` entry contains a map of tasks definitions. In this case we're using 2 types of tasks:
+The `tasks` entry contains a map of tasks definitions. In this case we're using two types of tasks:
 
 * `python`: lets you define a task written in Python. Python tasks are useful to complete your extraction and load layers if you're using an ELT tool or for data science models defined in Python.
 * `autosql`: lets you write a `SELECT` statement while SAYN manages the table or view creation automatically for you. Our example has multiple `autosql` tasks which create models based on the logs.
 
 !!! tip
-    Although this tutorial only has one file in the `tasks` folder, you can separate tasks in multiple files. SAYN automatically includes any file from the `tasks` folder with a `.yaml` extension when creating the DAG. Each file is considered a [task group](../tasks/task_group.md).
+    Although this tutorial only has one file in the `tasks` folder, you can separate tasks in multiple files. SAYN automatically includes any file from the `tasks` folder with a `.yaml` extension when creating the DAG. Each file is considered a [task group](../tasks/overview.md#task_groups).
 
 #### `load_data` task
 
@@ -164,8 +156,7 @@ In our example project the only python task is `load_data` which creates some sy
             # Your code here
     ```
 
-The above is the beginning of the python task. When the execution of `sayn run` hits the `load_data`
-task the code in the `run` method will execute.
+The above is the beginning of the python task. When the execution of `sayn run` hits the `load_data` task the code in the `run` method will execute.
 
 A task in SAYN can be split into multiple steps, which is useful for debugging when errors occur. In this case, we first generate all data and then we load each dataset one by one. We can define the steps a task will follow with the `self.set_run_steps` method.
 
@@ -230,7 +221,7 @@ above, we specify a `file_name` which contains:
     ```sql
     SELECT l.tournament_id
          , l.tournament_name
-      FROM logs_tournaments l
+    FROM logs_tournaments l
     ```
 
 This is a simple `SELECT` statement that SAYN will use when creating a table called `dim_tournaments` as defined in the `destination` field in the `base.yaml` file.
