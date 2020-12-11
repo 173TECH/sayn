@@ -466,18 +466,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tasks/task_group/" class="md-nav__link">
-      Task Groups
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../presets/" class="md-nav__link">
       Presets
     </a>
@@ -866,14 +854,11 @@
                 
                 
                 <h1 id="tutorial-part-1">Tutorial: Part 1<a class="headerlink" href="#tutorial-part-1" title="Permanent link">&para;</a></h1>
-<p>This tutorial covers the basic concepts of SAYN and will get you going quickly. It uses the example
-project created by <code>sayn init</code>. It assumes SAYN is setup as described in the
+<p>This tutorial covers the basic concepts of SAYN and will get you going quickly. It uses the example project created by <code>sayn init</code>. It assumes SAYN is setup as described in the
 <a href="../../installation/">installation section</a>.</p>
-<p>This project generates some random data with a <code>python</code> task and performs some modelling on it with
-<code>autosql</code> tasks.</p>
+<p>This project generates some random data with a <code>python</code> task and performs some modelling on it with <code>autosql</code> tasks.</p>
 <h2 id="running-sayn">Running SAYN<a class="headerlink" href="#running-sayn" title="Permanent link">&para;</a></h2>
-<p>To get started, open a terminal, activate your virtual environment (<code>source sayn_venv/bin/activate</code>)
-and run the following:</p>
+<p>To get started, open a terminal, activate your virtual environment (<code>source sayn_venv/bin/activate</code>) and run the following:</p>
 <div class="highlight"><pre><span></span><code>sayn init sayn_tutorial
 <span class="nb">cd</span> sayn_tutorial
 sayn run
@@ -882,9 +867,7 @@ sayn run
 <p>This will create a new project with the contents of this tutorial and execute it.</p>
 <p><img alt="sayn run execution" src="../sayn_run1.gif" /></p>
 <p>You can open <code>dev.db</code> and see the tables and views created by <code>sayn run</code>. You can use
-<a href="https://sqlitebrowser.org/dl/" target="_blank">DB Browser for SQLite</a> in order to view the
-content of the database. As you can observe, <code>sayn run</code> created a small ETL process which models
-battles from various tournaments.</p>
+<a href="https://sqlitebrowser.org/dl/" target="_blank">DB Browser for SQLite</a> in order to view the content of the database. As you can observe, <code>sayn run</code> created a small ETL process which models battles from various tournaments.</p>
 <p>That's it, you made your first SAYN run! We will now explain what happens in the background.</p>
 <h2 id="project-overview">Project Overview<a class="headerlink" href="#project-overview" title="Permanent link">&para;</a></h2>
 <p>The <code>sayn_tutorial</code> folder has the following structure:</p>
@@ -912,11 +895,10 @@ battles from various tournaments.</p>
 <p>The main files are:</p>
 <ul>
 <li><code>project.yaml</code>: defines the SAYN project. It is <strong>shared across all collaborators</strong>.</li>
-<li><code>settings.yaml</code>: defines the individual user's settings. It is <strong>unique for each collaborator and
-   should never be pushed to git</strong> as it contains credentials.</li>
+<li><code>settings.yaml</code>: defines the individual user's settings. It is <strong>unique for each collaborator and should never be pushed to git</strong> as it contains credentials.</li>
 <li><code>tasks</code>: folder where the task files are stored. Each file is considered a task group.</li>
-<li><code>python</code>: folder where <code>python</code> tasks are stored.</li>
-<li><code>sql</code>: folder where <code>sql</code> and <code>autosql</code> tasks are stored.</li>
+<li><code>python</code>: folder where scripts for <code>python</code> tasks are stored.</li>
+<li><code>sql</code>: folder where SQL files for <code>sql</code> and <code>autosql</code> tasks are stored.</li>
 <li><code>logs</code>: folder where SAYN logs are written.</li>
 <li><code>compile</code>: folder where compiled SQL queries before execution.</li>
 </ul>
@@ -935,10 +917,8 @@ battles from various tournaments.</p>
 </div>
 <p>The following is defined:</p>
 <ul>
-<li><code>required_credentials</code>: the list of credentials used by the project. In this case we have a single
-  credential called <code>warehouse</code>. The connection details will be defined in <code>settings.yaml</code>.</li>
-<li><code>default_db</code>: the database used by sql and autosql tasks. Since we only have 1 credential, this
-  field can be skipped.</li>
+<li><code>required_credentials</code>: the list of credentials used by the project. In this case we have a single credential called <code>warehouse</code>. The connection details will be defined in <code>settings.yaml</code>.</li>
+<li><code>default_db</code>: the database used by sql and autosql tasks. Since we only have 1 credential, this field could be skipped.</li>
 </ul>
 <h3 id="step-2-define-your-individual-settings-with-settingsyaml">Step 2: Define your individual settings with <code>settings.yaml</code><a class="headerlink" href="#step-2-define-your-individual-settings-with-settingsyaml" title="Permanent link">&para;</a></h3>
 <p>The <code>settings.yaml</code> file at the root level of your directory and contains:</p>
@@ -968,10 +948,10 @@ battles from various tournaments.</p>
 <ul>
 <li><code>profiles</code>: the definion of profiles for the project. A profile defines the connection between credentials in the <code>project.yaml</code> file and credentials defined below. In this case we define 2 profiles dev and prod.</li>
 <li><code>default_profile</code>: the profile used by default at execution time. It can be overriden using <code>sayn run -p prod</code>.</li>
-<li><code>credentials</code>: here we define the credentials. In this case we have 2 for dev and prod, that are used as <code>warehouse</code> on each profile.</li>
+<li><code>credentials</code>: here we define the credentials. In this case we have two for dev and prod, that are used as <code>warehouse</code> on each profile.</li>
 </ul>
 <h3 id="step-3-define-your-tasks">Step 3: Define your tasks<a class="headerlink" href="#step-3-define-your-tasks" title="Permanent link">&para;</a></h3>
-<p>In SAYN, tasks are defined in <code>yaml</code> files within the <code>tasks</code> folder. Each file is considered a task group. Our project contains only one task group: <code>base.yaml</code>:</p>
+<p>In SAYN, tasks are defined in <code>yaml</code> files within the <code>tasks</code> folder. Each file is considered a <a href="../../tasks/overview/#task_groups">task group</a>. Our project contains only one task group: <code>base.yaml</code>:</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
@@ -991,14 +971,14 @@ battles from various tournaments.</p>
 </code></pre></div>
 
 </div>
-<p>The <code>tasks</code> entry contains a map of tasks definitions. In this case we're using 2 types of tasks:</p>
+<p>The <code>tasks</code> entry contains a map of tasks definitions. In this case we're using two types of tasks:</p>
 <ul>
 <li><code>python</code>: lets you define a task written in Python. Python tasks are useful to complete your extraction and load layers if you're using an ELT tool or for data science models defined in Python.</li>
 <li><code>autosql</code>: lets you write a <code>SELECT</code> statement while SAYN manages the table or view creation automatically for you. Our example has multiple <code>autosql</code> tasks which create models based on the logs.</li>
 </ul>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Although this tutorial only has one file in the <code>tasks</code> folder, you can separate tasks in multiple files. SAYN automatically includes any file from the <code>tasks</code> folder with a <code>.yaml</code> extension when creating the DAG. Each file is considered a <a href="../../tasks/task_group/">task group</a>.</p>
+<p>Although this tutorial only has one file in the <code>tasks</code> folder, you can separate tasks in multiple files. SAYN automatically includes any file from the <code>tasks</code> folder with a <code>.yaml</code> extension when creating the DAG. Each file is considered a <a href="../../tasks/overview/#task_groups">task group</a>.</p>
 </div>
 <h4 id="load_data-task"><code>load_data</code> task<a class="headerlink" href="#load_data-task" title="Permanent link">&para;</a></h4>
 <p>In our example project the only python task is <code>load_data</code> which creates some synthetic logs and loads them to our database. The code can be found in the class <code>LoadData</code> in <code>python/load_data.py</code>. Let's have a look at the main elements of a python task:</p>
@@ -1013,8 +993,7 @@ battles from various tournaments.</p>
 </code></pre></div>
 
 </div>
-<p>The above is the beginning of the python task. When the execution of <code>sayn run</code> hits the <code>load_data</code>
-task the code in the <code>run</code> method will execute.</p>
+<p>The above is the beginning of the python task. When the execution of <code>sayn run</code> hits the <code>load_data</code> task the code in the <code>run</code> method will execute.</p>
 <p>A task in SAYN can be split into multiple steps, which is useful for debugging when errors occur. In this case, we first generate all data and then we load each dataset one by one. We can define the steps a task will follow with the <code>self.set_run_steps</code> method.</p>
 <div class="admonition example">
 <p class="admonition-title">python/load_data.py</p>
@@ -1073,7 +1052,7 @@ above, we specify a <code>file_name</code> which contains:</p>
 <p class="admonition-title">sql/dim_tournaments.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="n">l</span><span class="p">.</span><span class="n">tournament_id</span>
      <span class="p">,</span> <span class="n">l</span><span class="p">.</span><span class="n">tournament_name</span>
-  <span class="k">FROM</span> <span class="n">logs_tournaments</span> <span class="n">l</span>
+<span class="k">FROM</span> <span class="n">logs_tournaments</span> <span class="n">l</span>
 </code></pre></div>
 
 </div>

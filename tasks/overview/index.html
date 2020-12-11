@@ -351,18 +351,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../task_group/" class="md-nav__link">
-      Task Groups
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../presets/" class="md-nav__link">
       Presets
     </a>
@@ -453,6 +441,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#task-types" class="md-nav__link">
+    Task Types
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#defining-tasks" class="md-nav__link">
     Defining Tasks
   </a>
@@ -460,8 +455,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-types" class="md-nav__link">
-    Task Types
+  <a href="#task-groups" class="md-nav__link">
+    Task Groups
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-attributes" class="md-nav__link">
+    Task Attributes
   </a>
   
 </li>
@@ -717,6 +719,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#task-types" class="md-nav__link">
+    Task Types
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#defining-tasks" class="md-nav__link">
     Defining Tasks
   </a>
@@ -724,8 +733,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-types" class="md-nav__link">
-    Task Types
+  <a href="#task-groups" class="md-nav__link">
+    Task Groups
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-attributes" class="md-nav__link">
+    Task Attributes
   </a>
   
 </li>
@@ -758,12 +774,17 @@
 <p>Dependencies between tasks are defined with the <code>parents</code> list. To relate back to the DAG concept, this implies each task in SAYN represents a <code>node</code> and <code>edges</code> are defined by the <code>parents</code> attribute of each task. For example, the SAYN tutorial defines the following DAG:</p>
 <p><img alt="Tutorial" src="../../dag.png" /></p>
 <p>Through tasks, SAYN provides a lot of automation under the hood, so make sure you explore the various task types SAYN offers!</p>
+<h2 id="task-types">Task Types<a class="headerlink" href="#task-types" title="Permanent link">&para;</a></h2>
+<p>Please see below the available SAYN task types:</p>
+<ul>
+<li><a href="../autosql/"><code>autosql</code></a>: simply write a <code>SELECT</code> statement and SAYN automates the data processing (i.e. table or view creation, incremental load, etc.) for you.</li>
+<li><a href="../python/"><code>python</code></a>: enables you to write a Python process. Can be used for a wide range of cases from data extraction to data science models - anything Python lets you do.</li>
+<li><a href="../copy/"><code>copy</code></a>: enables to automatically copy data from one database to another.</li>
+<li><a href="../dummy/"><code>dummy</code></a>: those tasks do not do anything. They can be used as connectors between tasks.</li>
+<li><a href="../sql/"><code>sql</code></a>: executes any SQL statement. There can be multiple statements within the SQL file.</li>
+</ul>
 <h2 id="defining-tasks">Defining Tasks<a class="headerlink" href="#defining-tasks" title="Permanent link">&para;</a></h2>
-<p>Tasks are defined in YAML files located under the <code>tasks</code> folder at the root level of your SAYN project. Each file in the <code>tasks</code> folder represents a <a href="../task_group/">task group</a> and can be executed independently. By default, SAYN includes any file in the <code>tasks</code> folder ending with a <code>.yaml</code> extension when creating the DAG.</p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>When growing a SAYN project, it is good practice to start separating your tasks in multiple groups (e.g. extracts, core models, marketing models, finance models, data science, etc.) in order to organise processes.</p>
-</div>
+<p>Tasks are defined in YAML files located under the <code>tasks</code> folder at the root level of your SAYN project. Each file in the <code>tasks</code> folder represents a <a href="#task_groups">task group</a> and can be executed independently. By default, SAYN includes any file in the <code>tasks</code> folder ending with a <code>.yaml</code> extension when creating the DAG.</p>
 <p>Within each YAML file, tasks are defined in the <code>tasks</code> entry.</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
@@ -814,15 +835,84 @@
 <p class="admonition-title">Attention</p>
 <p>Different task types have different attributes. Make sure that you check each task type's specific documentation to understand how to define it.</p>
 </div>
-<h2 id="task-types">Task Types<a class="headerlink" href="#task-types" title="Permanent link">&para;</a></h2>
-<p>Please see below the available SAYN task types:</p>
-<ul>
-<li><a href="../autosql/"><code>autosql</code></a>: simply write a <code>SELECT</code> statement and SAYN automates the data processing (i.e. table or view creation, incremental load, etc.) for you.</li>
-<li><a href="../python/"><code>python</code></a>: enables you to write a Python process. Can be used for a wide range of cases from data extraction to data science models - anything Python lets you do.</li>
-<li><a href="../copy/"><code>copy</code></a>: enables to automatically copy data from one database to another.</li>
-<li><a href="../dummy/"><code>dummy</code></a>: those tasks do not do anything. They can be used as connectors between tasks.</li>
-<li><a href="../sql/"><code>sql</code></a>: executes any SQL statement. There can be multiple statements within the SQL file.</li>
-</ul>
+<p><a name="task_groups"></a></p>
+<h2 id="task-groups">Task Groups<a class="headerlink" href="#task-groups" title="Permanent link">&para;</a></h2>
+<p>Task groups are a convenient way to segment and organise your data processes in your SAYN project. Each YAML file in the <code>tasks</code> folder represents a task group.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>When growing a SAYN project, it is good practice to start separating your tasks in multiple groups (e.g. extracts, core models, marketing models, finance models, data science, etc.) in order to organise processes.</p>
+</div>
+<p>Each task group file defines tasks (required) and presets (optional).</p>
+<div class="admonition example">
+<p class="admonition-title">tasks/base.yaml</p>
+<div class="highlight"><pre><span></span><code><span class="nt">presets</span><span class="p">:</span>
+  <span class="nt">modelling</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
+    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
+    <span class="nt">destination</span><span class="p">:</span>
+      <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_staging</span>
+      <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_models</span>
+      <span class="nt">table</span><span class="p">:</span> <span class="s">&#39;{{task.name}}&#39;</span>
+
+<span class="nt">tasks</span><span class="p">:</span>
+  <span class="nt">load_data</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python</span>
+    <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">load_data.LoadData</span>
+
+  <span class="c1">#task defined without preset</span>
+  <span class="nt">dim_tournaments</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
+    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_tournaments.sql</span>
+    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
+    <span class="nt">destination</span><span class="p">:</span>
+      <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_staging</span>
+      <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_models</span>
+      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_tournaments</span>
+    <span class="nt">parents</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">load_data</span>
+
+  <span class="c1">#task defined using a preset</span>
+  <span class="nt">dim_arenas</span><span class="p">:</span>
+    <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
+    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_arenas.sql</span>
+    <span class="nt">parents</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">load_data</span>
+</code></pre></div>
+
+</div>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Description</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tasks</td>
+<td>The set of tasks that compose the task group. For more details on <code>tasks</code>, please see the <a href="./">Tasks</a> section.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>presets</td>
+<td>Defines preset task structures shared by several tasks. Presets defined within task group files can inherit from presets defined at the project level in <code>project.yaml</code>. See the <a href="../../presets/">Presets</a> section for more details.</td>
+<td>Optional</td>
+</tr>
+</tbody>
+</table>
+<h2 id="task-attributes">Task Attributes<a class="headerlink" href="#task-attributes" title="Permanent link">&para;</a></h2>
+<p>Task attributes can be used when defining tasks in a dynamic way. The following example shows how to use the task name and task group dynamically when defining a task:</p>
+<div class="admonition example">
+<p class="admonition-title">tasks/base.yaml</p>
+<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
+  <span class="nt">sql_task</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sql</span>
+    <span class="nt">file_name</span><span class="p">:</span> <span class="s">&#39;{{task.group}}/{{task.name}}.sql&#39;</span>
+</code></pre></div>
+
+</div>
+<p>This will effectively tell the task to look for a file located at <code>base/sql_task.sql</code> in the <code>sql</code> folder.</p>
                 
               
               

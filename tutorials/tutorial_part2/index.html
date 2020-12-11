@@ -446,18 +446,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../../tasks/task_group/" class="md-nav__link">
-      Task Groups
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../presets/" class="md-nav__link">
       Presets
     </a>
@@ -826,14 +814,12 @@
                 
                 
                 <h1 id="tutorial-part-2">Tutorial: Part 2<a class="headerlink" href="#tutorial-part-2" title="Permanent link">&para;</a></h1>
-<p>This tutorial builds upon the <a href="../tutorial_part1/">Tutorial: Part 1</a> and introduces
-you to SAYN concepts which will enable you to make your projects more dynamic and efficient.</p>
+<p>This tutorial builds upon the <a href="../tutorial_part1/">Tutorial: Part 1</a> and introduces you to SAYN concepts which will enable you to make your projects more dynamic and efficient.</p>
 <p>In <a href="../tutorial_part1/">Tutorial: Part 1</a> we implemented our first ETL process with SAYN. We will now expand on that by adding <code>parameters</code> and <code>presets</code>.</p>
 <p>A <a href="https://github.com/173TECH/sayn_tutorial_part2" target="_blank">Github repository</a> is available with the final code if you prefer to have all the code written directly. After cloning, you simply need to make sure to rename the <code>sample_settings.yaml</code> file to <code>settings.yaml</code> for the project to work.</p>
 <h3 id="step-1-define-the-project-parameters">Step 1: Define the project <code>parameters</code><a class="headerlink" href="#step-1-define-the-project-parameters" title="Permanent link">&para;</a></h3>
 <p>You can use <code>parameters</code> in order to make your SAYN tasks' code dynamic. We will set one project parameter called <code>user_prefix</code>. This will enable us to distinguish which user generated tables.</p>
-<p>First, add <code>paramaters</code> add the end of <code>project.yaml</code>. This is a yaml map which defines the default
-value.</p>
+<p>First, add <code>paramaters</code> at the end of <code>project.yaml</code>. This is a YAML map which defines the default value.</p>
 <div class="admonition example">
 <p class="admonition-title">project.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># ...</span>
@@ -962,8 +948,7 @@ tasks.</p>
 </div>
 <p>Here we're overloading 2 properties:
 * <code>materialisation</code> which will make f_rankings a view rather than a table.
-* <code>parents</code> which will make <code>f_ranking</code> depend on <code>f_fighter_results</code> besides <code>load_data</code> as defined
-  in the preset.</p>
+* <code>parents</code> which will make <code>f_ranking</code> depend on <code>f_fighter_results</code> as well as <code>load_data</code> as defined in the preset.</p>
 <h2 id="running-our-new-project">Running Our New Project<a class="headerlink" href="#running-our-new-project" title="Permanent link">&para;</a></h2>
 <p>You can now test running <code>sayn run</code> or <code>sayn -p prod</code>. The two options will do the following:</p>
 <ul>
