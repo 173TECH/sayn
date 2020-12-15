@@ -5,7 +5,7 @@ from sqlalchemy.sql import sqltypes
 
 python_types = {
     int: sqltypes.BigInteger,
-    str: sqltypes.Unicode,
+    str: sqltypes.String,
     float: sqltypes.Float,
     decimal.Decimal: sqltypes.Numeric,
     datetime.datetime: sqltypes.DateTime,
