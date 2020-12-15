@@ -2,7 +2,6 @@ from copy import deepcopy
 import csv
 import io
 
-from google.cloud import bigquery
 from sqlalchemy import create_engine
 
 from . import Database
@@ -35,6 +34,8 @@ class Bigquery(Database):
         writer = csv.DictWriter(buffer, fieldnames=data[0].keys())
         writer.writerows(data)
         buffer.seek(0)
+
+        from google.cloud import bigquery
 
         job_config = bigquery.LoadJobConfig(
             source_format=bigquery.SourceFormat.CSV, skip_leading_rows=1,
