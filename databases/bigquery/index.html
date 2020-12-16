@@ -7,7 +7,7 @@
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
       
-        <link rel="canonical" href="https://173tech.github.io/sayn/databases/redshift/">
+        <link rel="canonical" href="https://173tech.github.io/sayn/databases/bigquery/">
       
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
@@ -15,7 +15,7 @@
     
     
       
-        <title>Redshift - SAYN</title>
+        <title>BigQuery - SAYN</title>
       
     
     
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#redshift" class="md-skip">
+        <a href="#bigquery" class="md-skip">
           Skip to content
         </a>
       
@@ -98,7 +98,7 @@
           </span>
           <span class="md-header-nav__topic md-ellipsis">
             
-              Redshift
+              BigQuery
             
           </span>
         </div>
@@ -511,11 +511,49 @@
           
           
 
+  
 
-  <li class="md-nav__item">
-    <a href="../bigquery/" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        BigQuery
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
       BigQuery
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#bigquery-specific-ddl" class="md-nav__link">
+    Bigquery specific DDL
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
         
@@ -547,76 +585,11 @@
           
           
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    
-      
-    
-    
-      <label class="md-nav__link md-nav__link--active" for="__toc">
-        Redshift
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-    
-    <a href="./" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../redshift/" class="md-nav__link">
       Redshift
     </a>
-    
-      
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#connection-types" class="md-nav__link">
-    Connection types
-  </a>
-  
-    <nav class="md-nav" aria-label="Connection types">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#standard-userpassword-connection" class="md-nav__link">
-    Standard user/password connection
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#connecting-with-iam" class="md-nav__link">
-    Connecting with IAM
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#redshift-specific-ddl" class="md-nav__link">
-    Redshift specific DDL
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-    
   </li>
 
         
@@ -723,35 +696,8 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#connection-types" class="md-nav__link">
-    Connection types
-  </a>
-  
-    <nav class="md-nav" aria-label="Connection types">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#standard-userpassword-connection" class="md-nav__link">
-    Standard user/password connection
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#connecting-with-iam" class="md-nav__link">
-    Connecting with IAM
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#redshift-specific-ddl" class="md-nav__link">
-    Redshift specific DDL
+  <a href="#bigquery-specific-ddl" class="md-nav__link">
+    Bigquery specific DDL
   </a>
   
 </li>
@@ -769,13 +715,13 @@
               
                 
                 
-                <h1 id="redshift">Redshift<a class="headerlink" href="#redshift" title="Permanent link">&para;</a></h1>
-<p>The Redshift driver depends on <a href="https://www.psycopg.org" target="_blank">psycopg2</a> and can be
+                <h1 id="bigquery">BigQuery<a class="headerlink" href="#bigquery" title="Permanent link">&para;</a></h1>
+<p>The BigQuery driver depends on <a href="https://github.com/mxmzdlv/pybigquery" target="_blank">pybigquery</a> and can be
 installed with:</p>
-<div class="highlight"><pre><span></span><code>pip install <span class="s2">&quot;sayn[redshift]&quot;</span>
+<div class="highlight"><pre><span></span><code>pip install <span class="s2">&quot;sayn[bigquery]&quot;</span>
 </code></pre></div>
 
-<p>The <a href="https://aws.amazon.com/redshift/" target="_blank">Redshift</a> connector looks for the following parameters:</p>
+<p>The <a href="https://cloud.google.com/bigquery" target="_blank">Bigquery</a> connector looks for the following parameters:</p>
 <table>
 <thead>
 <tr>
@@ -786,85 +732,35 @@ installed with:</p>
 </thead>
 <tbody>
 <tr>
-<td>host</td>
-<td>Host name or public IP of the cluster</td>
-<td>Required on standard user/password connection</td>
-</tr>
-<tr>
-<td>port</td>
-<td>Connection port</td>
-<td>5439</td>
-</tr>
-<tr>
-<td>user</td>
-<td>User name used to connect</td>
+<td>project</td>
+<td>GCP project where the cluster is</td>
 <td>Required</td>
 </tr>
 <tr>
-<td>password</td>
-<td>Password for that user</td>
-<td>Required on standard user/password connection</td>
+<td>credentials_path</td>
+<td>Path relative to the project to the json for the service account to use</td>
+<td>Required</td>
 </tr>
 <tr>
-<td>cluster_id</td>
-<td>Cluster id as registered in AWS</td>
+<td>location</td>
+<td>Default location for tables created</td>
+<td>Dataset default</td>
+</tr>
+<tr>
+<td>dataset</td>
+<td>Dataset to use when running queries. Can be specified in sql</td>
 <td></td>
-</tr>
-<tr>
-<td>dbname</td>
-<td>Database in use upon connection</td>
-<td>Required</td>
 </tr>
 </tbody>
 </table>
 <p>For advanced configurations, SAYN will pass other parameters to <code>create_engine</code>, so check the
-sqlalchemy <a href="https://docs.sqlalchemy.org/en/13/dialects/postgresql.html#module-sqlalchemy.dialects.postgresql.psycopg2" target="_blank">psycopg2</a>
+<a href="https://github.com/mxmzdlv/pybigquery" target="_blank">pybigquery</a>
 dialect for extra parameters.</p>
-<h2 id="connection-types">Connection types<a class="headerlink" href="#connection-types" title="Permanent link">&para;</a></h2>
-<p>SAYN supports 2 connection models for Redshift: standard user/password connection and IAM based.</p>
-<h3 id="standard-userpassword-connection">Standard user/password connection<a class="headerlink" href="#standard-userpassword-connection" title="Permanent link">&para;</a></h3>
-<p>If you have a user name and password for redshift use the first model and ensure host and password
-are specified.</p>
-<div class="admonition example">
-<p class="admonition-title">settings.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">credentials</span><span class="p">:</span>
-  <span class="nt">redshift-conn</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">redshift</span>
-    <span class="nt">host</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-redshift-cluster.adhfjlasdljfd.eu-west-1.redshift.amazonaws.com</span>
-    <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5439</span>
-    <span class="nt">user</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">awsuser</span>
-    <span class="nt">password</span><span class="p">:</span> <span class="s">&#39;Pas$w0rd&#39;</span> <span class="c1">#use quotes to avoid conflict with special characters</span>
-    <span class="nt">dbname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">models</span>
-</code></pre></div>
-
-</div>
-<h3 id="connecting-with-iam">Connecting with IAM<a class="headerlink" href="#connecting-with-iam" title="Permanent link">&para;</a></h3>
-<p>With an IAM based connection SAYN uses the AWS API to obtain a temporary password to stablish the
-connection, so only user, dbname and cluster_id are required.</p>
-<div class="admonition example">
-<p class="admonition-title">settings.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">credentials</span><span class="p">:</span>
-  <span class="nt">redshift-conn</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">redshift</span>
-    <span class="nt">cluster_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-redshift-cluster</span>
-    <span class="nt">user</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">awsuser</span>
-    <span class="nt">dbname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">models</span>
-</code></pre></div>
-
-</div>
-<p>For this connection type to work:</p>
-<ul>
-<li><code>boto3</code> needs to be installed in the project virtual environment <code>pip install boto3</code>.</li>
-<li>The AWS cli need to be <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html#configuration" target="_blank">setup</a>.</li>
-<li>The <code>user</code> and <code>dbname</code> still need to be specified (use the database user, not the <code>IAM:user</code>).</li>
-<li><code>host</code> and <code>port</code> can be skipped and these values will be obtained using boto3's <code>redshift describe-clusters</code>.</li>
-</ul>
-<h2 id="redshift-specific-ddl">Redshift specific DDL<a class="headerlink" href="#redshift-specific-ddl" title="Permanent link">&para;</a></h2>
-<h1 id="indexes">Indexes<a class="headerlink" href="#indexes" title="Permanent link">&para;</a></h1>
-<p>Redshift doesn't support index definitions, and so autosql and copy tasks will forbid its definition
-in the <code>ddl</code> entry in the task definition.</p>
-<h1 id="sorting">Sorting<a class="headerlink" href="#sorting" title="Permanent link">&para;</a></h1>
-<p>Table sorting can be specified under the <code>ddl</code> entry in the task definition</p>
+<h2 id="bigquery-specific-ddl">Bigquery specific DDL<a class="headerlink" href="#bigquery-specific-ddl" title="Permanent link">&para;</a></h2>
+<h1 id="partitioning">Partitioning<a class="headerlink" href="#partitioning" title="Permanent link">&para;</a></h1>
+<p>SAYN supports specifying the partitioning model for tables created with autosql and copy tasks. To do
+this we specify <code>partition</code> in the ddl field. The value is a string matching a BigQuery 
+<a href="https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#partition_expression" target="_blank">partition expression</a>.</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
@@ -875,15 +771,14 @@ in the <code>ddl</code> entry in the task definition.</p>
     <span class="nt">destination</span><span class="p">:</span>
       <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_battles</span>
     <span class="nt">ddl</span><span class="p">:</span>
-      <span class="nt">sorting</span><span class="p">:</span>
-        <span class="nt">columns</span><span class="p">:</span>
-          <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">arena_name</span>
-          <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">fighter1_name</span>
+      <span class="nt">partittion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">DATE(_PARTITIONTIME)</span>
 </code></pre></div>
 
 </div>
-<p>With the above example, the table <code>f_battles</code> will be sorted by <code>arena_name</code> and <code>fighter1_name</code>
-using a compound key (Redshift default). The type of sorting can be changed to interleaved.</p>
+<h1 id="clustering">Clustering<a class="headerlink" href="#clustering" title="Permanent link">&para;</a></h1>
+<p>We can also specify the clustering for the table with the <code>cluster</code> property in autosql and copy tasks.
+The value in this case is a list of columns. If the ddl for the task includes the list of columns, the
+columns specified in the <code>cluster</code> should be present in the column list.</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
 <div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
@@ -894,48 +789,11 @@ using a compound key (Redshift default). The type of sorting can be changed to i
     <span class="nt">destination</span><span class="p">:</span>
       <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_battles</span>
     <span class="nt">ddl</span><span class="p">:</span>
-      <span class="nt">sorting</span><span class="p">:</span>
-        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">interleaved</span>
-        <span class="nt">columns</span><span class="p">:</span>
-          <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">arena_name</span>
-          <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">fighter1_name</span>
+      <span class="nt">cluster</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">arena_name</span>
 </code></pre></div>
 
 </div>
-<p>For more information, read the latest docs about <a href="https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html" target="_blank">SORTKEY</a>.</p>
-<h1 id="distribution">Distribution<a class="headerlink" href="#distribution" title="Permanent link">&para;</a></h1>
-<p>We can also specify the type of distribution: even, all or key based. If not specified, the Redshift default is even distribution.</p>
-<div class="admonition example">
-<p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-  <span class="nt">f_battles</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_battles.sql</span>
-    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-    <span class="nt">destination</span><span class="p">:</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_battles</span>
-    <span class="nt">ddl</span><span class="p">:</span>
-      <span class="nt">distribution</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">all</span>
-</code></pre></div>
-
-</div>
-<p>If we want to distribute the table by a given column use the following:</p>
-<div class="admonition example">
-<p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-  <span class="nt">f_battles</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_battles.sql</span>
-    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-    <span class="nt">destination</span><span class="p">:</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_battles</span>
-    <span class="nt">ddl</span><span class="p">:</span>
-      <span class="nt">distribution</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">key(tournament_name)</span>
-</code></pre></div>
-
-</div>
-<p>For more information, read the latest docs about
-<a href="https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html" target="_blank">DISTKEY</a>.</p>
                 
               
               
@@ -954,7 +812,7 @@ using a compound key (Redshift default). The type of sorting can be changed to i
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
         
-          <a href="../postgresql/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../overview/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-footer-nav__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
             </div>
@@ -963,19 +821,19 @@ using a compound key (Redshift default). The type of sorting can be changed to i
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                PostgreSQL
+                Overview
               </div>
             </div>
           </a>
         
         
-          <a href="../snowflake/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../mysql/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-footer-nav__title">
               <div class="md-ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Snowflake
+                MySQL
               </div>
             </div>
             <div class="md-footer-nav__button md-icon">
