@@ -1,6 +1,6 @@
 # BigQuery
 
-The BigQuery driver depends on [psycopg2](https://www.psycopg.org){target="\_blank"} and can be
+The BigQuery driver depends on [pybigquery](https://github.com/mxmzdlv/pybigquery){target="\_blank"} and can be
 installed with:
 
 ```bash
@@ -57,6 +57,6 @@ columns specified in the `cluster` should be present in the column list.
         destination:
           table: f_battles
         ddl:
-        cluster:
-          - arena_name
+          cluster:
+            - arena_name
     ```
