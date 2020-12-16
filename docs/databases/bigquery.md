@@ -22,7 +22,7 @@ dialect for extra parameters.
 
 ## Bigquery specific DDL
 
-# Partitioning
+### Partitioning
 
 SAYN supports specifying the partitioning model for tables created with autosql and copy tasks. To do
 this we specify `partition` in the ddl field. The value is a string matching a BigQuery 
@@ -41,7 +41,7 @@ this we specify `partition` in the ddl field. The value is a string matching a B
           partittion: DATE(_PARTITIONTIME)
     ```
 
-# Clustering
+### Clustering
 
 We can also specify the clustering for the table with the `cluster` property in autosql and copy tasks.
 The value in this case is a list of columns. If the ddl for the task includes the list of columns, the
