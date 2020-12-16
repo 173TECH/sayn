@@ -2,6 +2,12 @@
 
 ## Next
 
+## [0.5.2] - 2020-12-16
+
+### Changed
+
+- Adds BigQuery support
+
 ## [0.5.1] - 2020-12-11
 
 ### Changed
