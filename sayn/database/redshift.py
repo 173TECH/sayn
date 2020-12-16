@@ -54,6 +54,7 @@ class RedshiftDDL(DDL):
             "permissions": self.permissions,
             "distribution": self.distribution,
             "sorting": self.sorting.dict() if self.sorting is not None else None,
+            "primary_key": list(),
         }
 
 
