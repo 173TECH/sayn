@@ -70,6 +70,7 @@ nav:
     - Dummy: tasks/dummy.md
   - Databases:
     - Overview: databases/overview.md
+    - BigQuery: databases/bigquery.md
     - Redshift: databases/redshift.md
     - Snowflake: databases/snowflake.md
     - PostgreSQL: databases/postgresql.md
