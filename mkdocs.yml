@@ -71,10 +71,10 @@ nav:
   - Databases:
     - Overview: databases/overview.md
     - BigQuery: databases/bigquery.md
+    - MySQL: databases/mysql.md
+    - PostgreSQL: databases/postgresql.md
     - Redshift: databases/redshift.md
     - Snowflake: databases/snowflake.md
-    - PostgreSQL: databases/postgresql.md
-    - MySQL: databases/mysql.md
     - SQLite: databases/sqlite.md
   - API Reference:
      - Database: api/database.md
