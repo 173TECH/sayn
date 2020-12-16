@@ -5,10 +5,11 @@
 SAYN uses [sqlalchemy](https://www.sqlalchemy.org/){target="\_blank"} in order to manage database connections.
 It currently supports the following databases:
 
+* [BigQuery](bigquery.md)
+* [MySQL](mysql.md)
+* [PostgreSQL](postgresql.md)
 * [Redshift](redshift.md)
 * [Snowflake](snowflake.md)
-* [PostgreSQL](postgresql.md)
-* [MySQL](mysql.md)
 * [SQLite](sqlite.md)
 
 ## Usage

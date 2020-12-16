@@ -1,12 +1,14 @@
 from collections import Counter
+import datetime
+import decimal
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel, validator, conlist
 from sqlalchemy import MetaData, Table
+from sqlalchemy.sql import sqltypes
 
 from ..core.errors import DBError, Exc, Ok
 
-from ..utils.db_types import py2sqa
 from ..utils.misc import group_list
 
 
@@ -142,7 +144,7 @@ class Database:
                 return Exc(e, db=self.name, type=self.db_type)
 
     def _transform_column_type(self, column_type, dialect):
-        return py2sqa(column_type.python_type, dialect=dialect)
+        return self._py2sqa(column_type.python_type, dialect=dialect)
 
     def _refresh_metadata(self, only=None, schema=None):
         """Refreshes the sqlalchemy metadata object.
@@ -152,6 +154,29 @@ class Database:
             schema (str): The schema name to filter on the refresh
         """
         self.metadata.reflect(only=only, schema=schema, extend_existing=True)
+
+    def _py2sqa(self, from_type, dialect=None):
+        python_types = {
+            int: sqltypes.BigInteger,
+            str: sqltypes.Unicode,
+            float: sqltypes.Float,
+            decimal.Decimal: sqltypes.Numeric,
+            datetime.datetime: sqltypes.DateTime,
+            bytes: sqltypes.LargeBinary,
+            bool: sqltypes.Boolean,
+            datetime.date: sqltypes.Date,
+            datetime.time: sqltypes.Time,
+            datetime.timedelta: sqltypes.Interval,
+            list: sqltypes.ARRAY,
+            dict: sqltypes.JSON,
+        }
+
+        if from_type not in python_types:
+            raise ValueError(f'Type not supported "{from_type}"')
+        elif dialect is not None:
+            return python_types[from_type]().compile(dialect=dialect)
+        else:
+            return python_types[from_type]
 
     # API
 
@@ -271,7 +296,10 @@ class Database:
                     # If no columns are specified in the ddl, figure that out
                     # based on the python types of the first record
                     columns = [
-                        {"name": col, "type": py2sqa(type(val), self.engine.dialect)}
+                        {
+                            "name": col,
+                            "type": self._py2sqa(type(val), self.engine.dialect),
+                        }
                         for col, val in record.items()
                     ]
                     ddl = dict(ddl, columns=columns)
@@ -387,7 +415,6 @@ class Database:
         )
 
         if len(ddl["primary_key"]) > 0:
-            # we pop the primary key to ensure it is not used again in the create_indexes step
             pk = " ,".join(ddl["primary_key"])
             pk = f"    , PRIMARY KEY ({pk})"
         else:
