@@ -548,6 +548,26 @@
     Bigquery specific DDL
   </a>
   
+    <nav class="md-nav" aria-label="Bigquery specific DDL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#partitioning" class="md-nav__link">
+    Partitioning
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clustering" class="md-nav__link">
+    Clustering
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -700,6 +720,26 @@
     Bigquery specific DDL
   </a>
   
+    <nav class="md-nav" aria-label="Bigquery specific DDL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#partitioning" class="md-nav__link">
+    Partitioning
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clustering" class="md-nav__link">
+    Clustering
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -757,7 +797,7 @@ installed with:</p>
 <a href="https://github.com/mxmzdlv/pybigquery" target="_blank">pybigquery</a>
 dialect for extra parameters.</p>
 <h2 id="bigquery-specific-ddl">Bigquery specific DDL<a class="headerlink" href="#bigquery-specific-ddl" title="Permanent link">&para;</a></h2>
-<h1 id="partitioning">Partitioning<a class="headerlink" href="#partitioning" title="Permanent link">&para;</a></h1>
+<h3 id="partitioning">Partitioning<a class="headerlink" href="#partitioning" title="Permanent link">&para;</a></h3>
 <p>SAYN supports specifying the partitioning model for tables created with autosql and copy tasks. To do
 this we specify <code>partition</code> in the ddl field. The value is a string matching a BigQuery 
 <a href="https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#partition_expression" target="_blank">partition expression</a>.</p>
@@ -775,7 +815,7 @@ this we specify <code>partition</code> in the ddl field. The value is a string m
 </code></pre></div>
 
 </div>
-<h1 id="clustering">Clustering<a class="headerlink" href="#clustering" title="Permanent link">&para;</a></h1>
+<h3 id="clustering">Clustering<a class="headerlink" href="#clustering" title="Permanent link">&para;</a></h3>
 <p>We can also specify the clustering for the table with the <code>cluster</code> property in autosql and copy tasks.
 The value in this case is a list of columns. If the ddl for the task includes the list of columns, the
 columns specified in the <code>cluster</code> should be present in the column list.</p>

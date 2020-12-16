@@ -611,6 +611,33 @@
     Redshift specific DDL
   </a>
   
+    <nav class="md-nav" aria-label="Redshift specific DDL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#indexes" class="md-nav__link">
+    Indexes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sorting" class="md-nav__link">
+    Sorting
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distribution" class="md-nav__link">
+    Distribution
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -754,6 +781,33 @@
     Redshift specific DDL
   </a>
   
+    <nav class="md-nav" aria-label="Redshift specific DDL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#indexes" class="md-nav__link">
+    Indexes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sorting" class="md-nav__link">
+    Sorting
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distribution" class="md-nav__link">
+    Distribution
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -860,10 +914,10 @@ connection, so only user, dbname and cluster_id are required.</p>
 <li><code>host</code> and <code>port</code> can be skipped and these values will be obtained using boto3's <code>redshift describe-clusters</code>.</li>
 </ul>
 <h2 id="redshift-specific-ddl">Redshift specific DDL<a class="headerlink" href="#redshift-specific-ddl" title="Permanent link">&para;</a></h2>
-<h1 id="indexes">Indexes<a class="headerlink" href="#indexes" title="Permanent link">&para;</a></h1>
+<h3 id="indexes">Indexes<a class="headerlink" href="#indexes" title="Permanent link">&para;</a></h3>
 <p>Redshift doesn't support index definitions, and so autosql and copy tasks will forbid its definition
 in the <code>ddl</code> entry in the task definition.</p>
-<h1 id="sorting">Sorting<a class="headerlink" href="#sorting" title="Permanent link">&para;</a></h1>
+<h3 id="sorting">Sorting<a class="headerlink" href="#sorting" title="Permanent link">&para;</a></h3>
 <p>Table sorting can be specified under the <code>ddl</code> entry in the task definition</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
@@ -903,7 +957,7 @@ using a compound key (Redshift default). The type of sorting can be changed to i
 
 </div>
 <p>For more information, read the latest docs about <a href="https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html" target="_blank">SORTKEY</a>.</p>
-<h1 id="distribution">Distribution<a class="headerlink" href="#distribution" title="Permanent link">&para;</a></h1>
+<h3 id="distribution">Distribution<a class="headerlink" href="#distribution" title="Permanent link">&para;</a></h3>
 <p>We can also specify the type of distribution: even, all or key based. If not specified, the Redshift default is even distribution.</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
