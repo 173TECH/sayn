@@ -172,7 +172,7 @@ class Task:
             except Exception as e:
                 return Err("tasks", "get_template_error", file_path=obj, exception=e)
         elif isinstance(obj, str):
-            template = str
+            template = obj
         else:
             return Err("tasks", "get_template_error", obj=obj)
 

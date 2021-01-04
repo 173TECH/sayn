@@ -89,13 +89,16 @@ class Bigquery(Database):
 
         buffer = io.StringIO()
         writer = csv.DictWriter(buffer, fieldnames=data[0].keys())
+        writer.writeheader()
         writer.writerows(data)
-        buffer.seek(0)
+        buffer = io.BytesIO(buffer.getvalue().encode("utf-8"))
 
         from google.cloud import bigquery
 
         job_config = bigquery.LoadJobConfig(
-            source_format=bigquery.SourceFormat.CSV, skip_leading_rows=1,
+            source_format=bigquery.SourceFormat.CSV,
+            skip_leading_rows=1,
+            # autodect=True,
         )
 
         client = self.engine.raw_connection()._client
