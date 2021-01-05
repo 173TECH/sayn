@@ -1,8 +1,10 @@
 # Change Log
 
-## Next
-
 ## [0.5.2] - 2020-12-16
+
+### Fixed
+
+- Fixes unicode issues with load_date in bigquery
 
 ### Changed
 
