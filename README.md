@@ -46,6 +46,10 @@ $ sayn run
 
 This is it! You completed your first SAYN run on the example project. Continue with the [Tutorial: Part 1](https://173tech.github.io/sayn/tutorials/tutorial_part1/) which will give you a good overview of SAYN's true power!
 
+## Release Updates
+
+If you want to receive update emails about SAYN releases, you can sign up [here](http://eepurl.com/hnfJIr){target="\_blank"}.
+
 ## Support
 
 If you need any help with SAYN, or simply want to know more, please contact the team at <sayn@173tech.com>.
