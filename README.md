@@ -48,7 +48,7 @@ This is it! You completed your first SAYN run on the example project. Continue w
 
 ## Release Updates
 
-If you want to receive update emails about SAYN releases, you can sign up [here](http://eepurl.com/hnfJIr){target="\_blank"}.
+If you want to receive update emails about SAYN releases, you can sign up [here](http://eepurl.com/hnfJIr).
 
 ## Support
 
