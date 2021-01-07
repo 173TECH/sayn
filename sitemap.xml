@@ -1,107 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url>
      <loc>https://173tech.github.io/sayn/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/installation/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/tutorials/tutorial_part1/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/tutorials/tutorial_part2/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/cli/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/project_structure/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/settings/project_yaml/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/settings/settings_yaml/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/tasks/overview/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/presets/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/parameters/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/tasks/overview/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/tasks/autosql/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/tasks/python/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/tasks/sql/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/tasks/copy/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/tasks/dummy/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/databases/overview/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/databases/bigquery/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/databases/mysql/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/databases/postgresql/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/databases/redshift/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/databases/snowflake/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/databases/sqlite/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/api/database/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url><url>
      <loc>https://173tech.github.io/sayn/api/python_task/</loc>
-     <lastmod>2021-01-05</lastmod>
+     <lastmod>2021-01-07</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>
