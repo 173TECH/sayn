@@ -71,7 +71,7 @@ parameters and connections. Here's a list of properties available:
 !!! tip
     You can use `self.default_db` to easily perform some operations on the default database such as reading or loading data. See the methods available on the [Database](../api/database.md) API.
 
-    We all love `pandas`! If you want to load a pandas dataframe you can use one of those options:
+    We all love `pandas`! If you want to load a pandas dataframe you can use one of these options:
 
     * with the `pandas.DataFrame.to_sql` method: `df.to_sql(self.default_db.engine, 'table')`.
     * with the `self.default_db.load_data` method: `self.default_db.load_data('table', df.to_dict('records'))`.
