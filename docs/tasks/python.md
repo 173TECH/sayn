@@ -66,8 +66,15 @@ parameters and connections. Here's a list of properties available:
 * `self.connections`: dictionary containing the databases and other custom API credentials. API
   connections appear as simple python dictionaries, while databases are SAYN's [Database](../api/database.md)
   objects.
-* `self.default_db`: provides access to the `default_db` database object specified in the
-  `project.yaml` file.
+* `self.default_db`: provides access to the `default_db` database object specified in the `project.yaml` file.
+
+!!! tip
+    You can use `self.default_db` to easily perform some operations on the default database such as reading or loading data. See the methods available on the [Database](../api/database.md) API.
+
+    We all love `pandas`! If you want to load a pandas dataframe you can use one of these options:
+
+    * with the `pandas.DataFrame.to_sql` method: `df.to_sql(self.default_db.engine, 'table')`.
+    * with the `self.default_db.load_data` method: `self.default_db.load_data('table', df.to_dict('records'))`.
 
 ### Logging for Python tasks with the SAYN API
 
