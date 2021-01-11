@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.5.4] - 2021-01-11
+
+### Fixed
+
+- Duplication of data in sample project
+
 ## [0.5.3] - 2021-01-05
 
 ### Fixed
