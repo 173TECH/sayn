@@ -6,6 +6,7 @@ from ..utils.dag import query as dag_query, topological_sort
 from .config import get_connections
 from .errors import Err, Ok
 from ..logging import EventTracker
+from ..database import Database
 
 run_id = uuid4()
 
@@ -152,6 +153,10 @@ class App:
                 task_tracker._report_event(
                     "finish_stage", duration=datetime.now() - start_ts, result=result
                 )
+
+        for db in self.connections.values():
+            if isinstance(db, Database):
+                db._instrospect()
 
         return Ok()
 

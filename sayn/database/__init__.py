@@ -5,6 +5,7 @@ from typing import Dict, List, Optional
 
 from pydantic import BaseModel, validator, conlist
 from sqlalchemy import MetaData, Table
+from sqlalchemy.engine import reflection
 from sqlalchemy.sql import sqltypes
 
 from ..core.errors import DBError, Exc, Ok
@@ -120,6 +121,28 @@ class Database:
     #   - DROP CASCADE
     #   - NO SET SCHEMA
     #   - NO ALTER INDEXES
+
+    _requested_objects = dict()
+
+    def _request_object(self, object_name, schema=None, task_name=None):
+        if schema not in self._requested_objects:
+            self._requested_objects[schema] = {object_name: {"tasks": list()}}
+        else:
+            self._requested_objects[schema][object_name] = {"tasks": list()}
+
+        if task_name is not None:
+            self._requested_objects[schema][object_name]["tasks"].append(task_name)
+
+    def _instrospect(self):
+        insp = reflection.Inspector.from_engine(self.engine)
+
+        for schema in self._requested_objects.keys():
+            for table in insp.get_table_names(schema=schema):
+                if table in self._requested_objects[schema]:
+                    self._requested_objects[schema][table]["type"] = "table"
+            for view in insp.get_view_names(schema=schema):
+                if view in self._requested_objects[schema]:
+                    self._requested_objects[schema][view]["type"] = "view"
 
     def __init__(self, name, name_in_settings, db_type, common_params):
         self.name = name

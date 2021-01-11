@@ -5,6 +5,7 @@ from pathlib import Path
 from jinja2 import Template
 
 from ..core.errors import Err, Exc, Ok
+from ..database import Database
 
 
 class TaskStatus(Enum):
@@ -218,6 +219,20 @@ class Task:
         path.write_text(str(content))
 
         return Ok()
+
+    # Execution utilities
+
+    def use_db_object(self, object_name, schema=None, db=None):
+        if db is None:
+            target_db = self.default_db
+        elif isinstance(db, str):
+            target_db = self.connections[db]
+        elif isinstance(db, Database):
+            target_db = db
+        else:
+            return Err("use_db_object", "wrong_db_type")
+
+        target_db._request_object(object_name, schema=schema, task_name=self.name)
 
 
 class PythonTask(Task):
