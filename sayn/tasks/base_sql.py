@@ -1,6 +1,7 @@
 from sqlalchemy import or_, select
 
 from ..core.errors import Err, Exc, Ok
+from ..database import Database
 from . import Task
 
 
@@ -11,6 +12,18 @@ class BaseSqlTask(Task):
     @property
     def target_db(self):
         return self.connections[self._target_db]
+
+    def use_db_object(self, object_name, schema=None, db=None):
+        if db is None:
+            target_db = self.target_db
+        elif isinstance(db, str):
+            target_db = self.connections[db]
+        elif isinstance(db, Database):
+            target_db = db
+        else:
+            return Err("use_db_object", "wrong_connection_type")
+
+        target_db._request_object(object_name, schema=schema, task_name=self.name)
 
     def run(self):
         return self.execute_steps()

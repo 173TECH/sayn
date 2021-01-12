@@ -113,7 +113,7 @@ class Database:
     """
 
     ddl_validation_class = DDL
-    sql_features = []
+    sql_features = list()
     # Supported sql_features
     #   - CREATE IF NOT EXISTS
     #   - CREATE TABLE NO PARENTHESES
@@ -144,11 +144,82 @@ class Database:
                 if view in self._requested_objects[schema]:
                     self._requested_objects[schema][view]["type"] = "view"
 
+    def _create_or_replace_table(
+        self, table, schema, select, ddl, use_temp, tmp_table=None, tmp_schema=None,
+    ):
+        select_queries = list()
+
+        table_type = self._requested_objects[schema][table].get("type")
+        tmp_table = tmp_table or f"sayn_tmp_{table}"
+        tmp_schema = tmp_schema or schema
+        tmp_table_type = self._requested_objects[tmp_schema][tmp_table].get("type")
+
+        # Select the table in which we'll execute the select
+        # (tmp if the table exists, destination otherwise)
+        if use_temp:
+            select_table = tmp_table
+            select_schema = tmp_schema
+            select_table_type = tmp_table_type
+        else:
+            select_table = table
+            select_schema = schema
+            select_table_type = table_type
+
+        # Drop tmp table/view if it exists
+        if select_table_type == "table":
+            select_queries.append(self._drop_table(select_table, select_schema))
+        elif select_table_type == "view":
+            select_queries.append(
+                self._drop_table(select_table, select_schema, view=True)
+            )
+
+        # Depending on DDL, choose a way to create the table
+        cols_no_type = [c for c in ddl["columns"] if c["type"] is None]
+        if len(ddl.get("columns")) == 0 or len(cols_no_type) > 0:
+            select_queries.append(
+                self._create_table_select(
+                    select_table, select_schema, select, view=False, ddl=ddl
+                )
+            )
+        else:
+            # create table with DDL and insert the output of the select
+            select_queries.append(
+                self._create_table_ddl(select_table, select_schema, ddl)
+            )
+
+            ddl_column_names = [c["name"] for c in ddl.get("columns")]
+            select_queries.append(
+                self._insert(
+                    select_table, select_schema, select, columns=ddl_column_names
+                )
+            )
+
+        # Move the table to it's final destination if needed
+        move_queries = list()
+        if table != select_table or schema != select_schema:
+            # Drop tmp table/view if it exists
+            if table_type == "table":
+                move_queries.append(self._drop_table(table, schema))
+            elif table_type == "view":
+                move_queries.append(self._drop_table(table, schema, view=True))
+
+            move_queries.append(
+                self._move_table(select_table, select_schema, table, schema, ddl)
+            )
+
+        # import IPython; IPython.embed()
+
+        return {
+            "Create Table": "\n\n".join(select_queries),
+            "Move": "\n\n".join(move_queries),
+        }
+
     def __init__(self, name, name_in_settings, db_type, common_params):
         self.name = name
         self.name_in_settings = name_in_settings
         self.db_type = db_type
         self.max_batch_rows = common_params.get("max_batch_rows", 50000)
+        self._requested_objects = dict()
 
     def _set_engine(self, engine):
         self.engine = engine
