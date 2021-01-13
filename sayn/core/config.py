@@ -58,10 +58,15 @@ class Project(BaseModel):
     def required_credentials_are_unique(cls, v):
         return is_unique("required_credentials", v)
 
-    @validator("default_db")
+    @validator("default_db", always=True)
     def default_db_exists(cls, v, values, **kwargs):
-        if v not in values["required_credentials"]:
+        if v is None and len(values["required_credentials"]) == 1:
+            return values["required_credentials"][0]
+        elif v is None:
+            raise ValueError("Missing default_db in project.yaml")
+        elif v not in values["required_credentials"]:
             raise ValueError(f'default_db value "{v}" not in required_credentials')
+
         return v
 
     @validator("groups", pre=True, always=True)
