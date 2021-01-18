@@ -26,9 +26,9 @@ class DDL(BaseModel):
 
     columns: Optional[List[Column]] = list()
     indexes: Optional[Dict[str, Index]] = dict()
-    primary_key: Optional[
-        List[str]
-    ] = []  # logic field - i.e. not added by the user in the ddl definition
+    # logic field - i.e. not added by the user in the ddl definition
+    primary_key: Optional[List[str]] = []
+
     permissions: Optional[Dict[str, str]] = dict()
 
     @validator("columns", pre=True)
