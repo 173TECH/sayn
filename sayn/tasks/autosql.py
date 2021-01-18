@@ -92,9 +92,7 @@ class AutoSqlTask(BaseSqlTask):
         )
         self.schema = self.config.destination.db_schema
         self.table = self.config.destination.table
-        self.tmp_table = f"sayn_tmp_{self.table}"
-        self.use_db_object(self.tmp_table, schema=self.tmp_schema)
-        self.use_db_object(self.table, schema=self.schema)
+        self.use_db_object(self.table, schema=self.schema, tmp_schema=self.tmp_schema)
 
         self.materialisation = self.config.materialisation
         self.delete_key = self.config.delete_key
@@ -136,48 +134,15 @@ class AutoSqlTask(BaseSqlTask):
         return Ok()
 
     def execute(self, execute, debug):
-        # Sets the execution steps
-        # self.steps = ["Write Query"]
-
-        # if self.materialisation == "view":
-        #    self.steps.extend(["Cleanup Target", "Create View"])
-
-        # else:
-        #    self.steps.extend(["Cleanup", "Create Temp"])
-
-        #    if self.is_full_load:
-        #        if len(self.ddl["indexes"]) > 0 or (
-        #            len(self.ddl["primary_key"]) > 0
-        #            and len(self.ddl["columns"]) > 0
-        #            and len(self.cols_no_type) > 0
-        #        ):
-        #            self.steps.append("Create Indexes")
-        #        self.steps.extend(["Cleanup Target", "Move"])
-
-        #    else:
-        #        self.steps.append("Merge")
-
-        # if len(self.ddl.get("permissions")) > 0:
-        #    self.steps.append("Grant Permissions")
-
-        #
-        #
-        #
-        #
-        #
-        #
-        #
-        #
-        # res = self.write_compilation_output(self.sql_query, "select")
-        # if res.is_err:
-        #    return res
+        res = self.write_compilation_output(self.sql_query, "select")
+        if res.is_err:
+            return res
 
         if self.materialisation == "view":
             # View
-            sql = self.target_db._create_table_select(
-                self.table, self.schema, self.sql_query, view=True
+            step_queries = self.target_db.replace_view(
+                self.table, self.sql_query, schema=self.schema, view=True
             )
-            step_queries = {"Create View": sql}
 
         elif (
             self.materialisation == "table"
@@ -186,29 +151,24 @@ class AutoSqlTask(BaseSqlTask):
             is None
         ):
             # Full load or target table missing
-            step_queries = self.target_db._create_or_replace_table(
+            step_queries = self.target_db.replace_table(
                 self.table,
-                self.schema,
                 self.sql_query,
-                self.ddl,
-                True,
-                tmp_table=self.tmp_table,
+                schema=self.schema,
                 tmp_schema=self.tmp_schema,
+                **self.ddl,
             )
 
         else:
             # Incremental load
-            sql_create = self.target_db._create_or_replace_table(
-                self.tmp_table, self.tmp_schema, self.sql_query, self.ddl, False
-            )
-            sql_merge = self.target_db._merge_tables(
-                self.tmp_table,
-                self.tmp_schema,
+            step_queries = self.target_db.merge_query(
                 self.table,
-                self.schema,
+                self.sql_query,
                 self.delete_key,
+                schema=self.schema,
+                tmp_schema=self.tmp_schema,
+                **self.ddl,
             )
-            step_queries = {"Create Temp Table": sql_create, "Merge": sql_merge}
 
         self.set_run_steps(list(step_queries.keys()))
 

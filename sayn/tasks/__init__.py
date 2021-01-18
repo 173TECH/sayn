@@ -222,7 +222,7 @@ class Task:
 
     # Execution utilities
 
-    def use_db_object(self, object_name, schema=None, db=None):
+    def use_db_object(self, object_name, schema=None, tmp_schema=None, db=None):
         if db is None:
             target_db = self.default_db
         elif isinstance(db, str):
@@ -232,7 +232,9 @@ class Task:
         else:
             return Err("use_db_object", "wrong_db_type")
 
-        target_db._request_object(object_name, schema=schema, task_name=self.name)
+        target_db._request_object(
+            object_name, schema=schema, tmp_schema=tmp_schema, task_name=self.name
+        )
 
 
 class PythonTask(Task):

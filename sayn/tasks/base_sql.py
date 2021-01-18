@@ -13,7 +13,7 @@ class BaseSqlTask(Task):
     def target_db(self):
         return self.connections[self._target_db]
 
-    def use_db_object(self, object_name, schema=None, db=None):
+    def use_db_object(self, name, schema=None, tmp_schema=None, db=None):
         if db is None:
             target_db = self.target_db
         elif isinstance(db, str):
@@ -23,7 +23,9 @@ class BaseSqlTask(Task):
         else:
             return Err("use_db_object", "wrong_connection_type")
 
-        target_db._request_object(object_name, schema=schema, task_name=self.name)
+        target_db._request_object(
+            name, schema=schema, tmp_schema=tmp_schema, task_name=self.name
+        )
 
     def run(self):
         return self.execute_steps()

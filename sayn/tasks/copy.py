@@ -246,5 +246,3 @@ class CopyTask(BaseSqlTask):
                     )
 
         return Ok()
-
-        return Ok()

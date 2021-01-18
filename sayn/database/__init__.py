@@ -1,8 +1,10 @@
 from collections import Counter
 import datetime
 import decimal
+from pathlib import Path
 from typing import Dict, List, Optional
 
+from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from pydantic import BaseModel, validator, conlist
 from sqlalchemy import MetaData, Table
 from sqlalchemy.engine import reflection
@@ -122,16 +124,19 @@ class Database:
     #   - NO SET SCHEMA
     #   - NO ALTER INDEXES
 
-    _requested_objects = dict()
+    _requested_objects = None
 
-    def _request_object(self, object_name, schema=None, task_name=None):
-        if schema not in self._requested_objects:
-            self._requested_objects[schema] = {object_name: {"tasks": list()}}
-        else:
-            self._requested_objects[schema][object_name] = {"tasks": list()}
+    def _request_object(self, name, schema=None, tmp_schema=None, task_name=None):
+        to_request = ((name, schema), (f"sayn_tmp_{name}", tmp_schema or schema))
 
-        if task_name is not None:
-            self._requested_objects[schema][object_name]["tasks"].append(task_name)
+        for name, schema in to_request:
+            if schema not in self._requested_objects:
+                self._requested_objects[schema] = {name: {"tasks": list()}}
+            else:
+                self._requested_objects[schema][name] = {"tasks": list()}
+
+            if task_name is not None:
+                self._requested_objects[schema][name]["tasks"].append(task_name)
 
     def _instrospect(self):
         insp = reflection.Inspector.from_engine(self.engine)
@@ -144,82 +149,17 @@ class Database:
                 if view in self._requested_objects[schema]:
                     self._requested_objects[schema][view]["type"] = "view"
 
-    def _create_or_replace_table(
-        self, table, schema, select, ddl, use_temp, tmp_table=None, tmp_schema=None,
-    ):
-        select_queries = list()
-
-        table_type = self._requested_objects[schema][table].get("type")
-        tmp_table = tmp_table or f"sayn_tmp_{table}"
-        tmp_schema = tmp_schema or schema
-        tmp_table_type = self._requested_objects[tmp_schema][tmp_table].get("type")
-
-        # Select the table in which we'll execute the select
-        # (tmp if the table exists, destination otherwise)
-        if use_temp:
-            select_table = tmp_table
-            select_schema = tmp_schema
-            select_table_type = tmp_table_type
-        else:
-            select_table = table
-            select_schema = schema
-            select_table_type = table_type
-
-        # Drop tmp table/view if it exists
-        if select_table_type == "table":
-            select_queries.append(self._drop_table(select_table, select_schema))
-        elif select_table_type == "view":
-            select_queries.append(
-                self._drop_table(select_table, select_schema, view=True)
-            )
-
-        # Depending on DDL, choose a way to create the table
-        cols_no_type = [c for c in ddl["columns"] if c["type"] is None]
-        if len(ddl.get("columns")) == 0 or len(cols_no_type) > 0:
-            select_queries.append(
-                self._create_table_select(
-                    select_table, select_schema, select, view=False, ddl=ddl
-                )
-            )
-        else:
-            # create table with DDL and insert the output of the select
-            select_queries.append(
-                self._create_table_ddl(select_table, select_schema, ddl)
-            )
-
-            ddl_column_names = [c["name"] for c in ddl.get("columns")]
-            select_queries.append(
-                self._insert(
-                    select_table, select_schema, select, columns=ddl_column_names
-                )
-            )
-
-        # Move the table to it's final destination if needed
-        move_queries = list()
-        if table != select_table or schema != select_schema:
-            # Drop tmp table/view if it exists
-            if table_type == "table":
-                move_queries.append(self._drop_table(table, schema))
-            elif table_type == "view":
-                move_queries.append(self._drop_table(table, schema, view=True))
-
-            move_queries.append(
-                self._move_table(select_table, select_schema, table, schema, ddl)
-            )
-
-        # import IPython; IPython.embed()
-
-        return {
-            "Create Table": "\n\n".join(select_queries),
-            "Move": "\n\n".join(move_queries),
-        }
-
     def __init__(self, name, name_in_settings, db_type, common_params):
         self.name = name
         self.name_in_settings = name_in_settings
         self.db_type = db_type
         self.max_batch_rows = common_params.get("max_batch_rows", 50000)
         self._requested_objects = dict()
+        self._jinja_env = Environment(
+            loader=FileSystemLoader(Path(__file__).parent / "templates"),
+            undefined=StrictUndefined,
+            keep_trailing_newline=True,
+        )
 
     def _set_engine(self, engine):
         self.engine = engine
@@ -431,325 +371,97 @@ class Database:
     def _table_exists(self, table, schema):
         return self._get_table(table, schema) is not None
 
+    # =========
     # ETL steps
     # =========
-    # Methods that build sql used in autosql and
-    # copy tasks. Can optionally also execute the
-    # sql if `execute=True`
 
-    def _create_table_select(
-        self, table, schema, select, view=False, ddl=dict(), execute=False
+    def create_table(
+        self, table, schema=None, select=None, replace=False, **ddl,
     ):
-        """Returns SQL code for a create table from a select statement.
+        table_name = f"{schema+'.' if schema is not None else ''}{table}"
+        object_type = self._requested_objects[schema][table].get("type")
+        table_exists = object_type == "table"
+        view_exists = object_type == "view"
 
-        Args:
-            table (str): The target table name
-            schema (str): The target schema or None
-            select (str): A SQL SELECT query to build the table with
-            view (bool): Indicates if the object to create is a view. Defaults to creating a table
-            ddl (dict): Optionally specify a ddl dict. If provided, a `CREATE` with column specification
-                followed by an `INSERT` rather than a `CREATE ... AS SELECT ...` will be issued
-            execute (bool): Execute the query before returning it
-
-        Returns:
-            str: A SQL script for the CREATE...AS
-        """
-        table = f"{schema+'.' if schema else ''}{table}"
-        table_or_view = "VIEW" if view else "TABLE"
-
-        q = ""
-        if_not_exists = (
-            " IF NOT EXISTS" if "CREATE IF NOT EXISTS" in self.sql_features else ""
+        template = self._jinja_env.get_template("create_table.sql")
+        create = template.render(
+            table_name=table_name,
+            view_exists=view_exists,
+            table_exists=table_exists,
+            select=select,
+            replace=True,
+            can_replace_table="CAN REPLACE TABLE" in self.sql_features,
+            **ddl,
         )
-        if "CREATE TABLE NO PARENTHESES" in self.sql_features:
-            q += f"CREATE {table_or_view}{if_not_exists} {table} AS \n{select}\n;"
-        else:
-            q += f"CREATE {table_or_view}{if_not_exists} {table} AS (\n{select}\n);"
+        return {"Create Table": create}
 
-        if execute:
-            self.execute(q)
+    def replace_table(
+        self, table, select, schema=None, tmp_schema=None, **ddl,
+    ):
+        # Create the temporary table
+        can_replace_table = "CAN REPLACE TABLE" in self.sql_features
 
-        return q
+        tmp_table = f"sayn_tmp_{table}"
+        tmp_schema = tmp_schema or schema
 
-    def _create_table_ddl(self, table, schema, ddl, execute=False):
-        """Returns SQL code for a create table from a select statement.
-
-        Args:
-            table (str): The target table name
-            schema (str): The target schema or None
-            ddl (dict): A ddl task definition
-            execute (bool): Execute the query before returning it
-
-        Returns:
-            str: A SQL script for the CREATE TABLE statement
-        """
-        if len(ddl["columns"]) == 0:
-            raise DBError(
-                self.name, self.db_type, "DDL is missing columns specification"
+        if can_replace_table:
+            create_or_replace = self.create_table(
+                table, schema, select=select, replace=True
             )
-        table_name = table
-        table = f"{schema+'.' if schema else ''}{table_name}"
+            return create_or_replace
 
-        # List of reserved keywords so columns are quoted
-        # TODO find a better way
-        reserved = ("from", "to", "primary")
-        columns = [
-            {k: f'"{v}"' if k == "name" and v in reserved else v for k, v in c.items()}
-            for c in ddl["columns"]
-        ]
-
-        columns = "\n    , ".join(
-            [
-                (
-                    f'{c["name"]} {c["type"]}'
-                    f'{" NOT NULL" if c.get("not_null", False) else ""}'
-                )
-                for c in columns
-            ]
-        )
-
-        if len(ddl["primary_key"]) > 0:
-            pk = " ,".join(ddl["primary_key"])
-            pk = f"    , PRIMARY KEY ({pk})"
         else:
-            pk = ""
-
-        q = ""
-        if_not_exists = (
-            " IF NOT EXISTS" if "CREATE IF NOT EXISTS" in self.sql_features else ""
-        )
-        q += f"CREATE TABLE{if_not_exists} {table} (\n      {columns}\n{pk}\n);"
-
-        if execute:
-            self.execute(q)
-
-        return q
-
-    def _create_indexes(self, table, schema, ddl, execute=False):
-        """Returns SQL to create indexes from ddl.
-
-        Args:
-            table (str): The target table name
-            schema (str): The target schema or None
-            ddl (dict): A ddl task definition
-            execute (bool): Execute the query before returning it
-
-        Returns:
-            str: A SQL script for the CREATE INDEX statements
-        """
-        table_name = table
-        table = f"{schema+'.' if schema else ''}{table}"
-
-        indexes = {
-            idx: idx_def["columns"]
-            for idx, idx_def in ddl.get("indexes", dict()).items()
-        }
-
-        q = ""
-        if len(ddl["primary_key"]) > 0:
-            pk_cols = ", ".join(ddl["primary_key"])
-            q += f"ALTER TABLE {table} ADD PRIMARY KEY ({pk_cols});"
-
-        q += "\n".join(
-            [
-                f"CREATE INDEX {table_name}_{name} ON {table}({', '.join(cols)});"
-                for name, cols in indexes.items()
-            ]
-        )
-
-        if execute:
-            self.execute(q)
-
-        return q
-
-    def grant_permissions(self, table, schema, ddl, execute=False):
-        """Returns a set of GRANT statements.
-
-        Args:
-            table (str): The target table name
-            schema (str): The target schema or None
-            ddl (dict): A ddl task definition
-            execute (bool): Execute the query before returning it
-
-        Returns:
-            str: A SQL script for the GRANT statements
-        """
-        q = "\n".join(
-            [
-                f"GRANT {priv} ON {schema+'.' if schema else ''}{table} TO \"{role}\";"
-                for role, priv in ddl.items()
-            ]
-        )
-
-        if execute:
-            self.execute(q)
-
-        return q
-
-    def _drop_table(self, table, schema, view=False, execute=False):
-        """Returns a DROP statement.
-
-        Args:
-            table (str): The target table name
-            schema (str): The target schema or None
-            view (bool): Indicates if the object to drop is a view. Defaults to dropping a table
-            execute (bool): Execute the query before returning it
-
-        Returns:
-            str: A SQL script for the DROP statements
-        """
-        table = f"{schema+'.' if schema else ''}{table}"
-        table_or_view = "VIEW" if view else "TABLE"
-
-        q = f"DROP {table_or_view} IF EXISTS {table}"
-
-        if "DROP CASCADE" in self.sql_features:
-            q += " CASCADE;"
-        else:
-            q += ";"
-
-        if execute:
-            self.execute(q)
-
-        return q
-
-    def _insert(self, table, schema, select, columns=None, execute=False):
-        """Returns an INSERT statement from a SELECT query.
-
-        Args:
-            table (str): The target table name
-            schema (str): The target schema or None
-            select (str): The SELECT statement to issue
-            columns (list): The list of column names specified in DDL. If provided, the insert will be reordered based on this order
-            execute (bool): Execute the query before returning it
-
-        Returns:
-            str: A SQL script for the INSERT statement
-        """
-        table = f"{schema+'.' if schema else ''}{table}"
-
-        # we reshape the insert statement to avoid conflict if columns are not specified in same order between query and task group file
-        if columns is not None:
-            select = "SELECT i." + "\n, i.".join(columns) + f"\n\nFROM ({select}) AS i"
-            columns = "(" + ", ".join(columns) + ")"
-        else:
-            columns = ""
-
-        if "INSERT TABLE NO PARENTHESES" in self.sql_features:
-            q = f"INSERT INTO {table} {columns} \n{select}\n;"
-        else:
-            q = f"INSERT INTO {table} {columns} (\n{select}\n);"
-
-        if execute:
-            self.execute(q)
-
-        return q
-
-    def _move_table(
-        self, src_table, src_schema, dst_table, dst_schema, ddl, execute=False
-    ):
-        """Returns SQL code to rename a table and change schema.
-
-        Note:
-            Table movement is performed as a series of ALTER statements:
-
-              * ALTER TABLE RENAME
-              * ALTER TABLE SET SCHEMA (if the database supports it)
-              * ALTER INDEX RENAME (to ensure consistency in the naming). Index names
-                  are taken from the ddl field
-
-        Args:
-            src_table (str): The source table name
-            src_schema (str): The source schema or None
-            dst_table (str): The target table name
-            dst_schema (str): The target schema or None
-            ddl (dict): A ddl task definition
-            execute (bool): Execute the query before returning it
-
-        Returns:
-            str: A SQL script for moving the table
-        """
-        rename = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{src_table} RENAME TO {dst_table};"
-        if dst_schema is not None and dst_schema != src_schema:
-            change_schema = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{dst_table} SET SCHEMA {dst_schema};"
-        else:
-            change_schema = ""
-
-        pk_alter = []
-        if "NO ALTER INDEXES" not in self.sql_features and len(ddl["primary_key"]) > 0:
-            # Change primary key name
-            pk_alter.append(
-                f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_pkey RENAME TO {dst_table}_pkey;"
+            create_or_replace = self.create_table(
+                tmp_table, tmp_schema, select=select, replace=True
             )
 
-        idx_alter = []
-        if len(ddl["indexes"]) > 0:
-            # Change index names
-            for idx in ddl["indexes"].keys():
-                if "NO ALTER INDEXES" in self.sql_features:
-                    idx_cols = " ,".join(ddl["indexes"][idx]["columns"])
-                    idx_alter.append(
-                        f"DROP INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx};\n"
-                        f"CREATE INDEX {dst_table}_{idx} ON {dst_table}({idx_cols});"
-                    )
-                else:
-                    idx_alter.append(
-                        f"ALTER INDEX {dst_schema+'.' if dst_schema else ''}{src_table}_{idx} "
-                        f"RENAME TO {dst_table}_{idx};"
-                    )
+            # Move the table to its final location
+            template = self._jinja_env.get_template("move_table.sql")
 
-        q = "\n".join([rename, change_schema] + pk_alter + idx_alter)
+            move = template.render(
+                src_schema=tmp_schema or schema,
+                src_table=tmp_table,
+                dst_schema=schema,
+                dst_table=table,
+                can_alter_indexes="CAN ALTER INDEXES" in self._sql_features,
+                **ddl,
+            )
 
-        if execute:
-            self.execute(q)
+            return dict(create_or_replace, **{"Move table": move})
 
-        return q
+    def replace_view(self, view, select, schema=None, **ddl):
+        view_name = f"{schema+'.' if schema is not None else ''}{view}"
+        object_type = self._requested_objects[schema][view].get("type")
+        table_exists = object_type == "table"
+        view_exists = object_type == "view"
 
-    def _merge_tables(
-        self,
-        src_table,
-        src_schema,
-        dst_table,
-        dst_schema,
-        delete_key,
-        columns=None,
-        execute=False,
+        template = self._jinja_env.get_template("create_view.sql")
+        create = template.render(
+            table_name=view_name,
+            view_exists=view_exists,
+            table_exists=table_exists,
+            select=select,
+            replace=True,
+            can_replace_table="CAN REPLACE TABLE" in self.sql_features,
+            **ddl,
+        )
+        return {"Create View": create}
+
+    def merge_query(
+        self, table, select, delete_key, schema=None, tmp_schema=None, **ddl
     ):
-        """Returns SQL to merge data in incremental loads.
+        tmp_table = f"sayn_tmp_{table}"
+        tmp_schema = tmp_schema or schema
+        src_table = f"{tmp_schema+'.' if tmp_schema is not None else ''}{tmp_table}"
+        dst_table = f"{schema+'.' if schema is not None else ''}{table}"
 
-        Note:
-            Data merge is performed by issuing these statements:
-
-              * DELETE from target WHERE data exists in source
-              * INSERT into target SELECT * from source
-
-        Args:
-            src_table (str): The source table name
-            src_schema (str): The source schema or None
-            dst_table (str): The target table name
-            dst_schema (str): The target schema or None
-            delete_key (str): The column name to use for deleting records from the target table
-            columns (list): The list of column names specified in DDL. If provided, the insert will be reordered based on this order
-            execute (bool): Execute the query before returning it
-
-        Returns:
-            str: A SQL script for moving the table
-        """
-        dst = f"{dst_schema+'.' if dst_schema else ''}{dst_table}"
-        src = f"{src_schema+'.' if src_schema else ''}{src_table}"
-
-        delete = (
-            f"DELETE FROM {dst}\n"
-            f" WHERE EXISTS (SELECT *\n"
-            f"                 FROM {src}\n"
-            f"                WHERE {src}.{delete_key} = {dst}.{delete_key});"
+        create_or_replace = self.create_table(
+            tmp_table, tmp_schema, select=select, replace=True
         )
 
-        select = f"SELECT * FROM {src}"
-        insert = self._insert(dst_table, dst_schema, select, columns=columns)
-        q = "\n".join((delete, insert))
+        template = self._jinja_env.get_template("merge_tables.sql")
+        merge = template.render(
+            dst_table=dst_table, src_table=src_table, delete_key=delete_key
+        )
 
-        if execute:
-            self.execute(q)
-
-        return q
+        return dict(create_or_replace, **{"Merge Tables": merge})
