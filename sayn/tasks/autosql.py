@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field, FilePath, validator
 
 from ..core.errors import Exc, Ok, Err
 from ..database import Database
-from .base_sql import BaseSqlTask
+from .sql import SqlTask
 
 
 class Destination(BaseModel):
@@ -50,7 +50,7 @@ class Config(BaseModel):
             return v
 
 
-class AutoSqlTask(BaseSqlTask):
+class AutoSqlTask(SqlTask):
     def setup(self, **config):
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)

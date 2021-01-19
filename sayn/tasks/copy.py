@@ -5,7 +5,7 @@ from sqlalchemy import or_, select
 
 from ..core.errors import Err, Exc, Ok
 from ..database import Database
-from .base_sql import BaseSqlTask
+from .sql import SqlTask
 
 
 class Source(BaseModel):
@@ -69,7 +69,7 @@ class Config(BaseModel):
         return v
 
 
-class CopyTask(BaseSqlTask):
+class CopyTask(SqlTask):
     def setup(self, **config):
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)

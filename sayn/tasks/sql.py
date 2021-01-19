@@ -3,9 +3,9 @@ from pathlib import Path
 from pydantic import BaseModel, FilePath, validator
 from typing import Optional
 
-from ..core.errors import Ok, Err
+from ..core.errors import Ok, Err, Exc
 from ..database import Database
-from .base_sql import BaseSqlTask
+from . import Task
 
 
 class Config(BaseModel):
@@ -18,7 +18,31 @@ class Config(BaseModel):
         return Path(values["sql_folder"], v)
 
 
-class SqlTask(BaseSqlTask):
+class SqlTask(Task):
+    @property
+    def target_db(self):
+        return self.connections[self._target_db]
+
+    def use_db_object(
+        self, name, schema=None, tmp_schema=None, db=None, request_tmp=True
+    ):
+        if db is None:
+            target_db = self.target_db
+        elif isinstance(db, str):
+            target_db = self.connections[db]
+        elif isinstance(db, Database):
+            target_db = db
+        else:
+            return Err("use_db_object", "wrong_connection_type")
+
+        target_db._request_object(
+            name,
+            schema=schema,
+            tmp_schema=tmp_schema,
+            task_name=self.name,
+            request_tmp=request_tmp,
+        )
+
     def setup(self, **config):
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
@@ -40,9 +64,31 @@ class SqlTask(BaseSqlTask):
         else:
             self.sql_query = result.value
 
-        # Set execution steps
-        self.steps = ["Write Query"]
         if self.run_arguments["command"] == "run":
-            self.steps.append("Execute Query")
+            self.set_run_steps(["Write Query", "Execute Query"])
+        else:
+            self.set_run_steps(["Write Query"])
+
+        return Ok()
+
+    def compile(self):
+        with self.step("Write Query"):
+            result = self.write_compilation_output(self.sql_query)
+            if result.is_err:
+                return result
+
+        return Ok()
+
+    def run(self):
+        with self.step("Write Query"):
+            result = self.write_compilation_output(self.sql_query)
+            if result.is_err:
+                return result
+
+        with self.step("Execute Query"):
+            try:
+                self.target_db.execute(self.sql_query)
+            except Exception as e:
+                return Exc(e)
 
         return Ok()
