@@ -12,7 +12,7 @@ CREATE OR REPLACE VIEW
 
 {%- if select is defined %}
 AS
-  {%- if columns is defined %}
+  {%- if columns is defined and columns|length > 0 %}
 SELECT {{ columns|join('\n     , ', attribute='name') }}
   FROM ({{ select }}) t
   {%- else %}

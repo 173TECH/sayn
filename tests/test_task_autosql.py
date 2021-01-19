@@ -2,11 +2,7 @@ from . import inside_dir, simulate_task, validate_table
 
 sql_query = "SELECT 1 AS x"
 sql_query_param = "SELECT {{number}} AS x"
-sql_query_err = "SELECTS * FROM non_existing_table"
 sql_query_ddl_diff_col_order = "SELECT CAST(1 AS INTEGER) AS y, CAST(1 AS TEXT) AS x"
-sql_query_incremental = (
-    "SELECT * FROM source_table WHERE updated_at >= 2 OR updated_at IS NULL"
-)
 
 
 def test_autosql_task_table(tmp_path):
@@ -21,18 +17,12 @@ def test_autosql_task_table(tmp_path):
         )
         assert setup_result.is_ok
         assert task.sql_query == sql_query
-        assert task.steps == [
-            "Write Query",
-            "Cleanup",
-            "Create Temp",
-            "Cleanup Target",
-            "Move",
-        ]
+        task.target_db._introspect()
 
         # run
         run_result = task.run()
         assert run_result.is_ok
-        assert validate_table(task.default_db, "test_autosql_task", [{"x": 1}],)
+        assert validate_table(task.default_db, "test_autosql_task", [{"x": 1}])
         assert (
             len(
                 task.default_db.read_data(
@@ -55,7 +45,7 @@ def test_autosql_task_view(tmp_path):
         )
         assert setup_result.is_ok
         assert task.sql_query == sql_query
-        assert task.steps == ["Write Query", "Cleanup Target", "Create View"]
+        task.target_db._introspect()
 
         # run
         run_result = task.run()
@@ -73,16 +63,21 @@ def test_autosql_task_view(tmp_path):
 
 def test_autosql_task_incremental(tmp_path):
     with inside_dir(tmp_path):
+        sql_query_incremental = (
+            "SELECT * FROM source_table WHERE updated_at >= 2 OR updated_at IS NULL"
+        )
         task = simulate_task("autosql", sql_query=sql_query_incremental)
 
         # create source table
         task.default_db.execute(
-            'CREATE TABLE source_table AS SELECT CAST(1 AS INT) AS id, CAST(1 AS INT) AS updated_at, CAST("x" AS TEXT) AS name UNION SELECT 2 AS id, 2 AS updated_at, "y1" AS name UNION SELECT 3 AS id, NULL AS updated_at, "z" AS name'
+            "CREATE TABLE source_table (id int, updated_at int, name text);"
+            'INSERT INTO source_table SELECT 1, 1, "x" UNION SELECT 2, 2, "y1" UNION SELECT 3, NULL, "z"'
         )
 
         # create model table
         task.default_db.execute(
-            'CREATE TABLE test_autosql_task AS SELECT CAST(1 AS INT) AS id, CAST(1 AS INT) AS updated_at, CAST("x" AS TEXT) AS name UNION SELECT 2 AS id, NULL AS updated_at, "y" AS name'
+            "CREATE TABLE test_autosql_task (id int, updated_at int, name text);"
+            'INSERT INTO test_autosql_task SELECT 1, 1, "x" UNION SELECT 2, NULL, "y"'
         )
 
         # setup
@@ -94,12 +89,7 @@ def test_autosql_task_incremental(tmp_path):
         )
         assert setup_result.is_ok
         assert task.sql_query == sql_query_incremental
-        assert task.steps == [
-            "Write Query",
-            "Cleanup",
-            "Create Temp",
-            "Merge",
-        ]
+        task.target_db._introspect()
 
         # run
         run_result = task.run()
@@ -128,14 +118,8 @@ def test_autosql_task_compile(tmp_path):
             destination={"table": "test_autosql_task"},
         )
         assert task.sql_query == sql_query
-        assert task.steps == [
-            "Write Query",
-            "Cleanup",
-            "Create Temp",
-            "Cleanup Target",
-            "Move",
-        ]
         assert setup_result.is_ok
+        task.target_db._introspect()
 
         # compile
         compile_result = task.compile()
@@ -155,6 +139,7 @@ def test_autosql_task_param(tmp_path):
             destination={"table": "test_autosql_task"},
         )
         assert setup_result.is_ok
+        task.target_db._introspect()
 
         # run
         run_result = task.run()
@@ -205,6 +190,7 @@ def test_autosql_task_config_error3(tmp_path):
 def test_autosql_task_run_error(tmp_path):
     # tests failure with erratic sql
     with inside_dir(tmp_path):
+        sql_query_err = "SELECT * FROM non_existing_table"
         task = simulate_task("autosql", sql_query=sql_query_err)
 
         # setup
@@ -214,6 +200,7 @@ def test_autosql_task_run_error(tmp_path):
             destination={"table": "test_autosql_task"},
         )
         assert setup_result.is_ok
+        task.target_db._introspect()
 
         # run
         run_result = task.run()
@@ -235,6 +222,7 @@ def test_autosql_task_table_db_dst(tmp_path):
             destination={"db": "target_db", "table": "test_autosql_task"},
         )
         assert setup_result.is_ok
+        task.target_db._introspect()
 
         # run
         run_result = task.run()
@@ -280,13 +268,7 @@ def test_autosql_task_run_ddl_columns(tmp_path):
             ddl={"columns": [{"name": "x", "type": "integer", "primary": True}]},
         )
         assert setup_result.is_ok
-        assert task.steps == [
-            "Write Query",
-            "Cleanup",
-            "Create Temp",
-            "Cleanup Target",
-            "Move",
-        ]
+        task.target_db._introspect()
 
         # run
         run_result = task.run()
@@ -365,13 +347,7 @@ def test_autosql_task_run_ddl_diff_col_order(tmp_path):
             },
         )
         assert setup_result.is_ok
-        assert task.steps == [
-            "Write Query",
-            "Cleanup",
-            "Create Temp",
-            "Cleanup Target",
-            "Move",
-        ]
+        task.target_db._introspect()
 
         # run
         run_result = task.run()

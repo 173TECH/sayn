@@ -72,14 +72,8 @@ class BaseSqlTask(Task):
         execute = self.run_arguments["command"] == "run"
 
         get_query_steps = {
-            "Create Temp": lambda: self.create_select(
-                self.tmp_table, self.tmp_schema, self.sql_query, self.ddl
-            ),
             "Create Temp DDL": lambda: self.target_db._create_table_ddl(
                 self.tmp_table, self.tmp_schema, self.ddl
-            ),
-            "Create View": lambda: self.target_db._create_table_select(
-                self.table, self.schema, self.sql_query, view=True
             ),
             "Create Indexes": lambda: self.create_indexes(
                 self.tmp_table, self.tmp_schema, self.ddl
@@ -161,27 +155,6 @@ class BaseSqlTask(Task):
             return Err("task_execution", "unknown_step", step=step)
 
     # SQL execution steps methods
-
-    def create_select(self, table, schema, select, ddl):
-        out_sql = list()
-
-        cols_no_type = [c for c in self.ddl["columns"] if c["type"] is None]
-        if len(ddl.get("columns")) == 0 or len(cols_no_type) > 0:
-            out_sql.append(
-                self.target_db._create_table_select(
-                    table, schema, select, view=False, ddl=self.ddl
-                )
-            )
-        else:
-            # create table with DDL and insert the output of the select
-            out_sql.append(self.target_db._create_table_ddl(table, schema, ddl))
-
-            ddl_column_names = [c["name"] for c in ddl.get("columns")]
-            out_sql.append(
-                self.target_db._insert(table, schema, select, columns=ddl_column_names)
-            )
-
-        return "\n".join(out_sql)
 
     def create_indexes(self, tmp_table, tmp_schema, ddl):
         cols_no_type = [c for c in self.ddl["columns"] if c["type"] is None]

@@ -126,29 +126,6 @@ class Database:
 
     _requested_objects = None
 
-    def _request_object(self, name, schema=None, tmp_schema=None, task_name=None):
-        to_request = ((name, schema), (f"sayn_tmp_{name}", tmp_schema or schema))
-
-        for name, schema in to_request:
-            if schema not in self._requested_objects:
-                self._requested_objects[schema] = {name: {"tasks": list()}}
-            else:
-                self._requested_objects[schema][name] = {"tasks": list()}
-
-            if task_name is not None:
-                self._requested_objects[schema][name]["tasks"].append(task_name)
-
-    def _instrospect(self):
-        insp = reflection.Inspector.from_engine(self.engine)
-
-        for schema in self._requested_objects.keys():
-            for table in insp.get_table_names(schema=schema):
-                if table in self._requested_objects[schema]:
-                    self._requested_objects[schema][table]["type"] = "table"
-            for view in insp.get_view_names(schema=schema):
-                if view in self._requested_objects[schema]:
-                    self._requested_objects[schema][view]["type"] = "view"
-
     def __init__(self, name, name_in_settings, db_type, common_params):
         self.name = name
         self.name_in_settings = name_in_settings
@@ -188,6 +165,29 @@ class Database:
             schema (str): The schema name to filter on the refresh
         """
         self.metadata.reflect(only=only, schema=schema, extend_existing=True)
+
+    def _request_object(self, name, schema=None, tmp_schema=None, task_name=None):
+        to_request = ((name, schema), (f"sayn_tmp_{name}", tmp_schema or schema))
+
+        for name, schema in to_request:
+            if schema not in self._requested_objects:
+                self._requested_objects[schema] = {name: {"tasks": list()}}
+            else:
+                self._requested_objects[schema][name] = {"tasks": list()}
+
+            if task_name is not None:
+                self._requested_objects[schema][name]["tasks"].append(task_name)
+
+    def _introspect(self):
+        insp = reflection.Inspector.from_engine(self.engine)
+
+        for schema in self._requested_objects.keys():
+            for table in insp.get_table_names(schema=schema):
+                if table in self._requested_objects[schema]:
+                    self._requested_objects[schema][table]["type"] = "table"
+            for view in insp.get_view_names(schema=schema):
+                if view in self._requested_objects[schema]:
+                    self._requested_objects[schema][view]["type"] = "view"
 
     def _py2sqa(self, from_type, dialect=None):
         python_types = {
@@ -378,19 +378,22 @@ class Database:
     def create_table(
         self, table, schema=None, select=None, replace=False, **ddl,
     ):
-        table_name = f"{schema+'.' if schema is not None else ''}{table}"
+        full_name = fully_qualify(table, schema)
         object_type = self._requested_objects[schema][table].get("type")
         table_exists = object_type == "table"
         view_exists = object_type == "view"
 
         template = self._jinja_env.get_template("create_table.sql")
         create = template.render(
-            table_name=table_name,
+            table_name=table,
+            full_name=full_name,
             view_exists=view_exists,
             table_exists=table_exists,
             select=select,
             replace=True,
             can_replace_table="CAN REPLACE TABLE" in self.sql_features,
+            needs_cascade="NEEDS CASCADE" in self.sql_features,
+            can_specify_ddl_select="CAN SPECIFY DDL SELECT" in self.sql_features,
             **ddl,
         )
         return {"Create Table": create}
@@ -401,18 +404,18 @@ class Database:
         # Create the temporary table
         can_replace_table = "CAN REPLACE TABLE" in self.sql_features
 
-        tmp_table = f"sayn_tmp_{table}"
+        tmp_table = tmp_name(table)
         tmp_schema = tmp_schema or schema
 
         if can_replace_table:
             create_or_replace = self.create_table(
-                table, schema, select=select, replace=True
+                table, schema, select=select, replace=True, **ddl
             )
             return create_or_replace
 
         else:
             create_or_replace = self.create_table(
-                tmp_table, tmp_schema, select=select, replace=True
+                tmp_table, tmp_schema, select=select, replace=True, **ddl
             )
 
             # Move the table to its final location
@@ -423,14 +426,14 @@ class Database:
                 src_table=tmp_table,
                 dst_schema=schema,
                 dst_table=table,
-                can_alter_indexes="CAN ALTER INDEXES" in self._sql_features,
+                can_alter_indexes="CAN ALTER INDEXES" in self.sql_features,
                 **ddl,
             )
 
             return dict(create_or_replace, **{"Move table": move})
 
     def replace_view(self, view, select, schema=None, **ddl):
-        view_name = f"{schema+'.' if schema is not None else ''}{view}"
+        view_name = fully_qualify(view, schema)
         object_type = self._requested_objects[schema][view].get("type")
         table_exists = object_type == "table"
         view_exists = object_type == "view"
@@ -442,7 +445,8 @@ class Database:
             table_exists=table_exists,
             select=select,
             replace=True,
-            can_replace_table="CAN REPLACE TABLE" in self.sql_features,
+            can_replace_view="CAN REPLACE VIEW" in self.sql_features,
+            needs_cascade="NEEDS CASCADE" in self.sql_features,
             **ddl,
         )
         return {"Create View": create}
@@ -450,18 +454,51 @@ class Database:
     def merge_query(
         self, table, select, delete_key, schema=None, tmp_schema=None, **ddl
     ):
-        tmp_table = f"sayn_tmp_{table}"
+        tmp_table = tmp_name(table)
         tmp_schema = tmp_schema or schema
-        src_table = f"{tmp_schema+'.' if tmp_schema is not None else ''}{tmp_table}"
-        dst_table = f"{schema+'.' if schema is not None else ''}{table}"
 
         create_or_replace = self.create_table(
             tmp_table, tmp_schema, select=select, replace=True
         )
 
-        template = self._jinja_env.get_template("merge_tables.sql")
-        merge = template.render(
-            dst_table=dst_table, src_table=src_table, delete_key=delete_key
+        merge = self.merge_tables(
+            tmp_table,
+            table,
+            delete_key,
+            cleanup=True,
+            src_schema=tmp_schema,
+            dst_schema=schema,
         )
 
-        return dict(create_or_replace, **{"Merge Tables": merge})
+        return dict(create_or_replace, **merge)
+
+    def merge_tables(
+        self,
+        src_table,
+        dst_table,
+        delete_key,
+        cleanup=True,
+        src_schema=None,
+        dst_schema=None,
+        **ddl,
+    ):
+        src_table = fully_qualify(src_table, src_schema)
+        dst_table = fully_qualify(dst_table, dst_schema)
+
+        template = self._jinja_env.get_template("merge_tables.sql")
+        merge = template.render(
+            dst_table=dst_table,
+            src_table=src_table,
+            cleanup=True,
+            delete_key=delete_key,
+        )
+
+        return {"Merge Tables": merge}
+
+
+def fully_qualify(name, schema=None):
+    return f"{schema+'.' if schema is not None else ''}{name}"
+
+
+def tmp_name(name):
+    return f"sayn_tmp_{name}"

@@ -129,14 +129,10 @@ class CopyTask(BaseSqlTask):
         self.source_schema = self.config.source.db_schema
         self.source_table = self.config.source.table
 
-        self.tmp_schema = (
-            self.config.destination.tmp_schema or self.config.destination.db_schema
-        )
+        self.tmp_schema = self.config.destination.tmp_schema
         self.schema = self.config.destination.db_schema
         self.table = self.config.destination.table
         self.tmp_table = f"sayn_tmp_{self.table}"
-        self.use_db_object(self.tmp_table, schema=self.tmp_schema)
-        self.use_db_object(self.table, schema=self.schema)
 
         self.delete_key = self.config.delete_key
         self.incremental_key = self.config.incremental_key

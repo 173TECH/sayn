@@ -141,7 +141,7 @@ class AutoSqlTask(BaseSqlTask):
         if self.materialisation == "view":
             # View
             step_queries = self.target_db.replace_view(
-                self.table, self.sql_query, schema=self.schema, view=True
+                self.table, self.sql_query, schema=self.schema, **self.ddl
             )
 
         elif (
@@ -177,7 +177,10 @@ class AutoSqlTask(BaseSqlTask):
                 if debug:
                     self.write_compilation_output(query, step.replace(" ", "_").lower())
                 if execute:
-                    self.target_db.execute(query)
+                    try:
+                        self.target_db.execute(query)
+                    except Exception as e:
+                        return Exc(e)
 
         return Ok()
 

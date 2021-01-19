@@ -156,7 +156,7 @@ class App:
 
         for db in self.connections.values():
             if isinstance(db, Database):
-                db._instrospect()
+                db._introspect()
 
         return Ok()
 
