@@ -146,7 +146,7 @@ class Database:
         engine.execute("select 1")
 
     def _validate_ddl(self, ddl):
-        if ddl is None:
+        if ddl is None or len(ddl) == 0:
             return Ok(self.ddl_validation_class().get_ddl())
         else:
             try:
@@ -166,8 +166,12 @@ class Database:
         """
         self.metadata.reflect(only=only, schema=schema, extend_existing=True)
 
-    def _request_object(self, name, schema=None, tmp_schema=None, task_name=None):
-        to_request = ((name, schema), (f"sayn_tmp_{name}", tmp_schema or schema))
+    def _request_object(
+        self, name, schema=None, tmp_schema=None, task_name=None, request_tmp=True
+    ):
+        to_request = [(name, schema)]
+        if request_tmp:
+            to_request.append((tmp_name(name), tmp_schema or schema))
 
         for name, schema in to_request:
             if schema not in self._requested_objects:
@@ -286,7 +290,7 @@ class Database:
             connection.execute(table_def.insert().values(data))
 
     def load_data(
-        self, table, data, schema=None, batch_size=None, replace=False, ddl=None
+        self, table, data, schema=None, batch_size=None, replace=False, **ddl
     ):
         """Loads a list of values into the database
 
@@ -338,7 +342,8 @@ class Database:
                     ]
                     ddl = dict(ddl, columns=columns)
 
-                self._create_table_ddl(table, schema, ddl, execute=True)
+                for query in self.create_table(table, schema=schema, **ddl).values():
+                    self.execute(query)
                 check_create = False
 
             if i % batch_size == 0 and len(buffer) > 0:
@@ -375,6 +380,8 @@ class Database:
     # ETL steps
     # =========
 
+    # Intermediary steps
+
     def create_table(
         self, table, schema=None, select=None, replace=False, **ddl,
     ):
@@ -384,7 +391,7 @@ class Database:
         view_exists = object_type == "view"
 
         template = self._jinja_env.get_template("create_table.sql")
-        create = template.render(
+        return template.render(
             table_name=table,
             full_name=full_name,
             view_exists=view_exists,
@@ -396,7 +403,41 @@ class Database:
             can_specify_ddl_select="CAN SPECIFY DDL SELECT" in self.sql_features,
             **ddl,
         )
-        return {"Create Table": create}
+
+    def merge_tables(
+        self,
+        src_table,
+        dst_table,
+        delete_key,
+        cleanup=True,
+        src_schema=None,
+        dst_schema=None,
+        **ddl,
+    ):
+        src_table = fully_qualify(src_table, src_schema)
+        dst_table = fully_qualify(dst_table, dst_schema)
+
+        template = self._jinja_env.get_template("merge_tables.sql")
+        return template.render(
+            dst_table=dst_table,
+            src_table=src_table,
+            cleanup=True,
+            delete_key=delete_key,
+        )
+
+    def move_table(self, src_table, dst_table, src_schema=None, dst_schema=None, **ddl):
+        template = self._jinja_env.get_template("move_table.sql")
+
+        return template.render(
+            src_schema=src_schema,
+            src_table=src_table,
+            dst_schema=dst_schema,
+            dst_table=dst_table,
+            can_alter_indexes="CAN ALTER INDEXES" in self.sql_features,
+            **ddl,
+        )
+
+    # ETL steps
 
     def replace_table(
         self, table, select, schema=None, tmp_schema=None, **ddl,
@@ -419,18 +460,15 @@ class Database:
             )
 
             # Move the table to its final location
-            template = self._jinja_env.get_template("move_table.sql")
-
-            move = template.render(
+            move = self.move_table(
+                tmp_table,
+                table,
                 src_schema=tmp_schema or schema,
-                src_table=tmp_table,
                 dst_schema=schema,
-                dst_table=table,
-                can_alter_indexes="CAN ALTER INDEXES" in self.sql_features,
                 **ddl,
             )
 
-            return dict(create_or_replace, **{"Move table": move})
+            return {"Create Table": create_or_replace, "Move table": move}
 
     def replace_view(self, view, select, schema=None, **ddl):
         view_name = fully_qualify(view, schema)
@@ -470,30 +508,7 @@ class Database:
             dst_schema=schema,
         )
 
-        return dict(create_or_replace, **merge)
-
-    def merge_tables(
-        self,
-        src_table,
-        dst_table,
-        delete_key,
-        cleanup=True,
-        src_schema=None,
-        dst_schema=None,
-        **ddl,
-    ):
-        src_table = fully_qualify(src_table, src_schema)
-        dst_table = fully_qualify(dst_table, dst_schema)
-
-        template = self._jinja_env.get_template("merge_tables.sql")
-        merge = template.render(
-            dst_table=dst_table,
-            src_table=src_table,
-            cleanup=True,
-            delete_key=delete_key,
-        )
-
-        return {"Merge Tables": merge}
+        return {"Create Table": create_or_replace, "Merge Tables": merge}
 
 
 def fully_qualify(name, schema=None):

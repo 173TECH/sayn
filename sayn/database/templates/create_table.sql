@@ -45,7 +45,7 @@ DISTSTYLE {{ distribution['style'] }}
 {% endif %}
 {% endblock -%}
 
-{%- if select is defined %}
+{%- if select is defined and select is not none %}
 {%- if not can_specify_ddl_select and columns is defined and columns|length > 0 %}
 ;
 
