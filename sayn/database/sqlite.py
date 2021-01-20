@@ -8,7 +8,11 @@ db_parameters = ["database"]
 
 class Sqlite(Database):
     def feature(self, feature):
-        return feature in ("CANNOT ALTER INDEXES", "CANNOT SET SCHEMA")
+        return feature in (
+            "CANNOT ALTER INDEXES",
+            "CANNOT SET SCHEMA",
+            "CANNOT SPECIFY DDL IN SELECT",
+        )
 
     def create_engine(self, settings):
         database = settings.pop("database")
