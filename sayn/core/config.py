@@ -384,6 +384,13 @@ def get_tasks_dict(global_presets, groups):
     tasks = dict()
     for group_name, group in groups.items():
         for task_name, task in group.tasks.items():
+            if task_name in tasks:
+                return Err(
+                    "dag",
+                    "duplicate_task",
+                    task=task_name,
+                    groups=(group_name, tasks[task_name]["group"]),
+                )
             result = get_task_dict(task, task_name, group_name, presets)
             if result.is_ok:
                 tasks[task_name] = result.value
