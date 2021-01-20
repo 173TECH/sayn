@@ -9,25 +9,27 @@ from .sql import SqlTask
 
 
 class Source(BaseModel):
-    db_features: List[str]
-    db_type: str
+    _cannot_set_schema: bool
+    _db_type: str
+
     db_schema: Optional[str] = Field(None, alias="schema")
     table: str
     db: str
 
     @validator("db_schema")
     def can_use_schema(cls, v, values):
-        if v is not None and "NO SET SCHEMA" in values["db_features"]:
+        if v is not None and values["_cannot_set_schema"]:
             raise ValueError(
-                f'schema not supported for database of type {values["db_type"]}'
+                f'schema not supported for database of type {values["_db_type"]}'
             )
 
         return v
 
 
 class Destination(BaseModel):
-    db_features: List[str]
-    db_type: str
+    _cannot_set_schema: bool
+    _db_type: str
+
     tmp_schema: Optional[str]
     db_schema: Optional[str] = Field(None, alias="schema")
     table: str
@@ -35,18 +37,18 @@ class Destination(BaseModel):
 
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
-        if v is not None and "NO SET SCHEMA" in values["db_features"]:
+        if v is not None and values["_cannot_set_schema"]:
             raise ValueError(
-                f'tmp_schema not supported for database of type {values["db_type"]}'
+                f'tmp_schema not supported for database of type {values["_db_type"]}'
             )
 
         return v
 
     @validator("db_schema")
     def can_use_schema(cls, v, values):
-        if v is not None and "NO SET SCHEMA" in values["db_features"]:
+        if v is not None and values["_cannot_set_schema"]:
             raise ValueError(
-                f'schema not supported for database of type {values["db_type"]}'
+                f'schema not supported for database of type {values["_db_type"]}'
             )
 
         return v
@@ -106,18 +108,18 @@ class CopyTask(SqlTask):
         if isinstance(config.get("source"), dict):
             config["source"].update(
                 {
-                    "db_features": self.connections[
+                    "_cannot_set_schema": self.connections[
                         config["source"]["db"]
-                    ].sql_features,
-                    "db_type": self.connections[config["source"]["db"]].db_type,
+                    ].feature("CANNOT SET SCHEMA"),
+                    "_db_type": self.connections[config["source"]["db"]].db_type,
                 }
             )
 
         if isinstance(config.get("destination"), dict):
             config["destination"].update(
                 {
-                    "db_features": self.target_db.sql_features,
-                    "db_type": self.target_db.db_type,
+                    "_cannot_set_schema": self.target_db.feature("CANNOT SET SCHEMA"),
+                    "_db_type": self.target_db.db_type,
                 }
             )
 

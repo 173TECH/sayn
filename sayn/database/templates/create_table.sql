@@ -3,18 +3,16 @@ CREATE TABLE IF NOT EXISTS {{ full_name }}
 {%- elif replace and can_replace_table %}
 CREATE OR REPLACE TABLE {{ full_name }}
 {%- elif replace and not can_replace_table %}
-{% if table_exists %}
+  {% if table_exists %}
 DROP TABLE IF EXISTS {{ full_name }}{{ ' CASCADE' if needs_cascade else ''}};
-{% elif view_exists %}
+  {% elif view_exists %}
 DROP VIEW IF EXISTS {{ full_name }}{{ ' CASCADE' if needs_cascade else ''}};
-{% endif %}
+  {% endif %}
 
 CREATE TABLE {{ full_name }}
-{%- else %}
-CREATE TABLE
 {%- endif %}
 
-{%- if columns is defined and columns|length > 0 %}
+{%- if columns is defined and columns|length > 0 and all_columns_have_type %}
 (
 {%- for col_def in columns %}
     {{ col_def['name'] }} {{ col_def['type'] }}
@@ -46,7 +44,7 @@ DISTSTYLE {{ distribution['style'] }}
 {% endblock -%}
 
 {%- if select is defined and select is not none %}
-{%- if not can_specify_ddl_select and columns is defined and columns|length > 0 %}
+{%- if cannot_specify_ddl_select and columns is defined and columns|length > 0 %}
 ;
 
 INSERT INTO {{ full_name }}

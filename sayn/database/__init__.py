@@ -115,14 +115,6 @@ class Database:
     """
 
     ddl_validation_class = DDL
-    sql_features = list()
-    # Supported sql_features
-    #   - CREATE IF NOT EXISTS
-    #   - CREATE TABLE NO PARENTHESES
-    #   - INSERT TABLE NO PARENTHESES
-    #   - DROP CASCADE
-    #   - NO SET SCHEMA
-    #   - NO ALTER INDEXES
 
     _requested_objects = None
 
@@ -137,6 +129,24 @@ class Database:
             undefined=StrictUndefined,
             keep_trailing_newline=True,
         )
+
+    def feature(self, feature):
+        # Supported sql_features
+        #   - CREATE IF NOT EXISTS
+        #   - CREATE TABLE NO PARENTHESES
+        #   - INSERT TABLE NO PARENTHESES
+        #   - DROP CASCADE
+        #   - NO SET SCHEMA
+        #   - NO ALTER INDEXES
+
+        # CAN REPLACE TABLE
+        # CAN REPLACE TABLE
+        # CAN REPLACE VIEW
+        # NEEDS CASCADE
+        # CANNOT SPECIFY DDL IN SELECT
+        # CANNOT ALTER INDEXES
+        # CANNOT SET SCHEMA
+        return feature in ()
 
     def _set_engine(self, engine):
         self.engine = engine
@@ -398,9 +408,12 @@ class Database:
             table_exists=table_exists,
             select=select,
             replace=True,
-            can_replace_table="CAN REPLACE TABLE" in self.sql_features,
-            needs_cascade="NEEDS CASCADE" in self.sql_features,
-            can_specify_ddl_select="CAN SPECIFY DDL SELECT" in self.sql_features,
+            can_replace_table=self._feature("CAN REPLACE TABLE"),
+            needs_cascade=self._feature("NEEDS CASCADE"),
+            cannot_specify_ddl_select=self._feature("CANNOT SPECIFY DDL IN SELECT"),
+            all_columns_have_type=len(
+                [c for c in ddl.get("columns", dict()) if c.get("type") is not None]
+            ),
             **ddl,
         )
 
@@ -433,7 +446,7 @@ class Database:
             src_table=src_table,
             dst_schema=dst_schema,
             dst_table=dst_table,
-            can_alter_indexes="CAN ALTER INDEXES" in self.sql_features,
+            cannot_alter_indexes=self._feature("CANNOT ALTER INDEXES"),
             **ddl,
         )
 
@@ -443,7 +456,7 @@ class Database:
         self, table, select, schema=None, tmp_schema=None, **ddl,
     ):
         # Create the temporary table
-        can_replace_table = "CAN REPLACE TABLE" in self.sql_features
+        can_replace_table = self._feature("CAN REPLACE TABLE")
 
         tmp_table = tmp_name(table)
         tmp_schema = tmp_schema or schema
@@ -483,8 +496,8 @@ class Database:
             table_exists=table_exists,
             select=select,
             replace=True,
-            can_replace_view="CAN REPLACE VIEW" in self.sql_features,
-            needs_cascade="NEEDS CASCADE" in self.sql_features,
+            can_replace_view=self._feature("CAN REPLACE VIEW"),
+            needs_cascade=self._feature("NEEDS CASCADE"),
             **ddl,
         )
         return {"Create View": create}

@@ -7,7 +7,7 @@ DROP VIEW IF EXISTS {{ table_name }}{{ ' CASCADE' if needs_cascade else ''}};
 
 CREATE VIEW {{ table_name }}
 {%- else %}
-CREATE OR REPLACE VIEW
+CREATE OR REPLACE VIEW {{ table_name }}
 {%- endif %}
 
 {%- if select is defined %}

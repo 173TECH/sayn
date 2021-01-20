@@ -9,8 +9,8 @@ from .sql import SqlTask
 
 
 class Destination(BaseModel):
-    db_features: List[str]
-    db_type: str
+    _cannot_set_schema: bool
+    _db_type: str
     db: Optional[str]
     tmp_schema: Optional[str]
     db_schema: Optional[str] = Field(None, alias="schema")
@@ -18,9 +18,9 @@ class Destination(BaseModel):
 
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
-        if v is not None and "NO SET SCHEMA" in values["db_features"]:
+        if v is not None and values["_cannot_set_schema"]:
             raise ValueError(
-                f'tmp_schema not supported for database of type {values["db_type"]}'
+                f'tmp_schema not supported for database of type {values["_db_type"]}'
             )
 
         return v
@@ -75,8 +75,8 @@ class AutoSqlTask(SqlTask):
         if isinstance(config.get("destination"), dict):
             config["destination"].update(
                 {
-                    "db_features": self.target_db.sql_features,
-                    "db_type": self.target_db.db_type,
+                    "_cannot_set_schema": self.target_db.feature("CANNOT SET SCHEMA"),
+                    "_db_type": self.target_db.db_type,
                 }
             )
 
@@ -111,7 +111,7 @@ class AutoSqlTask(SqlTask):
         self.cols_no_type = [c for c in self.ddl["columns"] if c["type"] is None]
         if (
             len(self.ddl["primary_key"]) > 0
-            and "NO ALTER INDEXES" in self.target_db.sql_features
+            and self.target_db.feature("CANNOT ALTER INDEXES")
             and (len(self.ddl["columns"]) == 0 or len(self.cols_no_type) > 0)
         ):
             return Err(

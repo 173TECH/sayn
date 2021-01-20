@@ -9,11 +9,6 @@ ALTER TABLE {{ src_schema }}.{{ dst_table }};
 
 {% if indexes is defined %}
   {% for name, idx_def in indexes.items() %}
-    {% if not cannot_alter_indexes %}
-ALTER INDEX {{ dst_schema }}{{ src_table }}_{{ name }} RENAME TO {{ dst_schema }}{{ dst_table }}_{{ name }};
-    {% else %}
-DROP INDEX IF EXISTS {{ dst_schema }}{{ src_table }}_{{ name }};
-CREATE INDEX {{ dst_table }}_{{ name }} ON {{ dst_schema }}{{ dst_table }}({{ ', '.join(idx_def['columns']) }});
-    {% endif %}
+ALTER TABLE {{ dst_schema }}{{ dst_table }} RENAME INDEX {{ src_table }}_{{ name }} TO {{ dst_table }}_{{ name }};
   {% endfor %}
 {% endif %}
