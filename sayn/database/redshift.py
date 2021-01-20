@@ -61,7 +61,8 @@ class RedshiftDDL(DDL):
 class Redshift(Database):
     ddl_validation_class = RedshiftDDL
 
-    sql_features = ["DROP CASCADE", "NO SET SCHEMA"]
+    def feature(self, feature):
+        return feature in ("NEEDS CASCADE", "CAN REPLACE VIEW", "CANNOT SET SCHEMA",)
 
     def create_engine(self, settings):
         # Create engine using the connect_args argument to create_engine
