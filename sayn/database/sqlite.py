@@ -7,7 +7,7 @@ db_parameters = ["database"]
 
 
 class Sqlite(Database):
-    def _feature(self, feature):
+    def feature(self, feature):
         return feature in ("CANNOT ALTER INDEXES", "CANNOT SET SCHEMA")
 
     def create_engine(self, settings):

@@ -25,21 +25,21 @@ CREATE TABLE {{ full_name }}
 {%- endif %}
 
 {%- block table_attributes %}
-{%- if partition is defined %}
+{%- if partition is defined and partition is not none %}
 PARTITION BY {{ partition }}
 {% endif %}
 
-{%- if cluster is defined %}
-CLUSTER BY ({{ ', '.join(cluster) }}}
+{%- if cluster is defined and cluster is not none %}
+CLUSTER BY ({{ cluster|join(', ') }})
 {% endif %}
 
-{%- if distribution is defined %}
+{%- if distribution is defined and distribution is not none %}
 DISTSTYLE {{ distribution['style'] }}
 {% if distribution['style'] == 'key' %}DISTKEY({{ distribution['key'] }}){% endif %}
 {% endif %}
 
-{%- if sorting is defined %}
-{{ sorting['type']+' ' if 'type' in sorting else '' }}SORTKEY({{ ', '.join(sorting['columns']) }})
+{%- if sorting is defined and sorting is not none %}
+{{ sorting['type']+' ' if 'type' in sorting else '' }}SORTKEY({{ sorting['columns']|join(', ') }})
 {% endif %}
 {% endblock -%}
 

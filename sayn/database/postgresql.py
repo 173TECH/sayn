@@ -8,7 +8,7 @@ db_parameters = ["host", "user", "password", "port", "dbname"]
 
 
 class Postgresql(Database):
-    def _feature(self, feature):
+    def feature(self, feature):
         # NEEDS CASCADE
         return feature in ("CAN REPLACE VIEW", "CANNOT SPECIFY DDL IN SELECT")
 

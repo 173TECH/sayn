@@ -277,7 +277,10 @@ class CopyTask(SqlTask):
             if dst_table_def is not None:
                 # In incremental loads we use the destination table to determine the columns
                 self.ddl["columns"] = [
-                    {"name": c.name, "type": c.type.compile()}
+                    {
+                        "name": c.name,
+                        "type": c.type.compile(dialect=self.target_db.engine.dialect),
+                    }
                     for c in dst_table_def.columns
                 ]
 
@@ -298,12 +301,7 @@ class CopyTask(SqlTask):
             else:
                 # In any other case, we use the source
                 self.ddl["columns"] = [
-                    {
-                        "name": c.name,
-                        "type": self.source_db._transform_column_type(
-                            c.type, self.target_db.engine.dialect
-                        ),
-                    }
+                    {"name": c.name, "type": self.target_db._py2sqa(c.type.python_type)}
                     for c in self.source_table_def.columns
                 ]
         else:
@@ -320,9 +318,8 @@ class CopyTask(SqlTask):
                     )
 
                 if "type" not in column:
-                    column["type"] = self.source_db._transform_column_type(
-                        self.source_table_def.columns[column["name"]].type,
-                        self.target_db.engine.dialect,
+                    column["type"] = self.target_db._py2sqa(
+                        self.source_table_def.columns[column["name"]].type.python_type
                     )
 
         return Ok()

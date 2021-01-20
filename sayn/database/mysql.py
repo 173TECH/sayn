@@ -8,7 +8,7 @@ db_parameters = ["host", "user", "password", "port", "database"]
 
 
 class Mysql(Database):
-    def _feature(self, feature):
+    def feature(self, feature):
         return feature in ("CAN REPLACE VIEW",)
 
     def create_engine(self, settings):
@@ -40,18 +40,3 @@ class Mysql(Database):
             dst_table=dst_table,
             **ddl,
         )
-
-    # def _transform_column_type(self, column_type, dialect):
-    #     ctype = column_type.compile().lower()
-    #     if ctype == "tinyint(1)":
-    #         return Boolean().compile(dialect=dialect)
-    #     elif ctype == "datetime":
-    #         return DateTime().compile(dialect=dialect)
-    #     elif ctype == "longtext":
-    #         return Text().compile(dialect=dialect)
-    #     elif ctype == "mediumtext":
-    #         return Text().compile(dialect=dialect)
-    #     elif "varchar" in ctype:
-    #         return Text().compile(dialect=dialect)
-    #     else:
-    #         return super()._transform_column_type(column_type, dialect)

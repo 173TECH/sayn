@@ -164,9 +164,6 @@ class Database:
             except Exception as e:
                 return Exc(e, db=self.name, type=self.db_type)
 
-    def _transform_column_type(self, column_type, dialect):
-        return self._py2sqa(column_type.python_type, dialect=dialect)
-
     def _refresh_metadata(self, only=None, schema=None):
         """Refreshes the sqlalchemy metadata object.
 
@@ -203,13 +200,13 @@ class Database:
                 if view in self._requested_objects[schema]:
                     self._requested_objects[schema][view]["type"] = "view"
 
-    def _py2sqa(self, from_type, dialect=None):
+    def _py2sqa(self, from_type):
         python_types = {
             int: sqltypes.BigInteger,
             str: sqltypes.Unicode,
             float: sqltypes.Float,
             decimal.Decimal: sqltypes.Numeric,
-            datetime.datetime: sqltypes.DateTime,
+            datetime.datetime: sqltypes.TIMESTAMP,
             bytes: sqltypes.LargeBinary,
             bool: sqltypes.Boolean,
             datetime.date: sqltypes.Date,
@@ -221,10 +218,8 @@ class Database:
 
         if from_type not in python_types:
             raise ValueError(f'Type not supported "{from_type}"')
-        elif dialect is not None:
-            return python_types[from_type]().compile(dialect=dialect)
         else:
-            return python_types[from_type]
+            return python_types[from_type]().compile(dialect=self.engine.dialect)
 
     # API
 
@@ -408,9 +403,9 @@ class Database:
             table_exists=table_exists,
             select=select,
             replace=True,
-            can_replace_table=self._feature("CAN REPLACE TABLE"),
-            needs_cascade=self._feature("NEEDS CASCADE"),
-            cannot_specify_ddl_select=self._feature("CANNOT SPECIFY DDL IN SELECT"),
+            can_replace_table=self.feature("CAN REPLACE TABLE"),
+            needs_cascade=self.feature("NEEDS CASCADE"),
+            cannot_specify_ddl_select=self.feature("CANNOT SPECIFY DDL IN SELECT"),
             all_columns_have_type=len(
                 [c for c in ddl.get("columns", dict()) if c.get("type") is not None]
             ),
@@ -446,7 +441,7 @@ class Database:
             src_table=src_table,
             dst_schema=dst_schema,
             dst_table=dst_table,
-            cannot_alter_indexes=self._feature("CANNOT ALTER INDEXES"),
+            cannot_alter_indexes=self.feature("CANNOT ALTER INDEXES"),
             **ddl,
         )
 
@@ -456,7 +451,7 @@ class Database:
         self, table, select, schema=None, tmp_schema=None, **ddl,
     ):
         # Create the temporary table
-        can_replace_table = self._feature("CAN REPLACE TABLE")
+        can_replace_table = self.feature("CAN REPLACE TABLE")
 
         tmp_table = tmp_name(table)
         tmp_schema = tmp_schema or schema
@@ -465,7 +460,7 @@ class Database:
             create_or_replace = self.create_table(
                 table, schema, select=select, replace=True, **ddl
             )
-            return create_or_replace
+            return {"Create Or Replace Table": create_or_replace}
 
         else:
             create_or_replace = self.create_table(
@@ -496,8 +491,8 @@ class Database:
             table_exists=table_exists,
             select=select,
             replace=True,
-            can_replace_view=self._feature("CAN REPLACE VIEW"),
-            needs_cascade=self._feature("NEEDS CASCADE"),
+            can_replace_view=self.feature("CAN REPLACE VIEW"),
+            needs_cascade=self.feature("NEEDS CASCADE"),
             **ddl,
         )
         return {"Create View": create}

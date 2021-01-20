@@ -9,7 +9,6 @@ from pydantic import validator
 from sqlalchemy import create_engine
 from sqlalchemy.sql import sqltypes
 
-from ..core.errors import DBError
 from . import Database, DDL
 
 db_parameters = ["project", "credentials_path", "location", "dataset"]
@@ -44,9 +43,11 @@ class BigqueryDDL(DDL):
 class Bigquery(Database):
     ddl_validation_class = BigqueryDDL
 
-    sql_features = []
     project = None
     dataset = None
+
+    def feature(self, feature):
+        return feature in ("CAN REPLACE TABLE",)
 
     def create_engine(self, settings):
         settings = deepcopy(settings)
@@ -59,13 +60,13 @@ class Bigquery(Database):
 
         return create_engine(url, **settings)
 
-    def _py2sqa(self, from_type, dialect=None):
+    def _py2sqa(self, from_type):
         python_types = {
             int: sqltypes.Integer,
             str: sqltypes.String,
             float: sqltypes.Float,
             decimal.Decimal: sqltypes.Numeric,
-            datetime.datetime: sqltypes.DateTime,
+            datetime.datetime: sqltypes.TIMESTAMP,
             bytes: sqltypes.LargeBinary,
             bool: sqltypes.Boolean,
             datetime.date: sqltypes.Date,
@@ -77,10 +78,8 @@ class Bigquery(Database):
 
         if from_type not in python_types:
             raise ValueError(f'Type not supported "{from_type}"')
-        elif dialect is not None:
-            return python_types[from_type]().compile(dialect=dialect)
         else:
-            return python_types[from_type]
+            return python_types[from_type]().compile(dialect=self.engine.dialect)
 
     def _load_data_batch(self, table, data, schema):
         full_table_name = (
@@ -107,133 +106,13 @@ class Bigquery(Database):
         )
         job.result()
 
-    def _move_table(
-        self, src_table, src_schema, dst_table, dst_schema, ddl, execute=False
-    ):
-        """Returns SQL code to rename a table and change schema.
-
-        Note:
-            Table movement is performed as a series of ALTER statements:
-
-              * CREATE TABLE dst_table AS (SELECT * FROM src_table)
-              * DROP src_tabe
-
-        Args:
-            src_table (str): The source table name
-            src_schema (str): The source schema or None
-            dst_table (str): The target table name
-            dst_schema (str): The target schema or None
-            ddl (dict): A ddl task definition
-            execute (bool): Execute the query before returning it
-
-        Returns:
-            str: A SQL script for moving the table
-        """
-        src_full_table_name = f"{src_schema+'.' if src_schema else ''}{src_table}"
-        dst_full_table_name = f"{dst_schema+'.' if dst_schema else ''}{dst_table}"
-        q = f"CREATE TABLE {dst_full_table_name}"
-
-        if ddl.get("partition") is not None:
-            q += f"\nPARTITION BY {ddl['partition']}"
-        if ddl.get("cluster") is not None:
-            q += f"\nCLUSTER BY {', '.join(ddl['cluster'])}"
-
-        q += (
-            f" AS (SELECT * from {src_full_table_name});\n"
-            f"DROP TABLE {src_full_table_name}"
+    def move_table(self, src_table, dst_table, src_schema=None, dst_schema=None, **ddl):
+        full_src_table = (
+            f"{src_schema + '.' if src_schema is not None else ''}{src_table}"
+        )
+        select = f"SELECT * FROM {full_src_table}"
+        create_or_replace = self.create_table(
+            dst_table, dst_schema, select=select, replace=True, **ddl
         )
 
-        if execute:
-            self.execute(q)
-
-        return q
-
-    def _create_table_select(
-        self, table, schema, select, view=False, ddl=dict(), execute=False
-    ):
-        """Returns SQL code for a create table from a select statement.
-
-        Args:
-            table (str): The target table name
-            schema (str): The target schema or None
-            select (str): A SQL SELECT query to build the table with
-            view (bool): Indicates if the object to create is a view. Defaults to creating a table
-            ddl (dict): Optionally specify a ddl dict. If provided, a `CREATE` with column specification
-                followed by an `INSERT` rather than a `CREATE ... AS SELECT ...` will be issued
-            execute (bool): Execute the query before returning it
-
-        Returns:
-            str: A SQL script for the CREATE...AS
-        """
-        table = f"{schema+'.' if schema else ''}{table}"
-        table_or_view = "VIEW" if view else "TABLE"
-
-        if_not_exists = (
-            " IF NOT EXISTS" if "CREATE IF NOT EXISTS" in self.sql_features else ""
-        )
-        q = f"CREATE {table_or_view}{if_not_exists} {table}\n"
-
-        if ddl.get("partition") is not None:
-            q += f"\nPARTITION BY {ddl['partition']}"
-        if ddl.get("cluster") is not None:
-            q += f"\nCLUSTER BY {', '.join(ddl['cluster'])}"
-        q += f"\nAS (\n{select}\n);"
-
-        if execute:
-            self.execute(q)
-
-        return q
-
-    def _create_table_ddl(self, table, schema, ddl, execute=False):
-        """Returns SQL code for a create table from a select statement.
-
-        Args:
-            table (str): The target table name
-            schema (str): The target schema or None
-            ddl (dict): A ddl task definition
-            execute (bool): Execute the query before returning it
-
-        Returns:
-            str: A SQL script for the CREATE TABLE statement
-        """
-        if len(ddl["columns"]) == 0:
-            raise DBError(
-                self.name, self.db_type, "DDL is missing columns specification"
-            )
-        table_name = table
-        table = f"{schema+'.' if schema else ''}{table_name}"
-
-        # List of reserved keywords so columns are quoted
-        # TODO find a better way
-        reserved = ("from", "to", "primary")
-        columns = [
-            {k: f'"{v}"' if k == "name" and v in reserved else v for k, v in c.items()}
-            for c in ddl["columns"]
-        ]
-
-        columns = "\n    , ".join(
-            [
-                (
-                    f'{c["name"]} {c["type"]}'
-                    f'{" NOT NULL" if c.get("not_null", False) else ""}'
-                )
-                for c in columns
-            ]
-        )
-
-        q = ""
-        if_not_exists = (
-            " IF NOT EXISTS" if "CREATE IF NOT EXISTS" in self.sql_features else ""
-        )
-        q += f"CREATE TABLE{if_not_exists} {table} (\n      {columns}\n)"
-
-        if ddl.get("partition") is not None:
-            q += f"\nPARTITION BY {ddl['partition']}"
-        if ddl.get("cluster") is not None:
-            q += f"\nCLUSTER BY {', '.join(ddl['cluster'])}"
-        q += ";"
-
-        if execute:
-            self.execute(q)
-
-        return q
+        return "\n\n".join((create_or_replace, f"DROP TABLE {full_src_table}"))
