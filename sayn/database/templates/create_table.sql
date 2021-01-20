@@ -44,7 +44,7 @@ DISTSTYLE {{ distribution['style'] }}
 {% endblock -%}
 
 {%- if select is defined and select is not none %}
-{%- if cannot_specify_ddl_select and columns is defined and columns|length > 0 %}
+{%- if cannot_specify_ddl_select and columns is defined and columns|length > 0 and all_columns_have_type %}
 ;
 
 INSERT INTO {{ full_name }}
