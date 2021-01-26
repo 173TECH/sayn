@@ -58,10 +58,15 @@ class Project(BaseModel):
     def required_credentials_are_unique(cls, v):
         return is_unique("required_credentials", v)
 
-    @validator("default_db")
+    @validator("default_db", always=True)
     def default_db_exists(cls, v, values, **kwargs):
-        if v not in values["required_credentials"]:
+        if v is None and len(values["required_credentials"]) == 1:
+            return values["required_credentials"][0]
+        elif v is None:
+            raise ValueError("Missing default_db in project.yaml")
+        elif v not in values["required_credentials"]:
             raise ValueError(f'default_db value "{v}" not in required_credentials')
+
         return v
 
     @validator("groups", pre=True, always=True)
@@ -92,7 +97,7 @@ def read_project():
 
 class TaskGroup(BaseModel):
     presets: Optional[Dict[str, Dict[str, Any]]] = dict()
-    tasks: Dict[str, Dict[str, Any]]
+    tasks: Optional[Dict[str, Dict[str, Any]]]
 
 
 def read_groups(groups):
@@ -378,12 +383,20 @@ def get_tasks_dict(global_presets, groups):
     errors = dict()
     tasks = dict()
     for group_name, group in groups.items():
-        for task_name, task in group.tasks.items():
-            result = get_task_dict(task, task_name, group_name, presets)
-            if result.is_ok:
-                tasks[task_name] = result.value
-            else:
-                errors[task_name] = result.error
+        if group.tasks is not None:
+            for task_name, task in group.tasks.items():
+                if task_name in tasks:
+                    return Err(
+                        "dag",
+                        "duplicate_task",
+                        task=task_name,
+                        groups=(group_name, tasks[task_name]["group"]),
+                    )
+                result = get_task_dict(task, task_name, group_name, presets)
+                if result.is_ok:
+                    tasks[task_name] = result.value
+                else:
+                    errors[task_name] = result.error
 
     if len(errors) > 0:
         return Err("get_tasks_dict", "task_parsing_error", errors=errors)

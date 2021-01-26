@@ -7,12 +7,12 @@ db_parameters = ["database"]
 
 
 class Sqlite(Database):
-    sql_features = [
-        "CREATE TABLE NO PARENTHESES",
-        "INSERT TABLE NO PARENTHESES",
-        "NO SET SCHEMA",
-        "NO ALTER INDEXES",
-    ]
+    def feature(self, feature):
+        return feature in (
+            "CANNOT ALTER INDEXES",
+            "CANNOT SET SCHEMA",
+            "CANNOT SPECIFY DDL IN SELECT",
+        )
 
     def create_engine(self, settings):
         database = settings.pop("database")

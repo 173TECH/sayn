@@ -17,7 +17,6 @@ def test_sql_task(tmp_path):
         setup_result = task.setup(file_name="test.sql")
         assert setup_result.is_ok
         assert task.sql_query == sql_query
-        assert task.steps == ["Write Query", "Execute Query"]
 
         # run
         run_result = task.run()
@@ -36,7 +35,6 @@ def test_sql_task_compile(tmp_path):
         setup_result = task.setup(file_name="test.sql")
         assert setup_result.is_ok
         assert task.sql_query == sql_query
-        assert task.steps == ["Write Query"]
 
         # compile
         compile_result = task.compile()
@@ -94,7 +92,6 @@ def test_sql_task_run_multi_statements(tmp_path):
         setup_result = task.setup(file_name="test.sql")
         assert setup_result.is_ok
         assert task.sql_query == sql_query_multi
-        assert task.steps == ["Write Query", "Execute Query"]
 
         # run
         run_result = task.run()
@@ -115,7 +112,6 @@ def test_sql_task_dst_db(tmp_path):
         setup_result = task.setup(file_name="test.sql", db="target_db")
         assert setup_result.is_ok
         assert task.sql_query == sql_query
-        assert task.steps == ["Write Query", "Execute Query"]
 
         # run
         run_result = task.run()

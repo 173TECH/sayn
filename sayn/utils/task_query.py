@@ -44,7 +44,7 @@ def _get_query_component(tasks, query):
             group = match_components["group"]
             relevant_tasks = {k: v for k, v in tasks.items() if group == v.get("group")}
             if len(relevant_tasks) == 0:
-                return Err("task_query", "undefined_group", group=group,)
+                return Err("task_query", "undefined_group", group=group)
             return Ok(
                 [
                     {"task": task, "upstream": False, "downstream": False}

@@ -17,13 +17,6 @@ def test_copy_task():
         destination={"table": "dst_table"},
     )
     assert setup_result.is_ok
-    assert task.steps == [
-        "Cleanup",
-        "Create Temp DDL",
-        "Load Data",
-        "Cleanup Target",
-        "Move",
-    ]
 
     # run
     run_result = task.run()
@@ -48,13 +41,6 @@ def test_copy_task_ddl():
         ddl={"columns": [{"name": "x", "type": "int"}]},
     )
     assert setup_result.is_ok
-    assert task.steps == [
-        "Cleanup",
-        "Create Temp DDL",
-        "Load Data",
-        "Cleanup Target",
-        "Move",
-    ]
 
     # run
     run_result = task.run()
@@ -103,7 +89,6 @@ def test_copy_task_incremental():
         delete_key="id",
     )
     assert setup_result.is_ok
-    assert task.steps == ["Cleanup", "Create Temp DDL", "Load Data", "Merge"]
 
     # run
     run_result = task.run()
@@ -172,13 +157,6 @@ def test_copy_task_dst_db():
         destination={"db": "target_db2", "table": "dst_table"},
     )
     assert setup_result.is_ok
-    assert task.steps == [
-        "Cleanup",
-        "Create Temp DDL",
-        "Load Data",
-        "Cleanup Target",
-        "Move",
-    ]
 
     # run
     run_result = task.run()

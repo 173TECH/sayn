@@ -5,12 +5,12 @@ from pydantic import BaseModel, Field, FilePath, validator
 
 from ..core.errors import Exc, Ok, Err
 from ..database import Database
-from .base_sql import BaseSqlTask
+from .sql import SqlTask
 
 
 class Destination(BaseModel):
-    db_features: List[str]
-    db_type: str
+    _cannot_set_schema: bool
+    _db_type: str
     db: Optional[str]
     tmp_schema: Optional[str]
     db_schema: Optional[str] = Field(None, alias="schema")
@@ -18,9 +18,9 @@ class Destination(BaseModel):
 
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
-        if v is not None and "NO SET SCHEMA" in values["db_features"]:
+        if v is not None and values["_cannot_set_schema"]:
             raise ValueError(
-                f'tmp_schema not supported for database of type {values["db_type"]}'
+                f'tmp_schema not supported for database of type {values["_db_type"]}'
             )
 
         return v
@@ -50,7 +50,7 @@ class Config(BaseModel):
             return v
 
 
-class AutoSqlTask(BaseSqlTask):
+class AutoSqlTask(SqlTask):
     def setup(self, **config):
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
@@ -75,8 +75,8 @@ class AutoSqlTask(BaseSqlTask):
         if isinstance(config.get("destination"), dict):
             config["destination"].update(
                 {
-                    "db_features": self.target_db.sql_features,
-                    "db_type": self.target_db.db_type,
+                    "_cannot_set_schema": self.target_db.feature("CANNOT SET SCHEMA"),
+                    "_db_type": self.target_db.db_type,
                 }
             )
 
@@ -87,11 +87,14 @@ class AutoSqlTask(BaseSqlTask):
         except Exception as e:
             return Exc(e)
 
-        self.materialisation = self.config.materialisation
-        self.tmp_schema = self.config.destination.tmp_schema
+        self.tmp_schema = (
+            self.config.destination.tmp_schema or self.config.destination.db_schema
+        )
         self.schema = self.config.destination.db_schema
         self.table = self.config.destination.table
-        self.tmp_table = f"sayn_tmp_{self.table}"
+        self.use_db_object(self.table, schema=self.schema, tmp_schema=self.tmp_schema)
+
+        self.materialisation = self.config.materialisation
         self.delete_key = self.config.delete_key
 
         # DDL validation
@@ -105,13 +108,14 @@ class AutoSqlTask(BaseSqlTask):
         # and will issue a create table as select instead.
         # However, if the db doesn't support alter idx then we can't have a
         # primary key
-        cols_no_type = [c for c in self.ddl["columns"] if c["type"] is None]
+        self.cols_no_type = [c for c in self.ddl["columns"] if c["type"] is None]
         if (
             len(self.ddl["primary_key"]) > 0
-            and "NO ALTER INDEXES" in self.target_db.sql_features
-        ) and (len(self.ddl["columns"]) == 0 or len(cols_no_type) > 0):
+            and self.target_db.feature("CANNOT ALTER INDEXES")
+            and (len(self.ddl["columns"]) == 0 or len(self.cols_no_type) > 0)
+        ):
             return Err(
-                "task_definition", "missing_column_types_pk", columns=cols_no_type,
+                "task_definition", "missing_column_types_pk", columns=self.cols_no_type,
             )
 
         # Template compilation
@@ -127,33 +131,61 @@ class AutoSqlTask(BaseSqlTask):
         else:
             self.sql_query = result.value
 
-        # Materialisation type
-        self.is_full_load = (
-            self.materialisation == "table" or self.run_arguments["full_load"]
-        )
+        return Ok()
 
-        # Sets the execution steps
-        self.steps = ["Write Query"]
+    def execute(self, execute, debug):
+        res = self.write_compilation_output(self.sql_query, "select")
+        if res.is_err:
+            return res
 
         if self.materialisation == "view":
-            self.steps.extend(["Cleanup Target", "Create View"])
+            # View
+            step_queries = self.target_db.replace_view(
+                self.table, self.sql_query, schema=self.schema, **self.ddl
+            )
+
+        elif (
+            self.materialisation == "table"
+            or self.run_arguments["full_load"]
+            or self.target_db._requested_objects[self.schema][self.table].get("type")
+            is None
+        ):
+            # Full load or target table missing
+            step_queries = self.target_db.replace_table(
+                self.table,
+                self.sql_query,
+                schema=self.schema,
+                tmp_schema=self.tmp_schema,
+                **self.ddl,
+            )
 
         else:
-            self.steps.extend(["Cleanup", "Create Temp"])
+            # Incremental load
+            step_queries = self.target_db.merge_query(
+                self.table,
+                self.sql_query,
+                self.delete_key,
+                schema=self.schema,
+                tmp_schema=self.tmp_schema,
+                **self.ddl,
+            )
 
-            if self.is_full_load:
-                if len(self.ddl["indexes"]) > 0 or (
-                    len(self.ddl["primary_key"]) > 0
-                    and len(self.ddl["columns"]) > 0
-                    and len(cols_no_type) > 0
-                ):
-                    self.steps.append("Create Indexes")
-                self.steps.extend(["Cleanup Target", "Move"])
+        self.set_run_steps(list(step_queries.keys()))
 
-            else:
-                self.steps.append("Merge")
-
-        if len(self.ddl.get("permissions")) > 0:
-            self.steps.append("Grant Permissions")
+        for step, query in step_queries.items():
+            with self.step(step):
+                if debug:
+                    self.write_compilation_output(query, step.replace(" ", "_").lower())
+                if execute:
+                    try:
+                        self.target_db.execute(query)
+                    except Exception as e:
+                        return Exc(e)
 
         return Ok()
+
+    def compile(self):
+        return self.execute(False, self.run_arguments["debug"])
+
+    def run(self):
+        return self.execute(True, self.run_arguments["debug"])
