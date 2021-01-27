@@ -193,12 +193,15 @@ class Database:
         insp = reflection.Inspector.from_engine(self.engine)
 
         for schema in self._requested_objects.keys():
-            for table in insp.get_table_names(schema=schema):
-                if table in self._requested_objects[schema]:
-                    self._requested_objects[schema][table]["type"] = "table"
-            for view in insp.get_view_names(schema=schema):
-                if view in self._requested_objects[schema]:
-                    self._requested_objects[schema][view]["type"] = "view"
+            for obj_type, objs in [
+                ("table", insp.get_table_names(schema=schema)),
+                ("view", insp.get_view_names(schema=schema)),
+            ]:
+                for obj_name in objs:
+                    if schema is not None and obj_name.startswith(schema + "."):
+                        obj_name = obj_name[len(schema + ".") :]
+                    if obj_name in self._requested_objects[schema]:
+                        self._requested_objects[schema][obj_name]["type"] = obj_type
 
     def _py2sqa(self, from_type):
         python_types = {
@@ -492,7 +495,6 @@ class Database:
             view_exists=view_exists,
             table_exists=table_exists,
             select=select,
-            replace=True,
             can_replace_view=self.feature("CAN REPLACE VIEW"),
             needs_cascade=self.feature("NEEDS CASCADE"),
             **ddl,
