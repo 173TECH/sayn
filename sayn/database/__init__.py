@@ -315,8 +315,6 @@ class Database:
         """
         batch_size = batch_size or self.max_batch_rows
         buffer = list()
-        if replace:
-            self._drop_table(table, schema, execute=True)
 
         result = self._validate_ddl(ddl)
         if result.is_err:
@@ -333,22 +331,19 @@ class Database:
         table_exists_prior_load = self._table_exists(table, schema)
 
         for i, record in enumerate(data):
-            if check_create and not table_exists_prior_load:
+            if check_create and (replace or not table_exists_prior_load):
                 # Create the table if required
                 if len(ddl.get("columns", list())) == 0:
                     # If no columns are specified in the ddl, figure that out
                     # based on the python types of the first record
                     columns = [
-                        {
-                            "name": col,
-                            "type": self._py2sqa(type(val), self.engine.dialect),
-                        }
+                        {"name": col, "type": self._py2sqa(type(val))}
                         for col, val in record.items()
                     ]
                     ddl = dict(ddl, columns=columns)
 
-                for query in self.create_table(table, schema=schema, **ddl).values():
-                    self.execute(query)
+                query = self.create_table(table, schema=schema, replace=replace, **ddl)
+                self.execute(query)
                 check_create = False
 
             if i % batch_size == 0 and len(buffer) > 0:
@@ -391,9 +386,16 @@ class Database:
         self, table, schema=None, select=None, replace=False, **ddl,
     ):
         full_name = fully_qualify(table, schema)
-        object_type = self._requested_objects[schema][table].get("type")
-        table_exists = object_type == "table"
-        view_exists = object_type == "view"
+        if (
+            schema in self._requested_objects
+            and table in self._requested_objects[schema]
+        ):
+            object_type = self._requested_objects[schema][table].get("type")
+            table_exists = object_type == "table"
+            view_exists = object_type == "view"
+        else:
+            table_exists = True
+            view_exists = True
 
         template = self._jinja_env.get_template("create_table.sql")
         return template.render(

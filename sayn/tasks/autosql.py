@@ -9,8 +9,8 @@ from .sql import SqlTask
 
 
 class Destination(BaseModel):
-    _cannot_set_schema: bool
-    _db_type: str
+    cannot_set_schema: bool
+    db_type: str
     db: Optional[str]
     tmp_schema: Optional[str]
     db_schema: Optional[str] = Field(None, alias="schema")
@@ -18,7 +18,7 @@ class Destination(BaseModel):
 
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
-        if v is not None and values["_cannot_set_schema"]:
+        if v is not None and values["cannot_set_schema"]:
             raise ValueError(
                 f'tmp_schema not supported for database of type {values["_db_type"]}'
             )
@@ -75,8 +75,8 @@ class AutoSqlTask(SqlTask):
         if isinstance(config.get("destination"), dict):
             config["destination"].update(
                 {
-                    "_cannot_set_schema": self.target_db.feature("CANNOT SET SCHEMA"),
-                    "_db_type": self.target_db.db_type,
+                    "cannot_set_schema": self.target_db.feature("CANNOT SET SCHEMA"),
+                    "db_type": self.target_db.db_type,
                 }
             )
 
