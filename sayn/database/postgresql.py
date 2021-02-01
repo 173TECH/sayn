@@ -8,7 +8,12 @@ db_parameters = ["host", "user", "password", "port", "dbname"]
 
 
 class Postgresql(Database):
-    sql_features = ["DROP CASCADE"]
+    def feature(self, feature):
+        return feature in (
+            "NEEDS CASCADE",
+            "CAN REPLACE VIEW",
+            "CANNOT SPECIFY DDL IN SELECT",
+        )
 
     def create_engine(self, settings):
         # Create engine using the connect_args argument to create_engine

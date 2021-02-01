@@ -22,7 +22,7 @@ The above defines a preset called `modelling`. Every `task` referring to it will
 task and inherit all other attributes from it. For a task to use this configuration, we use the `preset`
 property in the task.
 
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     tasks:
       task_name:
@@ -30,7 +30,7 @@ property in the task.
         #other task properties
     ```
 
-Presets can be defined both in `project.yaml` and in any dag file.
+Presets can be defined both in `project.yaml` and in any task group file (files in the `tasks` folder).
 
 ## Preset inheritance
 

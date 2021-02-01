@@ -67,16 +67,16 @@ For this connection type to work:
 
 ## Redshift specific DDL
 
-# Indexes
+### Indexes
 
 Redshift doesn't support index definitions, and so autosql and copy tasks will forbid its definition
 in the `ddl` entry in the task definition.
 
-# Sorting
+### Sorting
 
 Table sorting can be specified under the `ddl` entry in the task definition
 
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     tasks:
       f_battles:
@@ -95,7 +95,7 @@ Table sorting can be specified under the `ddl` entry in the task definition
 With the above example, the table `f_battles` will be sorted by `arena_name` and `fighter1_name`
 using a compound key (Redshift default). The type of sorting can be changed to interleaved.
 
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     tasks:
       f_battles:
@@ -114,11 +114,11 @@ using a compound key (Redshift default). The type of sorting can be changed to i
 
 For more information, read the latest docs about [SORTKEY](https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html){target="\_blank"}.
 
-# Distribution
+### Distribution
 
 We can also specify the type of distribution: even, all or key based. If not specified, the Redshift default is even distribution.
 
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     tasks:
       f_battles:
@@ -133,7 +133,7 @@ We can also specify the type of distribution: even, all or key based. If not spe
 
 If we want to distribute the table by a given column use the following:
 
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     tasks:
       f_battles:

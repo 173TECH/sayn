@@ -35,11 +35,10 @@ Examples:
 * `sayn run -t task1 -t task2`: runs `task1` and `task2` only.
 * `sayn run -t +task_name`: run `task_name` and all its ancestors.
 * `sayn run -t task_name+`: run `task_name` and all its descendants.
-* `sayn run -t dag:dag_name`: run all tasks specified in the dag `dag_name`.
+* `sayn run -t group:group_name`: run all tasks specified in the group `group_name`.
 * `sayn run -t tag:tag_name` run all tasks tagged with `tag_name`.
 * `sayn run -x task_name`: run all tasks except `task_name`.
-* `sayn run -t dag:marketing -x +task_name`: run all tasks in the `marketing` DAG except `task_name` and
-  its ancestors.
+* `sayn run -t group:marketing -x +task_name`: run all tasks in the `marketing` task group except `task_name` and its ancestors.
 
 #### Incremental tasks options
 

@@ -29,10 +29,18 @@ An `autosql` task is defined by the following attributes:
 * `file_name`: the name of the file **within the sql folder of the project's root**.
 * `materialisation`: this should be either `table`, `view` or `incremental`. `table` will create a table, `view` will create a view. `incremental` will create a table and will load the data incrementally based on a delete key (see more detail on `incremental` below).
 * `destination`: this sets the details of the data processing.
-    * `tmp_schema`: specifies the schema which will be used to store any necessary temporary object created in the process. This is optional.
-    * `schema`: is the destination schema where the object will be created. This is optional.
+    * `tmp_schema`: the (optional) schema which will be used to store any necessary temporary object created in the process.
+    * `schema`: the (optional) destination schema where the object will be created.
     * `table`: is the name of the object that will be created.
+    * `db`: the (optional) destination database.
 * `delete_key`: specifies the incremental process delete key. This is for `incremental` `materialisation` only.
+
+!!! info
+    You do not need to specify `db` unless you want the destination database to be different than the `default_db` you define in `project.yaml` (which is the default database used by SAYN). If you define the `db` attribute, it needs to:
+
+      * Be a credential from the `required_credentials` list in `project.yaml`.
+      * Be defined in your `settings.yaml`.
+      * Be one of the supported [databases](../databases/overview.md).
 
 ## Using `autosql` In `incremental` Mode
 
@@ -85,14 +93,18 @@ In order to make the `SELECT` statement incremental, SAYN provides the following
 
 ## Defining DDLs
 
-Additionally, autosql tasks support the definition of optional DDL that will be used when creating the table.
-Each supported database might have specific DDL related to it, but in general the following is supported:
+Autosql tasks support the definition of optional DDL. Each DDL entry is independent to others (you can define only DDLs which are relevant to you).
 
-* columns: the list of columns as well as their type. If used, SAYN will enforce the types specified.
+!!! attention
+      Each supported database might have specific DDL related to it. Below are the DDLs that SAYN supports across all databases. For DDLs related to specific databases see the database-specific pages.
+
+### ALTER TABLE DDLs
+
+The following DDLs will be issued by SAYN with `ALTER TABLE` statements:
+
 * indexes: the indexes to add on the table.
-  * primary_key: this should be added in the indexes section using the `primary_key` name for the index.
-* permissions: the permissions you want to give to each role. You should map each role to the rights
-  you want to grant separated by commas (e.g. SELECT, DELETE).
+* primary_key: this should be added in the indexes section using the `primary_key` name for the index.
+* permissions: the permissions you want to give to each role. You should map each role to the rights you want to grant separated by commas (e.g. SELECT, DELETE).
 
 !!! example "autosql with DDL"
     ```yaml
@@ -115,7 +127,49 @@ Each supported database might have specific DDL related to it, but in general th
           idx1:
             columns:
               - column1
-      permissions:
-        role_name: SELECT
+        permissions:
+          role_name: SELECT
+    ...
+    ```
+
+### CREATE TABLE DDLs
+
+SAYN also lets you control the CREATE TABLE statement if you need more specification. This is done with:
+
+* columns: the list of columns including their definitions.
+
+`columns` can define the following attributes:
+
+* name: the column name.
+* type: the column type.
+* primary: set to `True` if the column is part of the primary key.
+* unique: set to `True` to enforce a unique constraint on the column.
+* not_null: set to `True` to enforce a non null constraint on the column.
+
+!!! Attention
+    If the a primary key is defined in both the `columns` and `indexes` DDL entries, the primary key will be set as part of the `CREATE TABLE` statement only.
+
+!!! example "autosql with columns DDL"
+    ```yaml
+    ...
+
+    task_autosql:
+      type: autosql
+      file_name: task_autosql.sql
+      materialisation: table
+      destination:
+        tmp_schema: analytics_staging
+        schema: analytics_models
+        table: task_autosql
+      ddl:
+        columns:
+          - name: x
+            type: int
+            primary: True
+          - name: y
+            type: varchar
+            unique: True
+        permissions:
+          role_name: SELECT
     ...
     ```

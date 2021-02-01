@@ -5,6 +5,7 @@ from pathlib import Path
 from jinja2 import Template
 
 from ..core.errors import Err, Exc, Ok
+from ..database import Database
 
 
 class TaskStatus(Enum):
@@ -27,8 +28,8 @@ class Task:
     Base class for tasks in SAYN.
 
     Attributes:
-        name (str): Name of the task as defined in the dag.
-        dag (str): Name of the dag where the task was defined.
+        name (str): Name of the task as defined in the task group.
+        group (str): Name of the task group where the task was defined.
         run_arguments (dict): Dictionary containing the values for the arguments specified in the cli.
         task_parameters (dict): Provides access to the parameters specified in the task.
         project_parameters (dict): Provides access to the global parameters of the project.
@@ -39,7 +40,7 @@ class Task:
     """
 
     name = None
-    dag = None
+    group = None
     tags = list()
     run_arguments = dict()
     task_parameters = dict()
@@ -57,17 +58,13 @@ class Task:
         return {**self.project_parameters, **self.task_parameters}
 
     @property
-    def db(self):
+    def default_db(self):
         return self.connections[self._default_db]
 
     # Making it backwards compatible
     @property
     def logger(self):
         return self.tracker
-
-    @property
-    def default_db(self):
-        return self.connections[self._default_db]
 
     # Task lifetime methods
 
@@ -176,7 +173,7 @@ class Task:
             except Exception as e:
                 return Err("tasks", "get_template_error", file_path=obj, exception=e)
         elif isinstance(obj, str):
-            template = str
+            template = obj
         else:
             return Err("tasks", "get_template_error", obj=obj)
 
@@ -210,7 +207,7 @@ class Task:
     def write_compilation_output(self, content, suffix=None):
         path = Path(
             self.run_arguments["folders"]["compile"],
-            self.dag,
+            self.group,
             Path(f"{self.name}{'_'+suffix if suffix is not None else ''}.sql"),
         )
 
@@ -222,6 +219,28 @@ class Task:
         path.write_text(str(content))
 
         return Ok()
+
+    # Execution utilities
+
+    def use_db_object(
+        self, object_name, schema=None, tmp_schema=None, db=None, request_tmp=True
+    ):
+        if db is None:
+            target_db = self.default_db
+        elif isinstance(db, str):
+            target_db = self.connections[db]
+        elif isinstance(db, Database):
+            target_db = db
+        else:
+            return Err("use_db_object", "wrong_db_type")
+
+        target_db._request_object(
+            object_name,
+            schema=schema,
+            tmp_schema=tmp_schema,
+            task_name=self.name,
+            request_tmp=request_tmp,
+        )
 
 
 class PythonTask(Task):

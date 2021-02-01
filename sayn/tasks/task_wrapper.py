@@ -24,7 +24,7 @@ _excluded_properties = (
     "name",
     "type",
     "tags",
-    "dag",
+    "group",
     "parents",
     "parameters",
     "class",
@@ -41,7 +41,7 @@ class TaskWrapper:
 
     Properties:
       name (str): the name of the task
-      dag (str): the name of the dag file where the task was defined
+      group (str): the name of the task group file where the task was defined
       tags (List[str]): list of tags declared for the task
       parents (List[sayn.task_wrapper.TaskWrapper]): the list of parents to the current task
       project_parameters (Dict[str, Any]): parameters defined at project level
@@ -53,7 +53,7 @@ class TaskWrapper:
     """
 
     name: str = None
-    dag: str = None
+    group: str = None
     tags: List[str] = list()
     parents: List[Any] = list()
     project_parameters: Dict[str, Any] = dict()
@@ -122,7 +122,7 @@ class TaskWrapper:
         self._info = task_info
 
         self.name = task_info["name"]
-        self.dag = task_info["dag"]
+        self.group = task_info["group"]
 
         self._type = task_info.get("type")
         self.tags = task_info.get("tags", list())
@@ -162,7 +162,7 @@ class TaskWrapper:
                         "task_type",
                         "invalid_task_type_error",
                         type=self._type,
-                        dag=self.dag,
+                        group=self.group,
                     )
                 )
 
@@ -196,7 +196,7 @@ class TaskWrapper:
 
         # Add the basic properties
         runner.name = self.name
-        runner.dag = self.dag
+        runner.group = self.group
         runner.tags = self.tags
         runner.run_arguments = run_arguments
         env_arguments = {

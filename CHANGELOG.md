@@ -1,6 +1,48 @@
 # Change Log
 
-## Next
+## [0.5.4] - 2021-01-11
+
+### Fixed
+
+- Duplication of data in sample project
+
+## [0.5.3] - 2021-01-05
+
+### Fixed
+
+- Fixes unicode issues with load_date in bigquery
+
+## [0.5.2] - 2020-12-16
+
+### Changed
+
+- Adds BigQuery support
+
+## [0.5.1] - 2020-12-11
+
+### Changed
+
+- Renamed task attribute task_group to group
+
+## [0.5.0] - 2020-12-09
+
+### Changed
+
+- Changed concept of dags to tasks
+- Added automated detection of task files in tasks folder
+- Added option to change database destination
+
+### Fixed
+
+- Fixed issues with primary key DDLs
+
+## [0.4.2] - 2020-11-11
+
+### Changed
+
+- Fixed bug preventing SQL task execution introduced in 0.4.1
+
+## [0.4.1] - 2020-11-03
 
 ### Changed
 

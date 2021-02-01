@@ -9,7 +9,7 @@ ingest data from operational databases (e.g. PostgreSQL) to your analytics wareh
 
 A `copy` task is defined as follows:
 
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     task_copy:
       type: copy
@@ -27,13 +27,21 @@ A `copy` task is defined as follows:
 
 * `type`: `copy`.
 * `source`: the source details
-    * `db`: a credential from the `required_credentials` list in `project.yaml` that's one of the supported [databases](../databases/overview.md).
+    * `db`: the source database.
     * `schema`: the (optional) source schema.
     * `table`: the name of the table top copy.
-* `destination`: the destination details. The destination database is the `default_db` set in `project.yaml`.
+* `destination`: the destination details.
     * `tmp_schema`: the (optional) staging schema used in the process of copying data.
     * `schema`: the (optional) destination schema.
     * `table`: the name of the table to store data into.
+    * `db`: the (optional) destination database.
+
+!!! info
+    You do not need to specify `db` unless you want the destination database to be different than the `default_db` you define in `project.yaml` (which is the default database used by SAYN). If you define the `db` attribute, it needs to:
+
+      * Be a credential from the `required_credentials` list in `project.yaml`.
+      * Be defined in your `settings.yaml`.
+      * Be one of the supported [databases](../databases/overview.md).
 
 By default, tables will be copied in full every time SAYN runs, but it can be changed into an incremental
 load by adding `incremental_key` and `delete_key`:
@@ -44,7 +52,7 @@ load by adding `incremental_key` and `delete_key`:
   will delete any data in the destination table with a `delete_key` value found in the new dataset
   obtained before inserting.
 
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     task_copy:
       type: copy
@@ -70,7 +78,7 @@ based on the `id`s found in this new dataset.
 specification, we can override the default behaviour of copy when it comes to column types by enforcing
 specific column types in the final table:
 
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     task_copy:
       type: copy

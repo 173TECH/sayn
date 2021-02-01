@@ -9,8 +9,8 @@ from ..core.errors import Err, Ok
 RE_TASK_QUERY = re.compile(
     (
         r"^("
-        r"(?!(dag:|tag:))(?P<upstream>\+?)(?P<task>[a-zA-Z0-9][-_a-zA-Z0-9]+)(?P<downstream>\+?)|"
-        r"dag:(?P<dag>[a-zA-Z0-9][-_a-zA-Z0-9]+)|"
+        r"(?!(group:|tag:))(?P<upstream>\+?)(?P<task>[a-zA-Z0-9][-_a-zA-Z0-9]+)(?P<downstream>\+?)|"
+        r"group:(?P<group>[a-zA-Z0-9][-_a-zA-Z0-9]+)|"
         r"tag:(?P<tag>[a-zA-Z0-9][-_a-zA-Z0-9]+)"
         r")$"
     )
@@ -19,7 +19,8 @@ RE_TASK_QUERY = re.compile(
 
 def _get_query_component(tasks, query):
     tasks = {
-        k: {"dag": v["dag"], "tags": v.get("tags", list())} for k, v in tasks.items()
+        k: {"group": v["group"], "tags": v.get("tags", list())}
+        for k, v in tasks.items()
     }
     match = RE_TASK_QUERY.match(query)
     if match is None:
@@ -39,11 +40,11 @@ def _get_query_component(tasks, query):
                 ]
             )
 
-        if match_components.get("dag") is not None:
-            dag = match_components["dag"]
-            relevant_tasks = {k: v for k, v in tasks.items() if dag == v.get("dag")}
+        if match_components.get("group") is not None:
+            group = match_components["group"]
+            relevant_tasks = {k: v for k, v in tasks.items() if group == v.get("group")}
             if len(relevant_tasks) == 0:
-                return Err("task_query", "undefined_dag", dag=dag,)
+                return Err("task_query", "undefined_group", group=group)
             return Ok(
                 [
                     {"task": task, "upstream": False, "downstream": False}

@@ -52,21 +52,36 @@ class Project(BaseModel):
     default_db: Optional[str]
     parameters: Optional[Dict[str, Any]] = dict()
     presets: Optional[Dict[str, Dict[str, Any]]] = dict()
-    dags: List[str]
+    groups: List[str] = []
 
     @validator("required_credentials")
     def required_credentials_are_unique(cls, v):
         return is_unique("required_credentials", v)
 
-    @validator("dags")
-    def dags_are_unique(cls, v):
-        return is_unique("dags", v)
-
-    @validator("default_db")
+    @validator("default_db", always=True)
     def default_db_exists(cls, v, values, **kwargs):
-        if v not in values["required_credentials"]:
+        if v is None and len(values["required_credentials"]) == 1:
+            return values["required_credentials"][0]
+        elif v is None:
+            raise ValueError("Missing default_db in project.yaml")
+        elif v not in values["required_credentials"]:
             raise ValueError(f'default_db value "{v}" not in required_credentials')
+
         return v
+
+    @validator("groups", pre=True, always=True)
+    def set_groups(cls, v):
+        if not os.path.isdir(Path("tasks")):
+            raise ValueError("'tasks' folder cannot be found in project directory.")
+
+        groups = [f.name[:-5] for f in Path("tasks").glob("*.yaml")]
+
+        if len(groups) == 0:
+            raise ValueError(
+                "No YAML file found in the tasks folder. Make sure you are using .yaml extension."
+            )
+
+        return groups
 
 
 def read_project():
@@ -80,22 +95,22 @@ def read_project():
         return Exc(e, where="read_project")
 
 
-class Dag(BaseModel):
+class TaskGroup(BaseModel):
     presets: Optional[Dict[str, Dict[str, Any]]] = dict()
-    tasks: Dict[str, Dict[str, Any]]
+    tasks: Optional[Dict[str, Dict[str, Any]]]
 
 
-def read_dags(dags):
+def read_groups(groups):
     out = dict()
-    for name in dags:
-        result = read_yaml_file(Path("dags", f"{name}.yaml"))
+    for name in groups:
+        result = read_yaml_file(Path("tasks", f"{name}.yaml"))
         if result.is_err:
             return result
         else:
             try:
-                out[name] = Dag(**result.value)
+                out[name] = TaskGroup(**result.value)
             except ValidationError as e:
-                return Exc(e, where="read_dags")
+                return Exc(e, where="read_tasks")
 
     return Ok(out)
 
@@ -248,19 +263,19 @@ def get_connections(credentials):
 ###############################
 
 
-def get_presets(global_presets, dags):
+def get_presets(global_presets, groups):
     """Returns a dictionary of presets merged with the referenced preset
 
     Presets define a direct acyclic graph by including the `preset` property, so
     this function validates that there are no cycles and that all referenced presets
     are defined.
 
-    In the output, preset names are prefixed with `sayn_global:` or `dag:` so that we can
+    In the output, preset names are prefixed with `sayn_global:` or `group:` so that we can
     merge all presets in the project in the same dictionary.
 
     Args:
       global_presets (dict): dictionary containing the presets defined in project.yaml
-      dags (sayn.app.config.Dag): a list of dags from the dags/ folder
+      groups (sayn.app.config.TaskGroup): a list of task groups from the tasks/ folder
     """
     # 1. Construct a dictionary of presets so we can attach that info to the tasks
     presets_info = {
@@ -269,7 +284,7 @@ def get_presets(global_presets, dags):
     }
 
     # 1.1. We start with the global presets defined in project.yaml
-    presets_dag = {
+    presets_project = {
         k: [f"sayn_global:{v}"] if v is not None else []
         for k, v in {
             f"sayn_global:{name}": preset.get("preset")
@@ -277,36 +292,36 @@ def get_presets(global_presets, dags):
         }.items()
     }
 
-    # 1.2. Then we add the presets defined in the dags
-    for dag_name, dag in dags.items():
+    # 1.2. Then we add the presets defined in the task groups
+    for group_name, group in groups.items():
         presets_info.update(
             {
-                f"{dag_name}:{k}": {kk: vv for kk, vv in v.items() if kk != "preset"}
-                for k, v in dag.presets.items()
+                f"{group_name}:{k}": {kk: vv for kk, vv in v.items() if kk != "preset"}
+                for k, v in group.presets.items()
             }
         )
 
-        dag_presets_dag = {
-            name: preset.get("preset") for name, preset in dag.presets.items()
+        group_presets = {
+            name: preset.get("preset") for name, preset in group.presets.items()
         }
 
-        # Check if the preset referenced is defined in the dag, otherwise, point at the
-        # global dag
-        dag_presets_dag = {
-            f"{dag_name}:{k}": [
-                f"{dag_name}:{v}"
-                if v in dag_presets_dag and v != k
+        # Check if the preset referenced is defined in the task group, otherwise, point at the
+        # global task group
+        group_presets = {
+            f"{group_name}:{k}": [
+                f"{group_name}:{v}"
+                if v in group_presets and v != k
                 else f"sayn_global:{v}"
             ]
             if v is not None
             else []
-            for k, v in dag_presets_dag.items()
+            for k, v in group_presets.items()
         }
-        presets_dag.update(dag_presets_dag)
+        presets_project.update(group_presets)
 
     # 1.3. The preset references represent a dag that we need to validate, ensuring
     #      there are no cycles and that all references exists
-    result = topological_sort(presets_dag)
+    result = topological_sort(presets_project)
     if result.is_err:
         return result
     else:
@@ -316,7 +331,7 @@ def get_presets(global_presets, dags):
     #      per preset a task could reference
     presets = {
         name: merge_dict_list(
-            [presets_info[p] for p in upstream(presets_dag, name).value]
+            [presets_info[p] for p in upstream(presets_project, name).value]
             + [presets_info[name]]
         )
         for name in topo_sort
@@ -325,41 +340,41 @@ def get_presets(global_presets, dags):
     return Ok(presets)
 
 
-def get_task_dict(task, task_name, dag_name, presets):
+def get_task_dict(task, task_name, group_name, presets):
     """Returns a single task merged with the referenced preset
 
     Args:
       task (dict): a dictionary with the task information
       task_name (str): the name of the task
-      dag_name (str): the name of the dag it appeared on
+      group_name (str): the name of the group it appeared on
       presets (dict): a dictionary of merged presets returned by get_presets
     """
     if "preset" in task:
         preset_name = task["preset"]
         preset = presets.get(
-            f"{dag_name}:{preset_name}", presets.get(f"sayn_global:{preset_name}")
+            f"{group_name}:{preset_name}", presets.get(f"sayn_global:{preset_name}"),
         )
         if preset is None:
             return Err(
                 "get_task_dict",
                 "missing_preset",
-                dag=dag_name,
+                group=group_name,
                 task=task_name,
                 preset=preset_name,
             )
         task = merge_dicts(preset, task)
 
-    return Ok(dict(task, name=task_name, dag=dag_name))
+    return Ok(dict(task, name=task_name, group=group_name))
 
 
-def get_tasks_dict(global_presets, dags):
+def get_tasks_dict(global_presets, groups):
     """Returns a dictionary with the task definition with the preset information merged
 
     Args:
       global_presets (dict): a dictionary with the presets as defined in project.yaml
-      dags (sayn.common.config.Dag): a list of dags from the dags/ folder
+      groups (sayn.common.config.TaskGroup): a list of task groups from the tasks/ folder
     """
-    result = get_presets(global_presets, dags)
+    result = get_presets(global_presets, groups)
     if result.is_err:
         return result
     else:
@@ -367,13 +382,21 @@ def get_tasks_dict(global_presets, dags):
 
     errors = dict()
     tasks = dict()
-    for dag_name, dag in dags.items():
-        for task_name, task in dag.tasks.items():
-            result = get_task_dict(task, task_name, dag_name, presets)
-            if result.is_ok:
-                tasks[task_name] = result.value
-            else:
-                errors[task_name] = result.error
+    for group_name, group in groups.items():
+        if group.tasks is not None:
+            for task_name, task in group.tasks.items():
+                if task_name in tasks:
+                    return Err(
+                        "dag",
+                        "duplicate_task",
+                        task=task_name,
+                        groups=(group_name, tasks[task_name]["group"]),
+                    )
+                result = get_task_dict(task, task_name, group_name, presets)
+                if result.is_ok:
+                    tasks[task_name] = result.value
+                else:
+                    errors[task_name] = result.error
 
     if len(errors) > 0:
         return Err("get_tasks_dict", "task_parsing_error", errors=errors)

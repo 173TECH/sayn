@@ -1,3 +1,4 @@
+from .bigquery import Bigquery
 from .postgresql import Postgresql
 from .sqlite import Sqlite
 from .mysql import Mysql
@@ -10,6 +11,7 @@ drivers = {
     "mysql": Mysql,
     "snowflake": Snowflake,
     "redshift": Redshift,
+    "bigquery": Bigquery,
 }
 
 db_params = ("max_batch_rows", "type")

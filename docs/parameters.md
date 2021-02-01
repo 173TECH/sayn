@@ -32,9 +32,9 @@ environment we can do the following:
 !!! example "settings.yaml"
     ```yaml
     # ...
-    
+
     default_profile: dev
-    
+
     profiles:
       dev:
         credentials:
@@ -58,7 +58,7 @@ but not for the `prod` profile.
 Tasks can also define parameters. This is useful if there's a way for several tasks to share
 the same code:
 
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     task1:
       type: sql
@@ -93,7 +93,7 @@ Task attributes are interpreted as [Jinja](https://jinja.palletsprojects.com/){t
 parameters. Therefore, you can make the tasks' definition dynamic. This example uses an `autosql`
 task:
 
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     task_autosql_param:
       type: autosql
@@ -140,7 +140,7 @@ If we used the `prod` profile instead (`sayn run -t task_autosql_param -p prod`)
 
 This task example is even more powerful when used in presets in combination with the jinja variable `task`:
 
-!!! example "dags/base.yaml"
+!!! example "tasks/base.yaml"
     ```yaml
     presets:
       preset_auto_param:
