@@ -53,6 +53,8 @@ nav:
     - Installation: installation.md
     - Tutorial (Part 1): tutorials/tutorial_part1.md
     - Tutorial (Part 2): tutorials/tutorial_part2.md
+  - Example Projects:
+    - BBC News NLP: example_projects/bbc_news_nlp.md
   - Core concepts:
     - CLI: cli.md
     - Project Structure: project_structure.md
