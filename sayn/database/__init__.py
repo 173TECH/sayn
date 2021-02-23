@@ -447,6 +447,7 @@ class Database:
             dst_schema=dst_schema,
             dst_table=dst_table,
             cannot_alter_indexes=self.feature("CANNOT ALTER INDEXES"),
+            needs_cascade=self.feature("NEEDS CASCADE"),
             **ddl,
         )
 
