@@ -102,6 +102,10 @@ class Task:
         """Sets the run steps for the task, allowing the CLI to indicate task execution progress. """
         self.tracker.set_run_steps(steps)
 
+    def add_run_steps(self, steps):
+        """Adds new steps to the list of run steps for the task, allowing the CLI to indicate task execution progress. """
+        self.tracker.add_run_steps(steps)
+
     def start_step(self, step):
         """Specifies the start of a task step"""
         self.tracker.start_step(step)
