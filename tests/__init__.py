@@ -1,18 +1,51 @@
 from contextlib import contextmanager
+from itertools import product
 import os
-import tempfile
 from pathlib import Path
 import subprocess
+
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
+from ruamel.yaml import YAML
 
 from sayn.database.creator import create as create_db
 from sayn.tasks.sql import SqlTask
-from sayn.tasks.autosql import AutoSqlTask
-from sayn.tasks.copy import CopyTask
+
+
+def get_dbs():
+    """Get a list of database configurations from environment variables"""
+    dbs = [
+        (k[len("TEST_DB_") :], YAML().load(v))
+        for k, v in os.environ.items()
+        if k.startswith("TEST_DB_")
+    ]
+
+    if len(dbs) == 0:
+        dbs = [("sqlite", {"type": "sqlite", "database": ":memory:"})]
+
+    return dbs
+
+
+def pytest_generate_tests(metafunc):
+    """Dynamically generates tests based on parameters.
+
+    Currently, for tests that use databases, this generates 2 fixtures: source_db and target_db.
+    Including these parameters in a test trigger this dynamic generation.
+    Defaults to sqlite in memory databases.
+    """
+    dbs = get_dbs()
+    if "target_db" in metafunc.fixturenames and "source_db" in metafunc.fixturenames:
+        db_pairs = list(product(dbs, dbs))
+        metafunc.parametrize(
+            "source_db,target_db",
+            [(c[0][1], c[1][1]) for c in db_pairs],
+            ids=[f"src:{c[0][0]},dst:{c[1][0]}" for c in db_pairs],
+        )
+    elif "target_db" in metafunc.fixturenames:
+        metafunc.parametrize("target_db", [d[1] for d in dbs], ids=[d[0] for d in dbs])
 
 
 @contextmanager
-def inside_dir(dirpath):
+def inside_dir(dirpath, fs=dict()):
     """
     Execute code from inside the given directory
     :param dirpath: String, path of the directory the command is being run.
@@ -20,6 +53,10 @@ def inside_dir(dirpath):
     old_path = os.getcwd()
     try:
         os.chdir(dirpath)
+        for filepath, content in fs.items():
+            fpath = Path(filepath)
+            fpath.parent.mkdir(parents=True, exist_ok=True)
+            fpath.write_text(content)
         yield
     finally:
         os.chdir(old_path)
@@ -75,16 +112,13 @@ class VoidTracker:
 vd = VoidTracker()
 
 
-def simulate_task(type, sql_query=None, run_arguments=dict(), task_params=dict()):
-    if type == "sql":
-        task = SqlTask()
-    elif type == "autosql":
-        task = AutoSqlTask()
-    elif type == "copy":
-        task = CopyTask()
-    else:
-        pass
-
+def simulate_task(
+    task,
+    source_db=None,
+    target_db=None,
+    run_arguments=dict(),
+    task_params=dict(),
+):
     task.name = "test_task"  # set for compilation output during run
     task.group = "test_group"  # set for compilation output during run
     task.run_arguments = {
@@ -95,21 +129,15 @@ def simulate_task(type, sql_query=None, run_arguments=dict(), task_params=dict()
         **run_arguments,
     }
 
-    task.connections = {
-        "target_db": create_db(
-            "target_db", "target_db", {"type": "sqlite", "database": ":memory:"}
-        ),
-        "target_db2": create_db(
-            "target_db2", "target_db2", {"type": "sqlite", "database": ":memory:"}
-        ),
-    }
+    if target_db is not None:
+        task.connections = {
+            "target_db": create_db("target_db", "target_db", target_db.copy())
+        }
 
-    if type == "copy":
+    if source_db is not None:
         task.connections.update(
             {
-                "source_db": create_db(
-                    "source_db", "source_db", {"type": "sqlite", "database": ":memory:"}
-                ),
+                "source_db": create_db("source_db", "source_db", source_db.copy()),
             }
         )
 
@@ -123,13 +151,6 @@ def simulate_task(type, sql_query=None, run_arguments=dict(), task_params=dict()
     )
     task.jinja_env.globals.update(**task_params)
 
-    if type in ["sql", "autosql"] and sql_query is not None:
-        fpath = Path("sql", "test.sql")
-        fpath.parent.mkdir(parents=True, exist_ok=True)
-        fpath.write_text(sql_query)
-
-    return task
-
 
 def validate_table(db, table_name, expected_data):
     result = db.read_data(f"select * from {table_name}")
@@ -139,3 +160,25 @@ def validate_table(db, table_name, expected_data):
         if result[i] != expected_data[i]:
             return False
     return True
+
+
+@contextmanager
+def tables_with_data(db, tables, extra_tables=list()):
+    for table, data in tables.items():
+        db.load_data(table, data, replace=True)
+
+    try:
+        yield
+    finally:
+        clear_tables(db, list(tables.keys()) + extra_tables)
+
+
+def clear_tables(db, tables):
+    for table in tables:
+        try:
+            db.execute(f"DROP TABLE IF EXISTS {table}")
+        except:
+            try:
+                db.execute(f"DROP VIEW IF EXISTS {table}")
+            except:
+                pass
