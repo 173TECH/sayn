@@ -135,9 +135,7 @@ def simulate_task(
 
     if source_db is not None:
         task.connections.update(
-            {
-                "source_db": create_db("source_db", "source_db", source_db.copy()),
-            }
+            {"source_db": create_db("source_db", "source_db", source_db.copy())}
         )
 
     task._default_db = "target_db"
