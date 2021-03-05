@@ -229,7 +229,7 @@ def test_autosql_task_table_wrong_db_dst(tmp_path, target_db):
 #             ddl={"columns": [{"name": "x", "type": "integer", "primary": True}]},
 #         ).is_ok
 #         task.target_db._introspect()
-# 
+#
 #         assert task.run().is_ok
 #         # test the pk has indeed been set
 #         pk_info = task.default_db.read_data("PRAGMA table_info(test_autosql_task)")
