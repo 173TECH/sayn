@@ -8,7 +8,6 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from ruamel.yaml import YAML
 
 from sayn.database.creator import create as create_db
-from sayn.tasks.sql import SqlTask
 
 
 def get_dbs():
