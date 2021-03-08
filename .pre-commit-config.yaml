@@ -4,6 +4,8 @@ repos:
     hooks:
       - id: black
         args: [--diff, --verbose]
+      - id: black
+        args: [--version]
 
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.7.8
