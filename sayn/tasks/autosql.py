@@ -115,7 +115,9 @@ class AutoSqlTask(SqlTask):
             and (len(self.ddl["columns"]) == 0 or len(self.cols_no_type) > 0)
         ):
             return Err(
-                "task_definition", "missing_column_types_pk", columns=self.cols_no_type,
+                "task_definition",
+                "missing_column_types_pk",
+                columns=self.cols_no_type,
             )
 
         # Template compilation

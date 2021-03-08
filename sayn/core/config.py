@@ -352,7 +352,8 @@ def get_task_dict(task, task_name, group_name, presets):
     if "preset" in task:
         preset_name = task["preset"]
         preset = presets.get(
-            f"{group_name}:{preset_name}", presets.get(f"sayn_global:{preset_name}"),
+            f"{group_name}:{preset_name}",
+            presets.get(f"sayn_global:{preset_name}"),
         )
         if preset is None:
             return Err(

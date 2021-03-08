@@ -386,7 +386,12 @@ class Database:
     # Intermediary steps
 
     def create_table(
-        self, table, schema=None, select=None, replace=False, **ddl,
+        self,
+        table,
+        schema=None,
+        select=None,
+        replace=False,
+        **ddl,
     ):
         full_name = fully_qualify(table, schema)
         if (
@@ -454,7 +459,12 @@ class Database:
     # ETL steps
 
     def replace_table(
-        self, table, select, schema=None, tmp_schema=None, **ddl,
+        self,
+        table,
+        select,
+        schema=None,
+        tmp_schema=None,
+        **ddl,
     ):
         # Create the temporary table
         can_replace_table = self.feature("CAN REPLACE TABLE")

@@ -62,7 +62,11 @@ class Redshift(Database):
     ddl_validation_class = RedshiftDDL
 
     def feature(self, feature):
-        return feature in ("NEEDS CASCADE", "CAN REPLACE VIEW", "CANNOT SET SCHEMA",)
+        return feature in (
+            "NEEDS CASCADE",
+            "CAN REPLACE VIEW",
+            "CANNOT SET SCHEMA",
+        )
 
     def create_engine(self, settings):
         # Create engine using the connect_args argument to create_engine
@@ -139,8 +143,7 @@ class Redshift(Database):
     def _create_table_select(
         self, table, schema, select, view=False, ddl=dict(), execute=True
     ):
-        """Returns SQL code for a create table from a select statement
-        """
+        """Returns SQL code for a create table from a select statement"""
         table = f"{schema+'.' if schema else ''}{table}"
         table_or_view = "VIEW" if view else "TABLE"
 
@@ -157,8 +160,7 @@ class Redshift(Database):
         return q
 
     def _create_table_ddl(self, table, schema, ddl, execute=False):
-        """Returns SQL code for a create table from a select statement
-        """
+        """Returns SQL code for a create table from a select statement"""
         if len(ddl["columns"]) == 0:
             raise DBError(
                 self.name, self.db_type, "DDL is missing columns specification"

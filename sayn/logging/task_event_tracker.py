@@ -58,7 +58,9 @@ class TaskEventTracker:
             duration = datetime.now() - self._current_step_start_ts
 
             self._report_event(
-                "finish_step", duration=duration, result=result,
+                "finish_step",
+                duration=duration,
+                result=result,
             )
             self._current_step = None
             self._current_step_start_ts = None
