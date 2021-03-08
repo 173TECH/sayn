@@ -112,11 +112,7 @@ vd = VoidTracker()
 
 
 def simulate_task(
-    task,
-    source_db=None,
-    target_db=None,
-    run_arguments=dict(),
-    task_params=dict(),
+    task, source_db=None, target_db=None, run_arguments=dict(), task_params=dict()
 ):
     task.name = "test_task"  # set for compilation output during run
     task.group = "test_group"  # set for compilation output during run
