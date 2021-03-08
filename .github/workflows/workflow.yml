@@ -19,6 +19,10 @@ jobs:
           pip install pre-commit
           pre-commit run --all-files --verbose
 
+      - name: black version
+        run: |
+          black --version
+
   Tests:
     needs: Linting
     name: ${{ matrix.os }} / ${{ matrix.python-version }}
