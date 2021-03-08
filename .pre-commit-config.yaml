@@ -3,9 +3,7 @@ repos:
     rev: 19.10b0
     hooks:
       - id: black
-        args: [--diff, --verbose]
-      - id: black
-        args: [--version]
+        args: [--diff, --verbose, --version]
 
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.7.8
