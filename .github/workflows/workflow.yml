@@ -17,7 +17,7 @@ jobs:
       - name: Linting
         run: |
           pip install pre-commit
-          pre-commit run --all-files --verbose
+          pre-commit run --all-files
 
   Tests:
     needs: Linting

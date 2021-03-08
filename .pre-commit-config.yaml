@@ -1,9 +1,8 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 19.10b0
+    rev: 20.8b1
     hooks:
       - id: black
-        args: [--diff, --verbose, --version]
 
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.7.8
