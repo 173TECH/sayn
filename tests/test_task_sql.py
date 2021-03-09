@@ -2,14 +2,7 @@ from contextlib import contextmanager
 
 from sayn.tasks.sql import SqlTask
 
-from . import (
-    inside_dir,
-    simulate_task,
-    validate_table,
-    tables_with_data,
-    clear_tables,
-    pytest_generate_tests,
-)
+from . import inside_dir, simulate_task, validate_table, tables_with_data, clear_tables
 
 
 @contextmanager
@@ -99,7 +92,7 @@ def test_sql_task_run_multi_statements(tmp_path, target_db):
         tmp_path,
         target_db,
         "CREATE TABLE test_t1 AS SELECT 1 AS x; CREATE TABLE test_t2 AS SELECT 2 AS x;",
-        drop_tables=["test_t1"],
+        drop_tables=["test_t1", "test_t2"],
     ) as task:
         assert task.setup(file_name="test.sql").is_ok
 

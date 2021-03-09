@@ -1,5 +1,4 @@
 from contextlib import contextmanager
-from itertools import product
 import os
 from pathlib import Path
 import subprocess
@@ -8,39 +7,6 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from ruamel.yaml import YAML
 
 from sayn.database.creator import create as create_db
-
-
-def get_dbs():
-    """Get a list of database configurations from environment variables"""
-    dbs = [
-        (k[len("TEST_DB_") :], YAML().load(v))
-        for k, v in os.environ.items()
-        if k.startswith("TEST_DB_")
-    ]
-
-    if len(dbs) == 0:
-        dbs = [("sqlite", {"type": "sqlite", "database": ":memory:"})]
-
-    return dbs
-
-
-def pytest_generate_tests(metafunc):
-    """Dynamically generates tests based on parameters.
-
-    Currently, for tests that use databases, this generates 2 fixtures: source_db and target_db.
-    Including these parameters in a test trigger this dynamic generation.
-    Defaults to sqlite in memory databases.
-    """
-    dbs = get_dbs()
-    if "target_db" in metafunc.fixturenames and "source_db" in metafunc.fixturenames:
-        db_pairs = list(product(dbs, dbs))
-        metafunc.parametrize(
-            "source_db,target_db",
-            [(c[0][1], c[1][1]) for c in db_pairs],
-            ids=[f"src:{c[0][0]},dst:{c[1][0]}" for c in db_pairs],
-        )
-    elif "target_db" in metafunc.fixturenames:
-        metafunc.parametrize("target_db", [d[1] for d in dbs], ids=[d[0] for d in dbs])
 
 
 @contextmanager
@@ -149,6 +115,9 @@ def validate_table(db, table_name, expected_data):
     result = db.read_data(f"select * from {table_name}")
     if len(result) != len(expected_data):
         return False
+
+    result = sorted(result, key=lambda x: list(x.values()))
+    expected_data = sorted(expected_data, key=lambda x: list(x.values()))
     for i in range(len(result)):
         if result[i] != expected_data[i]:
             return False
@@ -171,7 +140,9 @@ def clear_tables(db, tables):
         try:
             db.execute(f"DROP TABLE IF EXISTS {table}")
         except:
-            try:
-                db.execute(f"DROP VIEW IF EXISTS {table}")
-            except:
-                pass
+            pass
+
+        try:
+            db.execute(f"DROP VIEW IF EXISTS {table}")
+        except:
+            pass

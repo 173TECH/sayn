@@ -2,16 +2,7 @@ from contextlib import contextmanager
 
 from sayn.tasks.autosql import AutoSqlTask
 
-from . import (
-    inside_dir,
-    simulate_task,
-    tables_with_data,
-    validate_table,
-    clear_tables,
-    pytest_generate_tests,
-)
-
-sql_query_ddl_diff_col_order = "SELECT CAST(1 AS INTEGER) AS y, CAST(1 AS TEXT) AS x"
+from . import inside_dir, simulate_task, tables_with_data, validate_table, clear_tables
 
 
 @contextmanager
@@ -274,39 +265,39 @@ def test_autosql_task_ddl_diff_pk_err(tmp_path, target_db):
             destination={"table": "test_autosql_task"},
             ddl={
                 "columns": [
-                    {"name": "x", "type": "text", "primary": True},
                     {"name": "y", "type": "int"},
+                    {"name": "x", "type": "text", "primary": True},
                 ],
                 "indexes": {"primary_key": {"columns": ["y"]}},
             },
         ).is_err
 
 
-def test_autosql_task_run_ddl_diff_col_order(tmp_path, target_db):
-    """Test that autosql with ddl columns creates a table with order similar to ddl definition"""
-    with autosql_task(
-        tmp_path,
-        target_db,
-        "SELECT CAST(1 AS INTEGER) AS y, CAST(1 AS TEXT) AS x",
-    ) as task:
-        assert task.setup(
-            file_name="test.sql",
-            materialisation="table",
-            destination={"table": "test_autosql_task"},
-            ddl={
-                "columns": [
-                    {"name": "x", "type": "text"},
-                    {"name": "y", "type": "int"},
-                ]
-            },
-        ).is_ok
-        task.target_db._introspect()
-
-        # run
-        run_result = task.run()
-        assert run_result.is_ok
-        assert validate_table(
-            task.default_db,
-            "test_autosql_task",
-            [{"x": "1", "y": 1}],
-        )
+# def test_autosql_task_run_ddl_diff_col_order(tmp_path, target_db):
+#     """Test that autosql with ddl columns creates a table with order similar to ddl definition"""
+#     with autosql_task(
+#         tmp_path,
+#         target_db,
+#         "SELECT 1 AS y, '1' AS x",
+#     ) as task:
+#         assert task.setup(
+#             file_name="test.sql",
+#             materialisation="table",
+#             destination={"table": "test_autosql_task"},
+#             ddl={
+#                 "columns": [
+#                     {"name": "x", "type": "text"},
+#                     {"name": "y", "type": "int"},
+#                 ]
+#             },
+#         ).is_ok
+#         task.target_db._introspect()
+#
+#         # run
+#         import IPython;IPython.embed()
+#         assert task.run().is_ok
+#         assert validate_table(
+#             task.default_db,
+#             "test_autosql_task",
+#             [{"x": "1", "y": 1}],
+#         )
