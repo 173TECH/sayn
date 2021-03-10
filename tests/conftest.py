@@ -76,15 +76,16 @@ def pytest_generate_tests(metafunc):
         db_pairs = list(product(source_dbs, target_dbs))
         if len(db_pairs) == 0:
             metafunc.fixturenames.insert(0, "skip_test")
-
-        metafunc.parametrize(
-            "source_db,target_db",
-            [(c[0][1], c[1][1]) for c in db_pairs],
-            ids=[f"src:{c[0][0]},dst:{c[1][0]}" for c in db_pairs],
-        )
+        else:
+            metafunc.parametrize(
+                "source_db,target_db",
+                [(c[0][1], c[1][1]) for c in db_pairs],
+                ids=[f"src:{c[0][0]},dst:{c[1][0]}" for c in db_pairs],
+            )
     elif "target_db" in metafunc.fixturenames:
         if len(target_dbs) == 0:
             metafunc.fixturenames.insert(0, "skip_test")
-        metafunc.parametrize(
-            "target_db", [d[1] for d in target_dbs], ids=[d[0] for d in target_dbs]
-        )
+        else:
+            metafunc.parametrize(
+                "target_db", [d[1] for d in target_dbs], ids=[d[0] for d in target_dbs]
+            )

@@ -211,10 +211,8 @@ def read_settings():
         name = RE_ENV_VAR_NAME.match(name)
         if name is not None:
             name = name.groupdict()
-            if name["type"].lower() == "credential":
-                environment["credentials"][name["name"]] = json.loads(value)
-            if name["type"].lower() == "parameter":
-                environment["parameters"][name["name"]] = value
+
+            environment[name["type"].lower() + "s"][name["name"]] = YAML().load(value)
 
     environment = {k: v for k, v in environment.items() if len(v) > 0}
     if len(environment) == 0:
