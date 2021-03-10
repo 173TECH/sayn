@@ -337,7 +337,10 @@ class CopyTask(SqlTask):
             )
 
         get_data_query = select(
-            [self.source_table_def.c[c["name"]] for c in self.ddl["columns"]]
+            [
+                self.source_table_def.c[c["name"]].label(c["name"])
+                for c in self.ddl["columns"]
+            ]
         )
         last_incremental_value = None
 

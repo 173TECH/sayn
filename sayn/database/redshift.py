@@ -66,6 +66,7 @@ class Redshift(Database):
             "NEEDS CASCADE",
             "CAN REPLACE VIEW",
             "CANNOT SET SCHEMA",
+            "CANNOT SPECIFY DDL IN SELECT",
         )
 
     def create_engine(self, settings):
