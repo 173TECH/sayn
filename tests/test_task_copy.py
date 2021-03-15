@@ -22,7 +22,11 @@ def copy_task(source_db, target_db, source_data=None, target_data=None, **kwargs
 
     if hasattr(task, "table"):
         clear_tables(
-            task.connections["target_db"], [task.table, f"sayn_tmp_{task.table}"]
+            task.connections["target_db"],
+            [
+                f"{task.schema +'.' if task.schema else ''}{task.table}",
+                f"{task.tmp_schema +'.' if task.tmp_schema else ''}sayn_tmp_{task.table}",
+            ],
         )
 
 
@@ -217,4 +221,81 @@ def test_copy_task_wrong_dst_db(source_db, target_db):
         assert task.setup(
             source={"db": "source_db", "table": "source_table"},
             destination={"db": "wrong_db", "table": "dst_table"},
+        ).is_err
+
+
+# Testing schemas: this code expects 2 schemas in the target database: test and test2
+
+
+@pytest.mark.source_dbs(["bigquery", "mysql", "postgresql", "redshift", "snowflake"])
+@pytest.mark.target_dbs(["bigquery", "mysql", "postgresql", "redshift", "snowflake"])
+def test_copy_schemas01(source_db, target_db):
+    with copy_task(
+        source_db,
+        target_db,
+        source_data={("test", "source_table"): [{"x": 1}, {"x": 2}, {"x": 3}]},
+    ) as task:
+        assert task.setup(
+            source={"db": "source_db", "schema": "test", "table": "source_table"},
+            destination={"table": "dst_table", "schema": "test2"},
+        ).is_ok
+
+        task.source_db._introspect()
+        task.target_db._introspect()
+
+        assert task.run().is_ok
+
+        assert validate_table(
+            task.default_db,
+            "test2.dst_table",
+            [{"x": 1}, {"x": 2}, {"x": 3}],
+        )
+
+
+@pytest.mark.source_dbs(["sqlite"])
+def test_copy_schemas_error01(source_db, target_db):
+    with copy_task(
+        source_db,
+        target_db,
+    ) as task:
+        assert task.setup(
+            source={"db": "source_db", "schema": "test", "table": "source_table"},
+            destination={"table": "dst_table", "schema": "test2"},
+        ).is_err
+
+
+@pytest.mark.source_dbs(["bigquery", "mysql", "postgresql", "redshift", "snowflake"])
+@pytest.mark.target_dbs(["mysql", "postgresql", "snowflake"])
+def test_copy_schemas02(source_db, target_db):
+    with copy_task(
+        source_db,
+        target_db,
+        source_data={("test", "source_table"): [{"x": 1}, {"x": 2}, {"x": 3}]},
+    ) as task:
+        assert task.setup(
+            source={"db": "source_db", "schema": "test", "table": "source_table"},
+            destination={"table": "dst_table", "schema": "test2", "tmp_schema": "test"},
+        ).is_ok
+
+        task.source_db._introspect()
+        task.target_db._introspect()
+
+        assert task.run().is_ok
+
+        assert validate_table(
+            task.default_db,
+            "test2.dst_table",
+            [{"x": 1}, {"x": 2}, {"x": 3}],
+        )
+
+
+@pytest.mark.target_dbs(["bigquery", "sqlite", "redshift"])
+def test_copy_schemas_error02(source_db, target_db):
+    with copy_task(
+        source_db,
+        target_db,
+    ) as task:
+        assert task.setup(
+            source={"db": "source_db", "schema": "test", "table": "source_table"},
+            destination={"table": "dst_table", "schema": "test2", "tmp_schema": "test"},
         ).is_err

@@ -126,13 +126,22 @@ def validate_table(db, table_name, expected_data):
 
 @contextmanager
 def tables_with_data(db, tables, extra_tables=list()):
+    tables_to_delete = extra_tables.copy()
     for table, data in tables.items():
-        db.load_data(table, data, replace=True)
+        if isinstance(table, tuple):
+            schema = table[0]
+            table = table[1]
+            tables_to_delete.append(f"{schema}.{table}")
+        else:
+            schema = None
+            tables_to_delete.append(table)
+
+        db.load_data(table, data, schema=schema, replace=True)
 
     try:
         yield
     finally:
-        clear_tables(db, list(tables.keys()) + extra_tables)
+        clear_tables(db, tables_to_delete)
 
 
 def clear_tables(db, tables):

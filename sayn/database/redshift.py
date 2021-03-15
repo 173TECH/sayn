@@ -65,7 +65,7 @@ class Redshift(Database):
         return feature in (
             "NEEDS CASCADE",
             "CAN REPLACE VIEW",
-            "CANNOT SET SCHEMA",
+            "CANNOT CHANGE SCHEMA",
             "CANNOT SPECIFY DDL IN SELECT",
         )
 

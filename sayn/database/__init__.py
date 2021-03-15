@@ -453,6 +453,7 @@ class Database:
             dst_table=dst_table,
             cannot_alter_indexes=self.feature("CANNOT ALTER INDEXES"),
             needs_cascade=self.feature("NEEDS CASCADE"),
+            rename_changes_schema=self.feature("TABLE RENAME CHANGES SCHEMA"),
             **ddl,
         )
 

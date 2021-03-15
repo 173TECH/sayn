@@ -20,7 +20,11 @@ def autosql_task(tmp_path, target_db, sql, data=None, **kwargs):
             yield task
         if hasattr(task, "table"):
             clear_tables(
-                task.connections["target_db"], [task.table, f"sayn_tmp_{task.table}"]
+                task.connections["target_db"],
+                [
+                    f"{task.schema +'.' if task.schema else ''}{task.table}",
+                    f"{task.tmp_schema +'.' if task.tmp_schema else ''}sayn_tmp_{task.table}",
+                ],
             )
 
 
@@ -299,7 +303,6 @@ def test_autosql_task_run_ddl_diff_col_order(tmp_path, target_db):
         ).is_ok
         task.target_db._introspect()
 
-        # run
         assert task.run().is_ok
         assert validate_table(
             task.default_db,
@@ -329,10 +332,96 @@ def test_autosql_task_run_ddl_diff_col_order_bq(tmp_path, target_db):
         ).is_ok
         task.target_db._introspect()
 
-        # run
         assert task.run().is_ok
         assert validate_table(
             task.default_db,
             "test_autosql_task",
             [{"x": "1", "y": 1}],
         )
+
+
+# Testing schemas: this code expects 2 schemas in the database: test and test2
+
+
+@pytest.mark.target_dbs(["bigquery", "mysql", "postgresql", "redshift", "snowflake"])
+def test_autosql_schemas01(tmp_path, target_db):
+    """Autosql task with schema specified"""
+    with autosql_task(
+        tmp_path,
+        target_db,
+        "SELECT 1 AS y, '1' AS x",
+    ) as task:
+        assert task.setup(
+            file_name="test.sql",
+            materialisation="table",
+            destination={"schema": "test2", "table": "test_autosql_task"},
+        ).is_ok
+        task.target_db._introspect()
+
+        assert task.run().is_ok
+        assert validate_table(
+            task.default_db,
+            "test2.test_autosql_task",
+            [{"x": "1", "y": 1}],
+        )
+
+
+@pytest.mark.target_dbs(["sqlite"])
+def test_autosql_schemas_error01(tmp_path, target_db):
+    """Autosql task with schema specified with failure as sqlite doesn't support schemas"""
+    with autosql_task(
+        tmp_path,
+        target_db,
+        "SELECT 1 AS y, '1' AS x",
+    ) as task:
+        assert task.setup(
+            file_name="test.sql",
+            materialisation="table",
+            destination={"schema": "test2", "table": "test_autosql_task"},
+        ).is_err
+
+
+@pytest.mark.target_dbs(["mysql", "postgresql", "snowflake"])
+def test_autosql_schemas02(tmp_path, target_db):
+    """Autosql task with temporary schema and schema specified"""
+    with autosql_task(
+        tmp_path,
+        target_db,
+        "SELECT 1 AS y, '1' AS x",
+    ) as task:
+        assert task.setup(
+            file_name="test.sql",
+            materialisation="table",
+            destination={
+                "tmp_schema": "test2",
+                "schema": "test",
+                "table": "test_autosql_task",
+            },
+        ).is_ok
+        task.target_db._introspect()
+
+        assert task.run().is_ok
+        assert validate_table(
+            task.default_db,
+            "test.test_autosql_task",
+            [{"x": "1", "y": 1}],
+        )
+
+
+@pytest.mark.target_dbs(["bigquery", "sqlite", "redshift"])
+def test_autosql_schemas_error02(tmp_path, target_db):
+    """Autosql task with temporary schema and schema specified with failure"""
+    with autosql_task(
+        tmp_path,
+        target_db,
+        "SELECT 1 AS y, '1' AS x",
+    ) as task:
+        assert task.setup(
+            file_name="test.sql",
+            materialisation="table",
+            destination={
+                "tmp_schema": "test2",
+                "schema": "test",
+                "table": "test_autosql_task",
+            },
+        ).is_err

@@ -1,10 +1,14 @@
-{% set src_schema = src_schema+'.' if src_schema else '' -%}
-{% set dst_schema = dst_schema+'.' if dst_schema else '' %}
+{% set src_prefix = src_schema+'.' if src_schema else '' -%}
+{% set dst_prefix = dst_schema+'.' if dst_schema else '' %}
 
-DROP TABLE IF EXISTS {{ dst_schema }}{{ dst_table }}{{ ' CASCADE' if needs_cascade else ''}};
-ALTER TABLE {{ src_schema }}{{ src_table }} RENAME TO {{ dst_table }};
-{% if dst_schema != src_schema %}
-ALTER TABLE {{ src_schema }}.{{ dst_table }};
+DROP TABLE IF EXISTS {{ dst_prefix }}{{ dst_table }}{{ ' CASCADE' if needs_cascade else ''}};
+{% if rename_changes_schema %}
+ALTER TABLE {{ src_prefix }}{{ src_table }} RENAME TO {{ dst_prefix }}{{ dst_table }};
+{% else %}
+ALTER TABLE {{ src_prefix }}{{ src_table }} RENAME TO {{ dst_table }};
+  {% if dst_schema != src_schema %}
+ALTER TABLE {{ src_prefix }}{{ dst_table }} SET SCHEMA {{ dst_schema }};
+  {% endif %}
 {% endif %}
 
 {% if indexes is defined %}
