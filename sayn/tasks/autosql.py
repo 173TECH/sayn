@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 
 from pydantic import BaseModel, Field, FilePath, validator
 
