@@ -10,7 +10,6 @@ from .sql import SqlTask
 
 class Source(BaseModel):
     supports_schemas: bool
-    cannot_change_schema: bool
     db_type: str
 
     db_schema: Optional[str] = Field(None, alias="schema")
@@ -29,7 +28,6 @@ class Source(BaseModel):
 
 class Destination(BaseModel):
     supports_schemas: bool
-    cannot_change_schema: bool
     db_type: str
 
     tmp_schema: Optional[str]
@@ -39,9 +37,7 @@ class Destination(BaseModel):
 
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
-        if v is not None and (
-            not values["supports_schemas"] or values["cannot_change_schema"]
-        ):
+        if v is not None and not values["supports_schemas"]:
             raise ValueError(
                 f'tmp_schema not supported for database of type {values["db_type"]}'
             )

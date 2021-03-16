@@ -10,7 +10,6 @@ from .sql import SqlTask
 
 class Destination(BaseModel):
     supports_schemas: bool
-    cannot_change_schema: bool
     db_type: str
     db: Optional[str]
     tmp_schema: Optional[str]
@@ -19,11 +18,9 @@ class Destination(BaseModel):
 
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
-        if v is not None and (
-            not values["supports_schemas"] or values["cannot_change_schema"]
-        ):
+        if v is not None and not values["supports_schemas"]:
             raise ValueError(
-                f'tmp_schema not supported for database of type {values["_db_type"]}'
+                f'tmp_schema not supported for database of type {values["db_type"]}'
             )
 
         return v
@@ -88,9 +85,6 @@ class AutoSqlTask(SqlTask):
             config["destination"].update(
                 {
                     "supports_schemas": not self.target_db.feature("NO SCHEMA SUPPORT"),
-                    "cannot_change_schema": self.target_db.feature(
-                        "CANNOT CHANGE SCHEMA"
-                    ),
                     "db_type": self.target_db.db_type,
                 }
             )
@@ -168,11 +162,17 @@ class AutoSqlTask(SqlTask):
             is None
         ):
             # Full load or target table missing
+            if self.target_db.feature("CANNOT CHANGE SCHEMA"):
+                # Use destination schema if the db doesn't support schema changes
+                tmp_schema = self.schema
+            else:
+                tmp_schema = self.tmp_schema
+
             step_queries = self.target_db.replace_table(
                 self.table,
                 self.sql_query,
                 schema=self.schema,
-                tmp_schema=self.tmp_schema,
+                tmp_schema=tmp_schema,
                 **self.ddl,
             )
 

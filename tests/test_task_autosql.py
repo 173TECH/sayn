@@ -381,7 +381,7 @@ def test_autosql_schemas_error01(tmp_path, target_db):
         ).is_err
 
 
-@pytest.mark.target_dbs(["mysql", "postgresql", "snowflake"])
+@pytest.mark.target_dbs(["bigquery", "mysql", "postgresql", "redshift", "snowflake"])
 def test_autosql_schemas02(tmp_path, target_db):
     """Autosql task with temporary schema and schema specified"""
     with autosql_task(
@@ -408,7 +408,7 @@ def test_autosql_schemas02(tmp_path, target_db):
         )
 
 
-@pytest.mark.target_dbs(["bigquery", "sqlite", "redshift"])
+@pytest.mark.target_dbs(["sqlite"])
 def test_autosql_schemas_error02(tmp_path, target_db):
     """Autosql task with temporary schema and schema specified with failure"""
     with autosql_task(

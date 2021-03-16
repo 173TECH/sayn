@@ -265,7 +265,7 @@ def test_copy_schemas_error01(source_db, target_db):
 
 
 @pytest.mark.source_dbs(["bigquery", "mysql", "postgresql", "redshift", "snowflake"])
-@pytest.mark.target_dbs(["mysql", "postgresql", "snowflake"])
+@pytest.mark.target_dbs(["bigquery", "mysql", "postgresql", "redshift", "snowflake"])
 def test_copy_schemas02(source_db, target_db):
     with copy_task(
         source_db,
@@ -289,7 +289,7 @@ def test_copy_schemas02(source_db, target_db):
         )
 
 
-@pytest.mark.target_dbs(["bigquery", "sqlite", "redshift"])
+@pytest.mark.target_dbs(["sqlite"])
 def test_copy_schemas_error02(source_db, target_db):
     with copy_task(
         source_db,
