@@ -1,6 +1,6 @@
 # Change Log
 
-## Next release
+## [0.5.5] - 2021-03-18
 
 ### Changed
 

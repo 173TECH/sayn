@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sayn"
-version = "0.5.4"
+version = "0.5.5"
 description = "Data-modelling and processing framework for automating Python and SQL tasks"
 authors = ["Robin Watteaux <robin@173tech.com>", "Adrian Macias <adrian@173tech.com>"]
 license = "Apache-2.0"
