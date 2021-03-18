@@ -211,10 +211,8 @@ def read_settings():
         name = RE_ENV_VAR_NAME.match(name)
         if name is not None:
             name = name.groupdict()
-            if name["type"].lower() == "credential":
-                environment["credentials"][name["name"]] = json.loads(value)
-            if name["type"].lower() == "parameter":
-                environment["parameters"][name["name"]] = value
+
+            environment[name["type"].lower() + "s"][name["name"]] = YAML().load(value)
 
     environment = {k: v for k, v in environment.items() if len(v) > 0}
     if len(environment) == 0:
@@ -352,7 +350,8 @@ def get_task_dict(task, task_name, group_name, presets):
     if "preset" in task:
         preset_name = task["preset"]
         preset = presets.get(
-            f"{group_name}:{preset_name}", presets.get(f"sayn_global:{preset_name}"),
+            f"{group_name}:{preset_name}",
+            presets.get(f"sayn_global:{preset_name}"),
         )
         if preset is None:
             return Err(

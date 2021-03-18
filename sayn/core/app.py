@@ -79,7 +79,11 @@ class App:
         # Validate the given parameters
         error_items = set(parameters.keys()) - set(self.project_parameters.keys())
         if error_items:
-            return Err("app", "wrong_parameters", parameters=error_items,)
+            return Err(
+                "app",
+                "wrong_parameters",
+                parameters=error_items,
+            )
 
         self.project_parameters.update(parameters)
 
@@ -213,5 +217,7 @@ class App:
             )
         else:
             self.tracker.report_event(
-                event="finish_app", duration=duration, error=error,
+                event="finish_app",
+                duration=duration,
+                error=error,
             )

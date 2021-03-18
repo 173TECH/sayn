@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 
 from pydantic import BaseModel, Field, FilePath, validator
 
@@ -9,7 +9,7 @@ from .sql import SqlTask
 
 
 class Destination(BaseModel):
-    cannot_set_schema: bool
+    supports_schemas: bool
     db_type: str
     db: Optional[str]
     tmp_schema: Optional[str]
@@ -18,9 +18,18 @@ class Destination(BaseModel):
 
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
-        if v is not None and values["cannot_set_schema"]:
+        if v is not None and not values["supports_schemas"]:
             raise ValueError(
-                f'tmp_schema not supported for database of type {values["_db_type"]}'
+                f'tmp_schema not supported for database of type {values["db_type"]}'
+            )
+
+        return v
+
+    @validator("db_schema")
+    def can_use_schema(cls, v, values):
+        if v is not None and not values["supports_schemas"]:
+            raise ValueError(
+                f'schema not supported for database of type {values["db_type"]}'
             )
 
         return v
@@ -75,7 +84,7 @@ class AutoSqlTask(SqlTask):
         if isinstance(config.get("destination"), dict):
             config["destination"].update(
                 {
-                    "cannot_set_schema": self.target_db.feature("CANNOT SET SCHEMA"),
+                    "supports_schemas": not self.target_db.feature("NO SCHEMA SUPPORT"),
                     "db_type": self.target_db.db_type,
                 }
             )
@@ -115,7 +124,9 @@ class AutoSqlTask(SqlTask):
             and (len(self.ddl["columns"]) == 0 or len(self.cols_no_type) > 0)
         ):
             return Err(
-                "task_definition", "missing_column_types_pk", columns=self.cols_no_type,
+                "task_definition",
+                "missing_column_types_pk",
+                columns=self.cols_no_type,
             )
 
         # Template compilation
@@ -151,11 +162,17 @@ class AutoSqlTask(SqlTask):
             is None
         ):
             # Full load or target table missing
+            if self.target_db.feature("CANNOT CHANGE SCHEMA"):
+                # Use destination schema if the db doesn't support schema changes
+                tmp_schema = self.schema
+            else:
+                tmp_schema = self.tmp_schema
+
             step_queries = self.target_db.replace_table(
                 self.table,
                 self.sql_query,
                 schema=self.schema,
-                tmp_schema=self.tmp_schema,
+                tmp_schema=tmp_schema,
                 **self.ddl,
             )
 

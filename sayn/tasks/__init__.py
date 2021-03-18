@@ -80,18 +80,15 @@ class Task:
     # Status methods
 
     def ready(self):
-        """(Deprecated: use `success` instead) Returned on successful execution.
-        """
+        """(Deprecated: use `success` instead) Returned on successful execution."""
         return Ok()
 
     def success(self):
-        """Returned on successful execution.
-        """
+        """Returned on successful execution."""
         return Ok()
 
     def fail(self, msg=None):
-        """Returned on failure in any stage.
-        """
+        """Returned on failure in any stage."""
         if msg is None:
             msg = 'Unknown error. Use `self.fail("Error message")` in python tasks for more details.'
         return Err("tasks", "task_fail", message=msg)

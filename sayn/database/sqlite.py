@@ -12,6 +12,7 @@ class Sqlite(Database):
             "CANNOT ALTER INDEXES",
             "CANNOT SET SCHEMA",
             "CANNOT SPECIFY DDL IN SELECT",
+            "NO SCHEMA SUPPORT",
         )
 
     def create_engine(self, settings):

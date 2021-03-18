@@ -1,6 +1,8 @@
-from sqlalchemy import create_engine
+import datetime
+import decimal
 
-# from sqlalchemy.types import Boolean, DateTime, Text
+from sqlalchemy import create_engine
+from sqlalchemy.sql import sqltypes
 
 from . import Database
 
@@ -9,7 +11,11 @@ db_parameters = ["host", "user", "password", "port", "database"]
 
 class Mysql(Database):
     def feature(self, feature):
-        return feature in ("CAN REPLACE VIEW",)
+        return feature in (
+            "CAN REPLACE VIEW",
+            "CANNOT SPECIFY DDL IN SELECT",
+            "TABLE RENAME CHANGES SCHEMA",
+        )
 
     def create_engine(self, settings):
         # Create engine using the connect_args argument to create_engine
@@ -30,13 +36,23 @@ class Mysql(Database):
             if len(s.strip()) > 0:
                 self.engine.execute(s)
 
-    def move_table(self, src_table, dst_table, src_schema=None, dst_schema=None, **ddl):
-        template = self._jinja_env.get_template("move_table_mysql.sql")
+    def _py2sqa(self, from_type):
+        python_types = {
+            int: sqltypes.BigInteger,
+            str: sqltypes.Text,
+            float: sqltypes.Float,
+            decimal.Decimal: sqltypes.Numeric,
+            datetime.datetime: sqltypes.TIMESTAMP,
+            bytes: sqltypes.LargeBinary,
+            bool: sqltypes.Boolean,
+            datetime.date: sqltypes.Date,
+            datetime.time: sqltypes.Time,
+            datetime.timedelta: sqltypes.Interval,
+            list: sqltypes.ARRAY,
+            dict: sqltypes.JSON,
+        }
 
-        return template.render(
-            src_schema=src_schema,
-            src_table=src_table,
-            dst_schema=dst_schema,
-            dst_table=dst_table,
-            **ddl,
-        )
+        if from_type not in python_types:
+            raise ValueError(f'Type not supported "{from_type}"')
+        else:
+            return python_types[from_type]().compile(dialect=self.engine.dialect)
