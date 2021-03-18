@@ -85,22 +85,33 @@ whereas database connections are `Database` objects.
 Local settings can be set without the need of a `settings.yaml` file using environment variables instead.
 With environment variables we don't need to set profiles, only credentials and project parameters are
 defined. SAYN will interpret any environment variable names `SAYN_CREDENTIAL_name` or `SAYN_PARAMETER_name`.
-The values when using environment variables are either basic values (strings), json or yaml encoded.
+The values when using environment variables are either basic types (ie: strings), json or yaml encoded.
 
 Taking the `settings.yaml` example above for the dev profile, in environment variables:
 
 !!! example ".env.sh"
     ```bash
-    export SAYN_CREDENTIAL_warehouse="{'type': 'snowflake', 'account': ..."
+    # JSON encoded credential
+    export SAYN_CREDENTIAL_warehouse='{"type": "snowflake", "account": ...}'
+
+    # YAML encoded credential
     export SAYN_CREDENTIAL_backend="
     type: postgresql
     host: host.address.com
     user: ...
     "
+
+    # Project parameters as strings
     export SAYN_PARAMETER_table_prefix="songoku_"
     export SAYN_PARAMETER_schema_logs="analytics_logs"
     export SAYN_PARAMETER_schema_staging="analytics_adhoc"
     export SAYN_PARAMETER_schema_models="analytics_adhoc"
+
+    # Project parameters allow complex types JSON or YAML encoded
+    export SAYN_PARAMETER_dict_param="
+    key1: value1
+    key2: value2
+    "
     ```
 
 When environement variables are defined and a `settings.yaml` file exists, the settings from both will
