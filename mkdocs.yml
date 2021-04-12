@@ -79,5 +79,7 @@ nav:
     - Snowflake: databases/snowflake.md
     - SQLite: databases/sqlite.md
   - API Reference:
-     - Database: api/database.md
-     - PythonTask: api/python_task.md
+    - Database: api/database.md
+    - PythonTask: api/python_task.md
+  - Project Examples:
+    - A Simple ETL: project_examples/simple_etl.md
