@@ -53,9 +53,7 @@ nav:
     - Installation: installation.md
     - Tutorial (Part 1): tutorials/tutorial_part1.md
     - Tutorial (Part 2): tutorials/tutorial_part2.md
-  - Example Projects:
-    - BBC News NLP: example_projects/bbc_news_nlp.md
-  - Core concepts:
+  - Core Concepts:
     - CLI: cli.md
     - Project Structure: project_structure.md
     - project.yaml: settings/project_yaml.md
@@ -79,5 +77,8 @@ nav:
     - Snowflake: databases/snowflake.md
     - SQLite: databases/sqlite.md
   - API Reference:
-     - Database: api/database.md
-     - PythonTask: api/python_task.md
+    - Database: api/database.md
+    - PythonTask: api/python_task.md
+  - Project Examples:
+    - A Simple ETL: project_examples/simple_etl.md
+    - BBC News NLP: project_examples/bbc_news_nlp.md

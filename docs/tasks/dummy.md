@@ -4,7 +4,7 @@
 
 The `dummy` is a task that does not do anything. It is mostly used as a handy connector between tasks when a large number of parents is common to several tasks. Using `dummy` as the parent of those reduces the length of the code and leads to cleaner task groups.
 
-## Defining `dummy` tasks
+## Defining `dummy` Tasks
 
 A `dummy` task has no additional properties other than the properties shared by all task types.
 

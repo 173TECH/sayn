@@ -4,7 +4,7 @@
 
 SAYN uses [Jinja](https://jinja.palletsprojects.com/){target="\_blank"} templating for both the SQL queries and YAML properties. `parameters` can also be accessed in `python` tasks.
 
-## Project parameters
+## Project Parameters
 
 Project parameters are defined in `project.yaml`:
 
@@ -53,7 +53,7 @@ environment we can do the following:
 In the above, we're overriding the values of the project parameters for the `dev` profile,
 but not for the `prod` profile.
 
-## Task parameters
+## Task Parameters
 
 Tasks can also define parameters. This is useful if there's a way for several tasks to share
 the same code:
@@ -85,9 +85,9 @@ In the above example both `task1` and `task2` are sql tasks pointing at the same
 `sql/task_template.sql`, the difference between the 2 is the value of the `src_table` parameter
 which is used to change the source table in the SQL.
 
-## Using parameters
+## Using Parameters
 
-### Using parameters in `tasks`
+### Using Parameters In `tasks`
 
 Task attributes are interpreted as [Jinja](https://jinja.palletsprojects.com/){target="\_blank"}
 parameters. Therefore, you can make the tasks' definition dynamic. This example uses an `autosql`
@@ -161,7 +161,7 @@ Here we extract all values from `task_autosql_param` into a preset `preset_auto_
 in multiple tasks. The name of the task is then used to reference the correct sql file and the correct
 table name using `{{ task.name }}`
 
-### In SQL queries
+### In SQL Queries
 
 For SQL related tasks (`autosql`, `sql`), use `parameters` within the SQL code with the same jinja syntax
 `{{ parameter_name }}`:

@@ -1,11 +1,25 @@
-# BBC News NLP
+# SAYN Project Example: BBC News NLP
 
+## Project Description
 
-## Overview
+#### Overview
 
-This is a sample SAYN project. It shows you how to implement and use SAYN for data modelling and processing.
+This is an example SAYN project which shows how to use SAYN for data modelling and processing. You can find the GitHub repository
+[here](https://github.com/173TECH/rss_tutorial){target="\_blank"}.
 
-In this project, we will demonstrate how to use SAYN alongside other Python packages to scrape and perform basic NLP on the BBC News RSS feeds.
+This project does the following:
+
+* Extracts article data from BBC RSS feeds
+* Loads it into a SQLite database
+* Cleans the extracted data
+* Performs some basic text analysis on the transformed data
+
+#### Features Used
+
+* Python tasks to extract and analyse data
+* Autosql tasks to automate SQL transformations.
+* Usage of parameters to make the code dynamic.
+* Usage of presets to define tasks.
 
 In addition to SAYN, this project uses the following packages:
 
@@ -13,8 +27,25 @@ In addition to SAYN, this project uses the following packages:
 * `numpy, pandas, nltk`: used for data processing
 * `matplotlib, wordcloud, pillow`: used for visualisations
 
+#### Running The Project
 
-## Step 1 Extract Group
+* clone the repository with the command `git clone https://github.com/173TECH/rss_tutorial`.
+* rename the `settings_sample.yaml` file to `settings.yaml`.
+* install the project dependencies by running the `pip install -r requirements.txt` command from the root of the project folder.
+* run all SAYN commands from the root of the project folder.
+
+???+ attention
+     If you are experiencing issues with this code, you may need to download punkt. You can do it by running the following:
+     ```python
+     import nltk
+     nltk.download('punkt')
+     ```
+
+
+## Implementation Details
+
+
+#### Step 1: Extract Group
 
 First, we need to define our `extract` group in our tasks folder. This group will only include the `load_data` task. This is quite a simple python task which will use the `LoadData` class from `load_data.py` which we will create later. Our `load_data` task will have two parameters:
 
@@ -148,7 +179,7 @@ This run has the following steps:
 
 
 
-## Step 2 Modelling Group
+#### Step 2: Modelling Group
 
 Currently our `load_data` task appends data to our database but it does not filter out any potential duplicates that we might encounter after multiple runs. This is where the `modelling` group comes in, we can define an AutoSQL task to filter out any duplicates.
 
@@ -206,7 +237,7 @@ Now that we have the modelling preset, we can use it in the `modelling` group. S
 
     ```
 
-## Step 3 Data Science Group
+#### Step 3: Data Science Group
 
 Now that we have our cleaned dataset, we can utilise python tasks to do some natural language processing on our text data. In particular, we will use two libraries for this analysis:
 
@@ -477,7 +508,7 @@ Finally, we can add the `dim_bbc_feeds_nlp_stats` task to the the `modelling` gr
     ```
 
 
-# Step 4 Run the project
+#### Step 4: Run the project
 
 All that's left is to run the project in the command line. Change your directory to this project's folder and enter `sayn run`.
 
