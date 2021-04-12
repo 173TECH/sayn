@@ -1,18 +1,16 @@
 from contextlib import contextmanager
 import os
-import tempfile
 from pathlib import Path
 import subprocess
+
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
+from ruamel.yaml import YAML
 
 from sayn.database.creator import create as create_db
-from sayn.tasks.sql import SqlTask
-from sayn.tasks.autosql import AutoSqlTask
-from sayn.tasks.copy import CopyTask
 
 
 @contextmanager
-def inside_dir(dirpath):
+def inside_dir(dirpath, fs=dict()):
     """
     Execute code from inside the given directory
     :param dirpath: String, path of the directory the command is being run.
@@ -20,6 +18,10 @@ def inside_dir(dirpath):
     old_path = os.getcwd()
     try:
         os.chdir(dirpath)
+        for filepath, content in fs.items():
+            fpath = Path(filepath)
+            fpath.parent.mkdir(parents=True, exist_ok=True)
+            fpath.write_text(content)
         yield
     finally:
         os.chdir(old_path)
@@ -75,16 +77,9 @@ class VoidTracker:
 vd = VoidTracker()
 
 
-def simulate_task(type, sql_query=None, run_arguments=dict(), task_params=dict()):
-    if type == "sql":
-        task = SqlTask()
-    elif type == "autosql":
-        task = AutoSqlTask()
-    elif type == "copy":
-        task = CopyTask()
-    else:
-        pass
-
+def simulate_task(
+    task, source_db=None, target_db=None, run_arguments=dict(), task_params=dict()
+):
     task.name = "test_task"  # set for compilation output during run
     task.group = "test_group"  # set for compilation output during run
     task.run_arguments = {
@@ -95,22 +90,14 @@ def simulate_task(type, sql_query=None, run_arguments=dict(), task_params=dict()
         **run_arguments,
     }
 
-    task.connections = {
-        "target_db": create_db(
-            "target_db", "target_db", {"type": "sqlite", "database": ":memory:"}
-        ),
-        "target_db2": create_db(
-            "target_db2", "target_db2", {"type": "sqlite", "database": ":memory:"}
-        ),
-    }
+    if target_db is not None:
+        task.connections = {
+            "target_db": create_db("target_db", "target_db", target_db.copy())
+        }
 
-    if type == "copy":
+    if source_db is not None:
         task.connections.update(
-            {
-                "source_db": create_db(
-                    "source_db", "source_db", {"type": "sqlite", "database": ":memory:"}
-                ),
-            }
+            {"source_db": create_db("source_db", "source_db", source_db.copy())}
         )
 
     task._default_db = "target_db"
@@ -123,19 +110,48 @@ def simulate_task(type, sql_query=None, run_arguments=dict(), task_params=dict()
     )
     task.jinja_env.globals.update(**task_params)
 
-    if type in ["sql", "autosql"] and sql_query is not None:
-        fpath = Path("sql", "test.sql")
-        fpath.parent.mkdir(parents=True, exist_ok=True)
-        fpath.write_text(sql_query)
-
-    return task
-
 
 def validate_table(db, table_name, expected_data):
     result = db.read_data(f"select * from {table_name}")
     if len(result) != len(expected_data):
         return False
+
+    result = sorted(result, key=lambda x: list(x.values()))
+    expected_data = sorted(expected_data, key=lambda x: list(x.values()))
     for i in range(len(result)):
         if result[i] != expected_data[i]:
             return False
     return True
+
+
+@contextmanager
+def tables_with_data(db, tables, extra_tables=list()):
+    tables_to_delete = extra_tables.copy()
+    for table, data in tables.items():
+        if isinstance(table, tuple):
+            schema = table[0]
+            table = table[1]
+            tables_to_delete.append(f"{schema}.{table}")
+        else:
+            schema = None
+            tables_to_delete.append(table)
+
+        db.load_data(table, data, schema=schema, replace=True)
+
+    try:
+        yield
+    finally:
+        clear_tables(db, tables_to_delete)
+
+
+def clear_tables(db, tables):
+    for table in tables:
+        try:
+            db.execute(f"DROP TABLE IF EXISTS {table}")
+        except:
+            pass
+
+        try:
+            db.execute(f"DROP VIEW IF EXISTS {table}")
+        except:
+            pass

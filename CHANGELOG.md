@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.5.5] - 2021-03-18
+
+### Changed
+
+- Refactoring of database code to improve performance by adding introspection
+  after all tasks have been setup
+- Improvements to BigQuery process
+- Adds support for testing all databases
+- Adds support for environment variables specified in YAML (JSON still supported as well)
+
 ## [0.5.4] - 2021-01-11
 
 ### Fixed

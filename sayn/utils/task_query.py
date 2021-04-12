@@ -24,7 +24,11 @@ def _get_query_component(tasks, query):
     }
     match = RE_TASK_QUERY.match(query)
     if match is None:
-        return Err("task_query", "incorrect_syntax", query=query,)
+        return Err(
+            "task_query",
+            "incorrect_syntax",
+            query=query,
+        )
     else:
         match_components = match.groupdict()
 
@@ -32,7 +36,11 @@ def _get_query_component(tasks, query):
             tag = match_components["tag"]
             relevant_tasks = {k: v for k, v in tasks.items() if tag in v.get("tags")}
             if len(relevant_tasks) == 0:
-                return Err("task_query", "undefined_tag", tag=tag,)
+                return Err(
+                    "task_query",
+                    "undefined_tag",
+                    tag=tag,
+                )
             return Ok(
                 [
                     {"task": task, "upstream": False, "downstream": False}
@@ -55,7 +63,11 @@ def _get_query_component(tasks, query):
         if match_components.get("task") is not None:
             task = match_components["task"]
             if task not in tasks:
-                return Err("task_query", "undefined_task", task=task,)
+                return Err(
+                    "task_query",
+                    "undefined_task",
+                    task=task,
+                )
             return Ok(
                 [
                     {
@@ -71,7 +83,11 @@ def get_query(tasks, include=list(), exclude=list()):
     overlap = set(include).intersection(set(exclude))
     if len(overlap) > 0:
         overlap = ", ".join(overlap)
-        return Err("task_query", "query_overlap", overlap=overlap,)
+        return Err(
+            "task_query",
+            "query_overlap",
+            overlap=overlap,
+        )
 
     output = list()
     for operation, components in (("include", include), ("exclude", exclude)):

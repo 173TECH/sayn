@@ -113,6 +113,7 @@ class FancyLogger(Logger):
                 self.app_stage_start(stage, details)
 
             elif event == "finish_stage":
+                self.spinner.stop()
                 print()
                 self.stage = None
                 self.app_stage_finish(stage, details)

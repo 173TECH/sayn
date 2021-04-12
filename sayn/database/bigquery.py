@@ -47,7 +47,11 @@ class Bigquery(Database):
     dataset = None
 
     def feature(self, feature):
-        return feature in ("CAN REPLACE TABLE", "CAN REPLACE VIEW")
+        return feature in (
+            "CAN REPLACE TABLE",
+            "CAN REPLACE VIEW",
+            "CANNOT CHANGE SCHEMA",
+        )
 
     def create_engine(self, settings):
         settings = deepcopy(settings)

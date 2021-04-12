@@ -1,7 +1,7 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, Field, validator
-from sqlalchemy import or_, select
+from sqlalchemy import or_, select, column
 
 from ..core.errors import Err, Exc, Ok
 from ..database import Database
@@ -9,8 +9,8 @@ from .sql import SqlTask
 
 
 class Source(BaseModel):
-    _cannot_set_schema: bool
-    _db_type: str
+    supports_schemas: bool
+    db_type: str
 
     db_schema: Optional[str] = Field(None, alias="schema")
     table: str
@@ -18,17 +18,17 @@ class Source(BaseModel):
 
     @validator("db_schema")
     def can_use_schema(cls, v, values):
-        if v is not None and values["_cannot_set_schema"]:
+        if v is not None and not values["supports_schemas"]:
             raise ValueError(
-                f'schema not supported for database of type {values["_db_type"]}'
+                f'schema not supported for database of type {values["db_type"]}'
             )
 
         return v
 
 
 class Destination(BaseModel):
-    _cannot_set_schema: bool
-    _db_type: str
+    supports_schemas: bool
+    db_type: str
 
     tmp_schema: Optional[str]
     db_schema: Optional[str] = Field(None, alias="schema")
@@ -37,18 +37,18 @@ class Destination(BaseModel):
 
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
-        if v is not None and values["_cannot_set_schema"]:
+        if v is not None and not values["supports_schemas"]:
             raise ValueError(
-                f'tmp_schema not supported for database of type {values["_db_type"]}'
+                f'tmp_schema not supported for database of type {values["db_type"]}'
             )
 
         return v
 
     @validator("db_schema")
     def can_use_schema(cls, v, values):
-        if v is not None and values["_cannot_set_schema"]:
+        if v is not None and not values["supports_schemas"]:
             raise ValueError(
-                f'schema not supported for database of type {values["_db_type"]}'
+                f'schema not supported for database of type {values["db_type"]}'
             )
 
         return v
@@ -108,18 +108,24 @@ class CopyTask(SqlTask):
         if isinstance(config.get("source"), dict):
             config["source"].update(
                 {
-                    "_cannot_set_schema": self.connections[
+                    "supports_schemas": not self.connections[
                         config["source"]["db"]
-                    ].feature("CANNOT SET SCHEMA"),
-                    "_db_type": self.connections[config["source"]["db"]].db_type,
+                    ].feature("NO SCHEMA SUPPORT"),
+                    "cannot_change_schema": self.connections[
+                        config["source"]["db"]
+                    ].feature("CANNOT CHANGE SCHEMA"),
+                    "db_type": self.connections[config["source"]["db"]].db_type,
                 }
             )
 
         if isinstance(config.get("destination"), dict):
             config["destination"].update(
                 {
-                    "_cannot_set_schema": self.target_db.feature("CANNOT SET SCHEMA"),
-                    "_db_type": self.target_db.db_type,
+                    "supports_schemas": not self.target_db.feature("NO SCHEMA SUPPORT"),
+                    "cannot_change_schema": self.target_db.feature(
+                        "CANNOT CHANGE SCHEMA"
+                    ),
+                    "db_type": self.target_db.db_type,
                 }
             )
 
@@ -138,7 +144,9 @@ class CopyTask(SqlTask):
             request_tmp=False,
         )
 
-        self.tmp_schema = self.config.destination.tmp_schema
+        self.tmp_schema = (
+            self.config.destination.tmp_schema or self.config.destination.db_schema
+        )
         self.schema = self.config.destination.db_schema
         self.table = self.config.destination.table
         self.tmp_table = f"sayn_tmp_{self.table}"
@@ -306,20 +314,20 @@ class CopyTask(SqlTask):
                 ]
         else:
             # Fill up column types from the source table
-            for column in self.ddl["columns"]:
-                if column.get("name") not in self.source_table_def.columns:
+            for col in self.ddl["columns"]:
+                if col.get("name") not in self.source_table_def.columns:
                     return Err(
                         "database_error",
                         "source_table_missing_column",
                         db=self.source_db.name,
                         table=self.source_table,
                         schema=self.source_schema,
-                        column=column.get("name"),
+                        column=col.get("name"),
                     )
 
-                if "type" not in column:
-                    column["type"] = self.target_db._py2sqa(
-                        self.source_table_def.columns[column["name"]].type.python_type
+                if "type" not in col:
+                    col["type"] = self.target_db._py2sqa(
+                        self.source_table_def.columns[col["name"]].type.python_type
                     )
 
         return Ok()
@@ -337,7 +345,8 @@ class CopyTask(SqlTask):
             )
 
         get_data_query = select(
-            [self.source_table_def.c[c["name"]] for c in self.ddl["columns"]]
+            columns=[column(c["name"]) for c in self.ddl["columns"]],
+            from_obj=self.source_table_def,
         )
         last_incremental_value = None
 

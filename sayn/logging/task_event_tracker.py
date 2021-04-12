@@ -7,7 +7,7 @@ class TaskEventTracker:
     _logger = None
     _task_name = None
     _task_order = None
-    _steps = list()
+    _steps = None
     _current_step = None
     _current_step_start_ts = None
 
@@ -15,6 +15,7 @@ class TaskEventTracker:
         self._logger = logger
         self._task_name = task_name
         self._task_order = task_order
+        self._steps = list()
 
     def _report_event(self, event, **details):
         details["event"] = event
@@ -37,8 +38,15 @@ class TaskEventTracker:
         self._report_event("set_run_steps", steps=steps)
         self._steps = steps
 
+    def add_run_steps(self, steps):
+        self._report_event("set_run_steps", steps=steps)
+        self._steps.extend(steps)
+
     def start_step(self, step):
         self.finish_current_step()
+
+        if step not in self._steps:
+            self._steps.append(step)
 
         self._current_step = step
         self._current_step_start_ts = datetime.now()
@@ -50,7 +58,9 @@ class TaskEventTracker:
             duration = datetime.now() - self._current_step_start_ts
 
             self._report_event(
-                "finish_step", duration=duration, result=result,
+                "finish_step",
+                duration=duration,
+                result=result,
             )
             self._current_step = None
             self._current_step_start_ts = None

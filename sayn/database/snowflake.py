@@ -15,6 +15,9 @@ db_parameters = [
 
 
 class Snowflake(Database):
+    def feature(self, feature):
+        return feature in ("TABLE RENAME CHANGES SCHEMA",)
+
     def create_engine(self, settings):
         from snowflake.sqlalchemy import URL
 
@@ -30,17 +33,3 @@ class Snowflake(Database):
         conn.connection.execute_string(script)
         conn.connection.commit()
         conn.connection.close()
-
-    def _move_table(
-        self, src_table, src_schema, dst_table, dst_schema, ddl, execute=False
-    ):
-        drop = (
-            f"DROP TABLE IF EXISTS {dst_schema+'.' if dst_schema else ''}{dst_table};"
-        )
-        rename = f"ALTER TABLE {src_schema+'.' if src_schema else ''}{src_table} RENAME TO {dst_schema+'.' if dst_schema else ''}{dst_table};"
-        q = "\n".join((drop, rename))
-
-        if execute:
-            self.execute(q)
-
-        return q

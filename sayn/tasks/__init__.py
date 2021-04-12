@@ -80,18 +80,15 @@ class Task:
     # Status methods
 
     def ready(self):
-        """(Deprecated: use `success` instead) Returned on successful execution.
-        """
+        """(Deprecated: use `success` instead) Returned on successful execution."""
         return Ok()
 
     def success(self):
-        """Returned on successful execution.
-        """
+        """Returned on successful execution."""
         return Ok()
 
     def fail(self, msg=None):
-        """Returned on failure in any stage.
-        """
+        """Returned on failure in any stage."""
         if msg is None:
             msg = 'Unknown error. Use `self.fail("Error message")` in python tasks for more details.'
         return Err("tasks", "task_fail", message=msg)
@@ -101,6 +98,10 @@ class Task:
     def set_run_steps(self, steps):
         """Sets the run steps for the task, allowing the CLI to indicate task execution progress. """
         self.tracker.set_run_steps(steps)
+
+    def add_run_steps(self, steps):
+        """Adds new steps to the list of run steps for the task, allowing the CLI to indicate task execution progress. """
+        self.tracker.add_run_steps(steps)
 
     def start_step(self, step):
         """Specifies the start of a task step"""

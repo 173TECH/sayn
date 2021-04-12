@@ -386,7 +386,12 @@ class Database:
     # Intermediary steps
 
     def create_table(
-        self, table, schema=None, select=None, replace=False, **ddl,
+        self,
+        table,
+        schema=None,
+        select=None,
+        replace=False,
+        **ddl,
     ):
         full_name = fully_qualify(table, schema)
         if (
@@ -447,13 +452,20 @@ class Database:
             dst_schema=dst_schema,
             dst_table=dst_table,
             cannot_alter_indexes=self.feature("CANNOT ALTER INDEXES"),
+            needs_cascade=self.feature("NEEDS CASCADE"),
+            rename_changes_schema=self.feature("TABLE RENAME CHANGES SCHEMA"),
             **ddl,
         )
 
     # ETL steps
 
     def replace_table(
-        self, table, select, schema=None, tmp_schema=None, **ddl,
+        self,
+        table,
+        select,
+        schema=None,
+        tmp_schema=None,
+        **ddl,
     ):
         # Create the temporary table
         can_replace_table = self.feature("CAN REPLACE TABLE")
