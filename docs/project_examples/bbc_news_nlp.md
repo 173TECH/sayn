@@ -1,5 +1,8 @@
 # BBC News NLP
 
+
+## Overview
+
 This is a sample SAYN project. It shows you how to implement and use SAYN for data modelling and processing.
 
 In this project, we will demonstrate how to use SAYN alongside other Python packages to scrape and perform basic NLP on the BBC News RSS feeds.
@@ -17,6 +20,9 @@ First, we need to define our `extract` group in our tasks folder. This group wil
 
 * `table`: name of the table we plan to create in our database
 * `links`: list of links to rss feeds
+
+???+ note
+     Parameters are not a requirement, however by using parameters we could reuse the task
 
 ??? example "tasks/extract.yaml"
     ```yaml
