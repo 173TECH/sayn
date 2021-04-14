@@ -370,4 +370,7 @@ class CopyTask(SqlTask):
         if debug:
             self.write_compilation_output(get_data_query, "get_data")
 
+        if self.incremental_key is not None:
+            get_data_query = get_data_query.order_by(self.incremental_key)
+
         return Ok(get_data_query)
