@@ -271,9 +271,10 @@ class Database:
         """
         with self.engine.connect().execution_options(stream_results=True) as connection:
             res = connection.execute(query, **params)
+            fields = res.keys()
 
             for record in res:
-                yield dict(zip(res.keys(), record))
+                yield dict(zip(fields, record))
 
     def _load_data_batch(self, table, data, schema):
         """Implements the load of a single data batch for `load_data`.
