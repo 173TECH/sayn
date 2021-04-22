@@ -287,6 +287,7 @@ class Database:
             data (list): A list of dictionaries to load
             schema (str): An optional schema to reference the table
         """
+        print("load batch")
         table_def = self._get_table(table, schema)
         if table_def is None:
             raise DBError(
@@ -316,6 +317,9 @@ class Database:
               (True) or new records are to be appended to the existing table (default)
             ddl (dict): An optional ddl specification in the same format as used
               in autosql and copy tasks
+
+        Returns:
+            int: Number of records loaded
         """
         batch_size = batch_size or self.max_batch_rows
         buffer = list()
@@ -334,6 +338,7 @@ class Database:
         check_create = True
         table_exists_prior_load = self._table_exists(table, schema)
 
+        records_loaded = 0
         for i, record in enumerate(data):
             if check_create and (replace or not table_exists_prior_load):
                 # Create the table if required
@@ -352,12 +357,16 @@ class Database:
 
             if i % batch_size == 0 and len(buffer) > 0:
                 self._load_data_batch(table, buffer, schema)
+                records_loaded += len(buffer)
                 buffer = list()
 
             buffer.append(record)
 
         if len(buffer) > 0:
             self._load_data_batch(table, buffer, schema)
+            records_loaded += len(buffer)
+
+        return records_loaded
 
     def _get_table(self, table, schema):
         """Create a SQLAlchemy Table object.
