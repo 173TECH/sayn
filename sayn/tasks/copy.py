@@ -351,7 +351,7 @@ class CopyTask(SqlTask):
                         column=col.get("name"),
                     )
 
-                if "type" not in col:
+                if col.get("type") is None:
                     col["type"] = self.target_db._py2sqa(
                         self.source_table_def.columns[col["name"]].type.python_type
                     )
