@@ -287,7 +287,6 @@ class Database:
             data (list): A list of dictionaries to load
             schema (str): An optional schema to reference the table
         """
-        print("load batch")
         table_def = self._get_table(table, schema)
         if table_def is None:
             raise DBError(
