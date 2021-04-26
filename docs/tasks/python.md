@@ -76,7 +76,7 @@ parameters and connections. Here's a list of properties available:
     * with the `pandas.DataFrame.to_sql` method: `df.to_sql(self.default_db.engine, 'table')`.
     * with the `self.default_db.load_data` method: `self.default_db.load_data('table', df.to_dict('records'))`.
 
-### Logging For Python Tasks With The SAYN API
+### Logging For `python` Tasks With The SAYN API
 
 The unit of process within a task in SAYN is the `step`. Using steps is useful to indicate current
 progress of execution but also for debugging purposes. The [tutorial](../tutorials/tutorial_part1.md)

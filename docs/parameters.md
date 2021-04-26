@@ -181,7 +181,7 @@ If using the `dev` profile, this would therefore be compiled as:
       FROM analytics_adhoc.songoku_my_table AS mt
     ```
 
-### In Python Tasks
+### In `python` Tasks
 
 Parameters are accessible to python tasks as well as properties of the task class with
 `self.project_parameters`, `self.task_parameters` and `self.parameters`, which are all python dictionaries.

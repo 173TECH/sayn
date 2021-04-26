@@ -61,7 +61,7 @@ amount of data is too large, adjust this value.
         max_batch_rows: 200
     ```
 
-## Using Databases In Python Tasks
+## Using Databases In `python` Tasks
 
 Databases and other credentials defined in the SAYN project are available to Python tasks via
 `self.connections`. For convenience though, all Python tasks have a `default_db` property that
