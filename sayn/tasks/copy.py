@@ -191,8 +191,10 @@ class CopyTask(SqlTask):
                 self.is_full_load,
                 self.merge_batch_size,
             )
+            if result.is_err:
+                return result
             while True:
-                if result.is_ok and result.value < self.merge_batch_size:
+                if result.is_err or result.value < self.merge_batch_size:
                     break
                 result = self.execute(True, False, False, self.merge_batch_size)
         else:
