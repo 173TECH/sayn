@@ -60,7 +60,7 @@ class Config(BaseModel):
     ddl: Optional[Dict[str, Any]]
     delete_key: Optional[str]
     incremental_key: Optional[str]
-    merge_batch_rows: Optional[int]
+    max_merge_rows: Optional[int]
     max_batch_rows: Optional[int]
 
     @validator("incremental_key", always=True)
@@ -72,10 +72,10 @@ class Config(BaseModel):
 
         return v
 
-    @validator("merge_batch_rows")
+    @validator("max_merge_rows")
     def merge_batch_size_val(cls, v, values):
         if values.get("delete_key") is None:
-            raise ValueError("merge_batch_rows is only applicable to incremental copy")
+            raise ValueError("max_merge_rows is only applicable to incremental copy")
 
         return v
 
@@ -170,7 +170,7 @@ class CopyTask(SqlTask):
 
         self.delete_key = self.config.delete_key
         self.incremental_key = self.config.incremental_key
-        self.merge_batch_rows = self.config.merge_batch_rows
+        self.max_merge_rows = self.config.max_merge_rows
         self.max_batch_rows = self.config.max_batch_rows
         self.is_full_load = self.run_arguments["full_load"] or self.delete_key is None
 
@@ -186,19 +186,19 @@ class CopyTask(SqlTask):
         return self.execute(False, self.run_arguments["debug"], self.is_full_load)
 
     def run(self):
-        if self.merge_batch_rows is not None:
+        if self.max_merge_rows is not None:
             result = self.execute(
                 True,
                 self.run_arguments["debug"],
                 self.is_full_load,
-                self.merge_batch_rows,
+                self.max_merge_rows,
             )
             if result.is_err:
                 return result
             while True:
-                if result.is_err or result.value < self.merge_batch_rows:
+                if result.is_err or result.value < self.max_merge_rows:
                     break
-                result = self.execute(True, False, False, self.merge_batch_rows)
+                result = self.execute(True, False, False, self.max_merge_rows)
         else:
             result = self.execute(True, self.run_arguments["debug"], self.is_full_load)
 

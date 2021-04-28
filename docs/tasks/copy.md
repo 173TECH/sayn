@@ -47,7 +47,8 @@ By default, tables will be copied in full every time SAYN runs, but it can be ch
 load by adding `incremental_key` and `delete_key`:
 
 * `incremental_key`: the column to use to determine what data is new. The process will transfer
-  any data in the source table with an `incremental_key` value superior to the maximum found in the destination.
+  any data in the source table with an `incremental_key` value superior or equal to the maximum
+  found in the destination.
 * `delete_key`: the column which will be used for deleting data in incremental loads. The process
   will delete any data in the destination table with a `delete_key` value found in the new dataset
   obtained before inserting.
@@ -71,6 +72,18 @@ load by adding `incremental_key` and `delete_key`:
 In this example, we use `updated_at` which is a field updated every time a record changes (or is created)
 on a hypothetical backend database to select new records, and then we replace all records in the target
 based on the `id`s found in this new dataset.
+
+While the task is runnig, SAYN will get records from the source database and load into a temporary table,
+and will merge into the destination table once all records have been loaded. The frequency of loading
+into this table is determined by the value of `max_batch_rows` as defined in the credentials for the
+destination database. However this behaviour can be changed with 2 properties:
+
+* `max_batch_rows`: this allows you to overwrite the value specified in the credential for this task only.
+* `max_merge_rows`: this value changes the behaviour so that instead of merging into the destination.
+  table once all rows have been loaded, instead SAYN will merge after this number of records have been
+  loaded and then it will repeat the whole process. The advantage of using this parameter is that for
+  copies that take a long time, if an error like loosing the connection with the source wouldn't result
+  in the process having to be started from the beginning.
 
 ## Data types and DDL
 
