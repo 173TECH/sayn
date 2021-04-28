@@ -34,23 +34,27 @@ In addition to SAYN, this project uses the following packages:
 * install the project dependencies by running the `pip install -r requirements.txt` command from the root of the project folder.
 * run all SAYN commands from the root of the project folder.
 
+<br>
+
 ## Implementation Details
 
-
-#### Step 1: Extract Task Group
+### Step 1: Extract Task Group
 
 Quick Summary:
 
 * Create the task group `extract.yaml`
 * Create a [python task](../tasks/python.md) to extract and load the data
 
-First, we need to define our `extract` group in our tasks folder. This group will only include the `load_data` task. This is quite a simple [python task](../tasks/python.md) which will use the `LoadData` class from `load_data.py` which we will create later. Our `load_data` task will have two [parameters](../parameters.md):
+<br>
+
+#### Task Details (`load_data`)
+
+First, we need to define our `extract` group in our tasks folder. This group will only include the `load_data` task. This is quite a simple [python task](../tasks/python.md) which will use the `LoadData` class from `load_data.py` which we will create later.
+
+Our `load_data` task will have two [parameters](../parameters.md):
 
 * `table`: name of the table we plan to create in our database
 * `links`: list of links to rss feeds
-
-???+ note
-     Parameters are not a requirement, however parameters make the code dynamic which is useful for reusability.
 
 ??? example "tasks/extract.yaml"
     ```yaml
@@ -73,7 +77,17 @@ First, we need to define our `extract` group in our tasks folder. This group wil
             - http://feeds.bbci.co.uk/news/world/africa/rss.xml
 
     ```
-##### `LoadData` Class
+
+???+ note
+     Parameters are not a requirement, however parameters make the code dynamic which is useful for reusability.
+
+The `load_data` task will have the following steps:
+
+* `Appending BBC data to dataframe`: loops through the links array, appends data from each link to a dataframe
+* `Updating database`: loads dataframe into SQLite database using `pandas.to_sql` method
+
+
+###### LoadData Class
 
 Next, we will create our `LoadData` class.
 
@@ -84,51 +98,46 @@ Our LoadData inherits properties from SAYN's PythonTask, in addition it will hav
 * `run`: defines what each step does during the run
 
 ???+ attention
-     Please note that methods `setup` and `run ` need to return either `self.success()` or `self.fail()` in order to run.
+     `fetch_bbc_data` is a utility method for this task, while `setup` and `run` are the usual SAYN methods. Please note that methods `setup` and `run` need to return either `self.success()` or `self.fail()` in order to run.
 
-###### Fetch BBC Data
+###### Utility Method (`fetch_bbc_data`)
 
-The `fetch_bbc_data` function uses the `feedparser.parse` method to fetch the raw data from the rss feed link. It then converts the data into a `pandas dataframe` to make it easier to work with. Notably, the function also drops some incompatible columns with our SQLite database, these are the following:
+The `fetch_bbc_data` function uses the `feedparser.parse` method to fetch the raw data from the rss feed link. It then converts the data into a `pandas dataframe` to make it easier to work with.
 
-* title_detail
-* summary_detail
-* links
-* published_parsed
+The function also extracts the source of each article and adds it under the `source` column.
 
-These columns are just JSON object representations of information we already have, so there is no need to keep these columns.
-
-The function also extracts the source of each article and adds it under the `source` column. Lastly, the function assigns a unique_id to each article which is based on its article id and the source it originates from. This is because the same article may be published in multiple sources with the same id, which means our original ids are not unique and could be misleading.
-
-###### `load_data` Task Details
-
-This task has the following steps:
-
-* `Appending BBC data to dataframe`: loops through the links array, appends data from each link to a dataframe
-* `Updating database`: loads dataframe into SQLite database using `pandas.to_sql` method
-
-
-!!! tip
-    self.parameters["user_prefix"] is set dynamically based on what you set it to in project.yaml, this can also be overwritten in settings.yaml
+Lastly, the function assigns a `unique_id` to each article which is based on its article id and the source it originates from. This is because the same article may be published in multiple sources with the same id, which means our original ids are not unique and could be misleading.
 
 ??? example "python/load_data.py"
-    ```python
+    ``` python
     import pandas as pd
     import feedparser as f
     from sayn import PythonTask
 
-
     class LoadData(PythonTask):
+
         def fetch_bbc_data(self, link):
             """Parse and label RSS BBC News data then return it in a pandas DataFrame"""
+
+            # get data from supplied link
             raw_data = f.parse(link)
+
+            # transform data to dataframe
             data = pd.DataFrame(raw_data.entries)
+
+            # remove incompatible columns
             data.drop(
                 ["title_detail", "summary_detail", "links", "published_parsed"],
                 axis=1,
                 inplace=True,
             )
+
+            # get the source (this only works for BBC RSS feeds)
             data["source"] = link[29:-8].replace("/", "_")
+
+            # generating ids to be unique, since same story ids can be published in different sources
             data["unique_id"] = data["id"] + data["source"]
+
             return data
 
         def setup(self):
@@ -159,10 +168,13 @@ This task has the following steps:
                     )
 
             return self.success()
+
     ```
 
+??? tip
+    `self.parameters["user_prefix"]` is set dynamically based on what you set it to in project.yaml, this can also be overwritten in settings.yaml
 
-#### Step 2: Modelling Group
+### Step 2: Modelling Group
 
 Quick Summary:
 
@@ -170,15 +182,13 @@ Quick Summary:
 * Create a modelling [preset](../presets.md) in `project.yaml`
 * Create the task group `modelling.yaml`
 
+<br>
+
+#### Task Details (`dim_bbc_feeds`)
 
 Currently our `load_data` task appends data to our database but it does not filter out any potential duplicates that we might encounter after multiple runs. This is where the `modelling` group comes in, we can define an [AutoSQL task](../tasks/autosql.md) to filter out any duplicates.
 
-##### `dim_bbc_feeds` Task
-
 First, we need to create a sql query in our `sql` folder that will filter out any duplicates; we will call it `dim_bbc_feeds.sql`
-
-!!! tip
-    {{user_prefix}} is set dynamically based on what you set it to in project.yaml, this can also be overwritten in settings.yaml
 
 ??? example "sql/dim_bbc_feeds.sql"
     ```sql
@@ -193,10 +203,14 @@ First, we need to create a sql query in our `sql` folder that will filter out an
     FROM {{user_prefix}}logs_bbc_feeds
     ```
 
+??? tip
+    `{{user_prefix}}` is set dynamically. The default value is set in `project.yaml`. This can be overwritten using profiles in `settings.yaml`.
+
+
 Next, we will define a modelling [preset](../presets.md) in `project.yaml`. [Presets](../presets.md) enable you to create a task prototype which can be reused when defining tasks. Hence, the modelling [preset](../presets.md) will simplify the code in `modelling.yaml` while also allowing us to set dynamic file and table names.
 
-!!! tip
-    {{ task.name }} returns the name of task the preset is assigned to
+???+ attention
+     Presets defined in `project.yaml` are project level presets, you can also define presets within individual task groups.
 
 ??? example "project.yaml"
     ```yaml
@@ -219,6 +233,9 @@ Next, we will define a modelling [preset](../presets.md) in `project.yaml`. [Pre
 
     ```
 
+??? tip
+    `{{ task.name }}` returns the name of task
+
 Now that we have the modelling [preset](../presets.md), we can use it in the `modelling` group. Since we want `dim_bbc_feeds` to run after our `load_data` task, we will need to set the parents of the task to `load_data`.
 
 ??? example "tasks/modelling.yaml"
@@ -231,8 +248,7 @@ Now that we have the modelling [preset](../presets.md), we can use it in the `mo
 
     ```
 
-
-#### Step 3: Data Science Group
+### Step 3: Data Science Group
 
 Quick Summary:
 
@@ -240,6 +256,11 @@ Quick Summary:
 * Create the [python task](../tasks/python.md) `wordcloud` to generate wordclouds
 * Create the [python task](../tasks/python.md) `nlp` to generate text statistics
 * Create the [AutoSQL task](../tasks/autosql.md) `dim_bbc_feeds_nlp_stats` to calculate aggregate statistics grouped by source
+
+
+<br>
+
+#### Group Overview
 
 Now that we have our cleaned dataset, we can utilise [python tasks](../tasks/python.md) to do some natural language processing on our text data. In particular, we will use two libraries for this analysis:
 
@@ -251,11 +272,10 @@ First, we need to create the `data_science` group in the `tasks` folder. There w
 * `nlp`: generates the text statistics
 * `wordcloud`: generates the wordclouds
 
-Since both of these tasks are children of the `dim_bbc_feeds` task, we will need to set the parents and table [parameters](../parameters.md) for both tasks to `dim_bbc_feeds`.
+Both tasks will use data from our `dim_bbc_feeds` table, therefore we will need to set their their table [parameters](../parameters.md) to `dim_bbc_feeds`. Since both of these tasks are children of the `dim_bbc_feeds` task, we will also need to set their parents attributes to `dim_bbc_feeds`.
 
 The `nlp` task has a `text` parameter, this parameter specifies which columns have text for processing.
 The `wordcloud` task has a `stopwords` parameter, this parameter provides additional context related stopwords (e.g. "say" and its variations seem to be very common in summaries, however they are not very informative).
-
 
 ??? example "tasks/data_science.yaml"
     ```yaml
@@ -296,7 +316,15 @@ The `wordcloud` task has a `stopwords` parameter, this parameter provides additi
 
     ```
 
-##### `RenderCloud` Class
+
+#### Task Details (`wordcloud`)
+
+The `wordcloud` task will have the following steps:
+
+* `Grouping texts`: aggregates article summaries and groups them by source (summaries are used instead of titles since they tend to be longer)
+* `Generating clouds`: generates a wordcloud for each source, as well as the full dataset
+
+###### RenderCloud Class
 
 Next, we can define the class `RenderCloud` for the `wordcloud` task. `RenderCloud` has 3 methods:
 
@@ -305,14 +333,7 @@ Next, we can define the class `RenderCloud` for the `wordcloud` task. `RenderClo
 * `run`: defines what each step does during the run
 
 ???+ attention
-     Please note that methods `setup` and `run ` need to return either `self.success()` or `self.fail()` in order to run.
-
-###### `wordcloud` Task Details
-
-This task has the following steps:
-
-* `Grouping texts`: aggregates article summaries and groups them by source (summaries are used instead of titles since they tend to be longer)
-* `Generating clouds`: generates a wordcloud for each source, as well as the full dataset
+     `word_cloud` is a utility method for this task, while `setup` and `run` are the usual SAYN methods. Please note that methods `setup` and `run` need to return either `self.success()` or `self.fail()` in order to run.
 
 ??? example "python/wordcloud.py"
     ```python
@@ -391,7 +412,14 @@ This task has the following steps:
 
     ```
 
-##### `LanguageProcessing` Class
+#### Task Details (`nlp`)
+
+The `nlp` task will have the following steps:
+
+* `Processing texts`: loops through text_fields, generates text statistics on each entry
+* `Updating database`: similar to LoadData step, has additional debugging information
+
+###### LanguageProcessing Class
 
 Moving on, we can define the class `LanguageProcessing` for the `nlp` task. `LanguageProcessing` has 3 methods:
 
@@ -400,14 +428,7 @@ Moving on, we can define the class `LanguageProcessing` for the `nlp` task. `Lan
 * `run`: defines what each step does during the run
 
 ???+ attention
-     Please note that methods `setup` and `run ` need to return either `self.success()` or `self.fail()` in order to run.
-
-###### `nlp` Task Details
-
-This task has the following steps:
-
-* `Processing texts`: loops through text_fields, generates text statistics on each entry
-* `Updating database`: similar to LoadData step, has additional debugging information
+     `desc_text` is a utility method for this task, while `setup` and `run` are the usual SAYN methods. Please note that methods `setup` and `run` need to return either `self.success()` or `self.fail()` in order to run.
 
 ??? example "python/nlp.py"
     ```python
@@ -474,9 +495,9 @@ This task has the following steps:
 
     ```
 
-##### `dim_bbc_feeds_nlp_stats` Task
+#### Task Details (`dim_bbc_feeds_nlp_stats`)
 
-Now that we have individual article statistics, it would be a good idea to create an additional modelling task to find some aggregate statistics grouped by source. Let's create another SQL query called `dim_bbc_feeds_nlp_stats` in the `sql` folder. This query will give us the grouped by source average of the text statistics generated by the `nlp` task.
+Now that we have individual article statistics, it would be a good idea to create an additional modelling task to find some aggregate statistics grouped by source. Let's create another SQL query called `dim_bbc_feeds_nlp_stats` in the `sql` folder. This query will give us the average, grouped by source, of the text statistics generated by the `nlp` task.
 
 ??? example "sql/dim_bbc_feeds_nlp_stats.py"
     ```sql
