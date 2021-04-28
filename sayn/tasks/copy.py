@@ -60,7 +60,8 @@ class Config(BaseModel):
     ddl: Optional[Dict[str, Any]]
     delete_key: Optional[str]
     incremental_key: Optional[str]
-    merge_batch_size: Optional[int]
+    merge_batch_rows: Optional[int]
+    max_batch_rows: Optional[int]
 
     @validator("incremental_key", always=True)
     def incremental_validation(cls, v, values):
@@ -71,10 +72,10 @@ class Config(BaseModel):
 
         return v
 
-    @validator("merge_batch_size")
+    @validator("merge_batch_rows")
     def merge_batch_size_val(cls, v, values):
         if values.get("delete_key") is None:
-            raise ValueError("merge_batch_size is only applicable to incremental copy")
+            raise ValueError("merge_batch_rows is only applicable to incremental copy")
 
         return v
 
@@ -169,7 +170,8 @@ class CopyTask(SqlTask):
 
         self.delete_key = self.config.delete_key
         self.incremental_key = self.config.incremental_key
-        self.merge_batch_size = self.config.merge_batch_size
+        self.merge_batch_rows = self.config.merge_batch_rows
+        self.max_batch_rows = self.config.max_batch_rows
         self.is_full_load = self.run_arguments["full_load"] or self.delete_key is None
 
         result = self.target_db._validate_ddl(self.config.ddl)
@@ -184,19 +186,19 @@ class CopyTask(SqlTask):
         return self.execute(False, self.run_arguments["debug"], self.is_full_load)
 
     def run(self):
-        if self.merge_batch_size is not None:
+        if self.merge_batch_rows is not None:
             result = self.execute(
                 True,
                 self.run_arguments["debug"],
                 self.is_full_load,
-                self.merge_batch_size,
+                self.merge_batch_rows,
             )
             if result.is_err:
                 return result
             while True:
-                if result.is_err or result.value < self.merge_batch_size:
+                if result.is_err or result.value < self.merge_batch_rows:
                     break
-                result = self.execute(True, False, False, self.merge_batch_size)
+                result = self.execute(True, False, False, self.merge_batch_rows)
         else:
             result = self.execute(True, self.run_arguments["debug"], self.is_full_load)
 
@@ -246,7 +248,10 @@ class CopyTask(SqlTask):
             if execute:
                 data_iter = self.source_db._read_data_stream(get_data_query)
                 n_records = self.target_db.load_data(
-                    load_table, data_iter, schema=load_schema
+                    load_table,
+                    data_iter,
+                    schema=load_schema,
+                    batch_size=self.max_batch_rows,
                 )
 
         # Final step
@@ -390,7 +395,7 @@ class CopyTask(SqlTask):
                 or_(
                     self.source_table_def.c[self.incremental_key].is_(None),
                     self.source_table_def.c[self.incremental_key]
-                    > last_incremental_value,
+                    >= last_incremental_value,
                 )
             )
         if debug:
