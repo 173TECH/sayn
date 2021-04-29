@@ -5,7 +5,7 @@
 The `copy` task copies tables from one database to another. It can be used to automatically
 ingest data from operational databases (e.g. PostgreSQL) to your analytics warehouse.
 
-## Defining `copy` tasks
+## Defining `copy` Tasks
 
 A `copy` task is defined as follows:
 
@@ -72,7 +72,7 @@ In this example, we use `updated_at` which is a field updated every time a recor
 on a hypothetical backend database to select new records, and then we replace all records in the target
 based on the `id`s found in this new dataset.
 
-## Data types and DDL
+## Data Types and DDL
 
 `copy` tasks accept a `ddl` field in the task definition in the same way that `autosql` does. With this
 specification, we can override the default behaviour of copy when it comes to column types by enforcing

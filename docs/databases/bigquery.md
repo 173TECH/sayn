@@ -20,12 +20,12 @@ For advanced configurations, SAYN will pass other parameters to `create_engine`,
 [pybigquery](https://github.com/mxmzdlv/pybigquery){target="\_blank"}
 dialect for extra parameters.
 
-## Bigquery specific DDL
+## Bigquery Specific DDL
 
 ### Partitioning
 
 SAYN supports specifying the partitioning model for tables created with autosql and copy tasks. To do
-this we specify `partition` in the ddl field. The value is a string matching a BigQuery 
+this we specify `partition` in the ddl field. The value is a string matching a BigQuery
 [partition expression](https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#partition_expression){target="\_blank"}.
 
 !!! example "tasks/base.yaml"

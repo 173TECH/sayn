@@ -4,7 +4,7 @@
 
 SAYN's CLI tool is the main means for interacting with SAYN projects. Use `sayn --help` to see all options.
 
-## Available commands
+## Available Commands
 
 ### `sayn init`
 
@@ -19,7 +19,7 @@ Executes the project. Without arguments it will run all tasks, using the default
 * `-p profile_name`: use the specified profile instead of the default.
 * `-d`: extra information to the screen, including messages from `self.debug` in python tasks.
 
-#### Filtering tasks
+#### Filtering Tasks
 
 Sometimes we don't want to execute all tasks defined in the project. In these instances we can use the
 following arguments to filter:
@@ -40,7 +40,7 @@ Examples:
 * `sayn run -x task_name`: run all tasks except `task_name`.
 * `sayn run -t group:marketing -x +task_name`: run all tasks in the `marketing` task group except `task_name` and its ancestors.
 
-#### Incremental tasks options
+#### Incremental Tasks Options
 
 SAYN uses 3 arguments to manage incremental executions: `full_load`, `start_dt` and `end_dt`; which can
 be overridden with these arguments to `sayn run`:

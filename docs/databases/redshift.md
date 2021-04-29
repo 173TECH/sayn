@@ -22,11 +22,11 @@ For advanced configurations, SAYN will pass other parameters to `create_engine`,
 sqlalchemy [psycopg2](https://docs.sqlalchemy.org/en/13/dialects/postgresql.html#module-sqlalchemy.dialects.postgresql.psycopg2){target="\_blank"}
 dialect for extra parameters.
 
-## Connection types
+## Connection Types
 
 SAYN supports 2 connection models for Redshift: standard user/password connection and IAM based.
 
-### Standard user/password connection
+### Standard User/Password Connection
 
 If you have a user name and password for redshift use the first model and ensure host and password
 are specified.
@@ -43,7 +43,7 @@ are specified.
         dbname: models
     ```
 
-### Connecting with IAM
+### Connecting With IAM
 
 With an IAM based connection SAYN uses the AWS API to obtain a temporary password to stablish the
 connection, so only user, dbname and cluster_id are required.
@@ -65,7 +65,7 @@ For this connection type to work:
 * The `user` and `dbname` still need to be specified (use the database user, not the `IAM:user`).
 * `host` and `port` can be skipped and these values will be obtained using boto3's `redshift describe-clusters`.
 
-## Redshift specific DDL
+## Redshift Specific DDL
 
 ### Indexes
 

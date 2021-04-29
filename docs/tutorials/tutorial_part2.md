@@ -6,7 +6,7 @@ In [Tutorial: Part 1](tutorial_part1.md) we implemented our first ETL process wi
 
 A [Github repository](https://github.com/173TECH/sayn_tutorial_part2){target="\_blank"} is available with the final code if you prefer to have all the code written directly. After cloning, you simply need to make sure to rename the `sample_settings.yaml` file to `settings.yaml` for the project to work.
 
-### Step 1: Define the project `parameters`
+### Step 1: Define The Project `parameters`
 
 You can use `parameters` in order to make your SAYN tasks' code dynamic. We will set one project parameter called `user_prefix`. This will enable us to distinguish which user generated tables.
 
@@ -42,7 +42,7 @@ Note how we don't redefine the parameter in our prod profile as the default valu
 
 Now that our parameters are setup, we can use those to make our tasks' code dynamic.
 
-#### In `python` tasks
+#### In `python` Tasks
 
 For the Python `load_data` task, we will access the `user_prefix` parameter and then pass it to the
 functions doing the data processing. You can look into `python/utils.py` to see how we use the `user_prefix` parameter to change the table names.
@@ -57,7 +57,7 @@ functions doing the data processing. You can look into `python/utils.py` to see 
         # ...
     ```
 
-#### In `autosql` tasks
+#### In `autosql` Tasks
 
 The files in the `sql` folder are always interpreted as [Jinja](https://palletsprojects.com/p/jinja/){target="\_blank"}
 templates. This means that in order to access parameters all we have to do is enclose it in `{{ }}` Jinja blocks. For example, in order to reference the tables created by `load_data` the `dim_arenas` task can be changed like this:
@@ -82,7 +82,7 @@ Now `sayn run` will transform the above into valid SQL creating `compile/base/di
 
 SAYN provides a `sayn compile` command that works like `sayn run` except that it won't execute the code. What it does though, is generate the compiled files that SAYN would run with the `sayn run` command.
 
-### Step 3: Making task definitions dynamic with `parameters`
+### Step 3: Making Task Definitions Dynamic With `parameters`
 
 Now that our python task generates tables with the `user_prefix` in the name and our autosql tasks will select data from it. What we also need to do is change the table names our autosql tasks are generating. For that, let's take `dim_arenas` and modify it so that it generates a table called `up_dim_arenas` (or other user_prefix defined in `settings.yaml`):
 
@@ -103,7 +103,7 @@ Now that our python task generates tables with the `user_prefix` in the name and
 
 Note the value of `destination.table` is now some Jinja code that will compile to the value of `user_prefix` followed by the name of the task.
 
-### Step 4: Using `presets` to standardise task definitions
+### Step 4: Using `presets` To Standardise Task Definitions
 
 Because most of our tasks have a similar configuration, we can significantly reduce the YAML task definitions using `presets`. `presets` allow you to define common properties shared by several
 tasks.

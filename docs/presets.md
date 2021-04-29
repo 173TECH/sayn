@@ -4,7 +4,7 @@ Presets are used to define common task configuration. If a `task` specifies a `p
 will then inherit all attributes from the referred `preset`. This makes `presets` great to avoid
 repetition.
 
-## Defining a `preset`
+## Defining The `preset`
 
 !!! example "Preset"
     ```yaml
@@ -32,7 +32,7 @@ property in the task.
 
 Presets can be defined both in `project.yaml` and in any task group file (files in the `tasks` folder).
 
-## Preset inheritance
+## Preset Inheritance
 
 Presets can reference other presets, the behaviour of this reference being exactly as it works for task.
 

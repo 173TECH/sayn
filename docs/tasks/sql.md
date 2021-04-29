@@ -5,7 +5,7 @@
 The `sql` task lets you execute a SQL script with one or many statements. This is useful for
 executing `UPDATE` statements for example, that wouldn't be covered by `autosql`.
 
-## Defining `sql` tasks
+## Defining `sql` Tasks
 
 A `sql` task is defined as follows:
 
