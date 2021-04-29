@@ -33,9 +33,7 @@ In addition to SAYN, this project uses the following packages:
 * rename the `settings_sample.yaml` file to `settings.yaml`.
 * install the project dependencies by running the `pip install -r requirements.txt` command from the root of the project folder.
 * run all SAYN commands from the root of the project folder.
-
 <br>
-
 ## Implementation Details
 
 ### Step 1: Extract Task Group
@@ -256,7 +254,6 @@ Quick Summary:
 * Create the [python task](../tasks/python.md) `wordcloud` to generate wordclouds
 * Create the [python task](../tasks/python.md) `nlp` to generate text statistics
 * Create the [AutoSQL task](../tasks/autosql.md) `dim_bbc_feeds_nlp_stats` to calculate aggregate statistics grouped by source
-
 
 <br>
 
