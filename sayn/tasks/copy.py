@@ -195,7 +195,7 @@ class CopyTask(SqlTask):
             )
             if result.is_err:
                 return result
-            while True:
+            for _ in range(100):
                 if result.is_err or result.value < self.max_merge_rows:
                     break
                 result = self.execute(True, False, False, self.max_merge_rows)

@@ -73,17 +73,23 @@ In this example, we use `updated_at` which is a field updated every time a recor
 on a hypothetical backend database to select new records, and then we replace all records in the target
 based on the `id`s found in this new dataset.
 
-While the task is runnig, SAYN will get records from the source database and load into a temporary table,
+While the task is running, SAYN will get records from the source database and load into a temporary table,
 and will merge into the destination table once all records have been loaded. The frequency of loading
 into this table is determined by the value of `max_batch_rows` as defined in the credentials for the
 destination database. However this behaviour can be changed with 2 properties:
 
 * `max_batch_rows`: this allows you to overwrite the value specified in the credential for this task only.
-* `max_merge_rows`: this value changes the behaviour so that instead of merging into the destination.
+* `max_merge_rows`: this value changes the behaviour so that instead of merging into the destination
   table once all rows have been loaded, instead SAYN will merge after this number of records have been
   loaded and then it will repeat the whole process. The advantage of using this parameter is that for
-  copies that take a long time, if an error like loosing the connection with the source wouldn't result
+  copies that take a long time, if an error (ie: loosing the connection with the source) wouldn't result
   in the process having to be started from the beginning.
+
+!!! warning
+  When using `max_merge_rows` SAYN will loop through the merge load and merge process until the number of
+  records loaded is lower than the value of `max_merge_rows`. In order to avoid infinite loops, the process
+  will also stop after a maximum of 100 iteration. To avoid issues, it should be set to a very large
+  value (larger than `max_batch_rows`).
 
 ## Data types and DDL
 
