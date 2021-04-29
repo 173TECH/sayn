@@ -86,10 +86,10 @@ destination database, which defaults to 50000. However this behaviour can be cha
   in the process having to be started again from the beginning.
 
 !!! warning
-  When using `max_merge_rows` SAYN will loop through the merge load and merge process until the number of
-  records loaded is lower than the value of `max_merge_rows`. In order to avoid infinite loops, the process
-  will also stop after a maximum of 100 iteration. To avoid issues, it should be set to a very large
-  value (larger than `max_batch_rows`).
+    When using `max_merge_rows` SAYN will loop through the merge load and merge process until the number
+    of records loaded is lower than the value of `max_merge_rows`. In order to avoid infinite loops, the
+    process will also stop after a maximum of 100 iteration. To avoid issues, it should be set to a very
+    large value (larger than `max_batch_rows`).
 
 ## Data types and DDL
 
