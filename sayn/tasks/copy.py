@@ -60,6 +60,8 @@ class Config(BaseModel):
     ddl: Optional[Dict[str, Any]]
     delete_key: Optional[str]
     incremental_key: Optional[str]
+    max_merge_rows: Optional[int]
+    max_batch_rows: Optional[int]
 
     @validator("incremental_key", always=True)
     def incremental_validation(cls, v, values):
@@ -67,6 +69,13 @@ class Config(BaseModel):
             raise ValueError(
                 'Incremental copy requires both "delete_key" and "incremental_key"'
             )
+
+        return v
+
+    @validator("max_merge_rows")
+    def merge_batch_size_val(cls, v, values):
+        if values.get("delete_key") is None:
+            raise ValueError("max_merge_rows is only applicable to incremental copy")
 
         return v
 
@@ -161,7 +170,8 @@ class CopyTask(SqlTask):
 
         self.delete_key = self.config.delete_key
         self.incremental_key = self.config.incremental_key
-
+        self.max_merge_rows = self.config.max_merge_rows
+        self.max_batch_rows = self.config.max_batch_rows
         self.is_full_load = self.run_arguments["full_load"] or self.delete_key is None
 
         result = self.target_db._validate_ddl(self.config.ddl)
@@ -173,12 +183,28 @@ class CopyTask(SqlTask):
         return Ok()
 
     def compile(self):
-        return self.execute(False, self.run_arguments["debug"])
+        return self.execute(False, self.run_arguments["debug"], self.is_full_load)
 
     def run(self):
-        return self.execute(True, self.run_arguments["debug"])
+        if self.max_merge_rows is not None:
+            result = self.execute(
+                True,
+                self.run_arguments["debug"],
+                self.is_full_load,
+                self.max_merge_rows,
+            )
+            if result.is_err:
+                return result
+            for _ in range(100):
+                if result.is_err or result.value < self.max_merge_rows:
+                    break
+                result = self.execute(True, False, False, self.max_merge_rows)
+        else:
+            result = self.execute(True, self.run_arguments["debug"], self.is_full_load)
 
-    def execute(self, execute, debug):
+        return result
+
+    def execute(self, execute, debug, is_full_load, limit=None):
         # Introspect target
         self.target_table_exists = self.target_db._table_exists(self.table, self.schema)
 
@@ -186,7 +212,7 @@ class CopyTask(SqlTask):
         if self.target_table_exists:
             load_table = self.tmp_table
             load_schema = self.tmp_schema
-            if self.is_full_load or self.incremental_key is None:
+            if is_full_load or self.incremental_key is None:
                 steps.append("Move Table")
             else:
                 steps.append("Merge Tables")
@@ -201,7 +227,7 @@ class CopyTask(SqlTask):
             if result.is_err:
                 return result
 
-            result = self.get_read_query(execute, debug)
+            result = self.get_read_query(execute, debug, is_full_load, limit)
             if result.is_err:
                 return result
             else:
@@ -221,7 +247,12 @@ class CopyTask(SqlTask):
         with self.step("Load Data"):
             if execute:
                 data_iter = self.source_db._read_data_stream(get_data_query)
-                self.target_db.load_data(load_table, data_iter, schema=load_schema)
+                n_records = self.target_db.load_data(
+                    load_table,
+                    data_iter,
+                    schema=load_schema,
+                    batch_size=self.max_batch_rows,
+                )
 
         # Final step
         final_step = steps[-1]
@@ -257,7 +288,7 @@ class CopyTask(SqlTask):
                     except Exception as e:
                         return Exc(e)
 
-        return Ok()
+        return Ok(n_records)
 
     def get_columns(self):
         # We get the source table definition
@@ -325,14 +356,14 @@ class CopyTask(SqlTask):
                         column=col.get("name"),
                     )
 
-                if "type" not in col:
+                if col.get("type") is None:
                     col["type"] = self.target_db._py2sqa(
                         self.source_table_def.columns[col["name"]].type.python_type
                     )
 
         return Ok()
 
-    def get_read_query(self, execute, debug):
+    def get_read_query(self, execute, debug, is_full_load, limit=None):
         # Get the incremental value
         last_incremental_value_query = (
             f"SELECT MAX({self.incremental_key}) AS value\n"
@@ -350,7 +381,7 @@ class CopyTask(SqlTask):
         )
         last_incremental_value = None
 
-        if not self.is_full_load and self.target_table_exists:
+        if not is_full_load and self.target_table_exists:
             if execute:
                 res = self.target_db.read_data(last_incremental_value_query)
                 if len(res) == 1:
@@ -364,10 +395,16 @@ class CopyTask(SqlTask):
                 or_(
                     self.source_table_def.c[self.incremental_key].is_(None),
                     self.source_table_def.c[self.incremental_key]
-                    > last_incremental_value,
+                    >= last_incremental_value,
                 )
             )
         if debug:
             self.write_compilation_output(get_data_query, "get_data")
+
+        if self.incremental_key is not None:
+            get_data_query = get_data_query.order_by(self.incremental_key)
+
+        if limit is not None:
+            get_data_query = get_data_query.limit(limit)
 
         return Ok(get_data_query)

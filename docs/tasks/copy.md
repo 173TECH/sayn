@@ -47,7 +47,8 @@ By default, tables will be copied in full every time SAYN runs, but it can be ch
 load by adding `incremental_key` and `delete_key`:
 
 * `incremental_key`: the column to use to determine what data is new. The process will transfer
-  any data in the source table with an `incremental_key` value superior to the maximum found in the destination.
+  any data in the source table with an `incremental_key` value superior or equal to the maximum
+  found in the destination.
 * `delete_key`: the column which will be used for deleting data in incremental loads. The process
   will delete any data in the destination table with a `delete_key` value found in the new dataset
   obtained before inserting.
@@ -72,7 +73,25 @@ In this example, we use `updated_at` which is a field updated every time a recor
 on a hypothetical backend database to select new records, and then we replace all records in the target
 based on the `id`s found in this new dataset.
 
-## Data Types and DDL
+While the task is running, SAYN will get records from the source database and load into a temporary table,
+and will merge into the destination table once all records have been loaded. The frequency of loading
+into this table is determined by the value of `max_batch_rows` as defined in the credentials for the
+destination database, which defaults to 50000. However this behaviour can be changed with 2 properties:
+
+* `max_batch_rows`: this allows you to overwrite the value specified in the credential for this task only.
+* `max_merge_rows`: this value changes the behaviour so that instead of merging into the destination
+  table once all rows have been loaded, instead SAYN will merge after this number of records have been
+  loaded and then it will repeat the whole process. The advantage of using this parameter is that for
+  copies that take a long time, an error (ie: loosing the connection with the source) wouldn't result
+  in the process having to be started again from the beginning.
+
+!!! warning
+    When using `max_merge_rows` SAYN will loop through the merge load and merge process until the number
+    of records loaded is lower than the value of `max_merge_rows`. In order to avoid infinite loops, the
+    process will also stop after a maximum of 100 iteration. To avoid issues, it should be set to a very
+    large value (larger than `max_batch_rows`).
+
+## Data types and DDL
 
 `copy` tasks accept a `ddl` field in the task definition in the same way that `autosql` does. With this
 specification, we can override the default behaviour of copy when it comes to column types by enforcing
