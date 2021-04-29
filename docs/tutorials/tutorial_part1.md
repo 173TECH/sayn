@@ -60,11 +60,11 @@ The main files are:
 * `logs`: folder where SAYN logs are written.
 * `compile`: folder where compiled SQL queries before execution.
 
-## Implementing your project
+## Implementing Your Project
 
 Now let's see how the tutorial project would be created from scratch.
 
-### Step 1: Define the project in `project.yaml`
+### Step 1: Define The Project In `project.yaml`
 
 The `project.yaml` file is at the root level of your directory and contains:
 
@@ -81,7 +81,7 @@ The following is defined:
 * `required_credentials`: the list of credentials used by the project. In this case we have a single credential called `warehouse`. The connection details will be defined in `settings.yaml`.
 * `default_db`: the database used by sql and autosql tasks. Since we only have 1 credential, this field could be skipped.
 
-### Step 2: Define your individual settings with `settings.yaml`
+### Step 2: Define Your Individual Settings With `settings.yaml`
 
 The `settings.yaml` file at the root level of your directory and contains:
 
@@ -112,7 +112,7 @@ The following is defined:
 * `default_profile`: the profile used by default at execution time. It can be overriden using `sayn run -p prod`.
 * `credentials`: here we define the credentials. In this case we have two for dev and prod, that are used as `warehouse` on each profile.
 
-### Step 3: Define your tasks
+### Step 3: Define Your Tasks
 
 In SAYN, tasks are defined in `yaml` files within the `tasks` folder. Each file is considered a [task group](../tasks/overview.md#task_groups). Our project contains only one task group: `base.yaml`:
 
@@ -142,7 +142,7 @@ The `tasks` entry contains a map of tasks definitions. In this case we're using 
 !!! tip
     Although this tutorial only has one file in the `tasks` folder, you can separate tasks in multiple files. SAYN automatically includes any file from the `tasks` folder with a `.yaml` extension when creating the DAG. Each file is considered a [task group](../tasks/overview.md#task_groups).
 
-#### `load_data` task
+#### `load_data` Task
 
 In our example project the only python task is `load_data` which creates some synthetic logs and loads them to our database. The code can be found in the class `LoadData` in `python/load_data.py`. Let's have a look at the main elements of a python task:
 
@@ -212,9 +212,9 @@ The main method in Database objects is `execute` which accepts a sql script via 
 
 For more information about how to build `python` tasks, visit the [python tasks section](../tasks/python.md).
 
-#### Autosql tasks
+#### `autosql` Tasks
 
-Let's have a look at one of the autosql tasks (`dim_tournaments`). As you can see in `tasks/base.yaml`
+Let's have a look at one of the `autosql` tasks (`dim_tournaments`). As you can see in `tasks/base.yaml`
 above, we specify a `file_name` which contains:
 
 !!! example "sql/dim_tournaments.yaml"

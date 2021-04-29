@@ -8,7 +8,7 @@ This is an example SAYN project which shows how to implement a simple ETL with t
 
 This ETL extracts jokes from an API, translates them into Yodish (the language of Yoda, this is) with another API and then runs some SQL transformations on the extracted data. Both APIs are public and do not require an API key. However, they both have limited quotas (especially the Yodish translation API) so you should avoid re-running the extraction part of the project multiple times in a row (you can use the command `sayn run -x tag:extract` after the first `sayn run`).
 
-#### Features Used In Project
+#### Features Used
 
 * Python task to extract data with APIs.
 * Autosql tasks to automate SQL transformations.

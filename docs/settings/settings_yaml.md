@@ -60,7 +60,7 @@ This file enables the user to use two different profiles whenever desired: `dev`
 usually good practice to separate your environments in order to ensure that testing is never done directly
 on production.
 
-### Defining credentials
+### Defining Credentials
 
 Credentials includes both databases (eg: your warehouse) as well as custom secrets used by python tasks.
 For a definition of a database connection see to the documentation for your
@@ -80,7 +80,7 @@ All credentials are accessible through `self.connections['credential_name']` whe
 name given in required_credentials. API credentials when accessed in python are defined as dictionary,
 whereas database connections are `Database` objects.
 
-### Using environment variables
+### Using Environment Variables
 
 Local settings can be set without the need of a `settings.yaml` file using environment variables instead.
 With environment variables we don't need to set profiles, only credentials and project parameters are

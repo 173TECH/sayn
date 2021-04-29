@@ -5,7 +5,7 @@
 The `copy` task copies tables from one database to another. It can be used to automatically
 ingest data from operational databases (e.g. PostgreSQL) to your analytics warehouse.
 
-## Defining `copy` tasks
+## Defining `copy` Tasks
 
 A `copy` task is defined as follows:
 
