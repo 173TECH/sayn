@@ -123,5 +123,33 @@ In this example we define 2 columns for `task_copy`: `id` and `updated_at`. This
 2. Infer the type of `id` based on the type of that column at source
 3. Enforce the destination table type for `updated_at` to be `TIMESTAMP`
 
+An additional property `dst_name` in columns is also supported. Specifying this property will
+change the name of the column in the destination table. When using this property, `delete_key`
+and `incremental_key` need to reference this new name.
+
+!!! example "tasks/base.yaml"
+    ```yaml
+    task_copy:
+      type: copy
+      source:
+        db: from_db
+        schema: from_schema
+        table: from_table
+      destination:
+        tmp_schema: staging_schema
+        schema: schema
+        table: table_name
+      incremental_key: updated_ts
+      delete_key: id
+      ddl:
+        columns:
+          - id
+          - name: updated_at
+            dst_name: updated_ts
+    ```
+
+In this example, the `updated_at` column at source will be called `updated_ts` on the target.
+Note the name in `incremental_key` uses the name on the target.
+
 Additionally, in the `ddl` property we can specify indexes and permissions like in `autosql`.
 Note that some databases support specific DDL other than these.
