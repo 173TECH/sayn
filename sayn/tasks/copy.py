@@ -178,6 +178,7 @@ class CopyTask(SqlTask):
         result = self.target_db._validate_ddl(self.config.ddl)
         if result.is_ok:
             self.ddl = result.value
+
             # Check if the incremental_key in the destination needs renaming
             if self.dst_incremental_key is not None and len(self.ddl["columns"]) > 0:
                 columns_dict = {c["name"]: c["dst_name"] for c in self.ddl["columns"]}
@@ -371,7 +372,7 @@ class CopyTask(SqlTask):
 
         for col in self.ddl["columns"]:
             col["src_name"] = col["name"]
-            if "dst_name" in col:
+            if col.get("dst_name") is not None:
                 col["name"] = col["dst_name"]
 
         return Ok()
@@ -390,7 +391,10 @@ class CopyTask(SqlTask):
 
         get_data_query = select(
             columns=[
-                column(c["src_name"]).label(c["name"]) for c in self.ddl["columns"]
+                column(c["src_name"]).label(c["name"])
+                if c["src_name"] != c["name"]
+                else column(c["src_name"])
+                for c in self.ddl["columns"]
             ],
             from_obj=self.source_table_def,
         )
