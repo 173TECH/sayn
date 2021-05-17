@@ -181,7 +181,9 @@ class CopyTask(SqlTask):
 
             # Check if the incremental_key in the destination needs renaming
             if self.dst_incremental_key is not None and len(self.ddl["columns"]) > 0:
-                columns_dict = {c["name"]: c["dst_name"] for c in self.ddl["columns"]}
+                columns_dict = {
+                    c["name"]: c["dst_name"] or c["name"] for c in self.ddl["columns"]
+                }
                 self.dst_incremental_key = columns_dict[self.src_incremental_key]
         else:
             return result
