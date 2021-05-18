@@ -419,13 +419,17 @@ class CopyTask(SqlTask):
                     >= last_incremental_value,
                 )
             )
-        if debug:
-            self.write_compilation_output(get_data_query, "get_data")
 
         if self.src_incremental_key is not None:
             get_data_query = get_data_query.order_by(self.src_incremental_key)
 
         if limit is not None:
             get_data_query = get_data_query.limit(limit)
+
+        if debug:
+            self.write_compilation_output(
+                get_data_query.compile(compile_kwargs={"literal_binds": True}),
+                "get_data",
+            )
 
         return Ok(get_data_query)
