@@ -1,7 +1,7 @@
-DELETE FROM {{ dst_table }}
+DELETE FROM {{ dst_table }} t
  WHERE EXISTS (SELECT *
-                 FROM {{ src_table }}
-                WHERE {{ src_table }}.{{ delete_key }} = {{ dst_table }}.{{ delete_key }});
+                 FROM {{ src_table }} s
+                WHERE s.{{ delete_key }} = t.{{ delete_key }});
 
 INSERT INTO {{ dst_table }} SELECT * FROM {{ src_table }};
 
