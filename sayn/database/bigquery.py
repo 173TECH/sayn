@@ -3,6 +3,7 @@ import csv
 import datetime
 import decimal
 import io
+import json
 from typing import List, Optional
 
 from pydantic import validator
@@ -98,15 +99,30 @@ class Bigquery(Database):
 
         from google.cloud import bigquery
 
-        job_config = bigquery.LoadJobConfig(
-            source_format=bigquery.SourceFormat.CSV,
-            skip_leading_rows=1,
-            # autodect=True,
-        )
+        # job_config = bigquery.LoadJobConfig(
+        #     source_format=bigquery.SourceFormat.CSV,
+        #     skip_leading_rows=1,
+        #     # autodect=True,
+        # )
 
+        # client = self.engine.raw_connection()._client
+        # job = client.load_table_from_file(
+        #     buffer, full_table_name, job_config=job_config
+        # )
+        # job.result()
+
+        job_config = bigquery.LoadJobConfig(
+            source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
+        )
         client = self.engine.raw_connection()._client
+
+        def default(o):
+            if isinstance(o, (datetime.date, datetime.datetime)):
+                return o.isoformat()
+
+        data_str = "\n".join([json.dumps(d, default=default) for d in data])
         job = client.load_table_from_file(
-            buffer, full_table_name, job_config=job_config
+            io.StringIO(data_str), full_table_name, job_config=job_config
         )
         job.result()
 

@@ -350,10 +350,12 @@ class CopyTask(SqlTask):
 
             else:
                 # In any other case, we use the source
-                self.ddl["columns"] = [
-                    {"name": c.name, "type": self.target_db._py2sqa(c.type.python_type)}
-                    for c in self.source_table_def.columns
-                ]
+                for c in self.source_table_def.columns:
+                    try:
+                        col_type = self.target_db._py2sqa(c.type.python_type)
+                    except:
+                        col_type = c.type.compile(self.target_db.engine.dialect)
+                    self.ddl["columns"].append({"name": c.name, "type": col_type})
         else:
             # Fill up column types from the source table
             for col in self.ddl["columns"]:
@@ -368,9 +370,14 @@ class CopyTask(SqlTask):
                     )
 
                 if col.get("type") is None:
-                    col["type"] = self.target_db._py2sqa(
-                        self.source_table_def.columns[col["name"]].type.python_type
-                    )
+                    try:
+                        col["type"] = self.source_table_def.columns[
+                            col["name"]
+                        ].type.compile(self.target_db.engine.dialect)
+                    except:
+                        col["type"] = self.target_db._py2sqa(
+                            self.source_table_def.columns[col["name"]].type.python_type
+                        )
 
         for col in self.ddl["columns"]:
             col["src_name"] = col["name"]
@@ -427,9 +434,11 @@ class CopyTask(SqlTask):
             get_data_query = get_data_query.limit(limit)
 
         if debug:
-            self.write_compilation_output(
-                get_data_query.compile(compile_kwargs={"literal_binds": True}),
-                "get_data",
-            )
+            try:
+                q = get_data_query.compile(compile_kwargs={"literal_binds": True})
+            except:
+                # compilation can fail when using values like dates
+                q = str(get_data_query)
+            self.write_compilation_output(q, "get_data")
 
         return Ok(get_data_query)
