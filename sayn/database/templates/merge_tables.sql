@@ -1,6 +1,6 @@
-DELETE FROM {{ dst_table }} t
+DELETE FROM {{ dst_table }} AS t
  WHERE EXISTS (SELECT *
-                 FROM {{ src_table }} s
+                 FROM {{ src_table }} AS s
                 WHERE s.{{ delete_key }} = t.{{ delete_key }});
 
 INSERT INTO {{ dst_table }} SELECT * FROM {{ src_table }};
