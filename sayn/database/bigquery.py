@@ -119,6 +119,10 @@ class Bigquery(Database):
         def default(o):
             if isinstance(o, (datetime.date, datetime.datetime)):
                 return o.isoformat()
+            elif isinstance(o, decimal.Decimal):
+                return f"{o}"
+            else:
+                raise ValueError("Unsuported type")
 
         data_str = "\n".join([json.dumps(d, default=default) for d in data])
         job = client.load_table_from_file(
