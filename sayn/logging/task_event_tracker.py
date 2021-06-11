@@ -39,6 +39,8 @@ class TaskEventTracker:
         self._steps = steps
 
     def add_run_steps(self, steps):
+        if isinstance(steps, str):
+            steps = [steps]
         self._report_event("set_run_steps", steps=steps)
         self._steps.extend(steps)
 

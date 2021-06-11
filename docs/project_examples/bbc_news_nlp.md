@@ -5,7 +5,7 @@
 #### Overview
 
 This is an example SAYN project which shows how to use SAYN for data modelling and processing. You can find the GitHub repository
-[here](https://github.com/173TECH/rss_tutorial){target="\_blank"}.
+[here](https://github.com/173TECH/sayn_project_example_nlp_news_scraping){target="\_blank"}.
 
 This project does the following:
 
@@ -29,7 +29,7 @@ In addition to SAYN, this project uses the following packages:
 
 #### Running The Project
 
-* clone the repository with the command `git clone https://github.com/173TECH/rss_tutorial`.
+* clone the repository with the command `git clone https://github.com/173TECH/sayn_project_example_nlp_news_scraping`.
 * rename the `settings_sample.yaml` file to `settings.yaml`.
 * install the project dependencies by running the `pip install -r requirements.txt` command from the root of the project folder.
 * run all SAYN commands from the root of the project folder.

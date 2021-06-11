@@ -1,5 +1,18 @@
 # Change Log
 
+## [0.5.6] - 2021-04-29
+
+### Changed
+
+- Adds staging area based batch copy for snowflake
+- Returns number of records loaded in load_data
+- Adds support for copy to merge frequently to target table
+
+### Fixed
+
+- Fixes to columns without names in ddl
+- Adds sorting to copy's get_data_query
+
 ## [0.5.5] - 2021-03-18
 
 ### Changed
