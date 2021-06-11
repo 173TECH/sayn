@@ -19,14 +19,14 @@ By default, the project uses SQLite as a database. You can use [DB Browser for S
 
 #### Running The Project
 
-* clone the repository with the command `git clone https://github.com/173TECH/sayn_project_example_simple_etl.git`.
-* rename the `settings_sample.yaml` file to `settings.yaml`.
-* install the project dependencies by running the `pip install -r requirements.txt` command from the root of the project folder.
-* run all SAYN commands from the root of the project folder.
+* Clone the repository with the command `git clone https://github.com/173TECH/sayn_project_example_simple_etl.git`.
+* Rename the `settings_sample.yaml` file to `settings.yaml`.
+* Install the project dependencies by running the `pip install -r requirements.txt` command from the root of the project folder.
+* Run all SAYN commands from the root of the project folder.
 
 #### Running The Project With PostgreSQL
 
 If desired, you can also run the project using a PostgreSQL database. For this, you simply need to:
 
-* change the `warehouse` credential to use a PostgreSQL database connection.
-* install `psycopg2` as a package.
+* Change the `warehouse` credential to use a PostgreSQL database connection.
+* Install `psycopg2` as a package.
