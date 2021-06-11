@@ -33,6 +33,7 @@ In addition to SAYN, this project uses the following packages:
 * Rename the `sample_settings.yaml` file to `settings.yaml`.
 * Install the project dependencies by running the `pip install -r requirements.txt` command from the root of the project folder.
 * Run all SAYN commands from the root of the project folder.
+
 <br>
 ## Implementation Details
 
