@@ -4,9 +4,12 @@ import shutil
 
 
 def sayn_init(sayn_project_name):
-    src = Path(
-        os.path.dirname(os.path.abspath(__file__)), "data", "init_project"
-    ).absolute()
+    if sayn_project_name == "example: tutorial":
+        project = "tutorial"
+        sayn_project_name = "sayn_tutorial"
+    else:
+        project = "init_project"
+    src = Path(os.path.dirname(os.path.abspath(__file__)), "data", project).absolute()
     dst = Path(sayn_project_name).absolute()
 
     print(

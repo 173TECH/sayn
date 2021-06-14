@@ -1,0 +1,9 @@
+# SAYN sample project. Follow the tutorial for more details:
+# https://173tech.github.io/sayn/tutorials/tutorial_part1
+
+required_credentials:
+  # List of credential names used by tasks in the project
+  - warehouse
+
+# Credential used by sql and autosql tasks
+default_db: warehouse
