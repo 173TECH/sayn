@@ -22,6 +22,7 @@ class DDL(BaseModel):
         primary: Optional[bool] = False
         not_null: Optional[bool] = False
         unique: Optional[bool] = False
+        dst_name: Optional[str]
 
     class Index(BaseModel):
         columns: conlist(str, min_items=1)
