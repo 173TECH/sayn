@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.5.7] - 2021-06-25
+
+### Changed
+
+- Adds support for renaming columns on copy tasks
+- Improvements to BigQuery data load of nested fields
+
 ## [0.5.6] - 2021-04-29
 
 ### Changed
