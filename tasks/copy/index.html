@@ -962,6 +962,32 @@ specific column types in the final table:</p>
 1. Copy only those 2 columns, disregarding any other columns present at source
 2. Infer the type of <code>id</code> based on the type of that column at source
 3. Enforce the destination table type for <code>updated_at</code> to be <code>TIMESTAMP</code></p>
+<p>An additional property <code>dst_name</code> in columns is also supported. Specifying this property will
+change the name of the column in the destination table. When using this property, <code>delete_key</code>
+and <code>incremental_key</code> need to reference this new name.</p>
+<div class="admonition example">
+<p class="admonition-title">tasks/base.yaml</p>
+<div class="highlight"><pre><span></span><code><span class="nt">task_copy</span><span class="p">:</span>
+  <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">copy</span>
+  <span class="nt">source</span><span class="p">:</span>
+    <span class="nt">db</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_db</span>
+    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_schema</span>
+    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_table</span>
+  <span class="nt">destination</span><span class="p">:</span>
+    <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">staging_schema</span>
+    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">schema</span>
+    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table_name</span>
+  <span class="nt">incremental_key</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">updated_ts</span>
+  <span class="nt">delete_key</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">id</span>
+  <span class="nt">ddl</span><span class="p">:</span>
+    <span class="nt">columns</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">id</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">updated_at</span>
+        <span class="nt">dst_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">updated_ts</span>
+</code></pre></div>
+</div>
+<p>In this example, the <code>updated_at</code> column at source will be called <code>updated_ts</code> on the target.
+Note the name in <code>incremental_key</code> uses the name on the target.</p>
 <p>Additionally, in the <code>ddl</code> property we can specify indexes and permissions like in <code>autosql</code>.
 Note that some databases support specific DDL other than these.</p>
                 
