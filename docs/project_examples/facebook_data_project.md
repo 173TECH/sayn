@@ -16,8 +16,8 @@ This project does the following:
 * Performs some basic text and sentiment analysis on the transformed data
 * Generates wordcloud timelapse GIFs for each conversation
 * Generates a bar chart race GIF for most shared sites in chat data
-* Generates a photo mosaic image from chat photos
-* Generates and automatically fills YouTube playlists based on video links in the chat data
+
+![`Bar Chart Race Example`](chart_race.gif)
 
 
 #### Features Used
@@ -31,90 +31,44 @@ In addition to SAYN, this project uses the following packages:
 
 * Data processing: `numpy`, `pandas`, `nltk`, `vaderSentiment`
 * Visualisations: `matplotlib`, `wordcloud`, `pillow`, `bar_chart_race`
-* YouTube Data API connection: `google-auth-oauthlib`, `google-api-python-client`
 
 By default, the project uses SQLite as a database. You can use [DB Browser for SQLite](https://sqlitebrowser.org/dl/){target="\_blank"} to navigate the data easily. You can also connect this database to your preferred visualisation tool.
 
 
 #### Running The Project
 
-1. Clone the repository with the command `git clone https://github.com/173TECH/facebook_data_project`.
-2. Rename the `sample_settings.yaml` file to `settings.yaml`.
-3. Install the project dependencies by running the `pip install -r requirements.txt` command from the root of the project folder.
-4. Add your Facebook Messenger data
-5. Perform some additional task specific requirements, details below.  
-6. Run all SAYN commands from the root of the project folder.
+To run the project, you will need to:
+
+1. clone the repository with `git clone https://github.com/173TECH/facebook_data_project.git`.
+2. rename the `sample_settings.yaml` file to `settings.yaml`.
+3. install the project dependencies by running the `pip install -r requirements.txt` command from the root of the project folder.
+4. install `ImageMagick`, details here: https://imagemagick.org/
+5. use `sayn run` from the root of the project folder to run all SAYN commands.
+
+???+ attention
+     This project comes with a sample dataset, you should use this dataset to test run the project.
+     After a successful run you should see 3 new files in `python/img`, these should be the following:
+
+     - sample_Goku_timelapse.gif
+     - sample_Vegeta_timelapse.gif
+     - chart_race.gif
 
 <br>
 
 ### Adding Your Facebook Messenger Data
 
-To run this project you will need your Facebook Messenger data in JSON format, you can request it from Facebook by doing the following:
+For this you will need your Facebook Messenger data in JSON format, you can get request it by doing the following:
 
 1. Sign in to Facebook
 2. Go to Settings & Privacy > Settings > Your Facebook Information > Download Your Information
 3. Change format to JSON and click Create File (this can take a while depending on your date range and media quality)
 
-Once you have the data:
+Once you have the data, you can find the chat data in `messages/inbox` (you should see a collection of folders corresponding to each of your chats):
 
-1. Copy the folder called `inbox` inside the `messages` subfolder and paste it inside the `python` folder of the project
-2. Rename the pasted folder to `messenger_data`
+1. Copy and paste the chat folders you are interested into the `data` folder in this project.
+2. In `tasks/data_science.yaml`, change the `facebook_name` parameter to your full name on Facebook
 
-???+ attention
-     Depending on the size of data, you might want to delete some chats from your `messenger_data` folder to speed up your task run times.
+Note: If you use a large amount of chat data you will experience longer load times for certain tasks
 
-<br>
-
-### Additional Task Specific Requirements
-
-#### `wordcloud`
-
-In `tasks/data_science.yaml`, parameter `facebook_name` should be changed to your name on facebook  
-
-#### `photo_mosaic`
-
-In `tasks/data_science.yaml`, parameter `user_data` should be changed to the name of any subfolder in `messenger_data`.
-
-#### `link_chart_race`
-
-[ImageMagick](https://imagemagick.org/){target="\_blank"} needs to be installed on your device.
-
-#### `youtube_playlists`
-
-In `tasks/data_science.yaml`:
-
-*  Parameter `user` should be changed to the name of any subfolder in `messenger_data`.
-*  Parameter `category` can be changed to other types of content, the default is music.
-
-Requires YouTube Channel and Google OAuth 2.0 credentials.
-
-To create a YouTube Channel:
-
-1. Sign in to YouTube.
-2. Click on your profile picture.
-3. Create a channel.
-
-To create Google OAuth 2.0 credentials:
-
-1. Create a project in the [Google Developers Console](https://console.developers.google.com/){target="\_blank"}
-2. Go to [Credentials page](https://console.developers.google.com/apis/credentials){target="\_blank"}
-3. Click + CREATE CREDENTIALS > OAuth client ID > Application type > Desktop app > CREATE
-4. Enable the YouTube Data API v3 on the project.
-
-??? "How to enable the YouTube Data API v3"
-     1. Go to [Enabled APIs page](https://console.developers.google.com/apis/enabled){target="\_blank"}
-     2. Click + ENABLE APIS AND SERVICES
-     3. Search for "YouTube Data API v3"
-     4. Click ENABLE (if already enabled it should say MANAGE)
-
-After you have created your OAuth 2.0 credential:
-
-1. Download them from the [Credentials page](https://console.developers.google.com/apis/credentials){target="\_blank"} and rename them to `client_secrets.json`.
-2. Move `client_secrets.json` to the `sample_secrets` folder in your project.
-3. Rename the `sample_secrets` folder to `secrets`.
-
-???+ attention
-     When running this task, you will get a prompt to give permissions to your project.
-
-??? tip
-    You can exclude a specific task from a full run by using `sayn run -x task_name`. To exclude multiple tasks, you can chain task names using `-x`, e.g. `sayn run -x task_name_1 -x task_name_2`
+???+ note
+     If you use a large amount of chat data you will experience longer load times for certain tasks
