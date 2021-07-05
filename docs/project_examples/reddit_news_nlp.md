@@ -1,15 +1,15 @@
-# SAYN Project Example: BBC News NLP
+# SAYN Project Example: Reddit News NLP
 
 ## Project Description
 
 #### Overview
 
 This is an example SAYN project which shows how to use SAYN for data modelling and processing. You can find the GitHub repository
-[here](https://github.com/173TECH/rss_tutorial){target="\_blank"}.
+[here](https://github.com/173TECH/sayn_project_example_nlp_news_scraping){target="\_blank"}.
 
 This project does the following:
 
-* Extracts article data from BBC RSS feeds
+* Extracts article data from Reddit RSS feeds
 * Loads it into a SQLite database
 * Cleans the extracted data
 * Performs some basic text analysis on the transformed data
@@ -23,16 +23,16 @@ This project does the following:
 
 In addition to SAYN, this project uses the following packages:
 
-* `feedparser`: used for getting data from rss feeds
-* `numpy, pandas, nltk`: used for data processing
-* `matplotlib, wordcloud, pillow`: used for visualisations
+* RSS feed data extraction: `feedparser`
+* Data processing: `numpy`, `pandas`, `nltk`
+* Visualisations: `matplotlib`, `wordcloud`, `pillow`
 
 #### Running The Project
 
-* clone the repository with the command `git clone https://github.com/173TECH/rss_tutorial`.
-* rename the `settings_sample.yaml` file to `settings.yaml`.
-* install the project dependencies by running the `pip install -r requirements.txt` command from the root of the project folder.
-* run all SAYN commands from the root of the project folder.
+* Clone the repository with the command `git clone https://github.com/173TECH/sayn_project_example_nlp_news_scraping`.
+* Rename the `sample_settings.yaml` file to `settings.yaml`.
+* Install the project dependencies by running the `pip install -r requirements.txt` command from the root of the project folder.
+* Run all SAYN commands from the root of the project folder.
 <br>
 ## Implementation Details
 
@@ -61,18 +61,11 @@ Our `load_data` task will have two [parameters](../parameters.md):
         type: python
         class: load_data.LoadData
         parameters:
-          table: logs_bbc_feeds
+          table: logs_reddit_feeds
           links:
-            - http://feeds.bbci.co.uk/news/england/rss.xml
-            - http://feeds.bbci.co.uk/news/wales/rss.xml
-            - http://feeds.bbci.co.uk/news/scotland/rss.xml
-            - http://feeds.bbci.co.uk/news/northern_ireland/rss.xml
-            - http://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml
-            - http://feeds.bbci.co.uk/news/world/middle_east/rss.xml
-            - http://feeds.bbci.co.uk/news/world/latin_america/rss.xml
-            - http://feeds.bbci.co.uk/news/world/europe/rss.xml
-            - http://feeds.bbci.co.uk/news/world/asia/rss.xml
-            - http://feeds.bbci.co.uk/news/world/africa/rss.xml
+            - https://www.reddit.com/r/USnews/new/.rss
+            - https://www.reddit.com/r/UKnews/new/.rss
+            - https://www.reddit.com/r/EUnews/new/.rss
 
     ```
 
@@ -81,7 +74,7 @@ Our `load_data` task will have two [parameters](../parameters.md):
 
 The `load_data` task will have the following steps:
 
-* `Appending BBC data to dataframe`: loops through the links array, appends data from each link to a dataframe
+* `Appending Reddit data to dataframe`: loops through the links array, appends data from each link to a dataframe
 * `Updating database`: loads dataframe into SQLite database using `pandas.to_sql` method
 
 
@@ -91,20 +84,18 @@ Next, we will create our `LoadData` class.
 
 Our LoadData inherits properties from SAYN's PythonTask, in addition it will have 3 methods:
 
-* `fetch_bbc_data`: fetches data from the BBC RSS feeds
+* `fetch_reddit_data`: fetches data from the Reddit RSS feeds
 * `setup`: sets the order of steps to run
 * `run`: defines what each step does during the run
 
 ???+ attention
-     `fetch_bbc_data` is a utility method for this task, while `setup` and `run` are the usual SAYN methods. Please note that methods `setup` and `run` need to return either `self.success()` or `self.fail()` in order to run.
+     `fetch_reddit_data` is a utility method for this task, while `setup` and `run` are the usual SAYN methods. Please note that methods `setup` and `run` need to return either `self.success()` or `self.fail()` in order to run.
 
-###### Utility Method (`fetch_bbc_data`)
+###### Utility Method (`fetch_reddit_data`)
 
-The `fetch_bbc_data` function uses the `feedparser.parse` method to fetch the raw data from the rss feed link. It then converts the data into a `pandas dataframe` to make it easier to work with.
+The `fetch_reddit_data` function uses the `feedparser.parse` method to fetch the raw data from the rss feed link. It then converts the data into a `pandas dataframe` to make it easier to work with.
 
 The function also extracts the source of each article and adds it under the `source` column.
-
-Lastly, the function assigns a `unique_id` to each article which is based on its article id and the source it originates from. This is because the same article may be published in multiple sources with the same id, which means our original ids are not unique and could be misleading.
 
 ??? example "python/load_data.py"
     ``` python
@@ -112,39 +103,37 @@ Lastly, the function assigns a `unique_id` to each article which is based on its
     import feedparser as f
     from sayn import PythonTask
 
-    class LoadData(PythonTask):
 
-        def fetch_bbc_data(self, link):
-            """Parse and label RSS BBC News data then return it in a pandas DataFrame"""
+    class LoadData(PythonTask):
+        def fetch_reddit_data(self, link):
+            """Parse and label RSS Reddit data then return it in a pandas DataFrame"""
 
             # get data from supplied link
+
             raw_data = f.parse(link)
 
             # transform data to dataframe
+
             data = pd.DataFrame(raw_data.entries)
 
-            # remove incompatible columns
-            data.drop(
-                ["title_detail", "summary_detail", "links", "published_parsed"],
-                axis=1,
-                inplace=True,
-            )
+            # select columns of interest
 
-            # get the source (this only works for BBC RSS feeds)
-            data["source"] = link[29:-8].replace("/", "_")
+            data = data.loc[:, ["id", "link", "updated", "published", "title"]]
 
-            # generating ids to be unique, since same story ids can be published in different sources
-            data["unique_id"] = data["id"] + data["source"]
+            # get the source, only works for Reddit RSS feeds
+
+            source_elements = link.split("/")
+            data["source"] = source_elements[4] + "_" + source_elements[5]
 
             return data
 
         def setup(self):
-            self.set_run_steps(["Appending BBC data to dataframe", "Updating database"])
+            self.set_run_steps(["Appending Reddit data to dataframe", "Updating database"])
             return self.success()
 
         def run(self):
 
-            with self.step("Appending BBC data to dataframe"):
+            with self.step("Appending Reddit data to dataframe"):
 
                 links = self.parameters["links"]
                 table = self.parameters["user_prefix"] + self.task_parameters["table"]
@@ -153,7 +142,7 @@ Lastly, the function assigns a `unique_id` to each article which is based on its
 
                 for link in links:
 
-                    temp_df = self.fetch_bbc_data(link)
+                    temp_df = self.fetch_reddit_data(link)
                     n_rows = len(temp_df)
                     df = df.append(temp_df)
                     self.info(f"Loading {n_rows} rows into destination: {table}....")
@@ -176,29 +165,28 @@ Lastly, the function assigns a `unique_id` to each article which is based on its
 
 Quick Summary:
 
-* Create the SQL query `dim_bbc_feeds.sql` to filter out duplicates
+* Create the SQL query `dim_reddit_feeds.sql` to filter out duplicates
 * Create a modelling [preset](../presets.md) in `project.yaml`
 * Create the task group `modelling.yaml`
 
 <br>
 
-#### Task Details (`dim_bbc_feeds`)
+#### Task Details (`dim_reddit_feeds`)
 
 Currently our `load_data` task appends data to our database but it does not filter out any potential duplicates that we might encounter after multiple runs. This is where the `modelling` group comes in, we can define an [AutoSQL task](../tasks/autosql.md) to filter out any duplicates.
 
-First, we need to create a sql query in our `sql` folder that will filter out any duplicates; we will call it `dim_bbc_feeds.sql`
+First, we need to create a sql query in our `sql` folder that will filter out any duplicates; we will call it `dim_reddit_feeds.sql`
 
-??? example "sql/dim_bbc_feeds.sql"
+??? example "sql/dim_reddit_feeds.sql"
     ```sql
-    SELECT DISTINCT unique_id
-         , id
+    SELECT DISTINCT id
          , title
-         , summary
-         , link
-         , guidislink
          , published
+         , updated
+         , link
          , source
-    FROM {{user_prefix}}logs_bbc_feeds
+
+    FROM {{user_prefix}}logs_reddit_feeds
     ```
 
 ??? tip
@@ -234,12 +222,12 @@ Next, we will define a modelling [preset](../presets.md) in `project.yaml`. [Pre
 ??? tip
     `{{ task.name }}` returns the name of task
 
-Now that we have the modelling [preset](../presets.md), we can use it in the `modelling` group. Since we want `dim_bbc_feeds` to run after our `load_data` task, we will need to set the parents of the task to `load_data`.
+Now that we have the modelling [preset](../presets.md), we can use it in the `modelling` group. Since we want `dim_reddit_feeds` to run after our `load_data` task, we will need to set the parents of the task to `load_data`.
 
 ??? example "tasks/modelling.yaml"
     ```yaml
     tasks:
-        dim_bbc_feeds:
+        dim_reddit_feeds:
           preset: modelling
           parents:
             - load_data
@@ -253,7 +241,7 @@ Quick Summary:
 * Create the task group `data_science.yaml`
 * Create the [python task](../tasks/python.md) `wordcloud` to generate wordclouds
 * Create the [python task](../tasks/python.md) `nlp` to generate text statistics
-* Create the [AutoSQL task](../tasks/autosql.md) `dim_bbc_feeds_nlp_stats` to calculate aggregate statistics grouped by source
+* Create the [AutoSQL task](../tasks/autosql.md) `dim_reddit_feeds_nlp_stats` to calculate aggregate statistics grouped by source
 
 <br>
 
@@ -269,47 +257,31 @@ First, we need to create the `data_science` group in the `tasks` folder. There w
 * `nlp`: generates the text statistics
 * `wordcloud`: generates the wordclouds
 
-Both tasks will use data from our `dim_bbc_feeds` table, therefore we will need to set their their table [parameters](../parameters.md) to `dim_bbc_feeds`. Since both of these tasks are children of the `dim_bbc_feeds` task, we will also need to set their parents attributes to `dim_bbc_feeds`.
+Both tasks will use data from our `dim_reddit_feeds` table, therefore we will need to set their their table [parameters](../parameters.md) to `dim_reddit_feeds`. Since both of these tasks are children of the `dim_reddit_feeds` task, we will also need to set their parents attributes to `dim_reddit_feeds`.
 
-The `nlp` task has a `text` parameter, this parameter specifies which columns have text for processing.
-The `wordcloud` task has a `stopwords` parameter, this parameter provides additional context related stopwords (e.g. "say" and its variations seem to be very common in summaries, however they are not very informative).
+The `wordcloud` task has a `stopwords` parameter, this parameter provides additional context related stopwords.
 
 ??? example "tasks/data_science.yaml"
     ```yaml
-    tasks:      
+    tasks:
+
       nlp:
         type: python
         class: nlp.LanguageProcessing
         parents:
-          - dim_bbc_feeds
+          - dim_reddit_feeds
         parameters:
-          table: dim_bbc_feeds
-          text:
-            - title
-            - summary
+          table: dim_reddit_feeds
 
       wordcloud:
         type: python
         class: wordcloud.RenderCloud
         parents:
-          - dim_bbc_feeds
+          - dim_reddit_feeds
         parameters:
-          table: dim_bbc_feeds
+          table: dim_reddit_feeds
           stopwords:
-            - say
-            - said
-            - says
-            - will
-            - country
-            - US
-            - England
-            - Scotland
-            - Wales
-            - NI
-            - Ireland
-            - Europe
-            - BBC
-            - yn
+            - Reddit
 
     ```
 
@@ -318,7 +290,7 @@ The `wordcloud` task has a `stopwords` parameter, this parameter provides additi
 
 The `wordcloud` task will have the following steps:
 
-* `Grouping texts`: aggregates article summaries and groups them by source (summaries are used instead of titles since they tend to be longer)
+* `Grouping texts`: aggregates article titles and groups them by source
 * `Generating clouds`: generates a wordcloud for each source, as well as the full dataset
 
 ###### RenderCloud Class
@@ -339,12 +311,12 @@ Next, we can define the class `RenderCloud` for the `wordcloud` task. `RenderClo
     import matplotlib.pyplot as plt
     from sayn import PythonTask
     from PIL import Image
-    from wordcloud import WordCloud, STOPWORDS
+    from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 
 
     class RenderCloud(PythonTask):
         def word_cloud(
-            self, name, text, stopwords, b_colour="white", c_colour="firebrick", show=False
+            self, name, text, stopwords, b_colour="white", c_colour="black", show=False
         ):
             """Word cloud generating function"""
 
@@ -352,8 +324,10 @@ Next, we can define the class `RenderCloud` for the `wordcloud` task. `RenderClo
 
             try:
                 mask = np.array(Image.open(f"python/img/masks/{name}_mask.png"))
+                image_colours = ImageColorGenerator(mask)
             except:
                 mask = None
+                image_colours = None
 
             wordcloud = WordCloud(
                 stopwords=stopwords,
@@ -362,6 +336,7 @@ Next, we can define the class `RenderCloud` for the `wordcloud` task. `RenderClo
                 background_color=b_colour,
                 contour_width=1,
                 contour_color=c_colour,
+                color_func=image_colours,
             ).generate(text)
 
             # store wordcloud image in "python/img"
@@ -386,34 +361,33 @@ Next, we can define the class `RenderCloud` for the `wordcloud` task. `RenderClo
                 table = self.parameters["user_prefix"] + self.task_parameters["table"]
 
                 df = pd.DataFrame(self.default_db.read_data(f"SELECT * FROM {table}"))
-                full_text = " ".join(article for article in df.summary)
+                full_text = " ".join(article for article in df.title)
 
                 sources = df.groupby("source")
-                grouped_texts = sources.summary.sum()
+                grouped_texts = sources.title.sum()
 
             with self.step("Generating clouds"):
 
                 stopwords = STOPWORDS.update(self.parameters["stopwords"])
-                self.info("Generating bbc_wordcloud.png")
-                self.word_cloud(
-                    "bbc", full_text, stopwords, b_colour="white", c_colour="black"
-                )
+                self.info("Generating reddit_wordcloud.png")
+                self.word_cloud("reddit", full_text, stopwords)
 
                 # Source specific wordclouds
 
                 for group, text in zip(grouped_texts.keys(), grouped_texts):
                     self.info(f"Generating {group}_wordcloud.png")
-                    self.word_cloud(group, text, stopwords)
+                    self.word_cloud(
+                        group, text, stopwords, b_colour="black", c_colour="white"
+                    )
 
             return self.success()
-
     ```
 
 #### Task Details (`nlp`)
 
 The `nlp` task will have the following steps:
 
-* `Processing texts`: loops through text_fields, generates text statistics on each entry
+* `Processing texts`: generates text statistics for each title
 * `Updating database`: similar to LoadData step, has additional debugging information
 
 ###### LanguageProcessing Class
@@ -470,13 +444,11 @@ Moving on, we can define the class `LanguageProcessing` for the `nlp` task. `Lan
             with self.step("Processing texts"):
 
                 table = self.parameters["user_prefix"] + self.task_parameters["table"]
-                text_fields = self.parameters["text"]
 
                 df = pd.DataFrame(self.default_db.read_data(f"SELECT * FROM {table}"))
 
-                for t in text_fields:
-                    self.info(f"Processing texts for {t} field")
-                    self.desc_text(df, t, "english")
+                self.info(f"Processing texts for title field")
+                self.desc_text(df, "title", "english")
 
             with self.step("Updating database"):
                 if df is not None:
@@ -489,41 +461,37 @@ Moving on, we can define the class `LanguageProcessing` for the `nlp` task. `Lan
                     )
 
             return self.success()
-
     ```
 
-#### Task Details (`dim_bbc_feeds_nlp_stats`)
+#### Task Details (`dim_reddit_feeds_nlp_stats`)
 
-Now that we have individual article statistics, it would be a good idea to create an additional modelling task to find some aggregate statistics grouped by source. Let's create another SQL query called `dim_bbc_feeds_nlp_stats` in the `sql` folder. This query will give us the average, grouped by source, of the text statistics generated by the `nlp` task.
+Now that we have individual article statistics, it would be a good idea to create an additional modelling task to find some aggregate statistics grouped by source. Let's create another SQL query called `dim_reddit_feeds_nlp_stats` in the `sql` folder. This query will give us the average, grouped by source, of the text statistics generated by the `nlp` task.
 
-??? example "sql/dim_bbc_feeds_nlp_stats.py"
+??? example "sql/dim_reddit_feeds_nlp_stats.py"
     ```sql
     SELECT source
-         , AVG(title_letters) AS average_tl
-         , AVG(title_words) AS average_tw
-         , AVG(title_sentences) AS average_ts
-         , AVG(summary_letters) AS average_sl
-         , AVG(summary_words) AS average_sw
-         , AVG(summary_sentences) AS average_ss
+         , AVG(title_letters) AS average_letters
+         , AVG(title_words) AS average_words
+         , AVG(title_sentences) AS average_sentences
 
-    FROM {{user_prefix}}dim_bbc_feeds_nlp
+    FROM {{user_prefix}}dim_reddit_feeds_nlp
 
     GROUP BY 1
 
     ORDER BY 1
     ```
 
-Finally, we can add the `dim_bbc_feeds_nlp_stats` task to the the `modelling` group. Like the previous modelling task, we will create this task using the modelling [preset](../presets.md) in `project.yaml`; setting the parents parameter to `nlp`. We want to materialise this query as a view; therefore, we will need to overwrite the materialisation parameter of the preset.
+Finally, we can add the `dim_reddit_feeds_nlp_stats` task to the the `modelling` group. Like the previous modelling task, we will create this task using the modelling [preset](../presets.md) in `project.yaml`; setting the parents parameter to `nlp`. We want to materialise this query as a view; therefore, we will need to overwrite the materialisation parameter of the preset.
 
 ??? example "modelling.yaml"
     ```yaml
     tasks:
-        dim_bbc_feeds:
+        dim_reddit_feeds:
           preset: modelling
           parents:
             - load_data
 
-        dim_bbc_feeds_nlp_stats:
+        dim_reddit_feeds_nlp_stats:
           preset: modelling
           materialisation: view
           parents:
