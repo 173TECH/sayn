@@ -100,6 +100,28 @@ def test_copy_task_ddl_bq(source_db, target_db):
         )
 
 
+def test_copy_task_ddl_rename(source_db, target_db):
+    """Testing copy task with no error"""
+    with copy_task(
+        source_db,
+        target_db,
+        source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
+    ) as task:
+        assert task.setup(
+            source={"db": "source_db", "table": "source_table"},
+            destination={"table": "dst_table"},
+            ddl={"columns": [{"name": "x", "dst_name": "y"}]},
+        ).is_ok
+
+        assert task.run().is_ok
+
+        assert validate_table(
+            task.default_db,
+            "dst_table",
+            [{"y": 1}, {"y": 2}, {"y": 3}],
+        )
+
+
 def test_copy_task_error(source_db, target_db):
     """Testing copy task with config error src and dst instead of source and destination"""
     with copy_task(

@@ -278,6 +278,9 @@ class TaskWrapper:
                     result = self.runner.run()
                 else:
                     result = self.runner.compile()
+                if result is None:
+                    self.status = TaskStatus.FAILED
+                    result = Err("execution", "none_return_value")
                 if result.is_ok:
                     self.status = TaskStatus.SUCCEEDED
                 else:

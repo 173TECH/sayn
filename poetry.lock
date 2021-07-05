@@ -276,25 +276,27 @@ pyopenssl = ["pyopenssl (>=20.0.0)"]
 
 [[package]]
 name = "google-cloud-bigquery"
-version = "2.6.1"
+version = "2.16.1"
 description = "Google BigQuery API client library"
 category = "main"
 optional = true
-python-versions = ">=3.6"
+python-versions = ">=3.6, <3.10"
 
 [package.dependencies]
 google-api-core = {version = ">=1.23.0,<2.0.0dev", extras = ["grpc"]}
 google-cloud-core = ">=1.4.1,<2.0dev"
 google-resumable-media = ">=0.6.0,<2.0dev"
+packaging = ">=14.3"
 proto-plus = ">=1.10.0"
 protobuf = ">=3.12.0"
-six = ">=1.13.0,<2.0.0dev"
+requests = ">=2.18.0,<3.0.0dev"
 
 [package.extras]
-all = ["google-cloud-bigquery-storage (>=2.0.0,<3.0.0dev)", "grpcio (>=1.32.0,<2.0dev)", "pyarrow (>=1.0.0,<3.0dev)", "pandas (>=0.23.0)", "tqdm (>=4.7.4,<5.0.0dev)", "opentelemetry-api (==0.11b0)", "opentelemetry-sdk (==0.11b0)", "opentelemetry-instrumentation (==0.11b0)"]
-bqstorage = ["google-cloud-bigquery-storage (>=2.0.0,<3.0.0dev)", "grpcio (>=1.32.0,<2.0dev)", "pyarrow (>=1.0.0,<3.0dev)"]
-opentelemetry = ["opentelemetry-api (==0.11b0)", "opentelemetry-sdk (==0.11b0)", "opentelemetry-instrumentation (==0.11b0)"]
-pandas = ["pandas (>=0.23.0)", "pyarrow (>=1.0.0,<3.0dev)"]
+all = ["google-cloud-bigquery-storage (>=2.0.0,<3.0.0dev)", "grpcio (>=1.32.0,<2.0dev)", "pyarrow (>=1.0.0,<5.0dev)", "pandas (>=0.23.0)", "tqdm (>=4.7.4,<5.0.0dev)", "opentelemetry-api (>=0.11b0)", "opentelemetry-sdk (>=0.11b0)", "opentelemetry-instrumentation (>=0.11b0)"]
+bignumeric_type = ["pyarrow (>=3.0.0,<5.0dev)"]
+bqstorage = ["google-cloud-bigquery-storage (>=2.0.0,<3.0.0dev)", "grpcio (>=1.32.0,<2.0dev)", "pyarrow (>=1.0.0,<5.0dev)"]
+opentelemetry = ["opentelemetry-api (>=0.11b0)", "opentelemetry-sdk (>=0.11b0)", "opentelemetry-instrumentation (>=0.11b0)"]
+pandas = ["pandas (>=0.23.0)", "pyarrow (>=1.0.0,<5.0dev)"]
 tqdm = ["tqdm (>=4.7.4,<5.0.0dev)"]
 
 [[package]]
@@ -824,16 +826,18 @@ pyasn1 = ">=0.4.6,<0.5.0"
 
 [[package]]
 name = "pybigquery"
-version = "0.5.0"
+version = "0.7.0"
 description = "SQLAlchemy dialect for BigQuery"
 category = "main"
 optional = true
-python-versions = "*"
+python-versions = ">=3.6, <3.10"
 
 [package.dependencies]
 future = "*"
-google-cloud-bigquery = ">=1.6.0"
-sqlalchemy = ">=1.1.9"
+google-api-core = ">=1.23.0"
+google-auth = ">=1.24.0,<2.0dev"
+google-cloud-bigquery = ">=2.15.0"
+sqlalchemy = ">=1.2.0,<1.4.0dev"
 
 [[package]]
 name = "pycodestyle"
@@ -1312,8 +1316,8 @@ snowflake = ["snowflake-connector-python", "snowflake-sqlalchemy"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.6"
-content-hash = "81ad73c2412befd0c46db092606e5089b93f4c35b36ac2bc64395d99286d2be9"
+python-versions = ">= 3.6, < 3.10"
+content-hash = "a82b8cab028d780d2f004f4d3bf3a19cac8c161e8c64b3b157a6bae0bc0f5ae3"
 
 [metadata.files]
 appdirs = [
@@ -1453,8 +1457,8 @@ google-auth = [
     {file = "google_auth-1.27.1-py2.py3-none-any.whl", hash = "sha256:63a5636d7eacfe6ef5b7e36e112b3149fa1c5b5ad77dd6df54910459bcd6b89f"},
 ]
 google-cloud-bigquery = [
-    {file = "google-cloud-bigquery-2.6.1.tar.gz", hash = "sha256:1f99fd0c0c5bde999e056a1be666e5d5bbf392f62c9e730dfcbaf6e8408d44ef"},
-    {file = "google_cloud_bigquery-2.6.1-py2.py3-none-any.whl", hash = "sha256:4b4593c45e78ee5d2e55b3aa7156839e8fbc4c3b9ed2d70715c820dce48cdf97"},
+    {file = "google-cloud-bigquery-2.16.1.tar.gz", hash = "sha256:69ce0d64cf06e4163072898ed50623af30c4601fb11f972cbde85c355bb45a89"},
+    {file = "google_cloud_bigquery-2.16.1-py2.py3-none-any.whl", hash = "sha256:cb88d27522d88a2fb41e9f330d8f835c4abd9c341815fe1bf8fe4bb82d3436dd"},
 ]
 google-cloud-bigquery-storage = [
     {file = "google-cloud-bigquery-storage-2.3.0.tar.gz", hash = "sha256:78779ab7f688cfb04e7bad919f995e1ed66346ef29f1c006dd9867edda458522"},
@@ -1852,8 +1856,8 @@ pyasn1-modules = [
     {file = "pyasn1_modules-0.2.8-py3.7.egg", hash = "sha256:c29a5e5cc7a3f05926aff34e097e84f8589cd790ce0ed41b67aed6857b26aafd"},
 ]
 pybigquery = [
-    {file = "pybigquery-0.5.0-py2.py3-none-any.whl", hash = "sha256:812cf7085107efd3ca9420a6ebc30c9ad16775f2a92d712a7f5609ed7cfe7c91"},
-    {file = "pybigquery-0.5.0.tar.gz", hash = "sha256:a8cc932081f4f94dbc694b4976cd0ead583b01614bd941ba1dae632ce5d072e0"},
+    {file = "pybigquery-0.7.0-py2.py3-none-any.whl", hash = "sha256:cbffe8a42dcdc009ccbf2c543b10798960c7710d93e782ca102312b86147cddc"},
+    {file = "pybigquery-0.7.0.tar.gz", hash = "sha256:75b990676ccd05b192a412195bfeef4a2ae6e5c081b9efc472b916727b93becf"},
 ]
 pycodestyle = [
     {file = "pycodestyle-2.6.0-py2.py3-none-any.whl", hash = "sha256:2295e7b2f6b5bd100585ebcb1f616591b652db8a741695b3d8f5d28bdc934367"},

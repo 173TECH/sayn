@@ -1,5 +1,25 @@
 # Change Log
 
+## [0.5.7] - 2021-06-25
+
+### Changed
+
+- Adds support for renaming columns on copy tasks
+- Improvements to BigQuery data load of nested fields
+
+## [0.5.6] - 2021-04-29
+
+### Changed
+
+- Adds staging area based batch copy for snowflake
+- Returns number of records loaded in load_data
+- Adds support for copy to merge frequently to target table
+
+### Fixed
+
+- Fixes to columns without names in ddl
+- Adds sorting to copy's get_data_query
+
 ## [0.5.5] - 2021-03-18
 
 ### Changed
