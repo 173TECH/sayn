@@ -26,6 +26,7 @@ markdown_extensions:
   - pymdownx.superfences
   - toc:
       permalink: true
+      separator: "_"
 
 plugins:
   - search

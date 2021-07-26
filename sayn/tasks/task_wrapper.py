@@ -67,7 +67,7 @@ class TaskWrapper:
         failed_parents = {
             p.name: p.status
             for p in self.parents
-            if (p.status == TaskStatus.FAILED and p.on_fail != "continue")
+            if (p.status == TaskStatus.FAILED and p.on_fail != "no_skip")
             or p.status == TaskStatus.SKIPPED
         }
 
@@ -130,7 +130,7 @@ class TaskWrapper:
         self.tags = task_info.get("tags", list())
         self.parents = parents
         self.on_fail = task_info.get("on_fail", "fail")
-        if self.on_fail not in ("fail", "continue"):
+        if self.on_fail not in ("skip", "no_skip"):
             return Err("task_config", "invalid_on_fail_value", value=self.on_fail)
 
         self.task_parameters = task_info.get("parameters", dict())

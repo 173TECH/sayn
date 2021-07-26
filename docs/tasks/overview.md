@@ -53,11 +53,11 @@ All tasks share a number of common properties available:
 | preset | A preset to inherit task properties from. See [the presets section](../presets.md) for more info. | Optional name of preset |
 | parents | A list of tasks this one depends on. All tasks in this list is ensured to run before the child task. | Optional list |
 | tags | A list of tags used in `sayn run -t tag:tag_name`. This allows for advanced task filtering when we don't want to run all tasks in the project. | Optional list |
+| on_fail | Defines the behaviour when the [task fails](#task_failure_behaviour). | Optional one of: `skip` or `no_skip` |
 
 !!! attention
     Different task types have different attributes. Make sure that you check each task type's specific documentation to understand how to define it.
 
-<a name="task_groups"></a>
 ## Task Groups
 
 Task groups are a convenient way to segment and organise your data processes in your SAYN project. Each YAML file in the `tasks` folder represents a task group.
@@ -121,3 +121,28 @@ Task attributes can be used when defining tasks in a dynamic way. The following 
     ```
 
 This will effectively tell the task to look for a file located at `base/sql_task.sql` in the `sql` folder.
+
+## Task failure behaviour
+
+When a task fails during an execution, all descendent tasks will be skipped as expected. However sometimes it can be useful to 
+execute descending tasks even if a parent fails, for example when an API can frequently throw errors and we want to continue the
+execution just with as much data as it was possible to pull from it. In this case we make use of the `on_fail` task property to
+specify that we do not want to skip descending tasks.
+
+
+!!! example "tasks/base.yaml"
+    ```yaml
+    tasks:
+      could_fail_task:
+        type: python
+        class: could_fail.CouldFailTask
+        on_fail: no_skip
+
+      child_task:
+        type: sql
+        file_name: query_using_could_fail_data.sql
+        parents:
+          - failing_task
+    ```
+
+In the above case, if `could_fail_task` fails, `child_task` will not be skipped.
