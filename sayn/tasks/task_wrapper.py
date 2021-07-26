@@ -120,6 +120,7 @@ class TaskWrapper:
 
         self.tracker = tracker
 
+        self.in_query = in_query
         self.status = TaskStatus.SETTING_UP
         self._info = task_info
 
@@ -129,13 +130,13 @@ class TaskWrapper:
         self._type = task_info.get("type")
         self.tags = task_info.get("tags", list())
         self.parents = parents
-        self.on_fail = task_info.get("on_fail", "fail")
+        self.on_fail = task_info.get("on_fail", "skip")
         if self.on_fail not in ("skip", "no_skip"):
-            return Err("task_config", "invalid_on_fail_value", value=self.on_fail)
+            return failed(
+                Err("task_config", "invalid_on_fail_value", value=self.on_fail)
+            )
 
         self.task_parameters = task_info.get("parameters", dict())
-
-        self.in_query = in_query
 
         # Check the parents are in a good state
         result = self.check_skip()
