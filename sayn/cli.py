@@ -18,6 +18,7 @@ from .core.config import (
     get_tasks_dict,
 )
 from .core.errors import Err, Result
+from .tasks import TaskStatus
 
 yesterday = date.today() - timedelta(days=1)
 
@@ -96,10 +97,10 @@ class CliApp(App):
         """
         if result is None or not isinstance(result, Result):
             self.finish_app(error=Err("app_setup", "unhandled_error", result=result))
-            sys.exit()
+            sys.exit(-1)
         elif result.is_err:
             self.finish_app(result)
-            sys.exit()
+            sys.exit(-1)
         else:
             return result.value
 
@@ -175,6 +176,10 @@ def init(sayn_project_name):
 def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
     app = CliApp("compile", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
     app.compile()
+    if any([t.status == TaskStatus.FAILED for _, t in app.tasks.items()]):
+        sys.exit(-1)
+    else:
+        sys.exit()
 
 
 @cli.command(help="Run SAYN tasks.")
@@ -182,6 +187,10 @@ def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
     app = CliApp("run", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
     app.run()
+    if any([t.status == TaskStatus.FAILED for _, t in app.tasks.items()]):
+        sys.exit(-1)
+    else:
+        sys.exit()
 
 
 @cli.command(help="Generate DAG image.")
