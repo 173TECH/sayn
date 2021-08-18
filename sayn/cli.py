@@ -162,7 +162,6 @@ def click_filter(func):
         "-t",
         multiple=True,
         cls=ChainOption,
-        # type=tuple,
         help="Task query to INCLUDE in the execution: [+]task_name[+], group:group_name, tag:tag_name",
         default=list()
     )(func)
@@ -171,7 +170,6 @@ def click_filter(func):
         "-x",
         multiple=True,
         cls=ChainOption,
-        # type=tuple,
         help="Task query to EXCLUDE in the execution: [+]task_name[+], group:group_name, tag:tag_name",
         default=list()
     )(func)
