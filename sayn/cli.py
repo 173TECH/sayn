@@ -105,6 +105,50 @@ class CliApp(App):
             return result.value
 
 
+class ChainOption(click.Option):
+
+    def __init__(self, *args, **kwargs):
+        self.save_other_options = kwargs.pop('save_other_options', True)
+        nargs = kwargs.pop('nargs', -1)
+        assert nargs == -1, 'nargs, if set, must be -1 not {}'.format(nargs)
+        super(ChainOption, self).__init__(*args, **kwargs)
+        self._previous_parser_process = None
+        self._eat_all_parser = None
+
+    def add_to_parser(self, parser, ctx):
+
+        def parser_process(value, state):
+            # method to hook to the parser.process
+            done = False
+            value = [value]
+            if self.save_other_options:
+                # grab everything up to the next option
+                while state.rargs and not done:
+                    for prefix in self._eat_all_parser.prefixes:
+                        if state.rargs[0].startswith(prefix):
+                            done = True
+                    if not done:
+                        value.append(state.rargs.pop(0))
+            else:
+                # grab everything remaining
+                value += state.rargs
+                state.rargs[:] = []
+            value = tuple(value)
+
+            # call the actual process
+            self._previous_parser_process(value, state)
+
+        retval = super(ChainOption, self).add_to_parser(parser, ctx)
+        for name in self.opts:
+            our_parser = parser._long_opt.get(name) or parser._short_opt.get(name)
+            if our_parser:
+                self._eat_all_parser = our_parser
+                self._previous_parser_process = our_parser.process
+                our_parser.process = parser_process
+                break
+        return retval
+
+
 # Click arguments
 
 click_debug = click.option(
@@ -117,13 +161,19 @@ def click_filter(func):
         "--tasks",
         "-t",
         multiple=True,
+        cls=ChainOption,
+        # type=tuple,
         help="Task query to INCLUDE in the execution: [+]task_name[+], group:group_name, tag:tag_name",
+        default=list()
     )(func)
     func = click.option(
         "--exclude",
         "-x",
         multiple=True,
+        cls=ChainOption,
+        # type=tuple,
         help="Task query to EXCLUDE in the execution: [+]task_name[+], group:group_name, tag:tag_name",
+        default=list()
     )(func)
     return func
 
@@ -174,7 +224,10 @@ def init(sayn_project_name):
 @cli.command(help="Compile sql tasks.")
 @click_run_options
 def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
+    tasks = [i for t in tasks for i in t]
+    exclude = [i for t in exclude for i in t]
     app = CliApp("compile", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
+
     app.compile()
     if any([t.status == TaskStatus.FAILED for _, t in app.tasks.items()]):
         sys.exit(-1)
@@ -185,7 +238,11 @@ def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 @cli.command(help="Run SAYN tasks.")
 @click_run_options
 def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
+    # import IPython;IPython.embed()
+    tasks = [i for t in tasks for i in t]
+    exclude = [i for t in exclude for i in t]
     app = CliApp("run", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
+
     app.run()
     if any([t.status == TaskStatus.FAILED for _, t in app.tasks.items()]):
         sys.exit(-1)
