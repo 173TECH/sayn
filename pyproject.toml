@@ -13,7 +13,7 @@ include = ["CHANGELOG.md", "NOTICE.md", "mkdocs.yml", "docs/*", "docs/**/*"]
 
 [tool.poetry.dependencies]
 python = ">= 3.6, < 3.10"
-Click = "^7.0"
+Click = "^8.0"
 jinja2 = "^2.10.3"
 sqlalchemy = "^1.3.12"
 pydantic = "^1.6.1"
