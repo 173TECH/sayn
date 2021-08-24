@@ -222,6 +222,7 @@ def init(sayn_project_name):
 @cli.command(help="Compile sql tasks.")
 @click_run_options
 def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
+
     tasks = [i for t in tasks for i in t]
     exclude = [i for t in exclude for i in t]
     app = CliApp("compile", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
@@ -236,7 +237,7 @@ def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 @cli.command(help="Run SAYN tasks.")
 @click_run_options
 def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
-    # import IPython;IPython.embed()
+
     tasks = [i for t in tasks for i in t]
     exclude = [i for t in exclude for i in t]
     app = CliApp("run", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
