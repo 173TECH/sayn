@@ -106,17 +106,15 @@ class CliApp(App):
 
 
 class ChainOption(click.Option):
-
     def __init__(self, *args, **kwargs):
-        self.save_other_options = kwargs.pop('save_other_options', True)
-        nargs = kwargs.pop('nargs', -1)
-        assert nargs == -1, 'nargs, if set, must be -1 not {}'.format(nargs)
+        self.save_other_options = kwargs.pop("save_other_options", True)
+        nargs = kwargs.pop("nargs", -1)
+        assert nargs == -1, "nargs, if set, must be -1 not {}".format(nargs)
         super(ChainOption, self).__init__(*args, **kwargs)
         self._previous_parser_process = None
         self._eat_all_parser = None
 
     def add_to_parser(self, parser, ctx):
-
         def parser_process(value, state):
             # method to hook to the parser.process
             done = False
@@ -163,7 +161,7 @@ def click_filter(func):
         multiple=True,
         cls=ChainOption,
         help="Task query to INCLUDE in the execution: [+]task_name[+], group:group_name, tag:tag_name",
-        default=list()
+        default=list(),
     )(func)
     func = click.option(
         "--exclude",
@@ -171,7 +169,7 @@ def click_filter(func):
         multiple=True,
         cls=ChainOption,
         help="Task query to EXCLUDE in the execution: [+]task_name[+], group:group_name, tag:tag_name",
-        default=list()
+        default=list(),
     )(func)
     return func
 

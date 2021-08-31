@@ -1,12 +1,13 @@
-import pytest
 from datetime import date, timedelta, datetime
-import sayn.cli as tcli
 
 import click
 from click.testing import CliRunner
+import pytest
 
+import sayn.cli as tcli
 
 yesterday = date.today() - timedelta(days=1)
+
 
 @click.group()
 def cli():
@@ -27,15 +28,15 @@ def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
     end_dt = end_dt.date()
 
     return {
-            "command":'run',
-            "debug":debug,
-            "include":tasks,
-            "exclude":exclude,
-            "profile":profile,
-            "full_load":full_load,
-            "start_dt":start_dt,
-            "end_dt":end_dt
-           }
+        "command": "run",
+        "debug": debug,
+        "include": tasks,
+        "exclude": exclude,
+        "profile": profile,
+        "full_load": full_load,
+        "start_dt": start_dt,
+        "end_dt": end_dt,
+    }
 
 
 @cli.command()
@@ -52,19 +53,20 @@ def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
     end_dt = end_dt.date()
 
     return {
-            "command":'compile',
-            "debug":debug,
-            "include":tasks,
-            "exclude":exclude,
-            "profile":profile,
-            "full_load":full_load,
-            "start_dt":start_dt,
-            "end_dt":end_dt
-           }
+        "command": "compile",
+        "debug": debug,
+        "include": tasks,
+        "exclude": exclude,
+        "profile": profile,
+        "full_load": full_load,
+        "start_dt": start_dt,
+        "end_dt": end_dt,
+    }
+
 
 def get_output(command):
     runner = CliRunner()
-    result = runner.invoke(cli, command, standalone_mode=False)
+    result = runner.invoke(cli, command.split(" "), standalone_mode=False)
     output = result.return_value
     # return output
     return output
@@ -101,12 +103,12 @@ def test_simple_compile():
 
 
 def test_run_one_task():
-    output = get_output("run -t something".split(' '))
+    output = get_output("run -t something")
 
     assert output == {
         "command": "run",
         "debug": False,
-        "include": ['something'],
+        "include": ["something"],
         "exclude": [],
         "profile": None,
         "full_load": False,
@@ -114,13 +116,14 @@ def test_run_one_task():
         "end_dt": yesterday,
     }
 
+
 def test_run_two_tasks_old():
-    output = get_output("run -t something -t somethingelse".split(' '))
+    output = get_output("run -t something -t somethingelse")
 
     assert output == {
         "command": "run",
         "debug": False,
-        "include": ['something', 'somethingelse'],
+        "include": ["something", "somethingelse"],
         "exclude": [],
         "profile": None,
         "full_load": False,
@@ -130,12 +133,12 @@ def test_run_two_tasks_old():
 
 
 def test_run_two_tasks_new():
-    output = get_output("run -t something somethingelse".split(' '))
+    output = get_output("run -t something somethingelse")
 
     assert output == {
         "command": "run",
         "debug": False,
-        "include": ['something', 'somethingelse'],
+        "include": ["something", "somethingelse"],
         "exclude": [],
         "profile": None,
         "full_load": False,
@@ -145,12 +148,12 @@ def test_run_two_tasks_new():
 
 
 def test_compile_one_task():
-    output = get_output("compile -t something".split(' '))
+    output = get_output("compile -t something")
 
     assert output == {
         "command": "compile",
         "debug": False,
-        "include": ['something'],
+        "include": ["something"],
         "exclude": [],
         "profile": None,
         "full_load": False,
@@ -158,13 +161,14 @@ def test_compile_one_task():
         "end_dt": yesterday,
     }
 
+
 def test_compile_two_tasks_old():
-    output = get_output("compile -t something -t somethingelse".split(' '))
+    output = get_output("compile -t something -t somethingelse")
 
     assert output == {
         "command": "compile",
         "debug": False,
-        "include": ['something', 'somethingelse'],
+        "include": ["something", "somethingelse"],
         "exclude": [],
         "profile": None,
         "full_load": False,
@@ -174,12 +178,12 @@ def test_compile_two_tasks_old():
 
 
 def test_compile_two_tasks_new():
-    output = get_output("compile -t something somethingelse".split(' '))
+    output = get_output("compile -t something somethingelse")
 
     assert output == {
         "command": "compile",
         "debug": False,
-        "include": ['something', 'somethingelse'],
+        "include": ["something", "somethingelse"],
         "exclude": [],
         "profile": None,
         "full_load": False,
@@ -189,12 +193,12 @@ def test_compile_two_tasks_new():
 
 
 def test_run_debug():
-    output = get_output("run -t something -d".split(' '))
+    output = get_output("run -t something -d")
 
     assert output == {
         "command": "run",
         "debug": True,
-        "include": ['something'],
+        "include": ["something"],
         "exclude": [],
         "profile": None,
         "full_load": False,
@@ -204,12 +208,12 @@ def test_run_debug():
 
 
 def test_compile_debug():
-    output = get_output("compile -t something -d".split(' '))
+    output = get_output("compile -t something -d")
 
     assert output == {
         "command": "compile",
         "debug": True,
-        "include": ['something'],
+        "include": ["something"],
         "exclude": [],
         "profile": None,
         "full_load": False,
@@ -219,12 +223,12 @@ def test_compile_debug():
 
 
 def test_run_debug_multitasks():
-    output = get_output("run -t something -d -t somethingelse somesomeelse".split(' '))
+    output = get_output("run -t something -d -t somethingelse somesomeelse")
 
     assert output == {
         "command": "run",
         "debug": True,
-        "include": ['something', 'somethingelse', 'somesomeelse'],
+        "include": ["something", "somethingelse", "somesomeelse"],
         "exclude": [],
         "profile": None,
         "full_load": False,
@@ -234,12 +238,12 @@ def test_run_debug_multitasks():
 
 
 def test_compile_debug_multitasks():
-    output = get_output("compile -t something -d -t somethingelse somesomeelse".split(' '))
+    output = get_output("compile -t something -d -t somethingelse somesomeelse")
 
     assert output == {
         "command": "compile",
         "debug": True,
-        "include": ['something', 'somethingelse', 'somesomeelse'],
+        "include": ["something", "somethingelse", "somesomeelse"],
         "exclude": [],
         "profile": None,
         "full_load": False,
@@ -249,12 +253,12 @@ def test_compile_debug_multitasks():
 
 
 def test_run_full():
-    output = get_output("run -t something -f".split(' '))
+    output = get_output("run -t something -f")
 
     assert output == {
         "command": "run",
         "debug": False,
-        "include": ['something'],
+        "include": ["something"],
         "exclude": [],
         "profile": None,
         "full_load": True,
@@ -264,12 +268,12 @@ def test_run_full():
 
 
 def test_compile_full():
-    output = get_output("compile -t something -f".split(' '))
+    output = get_output("compile -t something -f")
 
     assert output == {
         "command": "compile",
         "debug": False,
-        "include": ['something'],
+        "include": ["something"],
         "exclude": [],
         "profile": None,
         "full_load": True,
@@ -279,13 +283,13 @@ def test_compile_full():
 
 
 def test_run_exclude():
-    output = get_output("run -x something".split(' '))
+    output = get_output("run -x something")
 
     assert output == {
         "command": "run",
         "debug": False,
         "include": [],
-        "exclude": ['something'],
+        "exclude": ["something"],
         "profile": None,
         "full_load": False,
         "start_dt": yesterday,
@@ -294,13 +298,13 @@ def test_run_exclude():
 
 
 def test_compile_exclude():
-    output = get_output("compile -x something".split(' '))
+    output = get_output("compile -x something")
 
     assert output == {
         "command": "compile",
         "debug": False,
         "include": [],
-        "exclude": ['something'],
+        "exclude": ["something"],
         "profile": None,
         "full_load": False,
         "start_dt": yesterday,
@@ -309,13 +313,13 @@ def test_compile_exclude():
 
 
 def test_run_include_exclude():
-    output = get_output("run -x something -t somethingelse".split(' '))
+    output = get_output("run -x something -t somethingelse")
 
     assert output == {
         "command": "run",
         "debug": False,
-        "include": ['somethingelse'],
-        "exclude": ['something'],
+        "include": ["somethingelse"],
+        "exclude": ["something"],
         "profile": None,
         "full_load": False,
         "start_dt": yesterday,
@@ -324,13 +328,13 @@ def test_run_include_exclude():
 
 
 def test_compile_include_exclude():
-    output = get_output("compile -x something -t somethingelse".split(' '))
+    output = get_output("compile -x something -t somethingelse")
 
     assert output == {
         "command": "compile",
         "debug": False,
-        "include": ['somethingelse'],
-        "exclude": ['something'],
+        "include": ["somethingelse"],
+        "exclude": ["something"],
         "profile": None,
         "full_load": False,
         "start_dt": yesterday,
