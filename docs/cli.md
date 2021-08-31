@@ -27,12 +27,13 @@ following arguments to filter:
 * `-t task_query`: tasks to include.
 * `-x task_query`: exclude specific tasks.
 
-Both `-t` and `-x` can be specified multiple times, accumulating their values.
+Multiple tasks can be included after the argument, accumulating their values. Note that both `-t` and `-x` can be specified multiple times, resulting in the same outcome.
 
 Examples:
 
 * `sayn run -t task_name`: run `task_name` only.
-* `sayn run -t task1 -t task2`: runs `task1` and `task2` only.
+* `sayn run -t task1 task2`: runs `task1` and `task2` only.
+* `sayn run -t task1 -t task2`: runs `task1` and `task2` only. (equivalent to the one above.)
 * `sayn run -t +task_name`: run `task_name` and all its ancestors.
 * `sayn run -t task_name+`: run `task_name` and all its descendants.
 * `sayn run -t group:group_name`: run all tasks specified in the group `group_name`.
