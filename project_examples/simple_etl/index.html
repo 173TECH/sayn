@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#sayn-project-example-a-simple-etl" class="md-skip">
+        <a href="#sayn_project_example_a_simple_etl" class="md-skip">
           Skip to content
         </a>
       
@@ -735,7 +735,7 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#project-description" class="md-nav__link">
+  <a href="#project_description" class="md-nav__link">
     Project Description
   </a>
   
@@ -750,21 +750,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#features-used" class="md-nav__link">
+  <a href="#features_used" class="md-nav__link">
     Features Used
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#running-the-project" class="md-nav__link">
+  <a href="#running_the_project" class="md-nav__link">
     Running The Project
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#running-the-project-with-postgresql" class="md-nav__link">
+  <a href="#running_the_project_with_postgresql" class="md-nav__link">
     Running The Project With PostgreSQL
   </a>
   
@@ -826,7 +826,7 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#project-description" class="md-nav__link">
+  <a href="#project_description" class="md-nav__link">
     Project Description
   </a>
   
@@ -841,21 +841,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#features-used" class="md-nav__link">
+  <a href="#features_used" class="md-nav__link">
     Features Used
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#running-the-project" class="md-nav__link">
+  <a href="#running_the_project" class="md-nav__link">
     Running The Project
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#running-the-project-with-postgresql" class="md-nav__link">
+  <a href="#running_the_project_with_postgresql" class="md-nav__link">
     Running The Project With PostgreSQL
   </a>
   
@@ -879,12 +879,12 @@
               
                 
                 
-                <h1 id="sayn-project-example-a-simple-etl">SAYN Project Example: A Simple ETL<a class="headerlink" href="#sayn-project-example-a-simple-etl" title="Permanent link">&para;</a></h1>
-<h2 id="project-description">Project Description<a class="headerlink" href="#project-description" title="Permanent link">&para;</a></h2>
+                <h1 id="sayn_project_example_a_simple_etl">SAYN Project Example: A Simple ETL<a class="headerlink" href="#sayn_project_example_a_simple_etl" title="Permanent link">&para;</a></h1>
+<h2 id="project_description">Project Description<a class="headerlink" href="#project_description" title="Permanent link">&para;</a></h2>
 <h4 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h4>
 <p>This is an example SAYN project which shows how to implement a simple ETL with the framework. You can find the GitHub repository <a href="https://github.com/173TECH/sayn_project_example_simple_etl" target="_blank">here</a>.</p>
 <p>This ETL extracts jokes from an API, translates them into Yodish (the language of Yoda, this is) with another API and then runs some SQL transformations on the extracted data. Both APIs are public and do not require an API key. However, they both have limited quotas (especially the Yodish translation API) so you should avoid re-running the extraction part of the project multiple times in a row (you can use the command <code>sayn run -x tag:extract</code> after the first <code>sayn run</code>).</p>
-<h4 id="features-used">Features Used<a class="headerlink" href="#features-used" title="Permanent link">&para;</a></h4>
+<h4 id="features_used">Features Used<a class="headerlink" href="#features_used" title="Permanent link">&para;</a></h4>
 <ul>
 <li>Python task to extract data with APIs.</li>
 <li>Autosql tasks to automate SQL transformations.</li>
@@ -892,14 +892,14 @@
 <li>Usage of presets to define tasks.</li>
 </ul>
 <p>By default, the project uses SQLite as a database. You can use <a href="https://sqlitebrowser.org/dl/" target="_blank">DB Browser for SQLite</a> to navigate the data easily.</p>
-<h4 id="running-the-project">Running The Project<a class="headerlink" href="#running-the-project" title="Permanent link">&para;</a></h4>
+<h4 id="running_the_project">Running The Project<a class="headerlink" href="#running_the_project" title="Permanent link">&para;</a></h4>
 <ul>
 <li>clone the repository with the command <code>git clone https://github.com/173TECH/sayn_project_example_simple_etl.git</code>.</li>
 <li>rename the <code>settings_sample.yaml</code> file to <code>settings.yaml</code>.</li>
 <li>install the project dependencies by running the <code>pip install -r requirements.txt</code> command from the root of the project folder.</li>
 <li>run all SAYN commands from the root of the project folder.</li>
 </ul>
-<h4 id="running-the-project-with-postgresql">Running The Project With PostgreSQL<a class="headerlink" href="#running-the-project-with-postgresql" title="Permanent link">&para;</a></h4>
+<h4 id="running_the_project_with_postgresql">Running The Project With PostgreSQL<a class="headerlink" href="#running_the_project_with_postgresql" title="Permanent link">&para;</a></h4>
 <p>If desired, you can also run the project using a PostgreSQL database. For this, you simply need to:</p>
 <ul>
 <li>change the <code>warehouse</code> credential to use a PostgreSQL database connection.</li>

@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#python-task" class="md-skip">
+        <a href="#python_task" class="md-skip">
           Skip to content
         </a>
       
@@ -493,14 +493,14 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining-python-tasks" class="md-nav__link">
+  <a href="#defining_python_tasks" class="md-nav__link">
     Defining python Tasks
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#writing-a-python-task" class="md-nav__link">
+  <a href="#writing_a_python_task" class="md-nav__link">
     Writing A python Task
   </a>
   
@@ -515,14 +515,14 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#using-the-sayn-api" class="md-nav__link">
+  <a href="#using_the_sayn_api" class="md-nav__link">
     Using the SAYN API
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#logging-for-python-tasks-with-the-sayn-api" class="md-nav__link">
+  <a href="#logging_for_python_tasks_with_the_sayn_api" class="md-nav__link">
     Logging For python Tasks With The SAYN API
   </a>
   
@@ -840,14 +840,14 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining-python-tasks" class="md-nav__link">
+  <a href="#defining_python_tasks" class="md-nav__link">
     Defining python Tasks
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#writing-a-python-task" class="md-nav__link">
+  <a href="#writing_a_python_task" class="md-nav__link">
     Writing A python Task
   </a>
   
@@ -862,14 +862,14 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#using-the-sayn-api" class="md-nav__link">
+  <a href="#using_the_sayn_api" class="md-nav__link">
     Using the SAYN API
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#logging-for-python-tasks-with-the-sayn-api" class="md-nav__link">
+  <a href="#logging_for_python_tasks_with_the_sayn_api" class="md-nav__link">
     Logging For python Tasks With The SAYN API
   </a>
   
@@ -893,11 +893,11 @@
               
                 
                 
-                <h1 id="python-task"><code>python</code> Task<a class="headerlink" href="#python-task" title="Permanent link">&para;</a></h1>
+                <h1 id="python_task"><code>python</code> Task<a class="headerlink" href="#python_task" title="Permanent link">&para;</a></h1>
 <h2 id="about">About<a class="headerlink" href="#about" title="Permanent link">&para;</a></h2>
 <p>The <code>python</code> task allows you run python scripts. Therefore, those tasks can do anything Python can
 do. They are extremely useful for data extraction or data science models.</p>
-<h2 id="defining-python-tasks">Defining <code>python</code> Tasks<a class="headerlink" href="#defining-python-tasks" title="Permanent link">&para;</a></h2>
+<h2 id="defining_python_tasks">Defining <code>python</code> Tasks<a class="headerlink" href="#defining_python_tasks" title="Permanent link">&para;</a></h2>
 <p>A <code>python</code> task is defined as follows:</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
@@ -909,7 +909,7 @@ do. They are extremely useful for data extraction or data science models.</p>
 <p>Where <code>class</code> is a python path to the Python class implementing the task. This code should be stored in the
 <code>python</code> of your project, which in itself is a python module that's dynamically loaded, so it needs an empty
 <code>__init__.py</code> file in the folder.</p>
-<h2 id="writing-a-python-task">Writing A <code>python</code> Task<a class="headerlink" href="#writing-a-python-task" title="Permanent link">&para;</a></h2>
+<h2 id="writing_a_python_task">Writing A <code>python</code> Task<a class="headerlink" href="#writing_a_python_task" title="Permanent link">&para;</a></h2>
 <h3 id="basics">Basics<a class="headerlink" href="#basics" title="Permanent link">&para;</a></h3>
 <p>The basic code to construct a python task is:</p>
 <div class="admonition example">
@@ -939,7 +939,7 @@ do. They are extremely useful for data extraction or data science models.</p>
 </ul>
 <details class="attention" open="open"><summary>Attention</summary><p>Please note that python tasks need to return either <code>self.success()</code> or <code>self.fail()</code> in order to run.</p>
 </details>
-<h3 id="using-the-sayn-api">Using the SAYN API<a class="headerlink" href="#using-the-sayn-api" title="Permanent link">&para;</a></h3>
+<h3 id="using_the_sayn_api">Using the SAYN API<a class="headerlink" href="#using_the_sayn_api" title="Permanent link">&para;</a></h3>
 <p>When defining our python task, you would want to access parts of the SAYN infrastructure like
 parameters and connections. Here's a list of properties available:</p>
 <ul>
@@ -961,7 +961,7 @@ parameters and connections. Here's a list of properties available:</p>
 <li>with the <code>self.default_db.load_data</code> method: <code>self.default_db.load_data('table', df.to_dict('records'))</code>.</li>
 </ul>
 </div>
-<h3 id="logging-for-python-tasks-with-the-sayn-api">Logging For <code>python</code> Tasks With The SAYN API<a class="headerlink" href="#logging-for-python-tasks-with-the-sayn-api" title="Permanent link">&para;</a></h3>
+<h3 id="logging_for_python_tasks_with_the_sayn_api">Logging For <code>python</code> Tasks With The SAYN API<a class="headerlink" href="#logging_for_python_tasks_with_the_sayn_api" title="Permanent link">&para;</a></h3>
 <p>The unit of process within a task in SAYN is the <code>step</code>. Using steps is useful to indicate current
 progress of execution but also for debugging purposes. The <a href="../../tutorials/tutorial_part1/">tutorial</a>
 is a good example of usage, as we define the <code>load_data</code> task as having 5 steps:</p>

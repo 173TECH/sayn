@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#settings-settingsyaml" class="md-skip">
+        <a href="#settings_settingsyaml" class="md-skip">
           Skip to content
         </a>
       
@@ -383,14 +383,14 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#defining-credentials" class="md-nav__link">
+  <a href="#defining_credentials" class="md-nav__link">
     Defining Credentials
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-environment-variables" class="md-nav__link">
+  <a href="#using_environment_variables" class="md-nav__link">
     Using Environment Variables
   </a>
   
@@ -799,14 +799,14 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#defining-credentials" class="md-nav__link">
+  <a href="#defining_credentials" class="md-nav__link">
     Defining Credentials
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-environment-variables" class="md-nav__link">
+  <a href="#using_environment_variables" class="md-nav__link">
     Using Environment Variables
   </a>
   
@@ -825,7 +825,7 @@
               
                 
                 
-                <h1 id="settings-settingsyaml">Settings: <code>settings.yaml</code><a class="headerlink" href="#settings-settingsyaml" title="Permanent link">&para;</a></h1>
+                <h1 id="settings_settingsyaml">Settings: <code>settings.yaml</code><a class="headerlink" href="#settings_settingsyaml" title="Permanent link">&para;</a></h1>
 <p>The <code>settings.yaml</code> defines local configuration like credentials. <strong>This file is unique to each SAYN user</strong>
 collaborating on the project and is automatically ignored by git.</p>
 <div class="admonition warning">
@@ -905,7 +905,7 @@ databases and APIs used by the SAYN project.</p>
 <p>This file enables the user to use two different profiles whenever desired: <code>dev</code> and <code>prod</code>. It is
 usually good practice to separate your environments in order to ensure that testing is never done directly
 on production.</p>
-<h3 id="defining-credentials">Defining Credentials<a class="headerlink" href="#defining-credentials" title="Permanent link">&para;</a></h3>
+<h3 id="defining_credentials">Defining Credentials<a class="headerlink" href="#defining_credentials" title="Permanent link">&para;</a></h3>
 <p>Credentials includes both databases (eg: your warehouse) as well as custom secrets used by python tasks.
 For a definition of a database connection see to the documentation for your
 <a href="../../databases/overview/">database type</a></p>
@@ -921,7 +921,7 @@ For a definition of a database connection see to the documentation for your
 <p>All credentials are accessible through <code>self.connections['credential_name']</code> where <code>credential_name</code> is the
 name given in required_credentials. API credentials when accessed in python are defined as dictionary,
 whereas database connections are <code>Database</code> objects.</p>
-<h3 id="using-environment-variables">Using Environment Variables<a class="headerlink" href="#using-environment-variables" title="Permanent link">&para;</a></h3>
+<h3 id="using_environment_variables">Using Environment Variables<a class="headerlink" href="#using_environment_variables" title="Permanent link">&para;</a></h3>
 <p>Local settings can be set without the need of a <code>settings.yaml</code> file using environment variables instead.
 With environment variables we don't need to set profiles, only credentials and project parameters are
 defined. SAYN will interpret any environment variable names <code>SAYN_CREDENTIAL_name</code> or <code>SAYN_PARAMETER_name</code>.

@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#copy-task" class="md-skip">
+        <a href="#copy_task" class="md-skip">
           Skip to content
         </a>
       
@@ -517,14 +517,14 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining-copy-tasks" class="md-nav__link">
+  <a href="#defining_copy_tasks" class="md-nav__link">
     Defining copy Tasks
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-types-and-ddl" class="md-nav__link">
+  <a href="#data_types_and_ddl" class="md-nav__link">
     Data types and DDL
   </a>
   
@@ -813,14 +813,14 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining-copy-tasks" class="md-nav__link">
+  <a href="#defining_copy_tasks" class="md-nav__link">
     Defining copy Tasks
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-types-and-ddl" class="md-nav__link">
+  <a href="#data_types_and_ddl" class="md-nav__link">
     Data types and DDL
   </a>
   
@@ -839,11 +839,11 @@
               
                 
                 
-                <h1 id="copy-task"><code>copy</code> Task<a class="headerlink" href="#copy-task" title="Permanent link">&para;</a></h1>
+                <h1 id="copy_task"><code>copy</code> Task<a class="headerlink" href="#copy_task" title="Permanent link">&para;</a></h1>
 <h2 id="about">About<a class="headerlink" href="#about" title="Permanent link">&para;</a></h2>
 <p>The <code>copy</code> task copies tables from one database to another. It can be used to automatically
 ingest data from operational databases (e.g. PostgreSQL) to your analytics warehouse.</p>
-<h2 id="defining-copy-tasks">Defining <code>copy</code> Tasks<a class="headerlink" href="#defining-copy-tasks" title="Permanent link">&para;</a></h2>
+<h2 id="defining_copy_tasks">Defining <code>copy</code> Tasks<a class="headerlink" href="#defining_copy_tasks" title="Permanent link">&para;</a></h2>
 <p>A <code>copy</code> task is defined as follows:</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
@@ -933,7 +933,7 @@ of records loaded is lower than the value of <code>max_merge_rows</code>. In ord
 process will also stop after a maximum of 100 iteration. To avoid issues, it should be set to a very
 large value (larger than <code>max_batch_rows</code>).</p>
 </div>
-<h2 id="data-types-and-ddl">Data types and DDL<a class="headerlink" href="#data-types-and-ddl" title="Permanent link">&para;</a></h2>
+<h2 id="data_types_and_ddl">Data types and DDL<a class="headerlink" href="#data_types_and_ddl" title="Permanent link">&para;</a></h2>
 <p><code>copy</code> tasks accept a <code>ddl</code> field in the task definition in the same way that <code>autosql</code> does. With this
 specification, we can override the default behaviour of copy when it comes to column types by enforcing
 specific column types in the final table:</p>

@@ -613,7 +613,7 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#connection-types" class="md-nav__link">
+  <a href="#connection_types" class="md-nav__link">
     Connection Types
   </a>
   
@@ -621,14 +621,14 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#standard-userpassword-connection" class="md-nav__link">
+  <a href="#standard_userpassword_connection" class="md-nav__link">
     Standard User/Password Connection
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#connecting-with-iam" class="md-nav__link">
+  <a href="#connecting_with_iam" class="md-nav__link">
     Connecting With IAM
   </a>
   
@@ -640,7 +640,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#redshift-specific-ddl" class="md-nav__link">
+  <a href="#redshift_specific_ddl" class="md-nav__link">
     Redshift Specific DDL
   </a>
   
@@ -846,7 +846,7 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#connection-types" class="md-nav__link">
+  <a href="#connection_types" class="md-nav__link">
     Connection Types
   </a>
   
@@ -854,14 +854,14 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#standard-userpassword-connection" class="md-nav__link">
+  <a href="#standard_userpassword_connection" class="md-nav__link">
     Standard User/Password Connection
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#connecting-with-iam" class="md-nav__link">
+  <a href="#connecting_with_iam" class="md-nav__link">
     Connecting With IAM
   </a>
   
@@ -873,7 +873,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#redshift-specific-ddl" class="md-nav__link">
+  <a href="#redshift_specific_ddl" class="md-nav__link">
     Redshift Specific DDL
   </a>
   
@@ -969,9 +969,9 @@ installed with:</p>
 <p>For advanced configurations, SAYN will pass other parameters to <code>create_engine</code>, so check the
 sqlalchemy <a href="https://docs.sqlalchemy.org/en/13/dialects/postgresql.html#module-sqlalchemy.dialects.postgresql.psycopg2" target="_blank">psycopg2</a>
 dialect for extra parameters.</p>
-<h2 id="connection-types">Connection Types<a class="headerlink" href="#connection-types" title="Permanent link">&para;</a></h2>
+<h2 id="connection_types">Connection Types<a class="headerlink" href="#connection_types" title="Permanent link">&para;</a></h2>
 <p>SAYN supports 2 connection models for Redshift: standard user/password connection and IAM based.</p>
-<h3 id="standard-userpassword-connection">Standard User/Password Connection<a class="headerlink" href="#standard-userpassword-connection" title="Permanent link">&para;</a></h3>
+<h3 id="standard_userpassword_connection">Standard User/Password Connection<a class="headerlink" href="#standard_userpassword_connection" title="Permanent link">&para;</a></h3>
 <p>If you have a user name and password for redshift use the first model and ensure host and password
 are specified.</p>
 <div class="admonition example">
@@ -986,7 +986,7 @@ are specified.</p>
     <span class="nt">dbname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">models</span>
 </code></pre></div>
 </div>
-<h3 id="connecting-with-iam">Connecting With IAM<a class="headerlink" href="#connecting-with-iam" title="Permanent link">&para;</a></h3>
+<h3 id="connecting_with_iam">Connecting With IAM<a class="headerlink" href="#connecting_with_iam" title="Permanent link">&para;</a></h3>
 <p>With an IAM based connection SAYN uses the AWS API to obtain a temporary password to stablish the
 connection, so only user, dbname and cluster_id are required.</p>
 <div class="admonition example">
@@ -1006,7 +1006,7 @@ connection, so only user, dbname and cluster_id are required.</p>
 <li>The <code>user</code> and <code>dbname</code> still need to be specified (use the database user, not the <code>IAM:user</code>).</li>
 <li><code>host</code> and <code>port</code> can be skipped and these values will be obtained using boto3's <code>redshift describe-clusters</code>.</li>
 </ul>
-<h2 id="redshift-specific-ddl">Redshift Specific DDL<a class="headerlink" href="#redshift-specific-ddl" title="Permanent link">&para;</a></h2>
+<h2 id="redshift_specific_ddl">Redshift Specific DDL<a class="headerlink" href="#redshift_specific_ddl" title="Permanent link">&para;</a></h2>
 <h3 id="indexes">Indexes<a class="headerlink" href="#indexes" title="Permanent link">&para;</a></h3>
 <p>Redshift doesn't support index definitions, and so autosql and copy tasks will forbid its definition
 in the <code>ddl</code> entry in the task definition.</p>

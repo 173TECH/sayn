@@ -419,21 +419,21 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#project-parameters" class="md-nav__link">
+  <a href="#project_parameters" class="md-nav__link">
     Project Parameters
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-parameters" class="md-nav__link">
+  <a href="#task_parameters" class="md-nav__link">
     Task Parameters
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-parameters" class="md-nav__link">
+  <a href="#using_parameters" class="md-nav__link">
     Using Parameters
   </a>
   
@@ -441,21 +441,21 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#using-parameters-in-tasks" class="md-nav__link">
+  <a href="#using_parameters_in_tasks" class="md-nav__link">
     Using Parameters In tasks
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#in-sql-queries" class="md-nav__link">
+  <a href="#in_sql_queries" class="md-nav__link">
     In SQL Queries
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#in-python-tasks" class="md-nav__link">
+  <a href="#in_python_tasks" class="md-nav__link">
     In python Tasks
   </a>
   
@@ -833,21 +833,21 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#project-parameters" class="md-nav__link">
+  <a href="#project_parameters" class="md-nav__link">
     Project Parameters
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-parameters" class="md-nav__link">
+  <a href="#task_parameters" class="md-nav__link">
     Task Parameters
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-parameters" class="md-nav__link">
+  <a href="#using_parameters" class="md-nav__link">
     Using Parameters
   </a>
   
@@ -855,21 +855,21 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#using-parameters-in-tasks" class="md-nav__link">
+  <a href="#using_parameters_in_tasks" class="md-nav__link">
     Using Parameters In tasks
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#in-sql-queries" class="md-nav__link">
+  <a href="#in_sql_queries" class="md-nav__link">
     In SQL Queries
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#in-python-tasks" class="md-nav__link">
+  <a href="#in_python_tasks" class="md-nav__link">
     In python Tasks
   </a>
   
@@ -896,7 +896,7 @@
                 <h1 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h1>
 <p><code>parameters</code> are a really powerful SAYN feature. They enable you to make your code dynamic and easily switch between profiles. For example, <code>parameters</code> are key to separating development and production environments.</p>
 <p>SAYN uses <a href="https://jinja.palletsprojects.com/" target="_blank">Jinja</a> templating for both the SQL queries and YAML properties. <code>parameters</code> can also be accessed in <code>python</code> tasks.</p>
-<h2 id="project-parameters">Project Parameters<a class="headerlink" href="#project-parameters" title="Permanent link">&para;</a></h2>
+<h2 id="project_parameters">Project Parameters<a class="headerlink" href="#project_parameters" title="Permanent link">&para;</a></h2>
 <p>Project parameters are defined in <code>project.yaml</code>:</p>
 <div class="admonition example">
 <p class="admonition-title">project.yaml</p>
@@ -941,7 +941,7 @@ environment we can do the following:</p>
 </div>
 <p>In the above, we're overriding the values of the project parameters for the <code>dev</code> profile,
 but not for the <code>prod</code> profile.</p>
-<h2 id="task-parameters">Task Parameters<a class="headerlink" href="#task-parameters" title="Permanent link">&para;</a></h2>
+<h2 id="task_parameters">Task Parameters<a class="headerlink" href="#task_parameters" title="Permanent link">&para;</a></h2>
 <p>Tasks can also define parameters. This is useful if there's a way for several tasks to share
 the same code:</p>
 <div class="admonition example">
@@ -970,8 +970,8 @@ the same code:</p>
 <p>In the above example both <code>task1</code> and <code>task2</code> are sql tasks pointing at the same file
 <code>sql/task_template.sql</code>, the difference between the 2 is the value of the <code>src_table</code> parameter
 which is used to change the source table in the SQL.</p>
-<h2 id="using-parameters">Using Parameters<a class="headerlink" href="#using-parameters" title="Permanent link">&para;</a></h2>
-<h3 id="using-parameters-in-tasks">Using Parameters In <code>tasks</code><a class="headerlink" href="#using-parameters-in-tasks" title="Permanent link">&para;</a></h3>
+<h2 id="using_parameters">Using Parameters<a class="headerlink" href="#using_parameters" title="Permanent link">&para;</a></h2>
+<h3 id="using_parameters_in_tasks">Using Parameters In <code>tasks</code><a class="headerlink" href="#using_parameters_in_tasks" title="Permanent link">&para;</a></h3>
 <p>Task attributes are interpreted as <a href="https://jinja.palletsprojects.com/" target="_blank">Jinja</a>
 parameters. Therefore, you can make the tasks' definition dynamic. This example uses an <code>autosql</code>
 task:</p>
@@ -1038,7 +1038,7 @@ which we set as default above and evaluate as:</p>
 <p>Here we extract all values from <code>task_autosql_param</code> into a preset <code>preset_auto_param</code> that can be reused
 in multiple tasks. The name of the task is then used to reference the correct sql file and the correct
 table name using <code>{{ task.name }}</code></p>
-<h3 id="in-sql-queries">In SQL Queries<a class="headerlink" href="#in-sql-queries" title="Permanent link">&para;</a></h3>
+<h3 id="in_sql_queries">In SQL Queries<a class="headerlink" href="#in_sql_queries" title="Permanent link">&para;</a></h3>
 <p>For SQL related tasks (<code>autosql</code>, <code>sql</code>), use <code>parameters</code> within the SQL code with the same jinja syntax
 <code>{{ parameter_name }}</code>:</p>
 <div class="admonition example">
@@ -1055,7 +1055,7 @@ If using the <code>dev</code> profile, this would therefore be compiled as:</p>
   <span class="k">FROM</span> <span class="n">analytics_adhoc</span><span class="p">.</span><span class="n">songoku_my_table</span> <span class="k">AS</span> <span class="n">mt</span>
 </code></pre></div>
 </div>
-<h3 id="in-python-tasks">In <code>python</code> Tasks<a class="headerlink" href="#in-python-tasks" title="Permanent link">&para;</a></h3>
+<h3 id="in_python_tasks">In <code>python</code> Tasks<a class="headerlink" href="#in_python_tasks" title="Permanent link">&para;</a></h3>
 <p>Parameters are accessible to python tasks as well as properties of the task class with
 <code>self.project_parameters</code>, <code>self.task_parameters</code> and <code>self.parameters</code>, which are all python dictionaries.
 <code>self.parameters</code> is the most convenient one as it combines both project and task parameters in a single

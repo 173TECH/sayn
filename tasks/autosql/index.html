@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#autosql-task" class="md-skip">
+        <a href="#autosql_task" class="md-skip">
           Skip to content
         </a>
       
@@ -481,21 +481,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining-autosql-tasks" class="md-nav__link">
+  <a href="#defining_autosql_tasks" class="md-nav__link">
     Defining autosql Tasks
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-autosql-in-incremental-mode" class="md-nav__link">
+  <a href="#using_autosql_in_incremental_mode" class="md-nav__link">
     Using autosql In incremental Mode
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining-ddls" class="md-nav__link">
+  <a href="#defining_ddls" class="md-nav__link">
     Defining DDLs
   </a>
   
@@ -503,14 +503,14 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#alter-table-ddls" class="md-nav__link">
+  <a href="#alter_table_ddls" class="md-nav__link">
     ALTER TABLE DDLs
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#create-table-ddls" class="md-nav__link">
+  <a href="#create_table_ddls" class="md-nav__link">
     CREATE TABLE DDLs
   </a>
   
@@ -840,21 +840,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining-autosql-tasks" class="md-nav__link">
+  <a href="#defining_autosql_tasks" class="md-nav__link">
     Defining autosql Tasks
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#using-autosql-in-incremental-mode" class="md-nav__link">
+  <a href="#using_autosql_in_incremental_mode" class="md-nav__link">
     Using autosql In incremental Mode
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining-ddls" class="md-nav__link">
+  <a href="#defining_ddls" class="md-nav__link">
     Defining DDLs
   </a>
   
@@ -862,14 +862,14 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#alter-table-ddls" class="md-nav__link">
+  <a href="#alter_table_ddls" class="md-nav__link">
     ALTER TABLE DDLs
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#create-table-ddls" class="md-nav__link">
+  <a href="#create_table_ddls" class="md-nav__link">
     CREATE TABLE DDLs
   </a>
   
@@ -893,10 +893,10 @@
               
                 
                 
-                <h1 id="autosql-task"><code>autosql</code> Task<a class="headerlink" href="#autosql-task" title="Permanent link">&para;</a></h1>
+                <h1 id="autosql_task"><code>autosql</code> Task<a class="headerlink" href="#autosql_task" title="Permanent link">&para;</a></h1>
 <h2 id="about">About<a class="headerlink" href="#about" title="Permanent link">&para;</a></h2>
 <p>The <code>autosql</code> task lets you write a <code>SELECT</code> statement and SAYN then automates the data processing (i.e. table or view creation, incremental load, etc.) for you.</p>
-<h2 id="defining-autosql-tasks">Defining <code>autosql</code> Tasks<a class="headerlink" href="#defining-autosql-tasks" title="Permanent link">&para;</a></h2>
+<h2 id="defining_autosql_tasks">Defining <code>autosql</code> Tasks<a class="headerlink" href="#defining_autosql_tasks" title="Permanent link">&para;</a></h2>
 <p>An <code>autosql</code> task is defined as follows:</p>
 <div class="admonition example">
 <p class="admonition-title">autosql task definition</p>
@@ -936,7 +936,7 @@
 <li>Be one of the supported <a href="../../databases/overview/">databases</a>.</li>
 </ul>
 </div>
-<h2 id="using-autosql-in-incremental-mode">Using <code>autosql</code> In <code>incremental</code> Mode<a class="headerlink" href="#using-autosql-in-incremental-mode" title="Permanent link">&para;</a></h2>
+<h2 id="using_autosql_in_incremental_mode">Using <code>autosql</code> In <code>incremental</code> Mode<a class="headerlink" href="#using_autosql_in_incremental_mode" title="Permanent link">&para;</a></h2>
 <p><code>autosql</code> tasks support loads incrementally, which is extremely useful for large data volumes when full
 refresh (<code>materialisation: table</code>) would be infeasible.</p>
 <p>We set an <code>autosql</code> task as incremental by:
@@ -982,13 +982,13 @@ refresh (<code>materialisation: table</code>) would be infeasible.</p>
  <span class="k">GROUP</span> <span class="k">BY</span> <span class="mi">1</span><span class="p">,</span><span class="mi">2</span>
 </code></pre></div>
 </div>
-<h2 id="defining-ddls">Defining DDLs<a class="headerlink" href="#defining-ddls" title="Permanent link">&para;</a></h2>
+<h2 id="defining_ddls">Defining DDLs<a class="headerlink" href="#defining_ddls" title="Permanent link">&para;</a></h2>
 <p>Autosql tasks support the definition of optional DDL. Each DDL entry is independent to others (you can define only DDLs which are relevant to you).</p>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
 <p>Each supported database might have specific DDL related to it. Below are the DDLs that SAYN supports across all databases. For DDLs related to specific databases see the database-specific pages.</p>
 </div>
-<h3 id="alter-table-ddls">ALTER TABLE DDLs<a class="headerlink" href="#alter-table-ddls" title="Permanent link">&para;</a></h3>
+<h3 id="alter_table_ddls">ALTER TABLE DDLs<a class="headerlink" href="#alter_table_ddls" title="Permanent link">&para;</a></h3>
 <p>The following DDLs will be issued by SAYN with <code>ALTER TABLE</code> statements:</p>
 <ul>
 <li>indexes: the indexes to add on the table.</li>
@@ -1021,7 +1021,7 @@ refresh (<code>materialisation: table</code>) would be infeasible.</p>
 <span class="nn">...</span>
 </code></pre></div>
 </div>
-<h3 id="create-table-ddls">CREATE TABLE DDLs<a class="headerlink" href="#create-table-ddls" title="Permanent link">&para;</a></h3>
+<h3 id="create_table_ddls">CREATE TABLE DDLs<a class="headerlink" href="#create_table_ddls" title="Permanent link">&para;</a></h3>
 <p>SAYN also lets you control the CREATE TABLE statement if you need more specification. This is done with:</p>
 <ul>
 <li>columns: the list of columns including their definitions.</li>

@@ -469,29 +469,36 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-types" class="md-nav__link">
+  <a href="#task_types" class="md-nav__link">
     Task Types
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining-tasks" class="md-nav__link">
+  <a href="#defining_tasks" class="md-nav__link">
     Defining Tasks
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-groups" class="md-nav__link">
+  <a href="#task_groups" class="md-nav__link">
     Task Groups
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-attributes" class="md-nav__link">
+  <a href="#task_attributes" class="md-nav__link">
     Task Attributes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task_failure_behaviour" class="md-nav__link">
+    Task failure behaviour
   </a>
   
 </li>
@@ -827,29 +834,36 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-types" class="md-nav__link">
+  <a href="#task_types" class="md-nav__link">
     Task Types
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining-tasks" class="md-nav__link">
+  <a href="#defining_tasks" class="md-nav__link">
     Defining Tasks
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-groups" class="md-nav__link">
+  <a href="#task_groups" class="md-nav__link">
     Task Groups
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-attributes" class="md-nav__link">
+  <a href="#task_attributes" class="md-nav__link">
     Task Attributes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task_failure_behaviour" class="md-nav__link">
+    Task failure behaviour
   </a>
   
 </li>
@@ -882,7 +896,7 @@
 <p>Dependencies between tasks are defined with the <code>parents</code> list. To relate back to the DAG concept, this implies each task in SAYN represents a <code>node</code> and <code>edges</code> are defined by the <code>parents</code> attribute of each task. For example, the SAYN tutorial defines the following DAG:</p>
 <p><img alt="Tutorial" src="../../dag.png" /></p>
 <p>Through tasks, SAYN provides a lot of automation under the hood, so make sure you explore the various task types SAYN offers!</p>
-<h2 id="task-types">Task Types<a class="headerlink" href="#task-types" title="Permanent link">&para;</a></h2>
+<h2 id="task_types">Task Types<a class="headerlink" href="#task_types" title="Permanent link">&para;</a></h2>
 <p>Please see below the available SAYN task types:</p>
 <ul>
 <li><a href="../autosql/"><code>autosql</code></a>: simply write a <code>SELECT</code> statement and SAYN automates the data processing (i.e. table or view creation, incremental load, etc.) for you.</li>
@@ -891,7 +905,7 @@
 <li><a href="../dummy/"><code>dummy</code></a>: those tasks do not do anything. They can be used as connectors between tasks.</li>
 <li><a href="../sql/"><code>sql</code></a>: executes any SQL statement. There can be multiple statements within the SQL file.</li>
 </ul>
-<h2 id="defining-tasks">Defining Tasks<a class="headerlink" href="#defining-tasks" title="Permanent link">&para;</a></h2>
+<h2 id="defining_tasks">Defining Tasks<a class="headerlink" href="#defining_tasks" title="Permanent link">&para;</a></h2>
 <p>Tasks are defined in YAML files located under the <code>tasks</code> folder at the root level of your SAYN project. Each file in the <code>tasks</code> folder represents a <a href="#task_groups">task group</a> and can be executed independently. By default, SAYN includes any file in the <code>tasks</code> folder ending with a <code>.yaml</code> extension when creating the DAG.</p>
 <p>Within each YAML file, tasks are defined in the <code>tasks</code> entry.</p>
 <div class="admonition example">
@@ -936,14 +950,18 @@
 <td>A list of tags used in <code>sayn run -t tag:tag_name</code>. This allows for advanced task filtering when we don't want to run all tasks in the project.</td>
 <td>Optional list</td>
 </tr>
+<tr>
+<td>on_fail</td>
+<td>Defines the behaviour when the <a href="#task_failure_behaviour">task fails</a>.</td>
+<td>Optional one of: <code>skip</code> or <code>no_skip</code></td>
+</tr>
 </tbody>
 </table>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
 <p>Different task types have different attributes. Make sure that you check each task type's specific documentation to understand how to define it.</p>
 </div>
-<p><a name="task_groups"></a></p>
-<h2 id="task-groups">Task Groups<a class="headerlink" href="#task-groups" title="Permanent link">&para;</a></h2>
+<h2 id="task_groups">Task Groups<a class="headerlink" href="#task_groups" title="Permanent link">&para;</a></h2>
 <p>Task groups are a convenient way to segment and organise your data processes in your SAYN project. Each YAML file in the <code>tasks</code> folder represents a task group.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
@@ -1007,7 +1025,7 @@
 </tr>
 </tbody>
 </table>
-<h2 id="task-attributes">Task Attributes<a class="headerlink" href="#task-attributes" title="Permanent link">&para;</a></h2>
+<h2 id="task_attributes">Task Attributes<a class="headerlink" href="#task_attributes" title="Permanent link">&para;</a></h2>
 <p>Task attributes can be used when defining tasks in a dynamic way. The following example shows how to use the task name and task group dynamically when defining a task:</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
@@ -1018,6 +1036,27 @@
 </code></pre></div>
 </div>
 <p>This will effectively tell the task to look for a file located at <code>base/sql_task.sql</code> in the <code>sql</code> folder.</p>
+<h2 id="task_failure_behaviour">Task failure behaviour<a class="headerlink" href="#task_failure_behaviour" title="Permanent link">&para;</a></h2>
+<p>When a task fails during an execution, all descendent tasks will be skipped as expected. However sometimes it can be useful to 
+execute descending tasks even if a parent fails, for example when an API can frequently throw errors and we want to continue the
+execution just with as much data as it was possible to pull from it. In this case we make use of the <code>on_fail</code> task property to
+specify that we do not want to skip descending tasks.</p>
+<div class="admonition example">
+<p class="admonition-title">tasks/base.yaml</p>
+<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
+  <span class="nt">could_fail_task</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python</span>
+    <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">could_fail.CouldFailTask</span>
+    <span class="nt">on_fail</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">no_skip</span>
+
+  <span class="nt">child_task</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sql</span>
+    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">query_using_could_fail_data.sql</span>
+    <span class="nt">parents</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">failing_task</span>
+</code></pre></div>
+</div>
+<p>In the above case, if <code>could_fail_task</code> fails, <code>child_task</code> will not be skipped.</p>
                 
               
               

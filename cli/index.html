@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#sayn-cli" class="md-skip">
+        <a href="#sayn_cli" class="md-skip">
           Skip to content
         </a>
       
@@ -354,7 +354,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#available-commands" class="md-nav__link">
+  <a href="#available_commands" class="md-nav__link">
     Available Commands
   </a>
   
@@ -362,14 +362,14 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#sayn-init" class="md-nav__link">
+  <a href="#sayn_init" class="md-nav__link">
     sayn init
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#sayn-run" class="md-nav__link">
+  <a href="#sayn_run" class="md-nav__link">
     sayn run
   </a>
   
@@ -377,14 +377,14 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#filtering-tasks" class="md-nav__link">
+  <a href="#filtering_tasks" class="md-nav__link">
     Filtering Tasks
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#incremental-tasks-options" class="md-nav__link">
+  <a href="#incremental_tasks_options" class="md-nav__link">
     Incremental Tasks Options
   </a>
   
@@ -396,14 +396,14 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#sayn-compile" class="md-nav__link">
+  <a href="#sayn_compile" class="md-nav__link">
     sayn compile
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#sayn-dag-image" class="md-nav__link">
+  <a href="#sayn_dag-image" class="md-nav__link">
     sayn dag-image
   </a>
   
@@ -860,7 +860,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#available-commands" class="md-nav__link">
+  <a href="#available_commands" class="md-nav__link">
     Available Commands
   </a>
   
@@ -868,14 +868,14 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#sayn-init" class="md-nav__link">
+  <a href="#sayn_init" class="md-nav__link">
     sayn init
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#sayn-run" class="md-nav__link">
+  <a href="#sayn_run" class="md-nav__link">
     sayn run
   </a>
   
@@ -883,14 +883,14 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#filtering-tasks" class="md-nav__link">
+  <a href="#filtering_tasks" class="md-nav__link">
     Filtering Tasks
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#incremental-tasks-options" class="md-nav__link">
+  <a href="#incremental_tasks_options" class="md-nav__link">
     Incremental Tasks Options
   </a>
   
@@ -902,14 +902,14 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#sayn-compile" class="md-nav__link">
+  <a href="#sayn_compile" class="md-nav__link">
     sayn compile
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#sayn-dag-image" class="md-nav__link">
+  <a href="#sayn_dag-image" class="md-nav__link">
     sayn dag-image
   </a>
   
@@ -933,32 +933,33 @@
               
                 
                 
-                <h1 id="sayn-cli">SAYN CLI<a class="headerlink" href="#sayn-cli" title="Permanent link">&para;</a></h1>
+                <h1 id="sayn_cli">SAYN CLI<a class="headerlink" href="#sayn_cli" title="Permanent link">&para;</a></h1>
 <h2 id="about">About<a class="headerlink" href="#about" title="Permanent link">&para;</a></h2>
 <p>SAYN's CLI tool is the main means for interacting with SAYN projects. Use <code>sayn --help</code> to see all options.</p>
-<h2 id="available-commands">Available Commands<a class="headerlink" href="#available-commands" title="Permanent link">&para;</a></h2>
-<h3 id="sayn-init"><code>sayn init</code><a class="headerlink" href="#sayn-init" title="Permanent link">&para;</a></h3>
+<h2 id="available_commands">Available Commands<a class="headerlink" href="#available_commands" title="Permanent link">&para;</a></h2>
+<h3 id="sayn_init"><code>sayn init</code><a class="headerlink" href="#sayn_init" title="Permanent link">&para;</a></h3>
 <p>Initialises a SAYN project in the current working directory with the
 <a href="../tutorials/tutorial_part1/">SAYN tutorial</a>.</p>
-<h3 id="sayn-run"><code>sayn run</code><a class="headerlink" href="#sayn-run" title="Permanent link">&para;</a></h3>
+<h3 id="sayn_run"><code>sayn run</code><a class="headerlink" href="#sayn_run" title="Permanent link">&para;</a></h3>
 <p>Executes the project. Without arguments it will run all tasks, using the default profile defined in
 <code>settings.yaml</code>. This default behaviour can be overridden with some arguments:</p>
 <ul>
 <li><code>-p profile_name</code>: use the specified profile instead of the default.</li>
 <li><code>-d</code>: extra information to the screen, including messages from <code>self.debug</code> in python tasks.</li>
 </ul>
-<h4 id="filtering-tasks">Filtering Tasks<a class="headerlink" href="#filtering-tasks" title="Permanent link">&para;</a></h4>
+<h4 id="filtering_tasks">Filtering Tasks<a class="headerlink" href="#filtering_tasks" title="Permanent link">&para;</a></h4>
 <p>Sometimes we don't want to execute all tasks defined in the project. In these instances we can use the
 following arguments to filter:</p>
 <ul>
 <li><code>-t task_query</code>: tasks to include.</li>
 <li><code>-x task_query</code>: exclude specific tasks.</li>
 </ul>
-<p>Both <code>-t</code> and <code>-x</code> can be specified multiple times, accumulating their values.</p>
+<p>Multiple tasks can be included after the argument, accumulating their values. Note that both <code>-t</code> and <code>-x</code> can be specified multiple times, resulting in the same outcome.</p>
 <p>Examples:</p>
 <ul>
 <li><code>sayn run -t task_name</code>: run <code>task_name</code> only.</li>
-<li><code>sayn run -t task1 -t task2</code>: runs <code>task1</code> and <code>task2</code> only.</li>
+<li><code>sayn run -t task1 task2</code>: runs <code>task1</code> and <code>task2</code> only.</li>
+<li><code>sayn run -t task1 -t task2</code>: runs <code>task1</code> and <code>task2</code> only. (equivalent to the one above.)</li>
 <li><code>sayn run -t +task_name</code>: run <code>task_name</code> and all its ancestors.</li>
 <li><code>sayn run -t task_name+</code>: run <code>task_name</code> and all its descendants.</li>
 <li><code>sayn run -t group:group_name</code>: run all tasks specified in the group <code>group_name</code>.</li>
@@ -966,7 +967,7 @@ following arguments to filter:</p>
 <li><code>sayn run -x task_name</code>: run all tasks except <code>task_name</code>.</li>
 <li><code>sayn run -t group:marketing -x +task_name</code>: run all tasks in the <code>marketing</code> task group except <code>task_name</code> and its ancestors.</li>
 </ul>
-<h4 id="incremental-tasks-options">Incremental Tasks Options<a class="headerlink" href="#incremental-tasks-options" title="Permanent link">&para;</a></h4>
+<h4 id="incremental_tasks_options">Incremental Tasks Options<a class="headerlink" href="#incremental_tasks_options" title="Permanent link">&para;</a></h4>
 <p>SAYN uses 3 arguments to manage incremental executions: <code>full_load</code>, <code>start_dt</code> and <code>end_dt</code>; which can
 be overridden with these arguments to <code>sayn run</code>:</p>
 <ul>
@@ -976,9 +977,9 @@ be overridden with these arguments to <code>sayn run</code>:</p>
 </ul>
 <p>These values are available to sql and autosql tasks as well as python tasks with <code>self.run_arguments</code>.
 When the <code>sayn run</code> command is executed, these values define the <code>Period</code> specified in the console.</p>
-<h3 id="sayn-compile"><code>sayn compile</code><a class="headerlink" href="#sayn-compile" title="Permanent link">&para;</a></h3>
+<h3 id="sayn_compile"><code>sayn compile</code><a class="headerlink" href="#sayn_compile" title="Permanent link">&para;</a></h3>
 <p>Works like <code>run</code> except it doesn't execute the sql code. The same optional flags than for <code>sayn run</code> apply.</p>
-<h3 id="sayn-dag-image"><code>sayn dag-image</code><a class="headerlink" href="#sayn-dag-image" title="Permanent link">&para;</a></h3>
+<h3 id="sayn_dag-image"><code>sayn dag-image</code><a class="headerlink" href="#sayn_dag-image" title="Permanent link">&para;</a></h3>
 <p>Generates a visualisation of the whole SAYN process. This requires <code>graphviz</code> installed in your
 <a href="https://www.graphviz.org/download/" target="_blank">system</a> and the python package, which can be
 installed with <code>pip install "sayn[graphviz]"</code>.</p>
