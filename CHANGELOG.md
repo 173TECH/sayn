@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.5.9] - 2021-09-02
+
+### Fixed
+
+- Fixes issue with filters in the cli
+
 ## [0.5.8] - 2021-09-01
 
 ### Changed
