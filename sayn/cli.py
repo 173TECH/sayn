@@ -235,7 +235,7 @@ def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 @cli.command(help="Run SAYN tasks.")
 @click_run_options
 def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
-
+    print("teeheee")
     tasks = [i for t in tasks for i in t]
     exclude = [i for t in exclude for i in t]
     app = CliApp("run", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
