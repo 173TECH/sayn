@@ -118,7 +118,7 @@ class ChainOption(click.Option):
         def parser_process(value, state):
             # method to hook to the parser.process
             done = False
-            value = [value]
+            value = str(value)
             if self.save_other_options:
                 # grab everything up to the next option
                 while state.rargs and not done:
@@ -126,12 +126,11 @@ class ChainOption(click.Option):
                         if state.rargs[0].startswith(prefix):
                             done = True
                     if not done:
-                        value.append(state.rargs.pop(0))
+                        value += f" {state.rargs.pop(0)}"
             else:
                 # grab everything remaining
                 value += state.rargs
                 state.rargs[:] = []
-            value = tuple(value)
 
             # call the actual process
             self._previous_parser_process(value, state)
@@ -221,8 +220,8 @@ def init(sayn_project_name):
 @click_run_options
 def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 
-    tasks = [i for t in tasks for i in t]
-    exclude = [i for t in exclude for i in t]
+    tasks = [i for t in tasks for i in t.split(" ")]
+    exclude = [i for t in exclude for i in t.split(" ")]
     app = CliApp("compile", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
 
     app.compile()
@@ -235,9 +234,9 @@ def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 @cli.command(help="Run SAYN tasks.")
 @click_run_options
 def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
-    print("teeheee")
-    tasks = [i for t in tasks for i in t]
-    exclude = [i for t in exclude for i in t]
+
+    tasks = [i for t in tasks for i in t.split(" ")]
+    exclude = [i for t in exclude for i in t.split(" ")]
     app = CliApp("run", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
 
     app.run()

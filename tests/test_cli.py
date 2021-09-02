@@ -18,11 +18,8 @@ def cli():
 @tcli.click_run_options
 def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 
-    tasks = [eval(t) for t in tasks]
-    exclude = [eval(e) for e in exclude]
-
-    tasks = [i for t in tasks for i in t]
-    exclude = [i for t in exclude for i in t]
+    tasks = [i for t in tasks for i in t.split(" ")]
+    exclude = [i for t in exclude for i in t.split(" ")]
 
     start_dt = start_dt.date()
     end_dt = end_dt.date()
@@ -43,11 +40,8 @@ def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 @tcli.click_run_options
 def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 
-    tasks = [eval(t) for t in tasks]
-    exclude = [eval(e) for e in exclude]
-
-    tasks = [i for t in tasks for i in t]
-    exclude = [i for t in exclude for i in t]
+    tasks = [i for t in tasks for i in t.split(" ")]
+    exclude = [i for t in exclude for i in t.split(" ")]
 
     start_dt = start_dt.date()
     end_dt = end_dt.date()
