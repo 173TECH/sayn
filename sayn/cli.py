@@ -219,8 +219,8 @@ def init(sayn_project_name):
 @click_run_options
 def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 
-    tasks = [i for t in tasks for i in t.split(" ")]
-    exclude = [i for t in exclude for i in t.split(" ")]
+    tasks = [i for t in tasks for i in t.strip().split(" ")]
+    exclude = [i for t in exclude for i in t.strip().split(" ")]
     app = CliApp("compile", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
 
     app.compile()
@@ -234,8 +234,8 @@ def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 @click_run_options
 def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 
-    tasks = [i for t in tasks for i in t.split(" ")]
-    exclude = [i for t in exclude for i in t.split(" ")]
+    tasks = [i for t in tasks for i in t.strip().split(" ")]
+    exclude = [i for t in exclude for i in t.strip().split(" ")]
     app = CliApp("run", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
 
     app.run()
