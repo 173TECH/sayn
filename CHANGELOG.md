@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.5.10] - 2021-09-06
+
+### Fixed
+
+- Fixes issue with NaN values when loading to Snowflake
+
 ## [0.5.9] - 2021-09-02
 
 ### Fixed
