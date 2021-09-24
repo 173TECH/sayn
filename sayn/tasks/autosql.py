@@ -50,9 +50,11 @@ class Config(BaseModel):
     @validator("materialisation")
     def incremental_has_delete_key(cls, v, values):
         if v not in ("table", "view", "incremental"):
-            raise ValueError(f'"{v}". Valid materialisations: table, view, incremental')
+            raise ValueError(
+                f'"{v}". Valid materialisations: table, view, incremental')
         elif v != "incremental" and values.get("delete_key") is not None:
-            raise ValueError('"delete_key" is invalid in non-incremental loads')
+            raise ValueError(
+                '"delete_key" is invalid in non-incremental loads')
         elif v == "incremental" and values.get("delete_key") is None:
             raise ValueError('"delete_key" is required for incremental loads')
         else:
@@ -68,8 +70,8 @@ class AutoSqlTask(SqlTask):
         # set the target db for execution
         # this check needs to happen here so we can pass db_features and db_type to the validator
         if (
-            isinstance(config.get("destination"), dict)
-            and config["destination"].get("db") is not None
+            isinstance(config.get("destination"), dict) and
+            config["destination"].get("db") is not None
         ):
             if config["destination"]["db"] not in conn_names_list:
                 return Err(
@@ -101,7 +103,8 @@ class AutoSqlTask(SqlTask):
         )
         self.schema = self.config.destination.db_schema
         self.table = self.config.destination.table
-        self.use_db_object(self.table, schema=self.schema, tmp_schema=self.tmp_schema)
+        self.use_db_object(self.table, schema=self.schema,
+                           tmp_schema=self.tmp_schema)
 
         self.materialisation = self.config.materialisation
         self.delete_key = self.config.delete_key
@@ -117,11 +120,12 @@ class AutoSqlTask(SqlTask):
         # and will issue a create table as select instead.
         # However, if the db doesn't support alter idx then we can't have a
         # primary key
-        self.cols_no_type = [c for c in self.ddl["columns"] if c["type"] is None]
+        self.cols_no_type = [
+            c for c in self.ddl["columns"] if c["type"] is None]
         if (
-            len(self.ddl["primary_key"]) > 0
-            and self.target_db.feature("CANNOT ALTER INDEXES")
-            and (len(self.ddl["columns"]) == 0 or len(self.cols_no_type) > 0)
+            len(self.ddl["primary_key"]) > 0 and
+            self.target_db.feature("CANNOT ALTER INDEXES") and
+            (len(self.ddl["columns"]) == 0 or len(self.cols_no_type) > 0)
         ):
             return Err(
                 "task_definition",
@@ -156,9 +160,9 @@ class AutoSqlTask(SqlTask):
             )
 
         elif (
-            self.materialisation == "table"
-            or self.run_arguments["full_load"]
-            or self.target_db._requested_objects[self.schema][self.table].get("type")
+            self.materialisation == "table" or
+            self.run_arguments["full_load"] or
+            self.target_db._requested_objects[self.schema][self.table].get("type")
             is None
         ):
             # Full load or target table missing
@@ -192,7 +196,8 @@ class AutoSqlTask(SqlTask):
         for step, query in step_queries.items():
             with self.step(step):
                 if debug:
-                    self.write_compilation_output(query, step.replace(" ", "_").lower())
+                    self.write_compilation_output(
+                        query, step.replace(" ", "_").lower())
                 if execute:
                     try:
                         self.target_db.execute(query)
