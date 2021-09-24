@@ -65,8 +65,7 @@ class DDL(BaseModel):
                 cols_msg = ";".join(
                     [f"On {i}: {','.join(c)}" for i, c in missing_cols.items()]
                 )
-                raise ValueError(
-                    f"Some indexes refer to missing columns: {cols_msg}")
+                raise ValueError(f"Some indexes refer to missing columns: {cols_msg}")
 
         return v
 
@@ -189,8 +188,7 @@ class Database:
                 self._requested_objects[schema][name] = {"tasks": list()}
 
             if task_name is not None:
-                self._requested_objects[schema][name]["tasks"].append(
-                    task_name)
+                self._requested_objects[schema][name]["tasks"].append(task_name)
 
     def _introspect(self):
         insp = reflection.Inspector.from_engine(self.engine)
@@ -202,7 +200,7 @@ class Database:
             ]:
                 for obj_name in objs:
                     if schema is not None and obj_name.startswith(schema + "."):
-                        obj_name = obj_name[len(schema + "."):]
+                        obj_name = obj_name[len(schema + ".") :]
                     if obj_name in self._requested_objects[schema]:
                         self._requested_objects[schema][obj_name]["type"] = obj_type
 
@@ -353,8 +351,7 @@ class Database:
                     ]
                     ddl = dict(ddl, columns=columns)
 
-                query = self.create_table(
-                    table, schema=schema, replace=replace, **ddl)
+                query = self.create_table(table, schema=schema, replace=replace, **ddl)
                 self.execute(query)
                 check_create = False
 
@@ -381,8 +378,7 @@ class Database:
         Returns:
             sqlalchemy.Table: A table object from sqlalchemy
         """
-        table_def = Table(table, self.metadata,
-                          schema=schema, extend_existing=True)
+        table_def = Table(table, self.metadata, schema=schema, extend_existing=True)
 
         if table_def.exists():
             table_def = Table(
@@ -429,11 +425,9 @@ class Database:
             replace=True,
             can_replace_table=self.feature("CAN REPLACE TABLE"),
             needs_cascade=self.feature("NEEDS CASCADE"),
-            cannot_specify_ddl_select=self.feature(
-                "CANNOT SPECIFY DDL IN SELECT"),
+            cannot_specify_ddl_select=self.feature("CANNOT SPECIFY DDL IN SELECT"),
             all_columns_have_type=len(
-                [c for c in ddl.get("columns", dict())
-                 if c.get("type") is not None]
+                [c for c in ddl.get("columns", dict()) if c.get("type") is not None]
             ),
             **ddl,
         )
@@ -466,8 +460,7 @@ class Database:
             src_schema in self._requested_objects
             and src_table in self._requested_objects[dst_schema]
         ):
-            object_type = self._requested_objects[dst_schema][dst_table].get(
-                "type")
+            object_type = self._requested_objects[dst_schema][dst_table].get("type")
             table_exists = object_type == "table"
             view_exists = object_type == "view"
         else:
