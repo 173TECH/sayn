@@ -500,6 +500,7 @@ class Database:
             create_or_replace = self.create_table(
                 table, schema, select=select, replace=True, **ddl
             )
+
             return {"Create Or Replace Table": create_or_replace}
 
         else:

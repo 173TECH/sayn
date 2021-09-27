@@ -6,6 +6,8 @@ CREATE OR REPLACE TABLE {{ full_name }}
 {%- elif view_exists %}
 DROP VIEW IF EXISTS {{ full_name }}{{ ' CASCADE' if needs_cascade else ''}};
 CREATE TABLE {{ full_name }}
+{%- else %}
+CREATE OR REPLACE TABLE {{ full_name }}
 {%- endif %}
 {%- elif replace and not can_replace_table %}
   {% if table_exists %}
