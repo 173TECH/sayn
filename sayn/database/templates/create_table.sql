@@ -9,6 +9,10 @@ DROP TABLE IF EXISTS {{ full_name }}{{ ' CASCADE' if needs_cascade else ''}};
 DROP VIEW IF EXISTS {{ full_name }}{{ ' CASCADE' if needs_cascade else ''}};
   {% endif %}
 
+{%- if partition is defined and partition is not none %}
+DROP TABLE IF EXISTS {{ full_name }}{{ ' CASCADE' if needs_cascade else ''}};
+{% endif %}
+
 CREATE TABLE {{ full_name }}
 {%- endif %}
 
