@@ -140,3 +140,74 @@ class Bigquery(Database):
         )
 
         return "\n\n".join((create_or_replace, f"DROP TABLE {full_src_table}"))
+
+    def create_table(
+        self,
+        table,
+        schema=None,
+        select=None,
+        replace=False,
+        **ddl,
+    ):
+        full_name = fully_qualify(table, schema)
+        if (
+            schema in self._requested_objects
+            and table in self._requested_objects[schema]
+        ):
+            object_type = self._requested_objects[schema][table].get("type")
+            table_exists = object_type == "table"
+            view_exists = object_type == "view"
+        else:
+            table_exists = True
+            view_exists = True
+
+        des_clustered = ddl["cluster"] is not None
+        des_partitioned = ddl["partition"] is not None
+        clustered = False
+        partitioned = False
+
+        info = f"SELECT * FROM {self.dataset}.INFORMATION_SCHEMA.COLUMNS;"
+        res = self.read_data(info)
+
+        for r in res:
+            if r["table_name"] == table:
+                if r["column_name"] == ddl["partition"]:
+                    if r["is_partitioning_column"] == "YES":
+                        partitioned = True
+
+                if ddl["cluster"] is not None:
+                    if r["column_name"] in ddl["cluster"]:
+                        for d in ddl["cluster"]:
+                            if r["column_name"] == d:
+                                if r["clustering_ordinal_position"] is None:
+                                    clustered = False
+                                else:
+                                    clustered = True
+
+        if des_clustered == clustered and partitioned == des_partitioned:
+            drop = ""
+        else:
+            drop = f"DROP TABLE IF EXISTS { table };"
+
+        template = self._jinja_env.get_template("create_table.sql")
+        query = template.render(
+            table_name=table,
+            full_name=full_name,
+            view_exists=view_exists,
+            table_exists=table_exists,
+            select=select,
+            replace=True,
+            can_replace_table=self.feature("CAN REPLACE TABLE"),
+            needs_cascade=self.feature("NEEDS CASCADE"),
+            cannot_specify_ddl_select=self.feature("CANNOT SPECIFY DDL IN SELECT"),
+            all_columns_have_type=len(
+                [c for c in ddl.get("columns", dict()) if c.get("type") is not None]
+            ),
+            **ddl,
+        )
+        query = drop + query
+        return query
+
+
+def fully_qualify(name, schema=None):
+    return f"{schema+'.' if schema is not None else ''}{name}"
