@@ -457,12 +457,13 @@ class Database:
         template = self._jinja_env.get_template("move_table.sql")
 
         if (
-            src_schema in self._requested_objects
-            and src_table in self._requested_objects[dst_schema]
+            dst_schema in self._requested_objects
+            and dst_table in self._requested_objects[dst_schema]
         ):
             object_type = self._requested_objects[dst_schema][dst_table].get("type")
-            table_exists = object_type == "table"
-            view_exists = object_type == "view"
+
+            table_exists = bool(object_type == "table")
+            view_exists = bool(object_type == "view")
         else:
             table_exists = True
             view_exists = True
