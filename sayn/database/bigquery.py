@@ -65,6 +65,60 @@ class Bigquery(Database):
 
         return create_engine(url, **settings)
 
+    def _introspect(self):
+        obj_names = []
+        for schema in self._requested_objects.keys():
+            for obj_name in self._requested_objects[schema]:
+                if "sayn_tmp" not in obj_name:
+                    obj_names.append(obj_name)
+
+        column_info = f"SELECT * FROM {self.dataset}.INFORMATION_SCHEMA.COLUMNS WHERE "
+        table_info = f"SELECT * FROM {self.dataset}.INFORMATION_SCHEMA.TABLES WHERE "
+        for obj in obj_names:
+            column_info += f"table_name='{obj}' OR "
+            table_info += f"table_name='{obj}' OR "
+        column_info = column_info[:-4]
+        table_info = table_info[:-4]
+        column_info += ";"
+        table_info += ";"
+
+        table_res = self.read_data(table_info)
+        column_res = self.read_data(column_info)
+
+        tables = [(t["table_name"], t["table_type"]) for t in table_res]
+        columns = [
+            (
+                c["table_name"],
+                c["column_name"],
+                c["is_partitioning_column"],
+                c["clustering_ordinal_position"],
+            )
+            for c in column_res
+        ]
+
+        for schema in self._requested_objects.keys():
+            for obj_type, objs in [
+                ("table", [t[0] for t in tables if t[1] == "BASE TABLE"]),
+                ("view", [t[0] for t in tables if t[1] == "VIEW"]),
+            ]:
+                for obj_name in objs:
+                    if schema is not None and obj_name.startswith(schema + "."):
+                        obj_name = obj_name[len(schema + ".") :]
+                    if obj_name in self._requested_objects[schema]:
+                        self._requested_objects[schema][obj_name]["type"] = obj_type
+                        cols = []
+                        for c in columns:
+                            if c[0] == obj_name:
+
+                                if c[2] == "YES":
+                                    self._requested_objects[schema][obj_name][
+                                        "partition"
+                                    ] = c[1]
+                                if c[3] is not None:
+                                    cols.append(c[1])
+                        if cols:
+                            self._requested_objects[schema][obj_name]["cluster"] = cols
+
     def _py2sqa(self, from_type):
         python_types = {
             int: sqltypes.Integer,
@@ -155,36 +209,26 @@ class Bigquery(Database):
             and table in self._requested_objects[schema]
         ):
             object_type = self._requested_objects[schema][table].get("type")
-            table_exists = object_type == "table"
-            view_exists = object_type == "view"
+            table_exists = bool(object_type == "table")
+            view_exists = bool(object_type == "view")
+            if "partition" in self._requested_objects[schema][table].keys():
+                partition_column = self._requested_objects[schema][table]["partition"]
+            else:
+                partition_column = None
+            if "cluster" in self._requested_objects[schema][table].keys():
+                cluster_column = self._requested_objects[schema][table]["cluster"]
+            else:
+                cluster_column = None
         else:
             table_exists = True
             view_exists = True
+            partition_column = None
+            cluster_column = None
 
-        des_clustered = ddl["cluster"] is not None
-        des_partitioned = ddl["partition"] is not None
-        clustered = False
-        partitioned = False
+        des_clustered = ddl["cluster"]
+        des_partitioned = ddl["partition"]
 
-        info = f"SELECT * FROM {self.dataset}.INFORMATION_SCHEMA.COLUMNS;"
-        res = self.read_data(info)
-
-        for r in res:
-            if r["table_name"] == table:
-                if r["column_name"] == ddl["partition"]:
-                    if r["is_partitioning_column"] == "YES":
-                        partitioned = True
-
-                if ddl["cluster"] is not None:
-                    if r["column_name"] in ddl["cluster"]:
-                        for d in ddl["cluster"]:
-                            if r["column_name"] == d:
-                                if r["clustering_ordinal_position"] is None:
-                                    clustered = False
-                                else:
-                                    clustered = True
-
-        if des_clustered == clustered and partitioned == des_partitioned:
+        if des_clustered == cluster_column and des_partitioned == partition_column:
             drop = ""
         else:
             drop = f"DROP TABLE IF EXISTS { table };"

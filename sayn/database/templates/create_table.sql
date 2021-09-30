@@ -34,7 +34,7 @@ PARTITION BY {{ partition }}
 {% endif %}
 
 {%- if cluster is defined and cluster is not none %}
-CLUSTER BY ({{ cluster|join(', ') }})
+CLUSTER BY {{ cluster|join(', ') }}
 {% endif %}
 
 {%- if distribution is defined and distribution is not none %}
