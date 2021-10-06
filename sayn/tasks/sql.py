@@ -8,10 +8,15 @@ from ..database import Database
 from . import Task
 
 
-class Config(BaseModel, extra=Extra.forbid):
+class Config(BaseModel):
     sql_folder: Path
     file_name: FilePath
     db: Optional[str]
+
+    # need to define a pydantic Config class
+    # to avoid voodoo magic shenanigans
+    class Config:
+        extra = Extra.forbid
 
     @validator("file_name", pre=True)
     def file_name_plus_folder(cls, v, values):

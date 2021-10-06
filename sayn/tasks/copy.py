@@ -54,7 +54,7 @@ class Destination(BaseModel):
         return v
 
 
-class Config(BaseModel, extra=Extra.forbid):
+class Config(BaseModel):
     source: Source
     destination: Destination
     ddl: Optional[Dict[str, Any]]
@@ -62,6 +62,11 @@ class Config(BaseModel, extra=Extra.forbid):
     incremental_key: Optional[str]
     max_merge_rows: Optional[int]
     max_batch_rows: Optional[int]
+
+    # need to define a pydantic Config class
+    # to avoid voodoo magic shenanigans
+    class Config:
+        extra = Extra.forbid
 
     @validator("incremental_key", always=True)
     def incremental_validation(cls, v, values):
