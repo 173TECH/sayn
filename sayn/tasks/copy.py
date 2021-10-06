@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, Extra
 from sqlalchemy import or_, select, column
 
 from ..core.errors import Err, Exc, Ok
@@ -54,7 +54,7 @@ class Destination(BaseModel):
         return v
 
 
-class Config(BaseModel):
+class Config(BaseModel, extra=Extra.forbid):
     source: Source
     destination: Destination
     ddl: Optional[Dict[str, Any]]

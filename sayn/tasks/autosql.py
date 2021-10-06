@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-from pydantic import BaseModel, Field, FilePath, validator
+from pydantic import BaseModel, Field, FilePath, validator, Extra
 
 from ..core.errors import Exc, Ok, Err
 from ..database import Database
@@ -35,7 +35,7 @@ class Destination(BaseModel):
         return v
 
 
-class Config(BaseModel):
+class Config(BaseModel, extra=Extra.forbid):
     sql_folder: Path
     file_name: FilePath
     delete_key: Optional[str]
