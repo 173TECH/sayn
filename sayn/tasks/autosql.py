@@ -43,8 +43,6 @@ class Config(BaseModel):
     destination: Destination
     ddl: Optional[Dict[str, Any]]
 
-    # need to define a pydantic Config class
-    # to avoid voodoo magic shenanigans
     class Config:
         extra = Extra.forbid
 

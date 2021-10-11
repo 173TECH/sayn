@@ -63,8 +63,6 @@ class Config(BaseModel):
     max_merge_rows: Optional[int]
     max_batch_rows: Optional[int]
 
-    # need to define a pydantic Config class
-    # to avoid voodoo magic shenanigans
     class Config:
         extra = Extra.forbid
 

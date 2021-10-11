@@ -13,8 +13,6 @@ class Config(BaseModel):
     file_name: FilePath
     db: Optional[str]
 
-    # need to define a pydantic Config class
-    # to avoid voodoo magic shenanigans
     class Config:
         extra = Extra.forbid
 
