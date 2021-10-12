@@ -1,7 +1,11 @@
 {% set src_prefix = src_schema+'.' if src_schema else '' -%}
 {% set dst_prefix = dst_schema+'.' if dst_schema else '' %}
 
+{% if view_exists%}
+DROP VIEW IF EXISTS {{ dst_prefix }}{{ dst_table }}{{ ' CASCADE' if needs_cascade else ''}};
+{% else %}
 DROP TABLE IF EXISTS {{ dst_prefix }}{{ dst_table }}{{ ' CASCADE' if needs_cascade else ''}};
+{% endif %}
 {% if rename_changes_schema %}
 ALTER TABLE {{ src_prefix }}{{ src_table }} RENAME TO {{ dst_prefix }}{{ dst_table }};
 {% else %}

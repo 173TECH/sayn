@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import BaseModel, FilePath, validator
+from pydantic import BaseModel, FilePath, validator, Extra
 from typing import Optional
 
 from ..core.errors import Ok, Err, Exc
@@ -12,6 +12,9 @@ class Config(BaseModel):
     sql_folder: Path
     file_name: FilePath
     db: Optional[str]
+
+    class Config:
+        extra = Extra.forbid
 
     @validator("file_name", pre=True)
     def file_name_plus_folder(cls, v, values):
@@ -56,7 +59,12 @@ class SqlTask(Task):
         else:
             self._target_db = self._default_db
 
-        self.config = Config(sql_folder=self.run_arguments["folders"]["sql"], **config)
+        try:
+            self.config = Config(
+                sql_folder=self.run_arguments["folders"]["sql"], **config
+            )
+        except Exception as e:
+            return Exc(e)
 
         result = self.compile_obj(self.config.file_name)
         if result.is_err:

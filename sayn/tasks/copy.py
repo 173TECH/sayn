@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, Extra
 from sqlalchemy import or_, select, column
 
 from ..core.errors import Err, Exc, Ok
@@ -62,6 +62,9 @@ class Config(BaseModel):
     incremental_key: Optional[str]
     max_merge_rows: Optional[int]
     max_batch_rows: Optional[int]
+
+    class Config:
+        extra = Extra.forbid
 
     @validator("incremental_key", always=True)
     def incremental_validation(cls, v, values):
