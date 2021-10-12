@@ -66,56 +66,48 @@ class Bigquery(Database):
         return create_engine(url, **settings)
 
     def _introspect(self):
-        obj_names = []
+        schemas = []
+        intros = []
         for schema in self._requested_objects.keys():
-            for obj_name in self._requested_objects[schema]:
-                if "sayn_tmp" not in obj_name:
-                    obj_names.append(obj_name)
+            obj = [obj_name for obj_name in self._requested_objects[schema]]
+            if schema is None:
+                name = self.dataset
+            else:
+                name = schema
+            query = f"""SELECT t.table_name
+                              , t.table_type
+                              , array_agg(STRUCT(t.table_name, c.column_name, c.is_partitioning_column, c.clustering_ordinal_position)) AS columns
+                           FROM {name}.INFORMATION_SCHEMA.TABLES t
+                           JOIN {name}.INFORMATION_SCHEMA.COLUMNS c
+                             ON c.table_name = t.table_name
+                          WHERE t.table_name IN ({', '.join(f"'{ts}'" for ts in obj)})
+                          GROUP BY 1,2
+                    """
+            res = self.read_data(query)
+            schemas.append(schema)
+            intros.append(res)
 
-        column_info = f"SELECT * FROM {self.dataset}.INFORMATION_SCHEMA.COLUMNS WHERE "
-        table_info = f"SELECT * FROM {self.dataset}.INFORMATION_SCHEMA.TABLES WHERE "
-        for obj in obj_names:
-            column_info += f"table_name='{obj}' OR "
-            table_info += f"table_name='{obj}' OR "
-        column_info = column_info[:-4]
-        table_info = table_info[:-4]
-        column_info += ";"
-        table_info += ";"
-
-        table_res = self.read_data(table_info)
-        column_res = self.read_data(column_info)
-
-        tables = [(t["table_name"], t["table_type"]) for t in table_res]
-        columns = [
-            (
-                c["table_name"],
-                c["column_name"],
-                c["is_partitioning_column"],
-                c["clustering_ordinal_position"],
-            )
-            for c in column_res
-        ]
-
-        for schema in self._requested_objects.keys():
+        for (schema, intro) in zip(schemas, intros):
             for obj_type, objs in [
-                ("table", [t[0] for t in tables if t[1] == "BASE TABLE"]),
-                ("view", [t[0] for t in tables if t[1] == "VIEW"]),
+                (
+                    "table",
+                    [t["table_name"] for t in intro if t["table_type"] == "BASE TABLE"],
+                ),
+                ("view", [t["table_name"] for t in intro if t["table_type"] == "VIEW"]),
             ]:
-                for obj_name in objs:
+                for i, obj_name in enumerate(objs):
                     if schema is not None and obj_name.startswith(schema + "."):
                         obj_name = obj_name[len(schema + ".") :]
                     if obj_name in self._requested_objects[schema]:
                         self._requested_objects[schema][obj_name]["type"] = obj_type
                         cols = []
-                        for c in columns:
-                            if c[0] == obj_name:
-
-                                if c[2] == "YES":
-                                    self._requested_objects[schema][obj_name][
-                                        "partition"
-                                    ] = c[1]
-                                if c[3] is not None:
-                                    cols.append(c[1])
+                        for c in intro[i]["columns"]:
+                            if c["is_partitioning_column"] == "YES":
+                                self._requested_objects[schema][obj_name][
+                                    "partition"
+                                ] = c["column_name"]
+                            if c["clustering_ordinal_position"] is not None:
+                                cols.append(c["column_name"])
                         if cols:
                             self._requested_objects[schema][obj_name]["cluster"] = cols
 
