@@ -66,8 +66,6 @@ class Bigquery(Database):
         return create_engine(url, **settings)
 
     def _introspect(self):
-        schemas = []
-        intros = []
         for schema in self._requested_objects.keys():
             obj = [obj_name for obj_name in self._requested_objects[schema]]
             if schema is None:
@@ -84,32 +82,27 @@ class Bigquery(Database):
                           GROUP BY 1,2
                     """
             res = self.read_data(query)
-            schemas.append(schema)
-            intros.append(res)
 
-        for (schema, intro) in zip(schemas, intros):
-            for obj_type, objs in [
-                (
-                    "table",
-                    [t["table_name"] for t in intro if t["table_type"] == "BASE TABLE"],
-                ),
-                ("view", [t["table_name"] for t in intro if t["table_type"] == "VIEW"]),
-            ]:
-                for i, obj_name in enumerate(objs):
-                    if schema is not None and obj_name.startswith(schema + "."):
-                        obj_name = obj_name[len(schema + ".") :]
-                    if obj_name in self._requested_objects[schema]:
-                        self._requested_objects[schema][obj_name]["type"] = obj_type
-                        cols = []
-                        for c in intro[i]["columns"]:
-                            if c["is_partitioning_column"] == "YES":
-                                self._requested_objects[schema][obj_name][
-                                    "partition"
-                                ] = c["column_name"]
-                            if c["clustering_ordinal_position"] is not None:
-                                cols.append(c["column_name"])
-                        if cols:
-                            self._requested_objects[schema][obj_name]["cluster"] = cols
+            for obj in res:
+                obj_name = obj["table_name"]
+                if obj["table_type"] == "BASE TABLE":
+                    obj_type = "table"
+                elif obj["table_type"] == "VIEW":
+                    obj_type = "view"
+                if schema is not None and obj_name.startswith(schema + "."):
+                    obj_name = obj_name[len(schema + ".") :]
+                if obj_name in self._requested_objects[schema]:
+                    self._requested_objects[schema][obj_name]["type"] = obj_type
+                    cols = []
+                    for c in obj["columns"]:
+                        if c["is_partitioning_column"] == "YES":
+                            self._requested_objects[schema][obj_name]["partition"] = c[
+                                "column_name"
+                            ]
+                        if c["clustering_ordinal_position"] is not None:
+                            cols.append(c["column_name"])
+                    if cols:
+                        self._requested_objects[schema][obj_name]["cluster"] = cols
 
     def _py2sqa(self, from_type):
         python_types = {
