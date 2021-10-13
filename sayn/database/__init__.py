@@ -26,14 +26,12 @@ class DDL(BaseModel):
 
         class Config:
             extra = Extra.forbid
-            anystr_lower = True
 
     class Index(BaseModel):
         columns: conlist(str, min_items=1)
 
         class Config:
             extra = Extra.forbid
-            anystr_lower = True
 
     columns: Optional[List[Column]] = list()
     indexes: Optional[Dict[str, Index]] = dict()

@@ -21,7 +21,6 @@ class BigqueryDDL(DDL):
 
     class Config:
         extra = Extra.forbid
-        anystr_lower = True
 
     @validator("cluster")
     def validate_cluster(cls, v, values):

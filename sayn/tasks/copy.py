@@ -18,7 +18,6 @@ class Source(BaseModel):
 
     class Config:
         extra = Extra.forbid
-        anystr_lower = True
 
     @validator("db_schema")
     def can_use_schema(cls, v, values):
@@ -41,7 +40,6 @@ class Destination(BaseModel):
 
     class Config:
         extra = Extra.forbid
-        anystr_lower = True
 
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
@@ -73,7 +71,6 @@ class Config(BaseModel):
 
     class Config:
         extra = Extra.forbid
-        anystr_lower = True
 
     @validator("incremental_key", always=True)
     def incremental_validation(cls, v, values):

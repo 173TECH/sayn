@@ -18,7 +18,6 @@ class Destination(BaseModel):
 
     class Config:
         extra = Extra.forbid
-        anystr_lower = True
 
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
@@ -49,7 +48,6 @@ class Config(BaseModel):
 
     class Config:
         extra = Extra.forbid
-        anystr_lower = True
 
     @validator("file_name", pre=True)
     def file_name_plus_folder(cls, v, values):
