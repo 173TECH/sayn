@@ -25,7 +25,7 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
-        os: [Ubuntu, MacOS]
+        os: [Ubuntu, MacOS, Windows]
         python-version: [3.6, 3.7, 3.8, 3.9]
 
     steps:
@@ -52,4 +52,3 @@ jobs:
       - name: Run pytest
         shell: bash
         run: poetry run pytest
-
