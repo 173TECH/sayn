@@ -6,7 +6,7 @@ import re
 import shutil
 from typing import List, Optional, Dict, Any
 
-from pydantic import BaseModel, validator, ValidationError
+from pydantic import BaseModel, validator, ValidationError, Extra
 from ruamel.yaml import YAML
 from ruamel.yaml.error import MarkedYAMLError
 
@@ -54,6 +54,9 @@ class Project(BaseModel):
     presets: Optional[Dict[str, Dict[str, Any]]] = dict()
     groups: List[str] = []
 
+    class Config:
+        extra = Extra.forbid
+
     @validator("required_credentials")
     def required_credentials_are_unique(cls, v):
         return is_unique("required_credentials", v)
@@ -99,6 +102,9 @@ class TaskGroup(BaseModel):
     presets: Optional[Dict[str, Dict[str, Any]]] = dict()
     tasks: Optional[Dict[str, Dict[str, Any]]]
 
+    class Config:
+        extra = Extra.forbid
+
 
 def read_groups(groups):
     out = dict()
@@ -120,14 +126,23 @@ class Settings(BaseModel):
         parameters: Optional[Dict[str, Any]]
         credentials: Optional[Dict[str, Dict[str, Any]]]
 
+        class Config:
+            extra = Extra.forbid
+
     class SettingsYaml(BaseModel):
         class Profile(BaseModel):
             parameters: Optional[Dict[str, Any]]
             credentials: Dict[str, str]
 
+            class Config:
+                extra = Extra.forbid
+
         credentials: Dict[str, dict]
         profiles: Dict[str, Profile]
         default_profile: Optional[str]
+
+        class Config:
+            extra = Extra.forbid
 
         @validator("profiles")
         def yaml_credentials(cls, v, values, **kwargs):
@@ -185,6 +200,9 @@ class Settings(BaseModel):
 
     yaml: Optional[SettingsYaml]
     environment: Optional[Environment]
+
+    class Config:
+        extra = Extra.forbid
 
     def get_settings(self, profile_name=None):
         if profile_name is not None and self.yaml is None:

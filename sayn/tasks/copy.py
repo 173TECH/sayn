@@ -38,8 +38,8 @@ class Destination(BaseModel):
     table: str
     db: Optional[str]
 
-    class Config:
-        extra = Extra.forbid
+    # class Config:
+    #     extra = Extra.forbid
 
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
@@ -129,9 +129,6 @@ class CopyTask(SqlTask):
                     "supports_schemas": not self.connections[
                         config["source"]["db"]
                     ].feature("NO SCHEMA SUPPORT"),
-                    "cannot_change_schema": self.connections[
-                        config["source"]["db"]
-                    ].feature("CANNOT CHANGE SCHEMA"),
                     "db_type": self.connections[config["source"]["db"]].db_type,
                 }
             )
@@ -140,9 +137,6 @@ class CopyTask(SqlTask):
             config["destination"].update(
                 {
                     "supports_schemas": not self.target_db.feature("NO SCHEMA SUPPORT"),
-                    "cannot_change_schema": self.target_db.feature(
-                        "CANNOT CHANGE SCHEMA"
-                    ),
                     "db_type": self.target_db.db_type,
                 }
             )

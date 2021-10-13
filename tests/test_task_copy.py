@@ -10,6 +10,8 @@ from . import simulate_task, validate_table, tables_with_data, clear_tables
 def copy_task(source_db, target_db, source_data=None, target_data=None, **kwargs):
     task = CopyTask()
     simulate_task(task, source_db=source_db, target_db=target_db, **kwargs)
+
+    # print(source_db)
     if source_data is not None:
         with tables_with_data(task.connections["source_db"], source_data):
             if target_data is not None:
@@ -28,15 +30,25 @@ def copy_task(source_db, target_db, source_data=None, target_data=None, **kwargs
                 f"{task.tmp_schema +'.' if task.tmp_schema else ''}sayn_tmp_{task.table}",
             ],
         )
+    # source_db['db_type'] = source_db.pop('type')
+    # target_db['db_type'] = target_db.pop('type')
 
 
 def test_copy_task(source_db, target_db):
     """Testing copy task with no error"""
+    print(source_db)
+    # temp_source_db = source_db
+    # temp_source_db['db_type'] = temp_source_db.pop('type')
+    #
+    # temp_target_db = target_source_db
+    # temp_target_db['db_type'] = temp_target_db.pop()
     with copy_task(
         source_db,
         target_db,
         source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
     ) as task:
+        # source_db['db_type'] = source_db.pop('type')
+        # target_db['db_type'] = target_db.pop('type')
         assert task.setup(
             source={"db": "source_db", "table": "source_table"},
             destination={"table": "dst_table"},

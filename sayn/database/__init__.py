@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
-from pydantic import BaseModel, validator, conlist
+from pydantic import BaseModel, validator, conlist, Extra
 from sqlalchemy import MetaData, Table
 from sqlalchemy.engine import reflection
 from sqlalchemy.sql import sqltypes
@@ -24,8 +24,14 @@ class DDL(BaseModel):
         unique: Optional[bool] = False
         dst_name: Optional[str]
 
+        class Config:
+            extra = Extra.forbid
+
     class Index(BaseModel):
         columns: conlist(str, min_items=1)
+
+        class Config:
+            extra = Extra.forbid
 
     columns: Optional[List[Column]] = list()
     indexes: Optional[Dict[str, Index]] = dict()
