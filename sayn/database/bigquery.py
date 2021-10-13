@@ -74,7 +74,8 @@ class Bigquery(Database):
                 name = schema
             query = f"""SELECT t.table_name
                               , t.table_type
-                              , array_agg(STRUCT(t.table_name, c.column_name, c.is_partitioning_column, c.clustering_ordinal_position)) AS columns
+                              , array_agg(STRUCT(c.column_name, c.is_partitioning_column = 'YES' AS is_partition, c.clustering_ordinal_position)
+                                          ORDER BY clustering_ordinal_position) AS columns
                            FROM {name}.INFORMATION_SCHEMA.TABLES t
                            JOIN {name}.INFORMATION_SCHEMA.COLUMNS c
                              ON c.table_name = t.table_name
@@ -95,7 +96,7 @@ class Bigquery(Database):
                     self._requested_objects[schema][obj_name]["type"] = obj_type
                     cols = []
                     for c in obj["columns"]:
-                        if c["is_partitioning_column"] == "YES":
+                        if c["is_partition"] is True:
                             self._requested_objects[schema][obj_name]["partition"] = c[
                                 "column_name"
                             ]
