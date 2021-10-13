@@ -12,6 +12,7 @@ class Error:
 
     class Config:
         extra = Extra.forbid
+        anystr_lower = True
 
     def __init__(self, kind, code, details):
         self.kind = kind
@@ -29,6 +30,7 @@ class Result:
 
     class Config:
         extra = Extra.forbid
+        anystr_lower = True
 
     def __init__(self, value: Any = None, error: Error = None):
         if error is not None:

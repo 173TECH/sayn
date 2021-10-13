@@ -16,6 +16,7 @@ class RedshiftDDL(DDL):
 
         class Config:
             extra = Extra.forbid
+            anystr_lower = True
 
         @validator("type")
         def validate_type(cls, v, values):

@@ -56,6 +56,7 @@ class Project(BaseModel):
 
     class Config:
         extra = Extra.forbid
+        anystr_lower = True
 
     @validator("required_credentials")
     def required_credentials_are_unique(cls, v):
@@ -104,6 +105,7 @@ class TaskGroup(BaseModel):
 
     class Config:
         extra = Extra.forbid
+        anystr_lower = True
 
 
 def read_groups(groups):
@@ -128,6 +130,7 @@ class Settings(BaseModel):
 
         class Config:
             extra = Extra.forbid
+            anystr_lower = True
 
     class SettingsYaml(BaseModel):
         class Profile(BaseModel):
@@ -136,6 +139,7 @@ class Settings(BaseModel):
 
             class Config:
                 extra = Extra.forbid
+                anystr_lower = True
 
         credentials: Dict[str, dict]
         profiles: Dict[str, Profile]
@@ -143,6 +147,7 @@ class Settings(BaseModel):
 
         class Config:
             extra = Extra.forbid
+            anystr_lower = True
 
         @validator("profiles")
         def yaml_credentials(cls, v, values, **kwargs):
@@ -203,6 +208,7 @@ class Settings(BaseModel):
 
     class Config:
         extra = Extra.forbid
+        anystr_lower = True
 
     def get_settings(self, profile_name=None):
         if profile_name is not None and self.yaml is None:
