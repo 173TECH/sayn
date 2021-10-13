@@ -6,7 +6,7 @@ import re
 import shutil
 from typing import List, Optional, Dict, Any
 
-from pydantic import BaseModel, validator, ValidationError, Extra
+from pydantic import BaseModel, validator, ValidationError, Extra, constr
 from ruamel.yaml import YAML
 from ruamel.yaml.error import MarkedYAMLError
 
@@ -50,8 +50,8 @@ def is_unique(field_name, v):
 class Project(BaseModel):
     required_credentials: List[str]
     default_db: Optional[str]
-    parameters: Optional[Dict[str, Any]] = dict()
-    presets: Optional[Dict[str, Dict[str, Any]]] = dict()
+    parameters: Optional[Dict[constr(to_lower=True), Any]] = dict()
+    presets: Optional[Dict[str, Dict[constr(to_lower=True), Any]]] = dict()
     groups: List[str] = []
 
     class Config:
@@ -100,8 +100,10 @@ def read_project():
 
 
 class TaskGroup(BaseModel):
-    presets: Optional[Dict[str, Dict[str, Any]]] = dict()
-    tasks: Optional[Dict[str, Dict[str, Any]]]
+    presets: Optional[
+        Dict[constr(to_lower=True), Dict[constr(to_lower=True), Any]]
+    ] = dict()
+    tasks: Optional[Dict[constr(to_lower=True), Dict[constr(to_lower=True), Any]]]
 
     class Config:
         extra = Extra.forbid
@@ -125,8 +127,10 @@ def read_groups(groups):
 
 class Settings(BaseModel):
     class Environment(BaseModel):
-        parameters: Optional[Dict[str, Any]]
-        credentials: Optional[Dict[str, Dict[str, Any]]]
+        parameters: Optional[Dict[constr(to_lower=True), Any]]
+        credentials: Optional[
+            Dict[constr(to_lower=True), Dict[constr(to_lower=True), Any]]
+        ]
 
         class Config:
             extra = Extra.forbid
@@ -134,15 +138,15 @@ class Settings(BaseModel):
 
     class SettingsYaml(BaseModel):
         class Profile(BaseModel):
-            parameters: Optional[Dict[str, Any]]
-            credentials: Dict[str, str]
+            parameters: Optional[Dict[constr(to_lower=True), Any]]
+            credentials: Dict[constr(to_lower=True), constr(to_lower=True)]
 
             class Config:
                 extra = Extra.forbid
                 anystr_lower = True
 
-        credentials: Dict[str, dict]
-        profiles: Dict[str, Profile]
+        credentials: Dict[constr(to_lower=True), constr(to_lower=True)]
+        profiles: Dict[constr(to_lower=True), Profile]
         default_profile: Optional[str]
 
         class Config:
