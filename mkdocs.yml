@@ -83,3 +83,4 @@ nav:
   - Project Examples:
     - A Simple ETL: project_examples/simple_etl.md
     - BBC News NLP: project_examples/bbc_news_nlp.md
+    - Facebook Data Project: project_examples/facebook_data_project.md

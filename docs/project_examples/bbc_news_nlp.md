@@ -23,16 +23,16 @@ This project does the following:
 
 In addition to SAYN, this project uses the following packages:
 
-* `feedparser`: used for getting data from rss feeds
-* `numpy, pandas, nltk`: used for data processing
-* `matplotlib, wordcloud, pillow`: used for visualisations
+* RSS feed data extraction: `feedparser`
+* Data processing: `numpy`, `pandas`, `nltk`
+* Visualisations: `matplotlib`, `wordcloud`, `pillow`
 
 #### Running The Project
 
-* clone the repository with the command `git clone https://github.com/173TECH/sayn_project_example_nlp_news_scraping`.
-* rename the `settings_sample.yaml` file to `settings.yaml`.
-* install the project dependencies by running the `pip install -r requirements.txt` command from the root of the project folder.
-* run all SAYN commands from the root of the project folder.
+* Clone the repository with the command `git clone https://github.com/173TECH/sayn_project_example_nlp_news_scraping`.
+* Rename the `sample_settings.yaml` file to `settings.yaml`.
+* Install the project dependencies by running the `pip install -r requirements.txt` command from the root of the project folder.
+* Run all SAYN commands from the root of the project folder.
 <br>
 ## Implementation Details
 
