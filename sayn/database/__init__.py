@@ -177,6 +177,7 @@ class Database:
     def _request_object(
         self, name, schema=None, tmp_schema=None, task_name=None, request_tmp=True
     ):
+
         to_request = [(name, schema)]
         if request_tmp:
             to_request.append((tmp_name(name), tmp_schema or schema))
@@ -416,6 +417,7 @@ class Database:
             view_exists = True
 
         template = self._jinja_env.get_template("create_table.sql")
+
         return template.render(
             table_name=table,
             full_name=full_name,
