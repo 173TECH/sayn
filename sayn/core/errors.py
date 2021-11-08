@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from pydantic import ValidationError
+from pydantic import ValidationError, Extra
 from ruamel.yaml.error import MarkedYAMLError
 import sqlalchemy
 
@@ -9,6 +9,9 @@ class Error:
     kind: str
     code: str
     details: Dict = dict()
+
+    class Config:
+        extra = Extra.forbid
 
     def __init__(self, kind, code, details):
         self.kind = kind
@@ -23,6 +26,9 @@ class Result:
     is_ok: bool = False
     value: Any = None
     error: Error = None
+
+    class Config:
+        extra = Extra.forbid
 
     def __init__(self, value: Any = None, error: Error = None):
         if error is not None:

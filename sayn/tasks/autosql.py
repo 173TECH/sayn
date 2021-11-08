@@ -16,6 +16,9 @@ class Destination(BaseModel):
     db_schema: Optional[str] = Field(None, alias="schema")
     table: str
 
+    class Config:
+        extra = Extra.forbid
+
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
         if v is not None and not values["supports_schemas"]:

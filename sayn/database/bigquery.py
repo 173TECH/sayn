@@ -6,7 +6,7 @@ import io
 import json
 from typing import List, Optional
 
-from pydantic import validator
+from pydantic import validator, Extra
 from sqlalchemy import create_engine
 from sqlalchemy.sql import sqltypes
 
@@ -18,6 +18,9 @@ db_parameters = ["project", "credentials_path", "location", "dataset"]
 class BigqueryDDL(DDL):
     partition: Optional[str]
     cluster: Optional[List[str]]
+
+    class Config:
+        extra = Extra.forbid
 
     @validator("cluster")
     def validate_cluster(cls, v, values):
