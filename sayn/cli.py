@@ -18,6 +18,7 @@ from .core.config import (
     get_tasks_dict,
 )
 from .core.errors import Err, Result
+from .tasks import TaskStatus
 
 yesterday = date.today() - timedelta(days=1)
 
@@ -96,12 +97,52 @@ class CliApp(App):
         """
         if result is None or not isinstance(result, Result):
             self.finish_app(error=Err("app_setup", "unhandled_error", result=result))
-            sys.exit()
+            sys.exit(-1)
         elif result.is_err:
             self.finish_app(result)
-            sys.exit()
+            sys.exit(-1)
         else:
             return result.value
+
+
+class ChainOption(click.Option):
+    def __init__(self, *args, **kwargs):
+        self.save_other_options = kwargs.pop("save_other_options", True)
+        nargs = kwargs.pop("nargs", -1)
+        assert nargs == -1, "nargs, if set, must be -1 not {}".format(nargs)
+        super(ChainOption, self).__init__(*args, **kwargs)
+        self._previous_parser_process = None
+        self._eat_all_parser = None
+
+    def add_to_parser(self, parser, ctx):
+        def parser_process(value, state):
+            # method to hook to the parser.process
+            done = False
+            if self.save_other_options:
+                # grab everything up to the next option
+                while state.rargs and not done:
+                    for prefix in self._eat_all_parser.prefixes:
+                        if state.rargs[0].startswith(prefix):
+                            done = True
+                    if not done:
+                        value += f" {state.rargs.pop(0)}"
+            else:
+                # grab everything remaining
+                value += state.rargs
+                state.rargs[:] = []
+
+            # call the actual process
+            self._previous_parser_process(value, state)
+
+        retval = super(ChainOption, self).add_to_parser(parser, ctx)
+        for name in self.opts:
+            our_parser = parser._long_opt.get(name) or parser._short_opt.get(name)
+            if our_parser:
+                self._eat_all_parser = our_parser
+                self._previous_parser_process = our_parser.process
+                our_parser.process = parser_process
+                break
+        return retval
 
 
 # Click arguments
@@ -116,13 +157,17 @@ def click_filter(func):
         "--tasks",
         "-t",
         multiple=True,
+        cls=ChainOption,
         help="Task query to INCLUDE in the execution: [+]task_name[+], group:group_name, tag:tag_name",
+        default=list(),
     )(func)
     func = click.option(
         "--exclude",
         "-x",
         multiple=True,
+        cls=ChainOption,
         help="Task query to EXCLUDE in the execution: [+]task_name[+], group:group_name, tag:tag_name",
+        default=list(),
     )(func)
     return func
 
@@ -173,15 +218,31 @@ def init(sayn_project_name):
 @cli.command(help="Compile sql tasks.")
 @click_run_options
 def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
+
+    tasks = [i for t in tasks for i in t.strip().split(" ")]
+    exclude = [i for t in exclude for i in t.strip().split(" ")]
     app = CliApp("compile", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
+
     app.compile()
+    if any([t.status == TaskStatus.FAILED for _, t in app.tasks.items()]):
+        sys.exit(-1)
+    else:
+        sys.exit()
 
 
 @cli.command(help="Run SAYN tasks.")
 @click_run_options
 def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
+
+    tasks = [i for t in tasks for i in t.strip().split(" ")]
+    exclude = [i for t in exclude for i in t.strip().split(" ")]
     app = CliApp("run", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
+
     app.run()
+    if any([t.status == TaskStatus.FAILED for _, t in app.tasks.items()]):
+        sys.exit(-1)
+    else:
+        sys.exit()
 
 
 @cli.command(help="Generate DAG image.")

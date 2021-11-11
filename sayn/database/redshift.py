@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, constr, validator
+from pydantic import BaseModel, constr, validator, Extra
 from sqlalchemy import create_engine
 
 from ..core.errors import DBError
@@ -13,6 +13,9 @@ class RedshiftDDL(DDL):
     class Sorting(BaseModel):
         type: Optional[str]
         columns: List[str]
+
+        class Config:
+            extra = Extra.forbid
 
         @validator("type")
         def validate_type(cls, v, values):

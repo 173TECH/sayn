@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-from pydantic import BaseModel, Field, FilePath, validator
+from pydantic import BaseModel, Field, FilePath, validator, Extra
 
 from ..core.errors import Exc, Ok, Err
 from ..database import Database
@@ -15,6 +15,9 @@ class Destination(BaseModel):
     tmp_schema: Optional[str]
     db_schema: Optional[str] = Field(None, alias="schema")
     table: str
+
+    class Config:
+        extra = Extra.forbid
 
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
@@ -42,6 +45,9 @@ class Config(BaseModel):
     materialisation: str
     destination: Destination
     ddl: Optional[Dict[str, Any]]
+
+    class Config:
+        extra = Extra.forbid
 
     @validator("file_name", pre=True)
     def file_name_plus_folder(cls, v, values):

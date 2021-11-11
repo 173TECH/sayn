@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
-from pydantic import BaseModel, validator, conlist
+from pydantic import BaseModel, validator, conlist, Extra
 from sqlalchemy import MetaData, Table
 from sqlalchemy.engine import reflection
 from sqlalchemy.sql import sqltypes
@@ -24,8 +24,14 @@ class DDL(BaseModel):
         unique: Optional[bool] = False
         dst_name: Optional[str]
 
+        class Config:
+            extra = Extra.forbid
+
     class Index(BaseModel):
         columns: conlist(str, min_items=1)
+
+        class Config:
+            extra = Extra.forbid
 
     columns: Optional[List[Column]] = list()
     indexes: Optional[Dict[str, Index]] = dict()
@@ -177,6 +183,7 @@ class Database:
     def _request_object(
         self, name, schema=None, tmp_schema=None, task_name=None, request_tmp=True
     ):
+
         to_request = [(name, schema)]
         if request_tmp:
             to_request.append((tmp_name(name), tmp_schema or schema))
@@ -416,6 +423,7 @@ class Database:
             view_exists = True
 
         template = self._jinja_env.get_template("create_table.sql")
+
         return template.render(
             table_name=table,
             full_name=full_name,
@@ -456,7 +464,21 @@ class Database:
     def move_table(self, src_table, dst_table, src_schema=None, dst_schema=None, **ddl):
         template = self._jinja_env.get_template("move_table.sql")
 
+        if (
+            dst_schema in self._requested_objects
+            and dst_table in self._requested_objects[dst_schema]
+        ):
+            object_type = self._requested_objects[dst_schema][dst_table].get("type")
+
+            table_exists = bool(object_type == "table")
+            view_exists = bool(object_type == "view")
+        else:
+            table_exists = True
+            view_exists = True
+
         return template.render(
+            table_exists=table_exists,
+            view_exists=view_exists,
             src_schema=src_schema,
             src_table=src_table,
             dst_schema=dst_schema,
@@ -487,6 +509,7 @@ class Database:
             create_or_replace = self.create_table(
                 table, schema, select=select, replace=True, **ddl
             )
+
             return {"Create Or Replace Table": create_or_replace}
 
         else:

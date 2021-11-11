@@ -6,7 +6,7 @@ import re
 import shutil
 from typing import List, Optional, Dict, Any
 
-from pydantic import BaseModel, validator, ValidationError
+from pydantic import BaseModel, validator, ValidationError, Extra
 from ruamel.yaml import YAML
 from ruamel.yaml.error import MarkedYAMLError
 
@@ -54,6 +54,10 @@ class Project(BaseModel):
     presets: Optional[Dict[str, Dict[str, Any]]] = dict()
     groups: List[str] = []
 
+    class Config:
+        extra = Extra.forbid
+        anystr_lower = True
+
     @validator("required_credentials")
     def required_credentials_are_unique(cls, v):
         return is_unique("required_credentials", v)
@@ -99,6 +103,10 @@ class TaskGroup(BaseModel):
     presets: Optional[Dict[str, Dict[str, Any]]] = dict()
     tasks: Optional[Dict[str, Dict[str, Any]]]
 
+    class Config:
+        extra = Extra.forbid
+        anystr_lower = True
+
 
 def read_groups(groups):
     out = dict()
@@ -120,14 +128,26 @@ class Settings(BaseModel):
         parameters: Optional[Dict[str, Any]]
         credentials: Optional[Dict[str, Dict[str, Any]]]
 
+        class Config:
+            extra = Extra.forbid
+            anystr_lower = True
+
     class SettingsYaml(BaseModel):
         class Profile(BaseModel):
             parameters: Optional[Dict[str, Any]]
             credentials: Dict[str, str]
 
+            class Config:
+                extra = Extra.forbid
+                anystr_lower = True
+
         credentials: Dict[str, dict]
         profiles: Dict[str, Profile]
         default_profile: Optional[str]
+
+        class Config:
+            extra = Extra.forbid
+            anystr_lower = True
 
         @validator("profiles")
         def yaml_credentials(cls, v, values, **kwargs):
@@ -185,6 +205,10 @@ class Settings(BaseModel):
 
     yaml: Optional[SettingsYaml]
     environment: Optional[Environment]
+
+    class Config:
+        extra = Extra.forbid
+        anystr_lower = True
 
     def get_settings(self, profile_name=None):
         if profile_name is not None and self.yaml is None:
@@ -263,14 +287,11 @@ def get_connections(credentials):
 
 def get_presets(global_presets, groups):
     """Returns a dictionary of presets merged with the referenced preset
-
     Presets define a direct acyclic graph by including the `preset` property, so
     this function validates that there are no cycles and that all referenced presets
     are defined.
-
     In the output, preset names are prefixed with `sayn_global:` or `group:` so that we can
     merge all presets in the project in the same dictionary.
-
     Args:
       global_presets (dict): dictionary containing the presets defined in project.yaml
       groups (sayn.app.config.TaskGroup): a list of task groups from the tasks/ folder
@@ -340,7 +361,6 @@ def get_presets(global_presets, groups):
 
 def get_task_dict(task, task_name, group_name, presets):
     """Returns a single task merged with the referenced preset
-
     Args:
       task (dict): a dictionary with the task information
       task_name (str): the name of the task
@@ -368,7 +388,6 @@ def get_task_dict(task, task_name, group_name, presets):
 
 def get_tasks_dict(global_presets, groups):
     """Returns a dictionary with the task definition with the preset information merged
-
     Args:
       global_presets (dict): a dictionary with the presets as defined in project.yaml
       groups (sayn.common.config.TaskGroup): a list of task groups from the tasks/ folder

@@ -26,6 +26,7 @@ markdown_extensions:
   - pymdownx.superfences
   - toc:
       permalink: true
+      separator: "_"
 
 plugins:
   - search
@@ -82,3 +83,4 @@ nav:
   - Project Examples:
     - A Simple ETL: project_examples/simple_etl.md
     - Reddit News NLP: project_examples/reddit_news_nlp.md
+    - Facebook Data Project: project_examples/facebook_data_project.md

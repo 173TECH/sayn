@@ -6,7 +6,7 @@ import io
 import json
 from typing import List, Optional
 
-from pydantic import validator
+from pydantic import validator, Extra
 from sqlalchemy import create_engine
 from sqlalchemy.sql import sqltypes
 
@@ -18,6 +18,9 @@ db_parameters = ["project", "credentials_path", "location", "dataset"]
 class BigqueryDDL(DDL):
     partition: Optional[str]
     cluster: Optional[List[str]]
+
+    class Config:
+        extra = Extra.forbid
 
     @validator("cluster")
     def validate_cluster(cls, v, values):
@@ -64,6 +67,46 @@ class Bigquery(Database):
             url += "/" + self.dataset
 
         return create_engine(url, **settings)
+
+    def _introspect(self):
+        for schema in self._requested_objects.keys():
+            obj = [obj_name for obj_name in self._requested_objects[schema]]
+            if schema is None:
+                name = self.dataset
+            else:
+                name = schema
+            query = f"""SELECT t.table_name
+                              , t.table_type
+                              , array_agg(STRUCT(c.column_name, c.is_partitioning_column = 'YES' AS is_partition, c.clustering_ordinal_position)
+                                          ORDER BY clustering_ordinal_position) AS columns
+                           FROM {name}.INFORMATION_SCHEMA.TABLES t
+                           JOIN {name}.INFORMATION_SCHEMA.COLUMNS c
+                             ON c.table_name = t.table_name
+                          WHERE t.table_name IN ({', '.join(f"'{ts}'" for ts in obj)})
+                          GROUP BY 1,2
+                    """
+            res = self.read_data(query)
+
+            for obj in res:
+                obj_name = obj["table_name"]
+                if obj["table_type"] == "BASE TABLE":
+                    obj_type = "table"
+                elif obj["table_type"] == "VIEW":
+                    obj_type = "view"
+                if schema is not None and obj_name.startswith(schema + "."):
+                    obj_name = obj_name[len(schema + ".") :]
+                if obj_name in self._requested_objects[schema]:
+                    self._requested_objects[schema][obj_name]["type"] = obj_type
+                    cols = []
+                    for c in obj["columns"]:
+                        if c["is_partition"] is True:
+                            self._requested_objects[schema][obj_name]["partition"] = c[
+                                "column_name"
+                            ]
+                        if c["clustering_ordinal_position"] is not None:
+                            cols.append(c["column_name"])
+                    if cols:
+                        self._requested_objects[schema][obj_name]["cluster"] = cols
 
     def _py2sqa(self, from_type):
         python_types = {
@@ -140,3 +183,64 @@ class Bigquery(Database):
         )
 
         return "\n\n".join((create_or_replace, f"DROP TABLE {full_src_table}"))
+
+    def create_table(
+        self,
+        table,
+        schema=None,
+        select=None,
+        replace=False,
+        **ddl,
+    ):
+        full_name = fully_qualify(table, schema)
+        if (
+            schema in self._requested_objects
+            and table in self._requested_objects[schema]
+        ):
+            object_type = self._requested_objects[schema][table].get("type")
+            table_exists = bool(object_type == "table")
+            view_exists = bool(object_type == "view")
+            if "partition" in self._requested_objects[schema][table].keys():
+                partition_column = self._requested_objects[schema][table]["partition"]
+            else:
+                partition_column = None
+            if "cluster" in self._requested_objects[schema][table].keys():
+                cluster_column = self._requested_objects[schema][table]["cluster"]
+            else:
+                cluster_column = None
+        else:
+            table_exists = True
+            view_exists = True
+            partition_column = None
+            cluster_column = None
+
+        des_clustered = ddl["cluster"]
+        des_partitioned = ddl["partition"]
+
+        if des_clustered == cluster_column and des_partitioned == partition_column:
+            drop = ""
+        else:
+            drop = f"DROP TABLE IF EXISTS { table };"
+
+        template = self._jinja_env.get_template("create_table.sql")
+        query = template.render(
+            table_name=table,
+            full_name=full_name,
+            view_exists=view_exists,
+            table_exists=table_exists,
+            select=select,
+            replace=True,
+            can_replace_table=self.feature("CAN REPLACE TABLE"),
+            needs_cascade=self.feature("NEEDS CASCADE"),
+            cannot_specify_ddl_select=self.feature("CANNOT SPECIFY DDL IN SELECT"),
+            all_columns_have_type=len(
+                [c for c in ddl.get("columns", dict()) if c.get("type") is not None]
+            ),
+            **ddl,
+        )
+        query = drop + query
+        return query
+
+
+def fully_qualify(name, schema=None):
+    return f"{schema+'.' if schema is not None else ''}{name}"

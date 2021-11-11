@@ -38,7 +38,7 @@ this we specify `partition` in the ddl field. The value is a string matching a B
         destination:
           table: f_battles
         ddl:
-          partittion: DATE(_PARTITIONTIME)
+          partition: DATE(_PARTITIONTIME)
     ```
 
 ### Clustering

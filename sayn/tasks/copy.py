@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, Extra
 from sqlalchemy import or_, select, column
 
 from ..core.errors import Err, Exc, Ok
@@ -15,6 +15,9 @@ class Source(BaseModel):
     db_schema: Optional[str] = Field(None, alias="schema")
     table: str
     db: str
+
+    class Config:
+        extra = Extra.forbid
 
     @validator("db_schema")
     def can_use_schema(cls, v, values):
@@ -34,6 +37,9 @@ class Destination(BaseModel):
     db_schema: Optional[str] = Field(None, alias="schema")
     table: str
     db: Optional[str]
+
+    class Config:
+        extra = Extra.forbid
 
     @validator("tmp_schema")
     def can_use_tmp_schema(cls, v, values):
@@ -62,6 +68,9 @@ class Config(BaseModel):
     incremental_key: Optional[str]
     max_merge_rows: Optional[int]
     max_batch_rows: Optional[int]
+
+    class Config:
+        extra = Extra.forbid
 
     @validator("incremental_key", always=True)
     def incremental_validation(cls, v, values):
@@ -120,9 +129,6 @@ class CopyTask(SqlTask):
                     "supports_schemas": not self.connections[
                         config["source"]["db"]
                     ].feature("NO SCHEMA SUPPORT"),
-                    "cannot_change_schema": self.connections[
-                        config["source"]["db"]
-                    ].feature("CANNOT CHANGE SCHEMA"),
                     "db_type": self.connections[config["source"]["db"]].db_type,
                 }
             )
@@ -131,9 +137,6 @@ class CopyTask(SqlTask):
             config["destination"].update(
                 {
                     "supports_schemas": not self.target_db.feature("NO SCHEMA SUPPORT"),
-                    "cannot_change_schema": self.target_db.feature(
-                        "CANNOT CHANGE SCHEMA"
-                    ),
                     "db_type": self.target_db.db_type,
                 }
             )

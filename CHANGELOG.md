@@ -1,5 +1,24 @@
 # Change Log
 
+## [0.5.10] - 2021-09-06
+
+### Fixed
+
+- Fixes issue with NaN values when loading to Snowflake
+
+## [0.5.9] - 2021-09-02
+
+### Fixed
+
+- Fixes issue with filters in the cli
+
+## [0.5.8] - 2021-09-01
+
+### Changed
+
+- Adds on_fail functionaly to tasks allowing children to run when parent tasks fail
+- Improvements to cli to allow lists with a single -t or -x flag
+
 ## [0.5.7] - 2021-06-25
 
 ### Changed

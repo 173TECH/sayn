@@ -1,7 +1,14 @@
 {%- if not replace %}
 CREATE TABLE IF NOT EXISTS {{ full_name }}
 {%- elif replace and can_replace_table %}
+{%- if table_exists %}
 CREATE OR REPLACE TABLE {{ full_name }}
+{%- elif view_exists %}
+DROP VIEW IF EXISTS {{ full_name }}{{ ' CASCADE' if needs_cascade else ''}};
+CREATE TABLE {{ full_name }}
+{%- else %}
+CREATE OR REPLACE TABLE {{ full_name }}
+{%- endif %}
 {%- elif replace and not can_replace_table %}
   {% if table_exists %}
 DROP TABLE IF EXISTS {{ full_name }}{{ ' CASCADE' if needs_cascade else ''}};
@@ -30,7 +37,7 @@ PARTITION BY {{ partition }}
 {% endif %}
 
 {%- if cluster is defined and cluster is not none %}
-CLUSTER BY ({{ cluster|join(', ') }})
+CLUSTER BY {{ cluster|join(', ') }}
 {% endif %}
 
 {%- if distribution is defined and distribution is not none %}

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sayn"
-version = "0.5.7"
+version = "0.5.10"
 description = "Data-modelling and processing framework for automating Python and SQL tasks"
 authors = ["Robin Watteaux <robin@173tech.com>", "Adrian Macias <adrian@173tech.com>"]
 license = "Apache-2.0"
@@ -12,11 +12,11 @@ homepage = "https://173tech.github.io/sayn"
 include = ["CHANGELOG.md", "NOTICE.md", "mkdocs.yml", "docs/*", "docs/**/*"]
 
 [tool.poetry.dependencies]
-python = ">= 3.6, < 3.10"
-Click = "^7.0"
+python = ">= 3.6.1, < 3.10"
+Click = "^8.0"
 jinja2 = "^2.10.3"
 sqlalchemy = "^1.3.12"
-pydantic = "^1.6.1"
+pydantic = "^1.8"
 colorama = "^0.4.3"
 halo = "^0.0.30"
 "ruamel.yaml" = "^0.16.12"
