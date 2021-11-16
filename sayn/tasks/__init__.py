@@ -256,3 +256,7 @@ class PythonTask(Task):
     def compile(self):
         self.debug("Nothing to be done")
         return self.success()
+
+    def test(self):
+        self.debug("Nothing to be done")
+        return self.success()

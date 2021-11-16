@@ -27,6 +27,9 @@ _excluded_properties = (
     "group",
     "parents",
     "parameters",
+    "columns",
+    "table_properties",
+    "post_hooks",
     "class",
     "preset",
     "on_fail",
@@ -267,6 +270,9 @@ class TaskWrapper:
     def compile(self):
         return self.execute_task("compile")
 
+    def test(self):
+        return self.execute_task("test")
+
     def execute_task(self, command):
         result = self.check_skip()
         if result.is_err or result.value == TaskStatus.SKIPPED:
@@ -282,8 +288,10 @@ class TaskWrapper:
             try:
                 if command == "run":
                     result = self.runner.run()
-                else:
+                elif command == "compile":
                     result = self.runner.compile()
+                else:
+                    result = self.runner.test()
                 if result is None:
                     self.status = TaskStatus.FAILED
                     result = Err("execution", "none_return_value")

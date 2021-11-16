@@ -100,3 +100,11 @@ class SqlTask(Task):
                 return Exc(e)
 
         return Ok()
+
+    def test(self):
+        with self.step("Run Tests"):
+            result = self.write_compilation_output(self.sql_query)
+            if result.is_err:
+                return result
+
+        return Ok()

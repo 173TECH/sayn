@@ -172,6 +172,9 @@ class App:
     def compile(self):
         self.execute_dag("compile")
 
+    def test(self):
+        self.execute_dag("test")
+
     def execute_dag(self, command):
         self.run_arguments["command"] = command
         # Execution of relevant tasks
@@ -187,8 +190,10 @@ class App:
 
             if command == "run":
                 result = task.run()
-            else:
+            elif command == "compile":
                 result = task.compile()
+            else:
+                result = task.test()
 
             if task.in_query:
                 task.tracker._report_event(

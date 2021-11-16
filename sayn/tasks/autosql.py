@@ -212,3 +212,13 @@ class AutoSqlTask(SqlTask):
 
     def run(self):
         return self.execute(True, self.run_arguments["debug"])
+
+    # def test(self):
+    #     res = self.write_compilation_output(self.sql_query, "select")
+    #     if res.is_err:
+    #         return res
+    #     with self.step('Test'):
+    #         # print(self.run_arguments["debug"])
+    #         pass
+    #
+    #     return Ok()
