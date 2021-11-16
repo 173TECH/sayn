@@ -12,6 +12,7 @@ from .dummy import DummyTask
 from .sql import SqlTask
 from .autosql import AutoSqlTask
 from .copy import CopyTask
+from .test import TestTask
 
 _creators = {
     "dummy": DummyTask,
@@ -174,7 +175,7 @@ class TaskWrapper:
                         group=self.group,
                     )
                 )
-
+            print(run_arguments)
             # Call the object creation method
             result = self.create_runner(
                 task_class,
@@ -201,8 +202,11 @@ class TaskWrapper:
         default_db,
         connections,
     ):
-        runner = task_class()
-
+        if run_arguments["command"] == "test":
+            runner = TestTask()
+        else:
+            runner = task_class()
+        print(runner)
         # Add the basic properties
         runner.name = self.name
         runner.group = self.group

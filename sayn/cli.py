@@ -236,7 +236,7 @@ def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
-    app = CliApp("test", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
+    app = CliApp("run", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
 
     app.run()
     if any([t.status == TaskStatus.FAILED for _, t in app.tasks.items()]):
@@ -251,7 +251,7 @@ def test(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
-    app = CliApp("run", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
+    app = CliApp("test", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
 
     app.test()
     if any([t.status == TaskStatus.FAILED for _, t in app.tasks.items()]):
