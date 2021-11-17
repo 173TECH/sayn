@@ -19,6 +19,7 @@ _creators = {
     "sql": SqlTask,
     "autosql": AutoSqlTask,
     "copy": CopyTask,
+    "test": TestTask,
 }
 
 _excluded_properties = (
@@ -28,9 +29,6 @@ _excluded_properties = (
     "group",
     "parents",
     "parameters",
-    "columns",
-    "table_properties",
-    "post_hooks",
     "class",
     "preset",
     "on_fail",
@@ -106,7 +104,6 @@ class TaskWrapper:
         def setup_runner(runner, runner_config):
             try:
                 result = runner.setup(**runner_config)
-
             except Exception as exc:
                 result = Exc(exc)
 
@@ -175,7 +172,7 @@ class TaskWrapper:
                         group=self.group,
                     )
                 )
-            print(run_arguments)
+
             # Call the object creation method
             result = self.create_runner(
                 task_class,
@@ -206,7 +203,6 @@ class TaskWrapper:
             runner = TestTask()
         else:
             runner = task_class()
-        print(runner)
         # Add the basic properties
         runner.name = self.name
         runner.group = self.group

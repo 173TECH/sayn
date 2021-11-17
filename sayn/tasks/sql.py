@@ -101,10 +101,10 @@ class SqlTask(Task):
 
         return Ok()
 
-    def test(self):
-        with self.step("Run Tests"):
-            result = self.write_compilation_output(self.sql_query)
-            if result.is_err:
-                return result
-
-        return Ok()
+    # def test(self):
+    #     with self.step("Run Tests"):
+    #         result = self.write_compilation_output(self.sql_query)
+    #         if result.is_err:
+    #             return result
+    #
+    #     return Ok()

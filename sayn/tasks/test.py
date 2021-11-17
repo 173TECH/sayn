@@ -1,29 +1,55 @@
 from pathlib import Path
 
-from pydantic import BaseModel, FilePath, validator, Extra
-from typing import Optional
+from pydantic import BaseModel, Field, FilePath, validator, Extra
+from typing import List, Optional, Union
 
 from ..core.errors import Ok, Err, Exc
 from ..database import Database
 from . import Task
 
 
-class Config(BaseModel):
-    sql_folder: Path
-    file_name: FilePath
-    db: Optional[str]
+class Tests(BaseModel):
+    name: str
 
     class Config:
         extra = Extra.forbid
 
-    @validator("file_name", pre=True)
-    def file_name_plus_folder(cls, v, values):
-        return Path(values["sql_folder"], v)
+
+class Columns(BaseModel):
+    name: str
+    description: Optional[str]
+    tests: List[Union[str, Tests]]
+
+    class Config:
+        extra = Extra.forbid
+
+
+class Config(BaseModel):
+    columns: List[Columns]
+
+    class Config:
+        extra = Extra.forbid
 
 
 class TestTask(Task):
     def setup(self, **config):
-        self.debug("Nothing to be done")
+        try:
+            self.config = Config(columns=config["columns"])
+        except Exception as e:
+            return Exc(e)
+
+        cols = self.config.columns
+        self.columns = []
+        for c in cols:
+            print(c)
+            self.columns.append(
+                {
+                    "name": c.name,
+                    "description": c.description,
+                    "test": [t if isinstance(t, str) else [t.name] for t in c.tests],
+                }
+            )
+        print(self.columns)
         return self.success()
 
     #
@@ -36,5 +62,8 @@ class TestTask(Task):
     #     return self.success()
 
     def test(self):
+        # print(2)
+        # print(vars(self))
+
         self.debug("Nothing to be done")
         return self.success()

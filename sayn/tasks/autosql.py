@@ -1,11 +1,12 @@
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 from pydantic import BaseModel, Field, FilePath, validator, Extra
 
 from ..core.errors import Exc, Ok, Err
 from ..database import Database
 from .sql import SqlTask
+from .test import Columns
 
 
 class Destination(BaseModel):
@@ -45,6 +46,7 @@ class Config(BaseModel):
     materialisation: str
     destination: Destination
     ddl: Optional[Dict[str, Any]]
+    columns: Optional[List[Columns]]
 
     class Config:
         extra = Extra.forbid
