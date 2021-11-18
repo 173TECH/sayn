@@ -201,6 +201,7 @@ class TaskWrapper:
     ):
         if run_arguments["command"] == "test":
             runner = TestTask()
+            runner.type = self._type
         else:
             runner = task_class()
         # Add the basic properties
