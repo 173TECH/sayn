@@ -293,19 +293,15 @@ class CopyTask(SqlTask):
                 data_iter = self.source_db._read_data_stream(get_data_query)
 
                 def read_iter(iter):
-                    i = 0
                     if self.mode == "append":
 
                         load_time = datetime.utcnow()
                         for record in iter:
-                            i += 1
                             yield dict(record, _sayn_load_ts=load_time)
 
                     else:
                         for record in iter:
                             yield record
-
-                    print(i)
 
                 n_records = self.target_db.load_data(
                     load_table,
