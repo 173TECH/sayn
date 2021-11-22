@@ -189,10 +189,10 @@ class CopyTask(SqlTask):
         self.max_merge_rows = self.config.max_merge_rows
         self.max_batch_rows = self.config.max_batch_rows
 
-        if self.dst_incremental_key is None:
-            self.mode = "full"
-        elif self.config.append:
+        if self.config.append:
             self.mode = "append"
+        elif self.dst_incremental_key is None:
+            self.mode = "full"
         else:
             self.mode = "inc"
 
@@ -462,7 +462,11 @@ class CopyTask(SqlTask):
         )
         last_incremental_value = None
 
-        if not is_full_load and self.target_table_exists:
+        if (
+            not is_full_load
+            and self.target_table_exists
+            and self.dst_incremental_key is not None
+        ):
             if execute:
                 res = self.target_db.read_data(last_incremental_value_query)
                 if len(res) == 1:

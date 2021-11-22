@@ -321,3 +321,77 @@ def test_copy_schemas_error02(source_db, target_db):
             source={"db": "source_db", "schema": "test", "table": "source_table"},
             destination={"table": "dst_table", "schema": "test2", "tmp_schema": "test"},
         ).is_err
+
+
+def test_copy_append01(source_db, target_db):
+    with copy_task(
+        source_db,
+        target_db,
+        source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
+    ) as task:
+        assert task.setup(
+            source={"db": "source_db", "table": "source_table"},
+            destination={"table": "dst_table"},
+            incremental_key="x",
+            append=True,
+        ).is_ok
+
+        task.source_db._introspect()
+        task.target_db._introspect()
+
+        assert task.run().is_ok
+
+        assert validate_table(
+            task.default_db,
+            "dst_table",
+            [
+                {"x": 1, "_sayn_load_ts": None},
+                {"x": 2, "_sayn_load_ts": None},
+                {"x": 3, "_sayn_load_ts": None},
+            ],
+            variable_columns=["_sayn_load_ts"],
+        )
+
+
+def test_copy_append02(source_db, target_db):
+    with copy_task(
+        source_db,
+        target_db,
+        source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
+    ) as task:
+        assert task.setup(
+            source={"db": "source_db", "table": "source_table"},
+            destination={"table": "dst_table"},
+            incremental_key="x",
+            append=True,
+            delete_key="x",
+        ).is_err
+
+
+def test_copy_append03(source_db, target_db):
+    with copy_task(
+        source_db,
+        target_db,
+        source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
+    ) as task:
+        assert task.setup(
+            source={"db": "source_db", "table": "source_table"},
+            destination={"table": "dst_table"},
+            append=True,
+        ).is_ok
+
+        task.source_db._introspect()
+        task.target_db._introspect()
+
+        assert task.run().is_ok
+
+        assert validate_table(
+            task.default_db,
+            "dst_table",
+            [
+                {"x": 1, "_sayn_load_ts": None},
+                {"x": 2, "_sayn_load_ts": None},
+                {"x": 3, "_sayn_load_ts": None},
+            ],
+            variable_columns=["_sayn_load_ts"],
+        )
