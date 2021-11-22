@@ -199,11 +199,8 @@ class TaskWrapper:
         default_db,
         connections,
     ):
-        if run_arguments["command"] == "test":
-            runner = TestTask()
-            runner.type = self._type
-        else:
-            runner = task_class()
+
+        runner = task_class()
         # Add the basic properties
         runner.name = self.name
         runner.group = self.group

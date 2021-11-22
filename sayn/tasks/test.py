@@ -213,7 +213,7 @@ class TestTask(Task):
 
     def test(self):
         with self.step("Write Test Query"):
-            result = self.write_compilation_output(self.query)
+            result = self.write_compilation_output(self.query, "test")
             if result.is_err:
                 return result
 

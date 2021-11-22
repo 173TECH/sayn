@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Dict, Any, Optional, List
+import json
 
 from pydantic import BaseModel, Field, FilePath, validator, Extra
 
@@ -150,6 +151,85 @@ class AutoSqlTask(SqlTask):
         else:
             self.sql_query = result.value
 
+        # print(self.config)
+        # print(config.get("columns"))
+
+        if isinstance(config.get("columns"), list):
+            # print("HEREEEERERERER")
+            cols = self.config.columns
+
+            self.columns = []
+            for c in cols:
+                tests = []
+                for t in c.tests:
+                    if isinstance(t, str):
+                        tests.append({"type": t, "values": None})
+                    else:
+                        tests.append({"type": t.name, "values": t.values})
+                self.columns.append(
+                    {
+                        "name": c.name,
+                        "description": c.description,
+                        "tests": tests,
+                    }
+                )
+
+            columns = self.columns
+            # print(columns)
+            table = self.table
+            query = """
+                       SELECT col
+                            , cnt AS 'count'
+                            , type
+                         FROM (
+                    """
+            for col in columns:
+                tests = col["tests"]
+                for t in tests:
+                    if "unique" in t.values():
+                        query += f"""
+                                SELECT CAST(l.{ col['name'] } AS VARCHAR) AS col
+                                     , COUNT(*) AS cnt
+                                     , 'unique' AS type
+                                  FROM { table } AS l
+                                 GROUP BY l.{ col['name'] }
+                                HAVING COUNT(*) > 1
+
+                                UNION ALL
+                                """
+                    if "not_null" in t.values():
+                        query += f"""
+                                SELECT CAST(l.{ col['name'] } AS VARCHAR) AS col
+                                     , COUNT(*) AS cnt
+                                     , 'null' AS type
+                                  FROM { table } AS l
+                                 WHERE l.{ col['name'] } IS NULL
+                                 GROUP BY l.{ col['name'] }
+                                HAVING COUNT(*) > 0
+
+                                UNION ALL
+                                """
+                    if "values" in t.values():
+                        query += f"""
+                                SELECT CAST(l.{ col['name'] } AS VARCHAR) AS col
+                                     , COUNT(*) AS cnt
+                                     , 'valid_values' AS type
+                                  FROM { table } AS l
+                                 WHERE l.{ col['name'] } NOT IN ( {', '.join(f"'{c}'" for c in t['values'])} )
+                                 GROUP BY l.{ col['name'] }
+                                HAVING COUNT(*) > 0
+
+                                UNION ALL
+                                """
+            parts = query.splitlines()[:-2]
+            query = ""
+            for q in parts:
+                query += q.strip() + "\n"
+
+            query += ") AS t;"
+
+            self.test_query = query
+
         return Ok()
 
     def execute(self, execute, debug):
@@ -215,12 +295,19 @@ class AutoSqlTask(SqlTask):
     def run(self):
         return self.execute(True, self.run_arguments["debug"])
 
-    # def test(self):
-    #     res = self.write_compilation_output(self.sql_query, "select")
-    #     if res.is_err:
-    #         return res
-    #     with self.step('Test'):
-    #         # print(self.run_arguments["debug"])
-    #         pass
-    #
-    #     return Ok()
+    def test(self):
+        with self.step("Write Test Query"):
+            result = self.write_compilation_output(self.test_query, "test")
+            if result.is_err:
+                return result
+
+        with self.step("Execute Test Query"):
+            result = self.default_db.read_data(self.test_query)
+
+            if len(result) == 0:
+                return self.success()
+            else:
+                errout = "Test failed, problematic fields:\n"
+                for res in result:
+                    errout += json.dumps(res)
+                return self.fail(errout)

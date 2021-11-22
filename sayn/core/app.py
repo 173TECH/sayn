@@ -114,27 +114,33 @@ class App:
     def set_tasks(self, tasks, task_query):
         self.task_query = task_query
 
-        if self.run_arguments["command"] == "test":
-            self.dag = {
-                task["name"]: [p for p in task.get("parents", list())]
-                for task in tasks.values()
-                if "columns" in task
-            }
-            self.dag = {x: [] for x in self.dag}
-        else:
-            self.dag = {
-                task["name"]: [p for p in task.get("parents", list())]
-                for task in tasks.values()
-            }
+        self.dag = {
+            task["name"]: [p for p in task.get("parents", list())]
+            for task in tasks.values()
+        }
 
         topo_sort = topological_sort(self.dag)
         if topo_sort.is_err:
             return topo_sort
 
+        # print(tasks)
+
+        # print(type(topo_sort))
+        if self.run_arguments["command"] == "test":
+            topo_sort = Ok(
+                [
+                    task_name
+                    for task_name in topo_sort.value
+                    if "columns" in tasks[task_name].keys()
+                ]
+            )
+
+        # print(topo_sort)
+
         self._tasks_dict = {
             task_name: tasks[task_name] for task_name in topo_sort.value
         }
-
+        # print(self._tasks_dict)
         result = dag_query(self.dag, self.task_query)
         if result.is_err:
             return result
