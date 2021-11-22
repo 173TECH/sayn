@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, Field, validator, Extra
@@ -268,9 +269,13 @@ class CopyTask(SqlTask):
                 get_data_query = result.value
 
             create_ddl = {k: v for k, v in self.ddl.items() if k != "columns"}
-            create_ddl["columns"] = [c for c in self.ddl["columns"]] + [
-                {"name": "_sayn_load_ts", "type": "TIMESTAMP"}
-            ]
+            if self.mode == "append":
+                create_ddl["columns"] = [c for c in self.ddl["columns"]] + [
+                    {"name": "_sayn_load_ts", "type": "TIMESTAMP"}
+                ]
+            else:
+                create_ddl["columns"] = [c for c in self.ddl["columns"]]
+
             query = self.target_db.create_table(
                 load_table, schema=load_schema, replace=True, **create_ddl
             )
@@ -290,7 +295,6 @@ class CopyTask(SqlTask):
                 def read_iter(iter):
                     i = 0
                     if self.mode == "append":
-                        from datetime import datetime
 
                         load_time = datetime.utcnow()
                         for record in iter:
