@@ -151,11 +151,7 @@ class AutoSqlTask(SqlTask):
         else:
             self.sql_query = result.value
 
-        # print(self.config)
-        # print(config.get("columns"))
-
         if isinstance(config.get("columns"), list):
-            # print("HEREEEERERERER")
             cols = self.config.columns
 
             self.columns = []
@@ -163,9 +159,14 @@ class AutoSqlTask(SqlTask):
                 tests = []
                 for t in c.tests:
                     if isinstance(t, str):
-                        tests.append({"type": t, "values": None})
+                        tests.append({"type": t, "values": []})
                     else:
-                        tests.append({"type": t.name, "values": t.values})
+                        tests.append(
+                            {
+                                "type": t.name,
+                                "values": t.values if t.values is not None else [],
+                            }
+                        )
                 self.columns.append(
                     {
                         "name": c.name,
@@ -175,7 +176,6 @@ class AutoSqlTask(SqlTask):
                 )
 
             columns = self.columns
-            # print(columns)
             table = self.table
             query = """
                        SELECT col
@@ -183,49 +183,25 @@ class AutoSqlTask(SqlTask):
                             , type
                          FROM (
                     """
+            template = self.get_template(
+                Path(__file__).parent / "tests/standard_tests.sql"
+            )
             for col in columns:
                 tests = col["tests"]
                 for t in tests:
-                    if "unique" in t.values():
-                        query += f"""
-                                SELECT CAST(l.{ col['name'] } AS VARCHAR) AS col
-                                     , COUNT(*) AS cnt
-                                     , 'unique' AS type
-                                  FROM { table } AS l
-                                 GROUP BY l.{ col['name'] }
-                                HAVING COUNT(*) > 1
-
-                                UNION ALL
-                                """
-                    if "not_null" in t.values():
-                        query += f"""
-                                SELECT CAST(l.{ col['name'] } AS VARCHAR) AS col
-                                     , COUNT(*) AS cnt
-                                     , 'null' AS type
-                                  FROM { table } AS l
-                                 WHERE l.{ col['name'] } IS NULL
-                                 GROUP BY l.{ col['name'] }
-                                HAVING COUNT(*) > 0
-
-                                UNION ALL
-                                """
-                    if "values" in t.values():
-                        query += f"""
-                                SELECT CAST(l.{ col['name'] } AS VARCHAR) AS col
-                                     , COUNT(*) AS cnt
-                                     , 'valid_values' AS type
-                                  FROM { table } AS l
-                                 WHERE l.{ col['name'] } NOT IN ( {', '.join(f"'{c}'" for c in t['values'])} )
-                                 GROUP BY l.{ col['name'] }
-                                HAVING COUNT(*) > 0
-
-                                UNION ALL
-                                """
+                    query += self.compile_obj(
+                        template.value,
+                        **{
+                            "table": table,
+                            "name": col["name"],
+                            "type": t["type"],
+                            "values": ", ".join(f"'{c}'" for c in t["values"]),
+                        },
+                    ).value
             parts = query.splitlines()[:-2]
             query = ""
             for q in parts:
                 query += q.strip() + "\n"
-
             query += ") AS t;"
 
             self.test_query = query
