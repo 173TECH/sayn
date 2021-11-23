@@ -43,15 +43,20 @@ A `copy` task is defined as follows:
       * Be defined in your `settings.yaml`.
       * Be one of the supported [databases](../databases/overview.md).
 
-By default, tables will be copied in full every time SAYN runs, but it can be changed into an incremental
-load by adding `incremental_key` and `delete_key`:
+By default, tables will be copied in full every time SAYN runs replacing the table with the newly
+pulled data. This behaviour can be altered with the following:
 
 * `incremental_key`: the column to use to determine what data is new. The process will transfer
   any data in the source table with an `incremental_key` value superior or equal to the maximum
-  found in the destination.
+  found in the destination, or with a `NULL` value.
 * `delete_key`: the column which will be used for deleting data in incremental loads. The process
   will delete any data in the destination table with a `delete_key` value found in the new dataset
   obtained before inserting.
+* `append`: a boolean flag indicating if data should be replaced in the destination. This means that
+  in full load mode (`incremental_key` not specified) records will be appended rather than the table
+  being recreated every time; and in incremental mode records will not be removed, so `delete_key`
+  shouldn't be specified. Additionally an extra column `_sayn_load_ts` will be added to the destination
+  table to help with de-duplication.
 
 !!! example "tasks/base.yaml"
     ```yaml
@@ -72,6 +77,25 @@ load by adding `incremental_key` and `delete_key`:
 In this example, we use `updated_at` which is a field updated every time a record changes (or is created)
 on a hypothetical backend database to select new records, and then we replace all records in the target
 based on the `id`s found in this new dataset.
+
+!!! example "tasks/base.yaml"
+    ```yaml
+    task_copy:
+      type: copy
+      source:
+        db: from_db
+        schema: from_schema
+        table: from_table
+      destination:
+        tmp_schema: staging_schema
+        schema: schema
+        table: table_name
+      incremental_key: updated_at
+      append: True
+    ```
+In this other example, whenever the task runs it checks the latest value of `updated_at` and appends to the
+destination table every record in the source with an `updated_at` greater than or equal to the maximum value
+present in the destination.
 
 While the task is running, SAYN will get records from the source database and load into a temporary table,
 and will merge into the destination table once all records have been loaded. The frequency of loading
