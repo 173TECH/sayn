@@ -1,5 +1,6 @@
 from datetime import datetime, date, timedelta
 from uuid import UUID, uuid4
+import os
 
 from ..tasks.task_wrapper import TaskWrapper
 from ..utils.dag import query as dag_query, topological_sort
@@ -22,6 +23,7 @@ class App:
             "sql": "sql",
             "compile": "compile",
             "logs": "logs",
+            "tests": "tests",
         },
         "full_load": False,
         "start_dt": date.today() - timedelta(days=1),
@@ -36,6 +38,7 @@ class App:
 
     tasks = dict()
     dag = dict()
+    tests = dict()
 
     task_query = list()
     tasks_to_run = dict()
@@ -114,38 +117,32 @@ class App:
     def set_tasks(self, tasks, task_query):
         self.task_query = task_query
 
-        self.dag = {
-            task["name"]: [p for p in task.get("parents", list())]
-            for task in tasks.values()
-        }
+        if self.run_arguments["command"] == "test":
+            self.dag = {
+                task["name"]: []
+                for task in tasks.values()
+                if "columns" in task.keys() or "test" in task["type"]
+            }
+        else:
+            self.dag = {
+                task["name"]: [p for p in task.get("parents", list())]
+                for task in tasks.values()
+                if "test" not in task["type"]
+            }
 
         topo_sort = topological_sort(self.dag)
         if topo_sort.is_err:
             return topo_sort
 
-        # print(tasks)
-
-        # print(type(topo_sort))
-        if self.run_arguments["command"] == "test":
-            topo_sort = Ok(
-                [
-                    task_name
-                    for task_name in topo_sort.value
-                    if "columns" in tasks[task_name].keys()
-                ]
-            )
-
-        # print(topo_sort)
-
         self._tasks_dict = {
             task_name: tasks[task_name] for task_name in topo_sort.value
         }
-        # print(self._tasks_dict)
         result = dag_query(self.dag, self.task_query)
         if result.is_err:
             return result
         else:
             tasks_in_query = result.value
+
         self.tracker.set_tasks(tasks_in_query)
 
         for task_name, task in self._tasks_dict.items():
@@ -202,7 +199,6 @@ class App:
         self.tracker.start_stage(command, tasks=list(tasks_in_query.keys()))
 
         for task_name, task in self.tasks.items():
-            # print(vars(task))
             # We force the run/compile so that the skipped status can be calculated,
             # but we only report if the task is in the query
             if task.in_query:

@@ -102,6 +102,7 @@ def read_project():
 class TaskGroup(BaseModel):
     presets: Optional[Dict[str, Dict[str, Any]]] = dict()
     tasks: Optional[Dict[str, Dict[str, Any]]]
+    tests: Optional[Dict[str, Dict[str, Any]]]
 
     class Config:
         extra = Extra.forbid
@@ -400,6 +401,7 @@ def get_tasks_dict(global_presets, groups):
 
     errors = dict()
     tasks = dict()
+    tests = dict()
     for group_name, group in groups.items():
         if group.tasks is not None:
             for task_name, task in group.tasks.items():
@@ -415,8 +417,22 @@ def get_tasks_dict(global_presets, groups):
                     tasks[task_name] = result.value
                 else:
                     errors[task_name] = result.error
+        if group.tests is not None:
+            for test_name, test in group.tests.items():
+                if test_name in tests:
+                    return Err(
+                        "dag",
+                        "duplicate_task",
+                        task=task_name,
+                        groups=(group_name, tasks[task_name]["group"]),
+                    )
+                result = get_task_dict(test, test_name, group_name, presets)
+                if result.is_ok:
+                    tests[test_name] = result.value
+                else:
+                    errors[task_name] = result.error
 
     if len(errors) > 0:
         return Err("get_tasks_dict", "task_parsing_error", errors=errors)
     else:
-        return Ok(tasks)
+        return Ok(merge_dicts(tasks, tests))

@@ -81,6 +81,7 @@ class CliApp(App):
         task_query = self.check_abort(
             get_query(tasks_dict, include=include, exclude=exclude)
         )
+
         self.check_abort(self.set_tasks(tasks_dict, task_query))
 
         self.tracker.finish_current_stage(
@@ -230,7 +231,7 @@ def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
         sys.exit()
 
 
-@cli.command(help="Test SAYN tasks.")
+@cli.command(help="Run SAYN tasks.")
 @click_run_options
 def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 
@@ -245,7 +246,7 @@ def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
         sys.exit()
 
 
-@cli.command(help="Run SAYN tasks.")
+@cli.command(help="Test SAYN tasks.")
 @click_run_options
 def test(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 
