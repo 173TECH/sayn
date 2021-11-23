@@ -117,9 +117,21 @@ def read_groups(groups):
             return result
         else:
             try:
+
                 out[name] = TaskGroup(**result.value)
             except ValidationError as e:
                 return Exc(e, where="read_tasks")
+
+    try:
+        out["tests"]
+    except:
+        for name in groups:
+            if name != "tests" and out[name].tests is not None:
+                return Err("read_groups", "tests in tasks yaml")
+        return Ok(out)
+    else:
+        if out["tests"].tasks is not None:
+            return Err("read_groups", "tasks in tests.yaml")
 
     return Ok(out)
 
