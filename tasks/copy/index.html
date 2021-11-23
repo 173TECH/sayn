@@ -768,8 +768,20 @@
   
   
     <li class="md-nav__item">
-      <a href="../../project_examples/bbc_news_nlp/" class="md-nav__link">
-        BBC News NLP
+      <a href="../../project_examples/reddit_news_nlp/" class="md-nav__link">
+        Reddit News NLP
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../project_examples/facebook_data_project/" class="md-nav__link">
+        Facebook Data Project
       </a>
     </li>
   
@@ -885,15 +897,20 @@ ingest data from operational databases (e.g. PostgreSQL) to your analytics wareh
 <li>Be one of the supported <a href="../../databases/overview/">databases</a>.</li>
 </ul>
 </div>
-<p>By default, tables will be copied in full every time SAYN runs, but it can be changed into an incremental
-load by adding <code>incremental_key</code> and <code>delete_key</code>:</p>
+<p>By default, tables will be copied in full every time SAYN runs replacing the table with the newly
+pulled data. This behaviour can be altered with the following:</p>
 <ul>
 <li><code>incremental_key</code>: the column to use to determine what data is new. The process will transfer
   any data in the source table with an <code>incremental_key</code> value superior or equal to the maximum
-  found in the destination.</li>
+  found in the destination, or with a <code>NULL</code> value.</li>
 <li><code>delete_key</code>: the column which will be used for deleting data in incremental loads. The process
   will delete any data in the destination table with a <code>delete_key</code> value found in the new dataset
   obtained before inserting.</li>
+<li><code>append</code>: a boolean flag indicating if data should be replaced in the destination. This means that
+  in full load mode (<code>incremental_key</code> not specified) records will be appended rather than the table
+  being recreated every time; and in incremental mode records will not be removed, so <code>delete_key</code>
+  shouldn't be specified. Additionally an extra column <code>_sayn_load_ts</code> will be added to the destination
+  table to help with de-duplication.</li>
 </ul>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
@@ -914,6 +931,25 @@ load by adding <code>incremental_key</code> and <code>delete_key</code>:</p>
 <p>In this example, we use <code>updated_at</code> which is a field updated every time a record changes (or is created)
 on a hypothetical backend database to select new records, and then we replace all records in the target
 based on the <code>id</code>s found in this new dataset.</p>
+<div class="admonition example">
+<p class="admonition-title">tasks/base.yaml</p>
+<div class="highlight"><pre><span></span><code><span class="nt">task_copy</span><span class="p">:</span>
+  <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">copy</span>
+  <span class="nt">source</span><span class="p">:</span>
+    <span class="nt">db</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_db</span>
+    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_schema</span>
+    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_table</span>
+  <span class="nt">destination</span><span class="p">:</span>
+    <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">staging_schema</span>
+    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">schema</span>
+    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table_name</span>
+  <span class="nt">incremental_key</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">updated_at</span>
+  <span class="nt">append</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+</code></pre></div>
+</div>
+<p>In this other example, whenever the task runs it checks the latest value of <code>updated_at</code> and appends to the
+destination table every record in the source with an <code>updated_at</code> greater than or equal to the maximum value
+present in the destination.</p>
 <p>While the task is running, SAYN will get records from the source database and load into a temporary table,
 and will merge into the destination table once all records have been loaded. The frequency of loading
 into this table is determined by the value of <code>max_batch_rows</code> as defined in the credentials for the

@@ -9,14 +9,14 @@
       
       
       
-        <link rel="canonical" href="https://173tech.github.io/sayn/project_examples/bbc_news_nlp/">
+        <link rel="canonical" href="https://173tech.github.io/sayn/project_examples/reddit_news_nlp/">
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
     
     
       
-        <title>SAYN Project Example: BBC News NLP - SAYN</title>
+        <title>Reddit News NLP - SAYN</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#sayn_project_example_bbc_news_nlp" class="md-skip">
+        <a href="#sayn_project_example_reddit_news_nlp" class="md-skip">
           Skip to content
         </a>
       
@@ -104,7 +104,7 @@
         <div class="md-header-nav__topic">
           <span class="md-ellipsis">
             
-              SAYN Project Example: BBC News NLP
+              Reddit News NLP
             
           </span>
         </div>
@@ -678,12 +678,14 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" checked>
       
       <label class="md-nav__link" for="nav-7">
         Project Examples
@@ -712,11 +714,223 @@
             
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../reddit_news_nlp/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Reddit News NLP
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Reddit News NLP
       </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#project_description" class="md-nav__link">
+    Project Description
+  </a>
+  
+    <nav class="md-nav" aria-label="Project Description">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    Overview
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features_used" class="md-nav__link">
+    Features Used
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running_the_project" class="md-nav__link">
+    Running The Project
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation_details" class="md-nav__link">
+    Implementation Details
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step_1_extract_task_group" class="md-nav__link">
+    Step 1: Extract Task Group
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 1: Extract Task Group">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task_details_load_data" class="md-nav__link">
+    Task Details (load_data)
+  </a>
+  
+    <nav class="md-nav" aria-label="Task Details (load_data)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#loaddata_class" class="md-nav__link">
+    LoadData Class
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#utility_method_fetch_reddit_data" class="md-nav__link">
+    Utility Method (fetch_reddit_data)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step_2_modelling_group" class="md-nav__link">
+    Step 2: Modelling Group
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 2: Modelling Group">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task_details_dim_reddit_feeds" class="md-nav__link">
+    Task Details (dim_reddit_feeds)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step_3_data_science_group" class="md-nav__link">
+    Step 3: Data Science Group
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 3: Data Science Group">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#group_overview" class="md-nav__link">
+    Group Overview
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task_details_wordcloud" class="md-nav__link">
+    Task Details (wordcloud)
+  </a>
+  
+    <nav class="md-nav" aria-label="Task Details (wordcloud)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rendercloud_class" class="md-nav__link">
+    RenderCloud Class
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task_details_nlp" class="md-nav__link">
+    Task Details (nlp)
+  </a>
+  
+    <nav class="md-nav" aria-label="Task Details (nlp)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#languageprocessing_class" class="md-nav__link">
+    LanguageProcessing Class
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task_details_dim_reddit_feeds_nlp_stats" class="md-nav__link">
+    Task Details (dim_reddit_feeds_nlp_stats)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step_4_run_the_project" class="md-nav__link">
+    Step 4: Run the project
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -829,8 +1043,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#utility_method_fetch_bbc_data" class="md-nav__link">
-    Utility Method (fetch_bbc_data)
+  <a href="#utility_method_fetch_reddit_data" class="md-nav__link">
+    Utility Method (fetch_reddit_data)
   </a>
   
 </li>
@@ -854,8 +1068,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#task_details_dim_bbc_feeds" class="md-nav__link">
-    Task Details (dim_bbc_feeds)
+  <a href="#task_details_dim_reddit_feeds" class="md-nav__link">
+    Task Details (dim_reddit_feeds)
   </a>
   
 </li>
@@ -921,8 +1135,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#task_details_dim_bbc_feeds_nlp_stats" class="md-nav__link">
-    Task Details (dim_bbc_feeds_nlp_stats)
+  <a href="#task_details_dim_reddit_feeds_nlp_stats" class="md-nav__link">
+    Task Details (dim_reddit_feeds_nlp_stats)
   </a>
   
 </li>
@@ -957,14 +1171,14 @@
               
                 
                 
-                <h1 id="sayn_project_example_bbc_news_nlp">SAYN Project Example: BBC News NLP<a class="headerlink" href="#sayn_project_example_bbc_news_nlp" title="Permanent link">&para;</a></h1>
+                <h1 id="sayn_project_example_reddit_news_nlp">SAYN Project Example: Reddit News NLP<a class="headerlink" href="#sayn_project_example_reddit_news_nlp" title="Permanent link">&para;</a></h1>
 <h2 id="project_description">Project Description<a class="headerlink" href="#project_description" title="Permanent link">&para;</a></h2>
 <h4 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h4>
 <p>This is an example SAYN project which shows how to use SAYN for data modelling and processing. You can find the GitHub repository
 <a href="https://github.com/173TECH/sayn_project_example_nlp_news_scraping" target="_blank">here</a>.</p>
 <p>This project does the following:</p>
 <ul>
-<li>Extracts article data from BBC RSS feeds</li>
+<li>Extracts article data from Reddit RSS feeds</li>
 <li>Loads it into a SQLite database</li>
 <li>Cleans the extracted data</li>
 <li>Performs some basic text analysis on the transformed data</li>
@@ -1010,78 +1224,68 @@
     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python</span>
     <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">load_data.LoadData</span>
     <span class="nt">parameters</span><span class="p">:</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">logs_bbc_feeds</span>
+      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">logs_reddit_feeds</span>
       <span class="nt">links</span><span class="p">:</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/england/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/wales/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/scotland/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/northern_ireland/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/middle_east/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/latin_america/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/europe/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/asia/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/africa/rss.xml</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">https://www.reddit.com/r/USnews/new/.rss</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">https://www.reddit.com/r/UKnews/new/.rss</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">https://www.reddit.com/r/EUnews/new/.rss</span>
 </code></pre></div>
 </details>
 <details class="note" open="open"><summary>Note</summary><p>Parameters are not a requirement, however parameters make the code dynamic which is useful for reusability.</p>
 </details>
 <p>The <code>load_data</code> task will have the following steps:</p>
 <ul>
-<li><code>Appending BBC data to dataframe</code>: loops through the links array, appends data from each link to a dataframe</li>
+<li><code>Appending Reddit data to dataframe</code>: loops through the links array, appends data from each link to a dataframe</li>
 <li><code>Updating database</code>: loads dataframe into SQLite database using <code>pandas.to_sql</code> method</li>
 </ul>
 <h6 id="loaddata_class">LoadData Class<a class="headerlink" href="#loaddata_class" title="Permanent link">&para;</a></h6>
 <p>Next, we will create our <code>LoadData</code> class.</p>
 <p>Our LoadData inherits properties from SAYN's PythonTask, in addition it will have 3 methods:</p>
 <ul>
-<li><code>fetch_bbc_data</code>: fetches data from the BBC RSS feeds</li>
+<li><code>fetch_reddit_data</code>: fetches data from the Reddit RSS feeds</li>
 <li><code>setup</code>: sets the order of steps to run</li>
 <li><code>run</code>: defines what each step does during the run</li>
 </ul>
-<details class="attention" open="open"><summary>Attention</summary><p><code>fetch_bbc_data</code> is a utility method for this task, while <code>setup</code> and <code>run</code> are the usual SAYN methods. Please note that methods <code>setup</code> and <code>run</code> need to return either <code>self.success()</code> or <code>self.fail()</code> in order to run.</p>
+<details class="attention" open="open"><summary>Attention</summary><p><code>fetch_reddit_data</code> is a utility method for this task, while <code>setup</code> and <code>run</code> are the usual SAYN methods. Please note that methods <code>setup</code> and <code>run</code> need to return either <code>self.success()</code> or <code>self.fail()</code> in order to run.</p>
 </details>
-<h6 id="utility_method_fetch_bbc_data">Utility Method (<code>fetch_bbc_data</code>)<a class="headerlink" href="#utility_method_fetch_bbc_data" title="Permanent link">&para;</a></h6>
-<p>The <code>fetch_bbc_data</code> function uses the <code>feedparser.parse</code> method to fetch the raw data from the rss feed link. It then converts the data into a <code>pandas dataframe</code> to make it easier to work with.</p>
+<h6 id="utility_method_fetch_reddit_data">Utility Method (<code>fetch_reddit_data</code>)<a class="headerlink" href="#utility_method_fetch_reddit_data" title="Permanent link">&para;</a></h6>
+<p>The <code>fetch_reddit_data</code> function uses the <code>feedparser.parse</code> method to fetch the raw data from the rss feed link. It then converts the data into a <code>pandas dataframe</code> to make it easier to work with.</p>
 <p>The function also extracts the source of each article and adds it under the <code>source</code> column.</p>
-<p>Lastly, the function assigns a <code>unique_id</code> to each article which is based on its article id and the source it originates from. This is because the same article may be published in multiple sources with the same id, which means our original ids are not unique and could be misleading.</p>
 <details class="example"><summary>python/load_data.py</summary><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">feedparser</span> <span class="k">as</span> <span class="nn">f</span>
 <span class="kn">from</span> <span class="nn">sayn</span> <span class="kn">import</span> <span class="n">PythonTask</span>
 
-<span class="k">class</span> <span class="nc">LoadData</span><span class="p">(</span><span class="n">PythonTask</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">fetch_bbc_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Parse and label RSS BBC News data then return it in a pandas DataFrame&quot;&quot;&quot;</span>
+<span class="k">class</span> <span class="nc">LoadData</span><span class="p">(</span><span class="n">PythonTask</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fetch_reddit_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse and label RSS Reddit data then return it in a pandas DataFrame&quot;&quot;&quot;</span>
 
         <span class="c1"># get data from supplied link</span>
+
         <span class="n">raw_data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
 
         <span class="c1"># transform data to dataframe</span>
+
         <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">raw_data</span><span class="o">.</span><span class="n">entries</span><span class="p">)</span>
 
-        <span class="c1"># remove incompatible columns</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
-            <span class="p">[</span><span class="s2">&quot;title_detail&quot;</span><span class="p">,</span> <span class="s2">&quot;summary_detail&quot;</span><span class="p">,</span> <span class="s2">&quot;links&quot;</span><span class="p">,</span> <span class="s2">&quot;published_parsed&quot;</span><span class="p">],</span>
-            <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="c1"># select columns of interest</span>
 
-        <span class="c1"># get the source (this only works for BBC RSS feeds)</span>
-        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">link</span><span class="p">[</span><span class="mi">29</span><span class="p">:</span><span class="o">-</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;link&quot;</span><span class="p">,</span> <span class="s2">&quot;updated&quot;</span><span class="p">,</span> <span class="s2">&quot;published&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">]]</span>
 
-        <span class="c1"># generating ids to be unique, since same story ids can be published in different sources</span>
-        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;unique_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span>
+        <span class="c1"># get the source, only works for Reddit RSS feeds</span>
+
+        <span class="n">source_elements</span> <span class="o">=</span> <span class="n">link</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source_elements</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">source_elements</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">data</span>
 
     <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_run_steps</span><span class="p">([</span><span class="s2">&quot;Appending BBC data to dataframe&quot;</span><span class="p">,</span> <span class="s2">&quot;Updating database&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_run_steps</span><span class="p">([</span><span class="s2">&quot;Appending Reddit data to dataframe&quot;</span><span class="p">,</span> <span class="s2">&quot;Updating database&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">success</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="s2">&quot;Appending BBC data to dataframe&quot;</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="s2">&quot;Appending Reddit data to dataframe&quot;</span><span class="p">):</span>
 
             <span class="n">links</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;links&quot;</span><span class="p">]</span>
             <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;user_prefix&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_parameters</span><span class="p">[</span><span class="s2">&quot;table&quot;</span><span class="p">]</span>
@@ -1090,7 +1294,7 @@
 
             <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">links</span><span class="p">:</span>
 
-                <span class="n">temp_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_bbc_data</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+                <span class="n">temp_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_reddit_data</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
                 <span class="n">n_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">temp_df</span><span class="p">)</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_df</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading </span><span class="si">{</span><span class="n">n_rows</span><span class="si">}</span><span class="s2"> rows into destination: </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">....&quot;</span><span class="p">)</span>
@@ -1110,23 +1314,22 @@
 <h3 id="step_2_modelling_group">Step 2: Modelling Group<a class="headerlink" href="#step_2_modelling_group" title="Permanent link">&para;</a></h3>
 <p>Quick Summary:</p>
 <ul>
-<li>Create the SQL query <code>dim_bbc_feeds.sql</code> to filter out duplicates</li>
+<li>Create the SQL query <code>dim_reddit_feeds.sql</code> to filter out duplicates</li>
 <li>Create a modelling <a href="../../presets/">preset</a> in <code>project.yaml</code></li>
 <li>Create the task group <code>modelling.yaml</code></li>
 </ul>
 <p><br></p>
-<h4 id="task_details_dim_bbc_feeds">Task Details (<code>dim_bbc_feeds</code>)<a class="headerlink" href="#task_details_dim_bbc_feeds" title="Permanent link">&para;</a></h4>
+<h4 id="task_details_dim_reddit_feeds">Task Details (<code>dim_reddit_feeds</code>)<a class="headerlink" href="#task_details_dim_reddit_feeds" title="Permanent link">&para;</a></h4>
 <p>Currently our <code>load_data</code> task appends data to our database but it does not filter out any potential duplicates that we might encounter after multiple runs. This is where the <code>modelling</code> group comes in, we can define an <a href="../../tasks/autosql/">AutoSQL task</a> to filter out any duplicates.</p>
-<p>First, we need to create a sql query in our <code>sql</code> folder that will filter out any duplicates; we will call it <code>dim_bbc_feeds.sql</code></p>
-<details class="example"><summary>sql/dim_bbc_feeds.sql</summary><div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="k">DISTINCT</span> <span class="n">unique_id</span>
-     <span class="p">,</span> <span class="n">id</span>
+<p>First, we need to create a sql query in our <code>sql</code> folder that will filter out any duplicates; we will call it <code>dim_reddit_feeds.sql</code></p>
+<details class="example"><summary>sql/dim_reddit_feeds.sql</summary><div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="k">DISTINCT</span> <span class="n">id</span>
      <span class="p">,</span> <span class="n">title</span>
-     <span class="p">,</span> <span class="n">summary</span>
-     <span class="p">,</span> <span class="n">link</span>
-     <span class="p">,</span> <span class="n">guidislink</span>
      <span class="p">,</span> <span class="n">published</span>
+     <span class="p">,</span> <span class="n">updated</span>
+     <span class="p">,</span> <span class="n">link</span>
      <span class="p">,</span> <span class="k">source</span>
-<span class="k">FROM</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">logs_bbc_feeds</span>
+
+<span class="k">FROM</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">logs_reddit_feeds</span>
 </code></pre></div>
 </details>
 <details class="tip"><summary>Tip</summary><p><code>{{user_prefix}}</code> is set dynamically. The default value is set in <code>project.yaml</code>. This can be overwritten using profiles in <code>settings.yaml</code>.</p>
@@ -1154,9 +1357,9 @@
 </details>
 <details class="tip"><summary>Tip</summary><p><code>{{ task.name }}</code> returns the name of task</p>
 </details>
-<p>Now that we have the modelling <a href="../../presets/">preset</a>, we can use it in the <code>modelling</code> group. Since we want <code>dim_bbc_feeds</code> to run after our <code>load_data</code> task, we will need to set the parents of the task to <code>load_data</code>.</p>
+<p>Now that we have the modelling <a href="../../presets/">preset</a>, we can use it in the <code>modelling</code> group. Since we want <code>dim_reddit_feeds</code> to run after our <code>load_data</code> task, we will need to set the parents of the task to <code>load_data</code>.</p>
 <details class="example"><summary>tasks/modelling.yaml</summary><div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-    <span class="nt">dim_bbc_feeds</span><span class="p">:</span>
+    <span class="nt">dim_reddit_feeds</span><span class="p">:</span>
       <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
       <span class="nt">parents</span><span class="p">:</span>
         <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">load_data</span>
@@ -1168,7 +1371,7 @@
 <li>Create the task group <code>data_science.yaml</code></li>
 <li>Create the <a href="../../tasks/python/">python task</a> <code>wordcloud</code> to generate wordclouds</li>
 <li>Create the <a href="../../tasks/python/">python task</a> <code>nlp</code> to generate text statistics</li>
-<li>Create the <a href="../../tasks/autosql/">AutoSQL task</a> <code>dim_bbc_feeds_nlp_stats</code> to calculate aggregate statistics grouped by source</li>
+<li>Create the <a href="../../tasks/autosql/">AutoSQL task</a> <code>dim_reddit_feeds_nlp_stats</code> to calculate aggregate statistics grouped by source</li>
 </ul>
 <p><br></p>
 <h4 id="group_overview">Group Overview<a class="headerlink" href="#group_overview" title="Permanent link">&para;</a></h4>
@@ -1182,49 +1385,33 @@
 <li><code>nlp</code>: generates the text statistics</li>
 <li><code>wordcloud</code>: generates the wordclouds</li>
 </ul>
-<p>Both tasks will use data from our <code>dim_bbc_feeds</code> table, therefore we will need to set their their table <a href="../../parameters/">parameters</a> to <code>dim_bbc_feeds</code>. Since both of these tasks are children of the <code>dim_bbc_feeds</code> task, we will also need to set their parents attributes to <code>dim_bbc_feeds</code>.</p>
-<p>The <code>nlp</code> task has a <code>text</code> parameter, this parameter specifies which columns have text for processing.
-The <code>wordcloud</code> task has a <code>stopwords</code> parameter, this parameter provides additional context related stopwords (e.g. "say" and its variations seem to be very common in summaries, however they are not very informative).</p>
-<details class="example"><summary>tasks/data_science.yaml</summary><div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>      
+<p>Both tasks will use data from our <code>dim_reddit_feeds</code> table, therefore we will need to set their their table <a href="../../parameters/">parameters</a> to <code>dim_reddit_feeds</code>. Since both of these tasks are children of the <code>dim_reddit_feeds</code> task, we will also need to set their parents attributes to <code>dim_reddit_feeds</code>.</p>
+<p>The <code>wordcloud</code> task has a <code>stopwords</code> parameter, this parameter provides additional context related stopwords.</p>
+<details class="example"><summary>tasks/data_science.yaml</summary><div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
+
   <span class="nt">nlp</span><span class="p">:</span>
     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python</span>
     <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nlp.LanguageProcessing</span>
     <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dim_bbc_feeds</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dim_reddit_feeds</span>
     <span class="nt">parameters</span><span class="p">:</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_bbc_feeds</span>
-      <span class="nt">text</span><span class="p">:</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">title</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">summary</span>
+      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_reddit_feeds</span>
 
   <span class="nt">wordcloud</span><span class="p">:</span>
     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python</span>
     <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">wordcloud.RenderCloud</span>
     <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dim_bbc_feeds</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dim_reddit_feeds</span>
     <span class="nt">parameters</span><span class="p">:</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_bbc_feeds</span>
+      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_reddit_feeds</span>
       <span class="nt">stopwords</span><span class="p">:</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">say</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">said</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">says</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">will</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">country</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">US</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">England</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Scotland</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Wales</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NI</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Ireland</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Europe</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">BBC</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">yn</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Reddit</span>
 </code></pre></div>
 </details>
 <h4 id="task_details_wordcloud">Task Details (<code>wordcloud</code>)<a class="headerlink" href="#task_details_wordcloud" title="Permanent link">&para;</a></h4>
 <p>The <code>wordcloud</code> task will have the following steps:</p>
 <ul>
-<li><code>Grouping texts</code>: aggregates article summaries and groups them by source (summaries are used instead of titles since they tend to be longer)</li>
+<li><code>Grouping texts</code>: aggregates article titles and groups them by source</li>
 <li><code>Generating clouds</code>: generates a wordcloud for each source, as well as the full dataset</li>
 </ul>
 <h6 id="rendercloud_class">RenderCloud Class<a class="headerlink" href="#rendercloud_class" title="Permanent link">&para;</a></h6>
@@ -1241,12 +1428,12 @@ The <code>wordcloud</code> task has a <code>stopwords</code> parameter, this par
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">sayn</span> <span class="kn">import</span> <span class="n">PythonTask</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="kn">from</span> <span class="nn">wordcloud</span> <span class="kn">import</span> <span class="n">WordCloud</span><span class="p">,</span> <span class="n">STOPWORDS</span>
+<span class="kn">from</span> <span class="nn">wordcloud</span> <span class="kn">import</span> <span class="n">WordCloud</span><span class="p">,</span> <span class="n">STOPWORDS</span><span class="p">,</span> <span class="n">ImageColorGenerator</span>
 
 
 <span class="k">class</span> <span class="nc">RenderCloud</span><span class="p">(</span><span class="n">PythonTask</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">word_cloud</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">stopwords</span><span class="p">,</span> <span class="n">b_colour</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">c_colour</span><span class="o">=</span><span class="s2">&quot;firebrick&quot;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">stopwords</span><span class="p">,</span> <span class="n">b_colour</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">c_colour</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Word cloud generating function&quot;&quot;&quot;</span>
 
@@ -1254,8 +1441,10 @@ The <code>wordcloud</code> task has a <code>stopwords</code> parameter, this par
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;python/img/masks/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_mask.png&quot;</span><span class="p">))</span>
+            <span class="n">image_colours</span> <span class="o">=</span> <span class="n">ImageColorGenerator</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">image_colours</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">wordcloud</span> <span class="o">=</span> <span class="n">WordCloud</span><span class="p">(</span>
             <span class="n">stopwords</span><span class="o">=</span><span class="n">stopwords</span><span class="p">,</span>
@@ -1264,6 +1453,7 @@ The <code>wordcloud</code> task has a <code>stopwords</code> parameter, this par
             <span class="n">background_color</span><span class="o">=</span><span class="n">b_colour</span><span class="p">,</span>
             <span class="n">contour_width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">contour_color</span><span class="o">=</span><span class="n">c_colour</span><span class="p">,</span>
+            <span class="n">color_func</span><span class="o">=</span><span class="n">image_colours</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
         <span class="c1"># store wordcloud image in &quot;python/img&quot;</span>
@@ -1288,24 +1478,24 @@ The <code>wordcloud</code> task has a <code>stopwords</code> parameter, this par
             <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;user_prefix&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_parameters</span><span class="p">[</span><span class="s2">&quot;table&quot;</span><span class="p">]</span>
 
             <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_db</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SELECT * FROM </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
-            <span class="n">full_text</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">article</span> <span class="k">for</span> <span class="n">article</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">summary</span><span class="p">)</span>
+            <span class="n">full_text</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">article</span> <span class="k">for</span> <span class="n">article</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
 
             <span class="n">sources</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">)</span>
-            <span class="n">grouped_texts</span> <span class="o">=</span> <span class="n">sources</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">grouped_texts</span> <span class="o">=</span> <span class="n">sources</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="s2">&quot;Generating clouds&quot;</span><span class="p">):</span>
 
             <span class="n">stopwords</span> <span class="o">=</span> <span class="n">STOPWORDS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;stopwords&quot;</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generating bbc_wordcloud.png&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">word_cloud</span><span class="p">(</span>
-                <span class="s2">&quot;bbc&quot;</span><span class="p">,</span> <span class="n">full_text</span><span class="p">,</span> <span class="n">stopwords</span><span class="p">,</span> <span class="n">b_colour</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">c_colour</span><span class="o">=</span><span class="s2">&quot;black&quot;</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generating reddit_wordcloud.png&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">word_cloud</span><span class="p">(</span><span class="s2">&quot;reddit&quot;</span><span class="p">,</span> <span class="n">full_text</span><span class="p">,</span> <span class="n">stopwords</span><span class="p">)</span>
 
             <span class="c1"># Source specific wordclouds</span>
 
             <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">grouped_texts</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">grouped_texts</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating </span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="s2">_wordcloud.png&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">word_cloud</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">stopwords</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">word_cloud</span><span class="p">(</span>
+                    <span class="n">group</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">stopwords</span><span class="p">,</span> <span class="n">b_colour</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">c_colour</span><span class="o">=</span><span class="s2">&quot;white&quot;</span>
+                <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">success</span><span class="p">()</span>
 </code></pre></div>
@@ -1313,7 +1503,7 @@ The <code>wordcloud</code> task has a <code>stopwords</code> parameter, this par
 <h4 id="task_details_nlp">Task Details (<code>nlp</code>)<a class="headerlink" href="#task_details_nlp" title="Permanent link">&para;</a></h4>
 <p>The <code>nlp</code> task will have the following steps:</p>
 <ul>
-<li><code>Processing texts</code>: loops through text_fields, generates text statistics on each entry</li>
+<li><code>Processing texts</code>: generates text statistics for each title</li>
 <li><code>Updating database</code>: similar to LoadData step, has additional debugging information</li>
 </ul>
 <h6 id="languageprocessing_class">LanguageProcessing Class<a class="headerlink" href="#languageprocessing_class" title="Permanent link">&para;</a></h6>
@@ -1366,13 +1556,11 @@ The <code>wordcloud</code> task has a <code>stopwords</code> parameter, this par
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="s2">&quot;Processing texts&quot;</span><span class="p">):</span>
 
             <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;user_prefix&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">task_parameters</span><span class="p">[</span><span class="s2">&quot;table&quot;</span><span class="p">]</span>
-            <span class="n">text_fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
 
             <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_db</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SELECT * FROM </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
 
-            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">text_fields</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing texts for </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2"> field&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">desc_text</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="s2">&quot;english&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing texts for title field&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">desc_text</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;english&quot;</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="s2">&quot;Updating database&quot;</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1387,31 +1575,28 @@ The <code>wordcloud</code> task has a <code>stopwords</code> parameter, this par
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">success</span><span class="p">()</span>
 </code></pre></div>
 </details>
-<h4 id="task_details_dim_bbc_feeds_nlp_stats">Task Details (<code>dim_bbc_feeds_nlp_stats</code>)<a class="headerlink" href="#task_details_dim_bbc_feeds_nlp_stats" title="Permanent link">&para;</a></h4>
-<p>Now that we have individual article statistics, it would be a good idea to create an additional modelling task to find some aggregate statistics grouped by source. Let's create another SQL query called <code>dim_bbc_feeds_nlp_stats</code> in the <code>sql</code> folder. This query will give us the average, grouped by source, of the text statistics generated by the <code>nlp</code> task.</p>
-<details class="example"><summary>sql/dim_bbc_feeds_nlp_stats.py</summary><div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="k">source</span>
-     <span class="p">,</span> <span class="k">AVG</span><span class="p">(</span><span class="n">title_letters</span><span class="p">)</span> <span class="k">AS</span> <span class="n">average_tl</span>
-     <span class="p">,</span> <span class="k">AVG</span><span class="p">(</span><span class="n">title_words</span><span class="p">)</span> <span class="k">AS</span> <span class="n">average_tw</span>
-     <span class="p">,</span> <span class="k">AVG</span><span class="p">(</span><span class="n">title_sentences</span><span class="p">)</span> <span class="k">AS</span> <span class="n">average_ts</span>
-     <span class="p">,</span> <span class="k">AVG</span><span class="p">(</span><span class="n">summary_letters</span><span class="p">)</span> <span class="k">AS</span> <span class="n">average_sl</span>
-     <span class="p">,</span> <span class="k">AVG</span><span class="p">(</span><span class="n">summary_words</span><span class="p">)</span> <span class="k">AS</span> <span class="n">average_sw</span>
-     <span class="p">,</span> <span class="k">AVG</span><span class="p">(</span><span class="n">summary_sentences</span><span class="p">)</span> <span class="k">AS</span> <span class="n">average_ss</span>
+<h4 id="task_details_dim_reddit_feeds_nlp_stats">Task Details (<code>dim_reddit_feeds_nlp_stats</code>)<a class="headerlink" href="#task_details_dim_reddit_feeds_nlp_stats" title="Permanent link">&para;</a></h4>
+<p>Now that we have individual article statistics, it would be a good idea to create an additional modelling task to find some aggregate statistics grouped by source. Let's create another SQL query called <code>dim_reddit_feeds_nlp_stats</code> in the <code>sql</code> folder. This query will give us the average, grouped by source, of the text statistics generated by the <code>nlp</code> task.</p>
+<details class="example"><summary>sql/dim_reddit_feeds_nlp_stats.py</summary><div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="k">source</span>
+     <span class="p">,</span> <span class="k">AVG</span><span class="p">(</span><span class="n">title_letters</span><span class="p">)</span> <span class="k">AS</span> <span class="n">average_letters</span>
+     <span class="p">,</span> <span class="k">AVG</span><span class="p">(</span><span class="n">title_words</span><span class="p">)</span> <span class="k">AS</span> <span class="n">average_words</span>
+     <span class="p">,</span> <span class="k">AVG</span><span class="p">(</span><span class="n">title_sentences</span><span class="p">)</span> <span class="k">AS</span> <span class="n">average_sentences</span>
 
-<span class="k">FROM</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">dim_bbc_feeds_nlp</span>
+<span class="k">FROM</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">dim_reddit_feeds_nlp</span>
 
 <span class="k">GROUP</span> <span class="k">BY</span> <span class="mi">1</span>
 
 <span class="k">ORDER</span> <span class="k">BY</span> <span class="mi">1</span>
 </code></pre></div>
 </details>
-<p>Finally, we can add the <code>dim_bbc_feeds_nlp_stats</code> task to the the <code>modelling</code> group. Like the previous modelling task, we will create this task using the modelling <a href="../../presets/">preset</a> in <code>project.yaml</code>; setting the parents parameter to <code>nlp</code>. We want to materialise this query as a view; therefore, we will need to overwrite the materialisation parameter of the preset.</p>
+<p>Finally, we can add the <code>dim_reddit_feeds_nlp_stats</code> task to the the <code>modelling</code> group. Like the previous modelling task, we will create this task using the modelling <a href="../../presets/">preset</a> in <code>project.yaml</code>; setting the parents parameter to <code>nlp</code>. We want to materialise this query as a view; therefore, we will need to overwrite the materialisation parameter of the preset.</p>
 <details class="example"><summary>modelling.yaml</summary><div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-    <span class="nt">dim_bbc_feeds</span><span class="p">:</span>
+    <span class="nt">dim_reddit_feeds</span><span class="p">:</span>
       <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
       <span class="nt">parents</span><span class="p">:</span>
         <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">load_data</span>
 
-    <span class="nt">dim_bbc_feeds_nlp_stats</span><span class="p">:</span>
+    <span class="nt">dim_reddit_feeds_nlp_stats</span><span class="p">:</span>
       <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
       <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">view</span>
       <span class="nt">parents</span><span class="p">:</span>
@@ -1436,6 +1621,41 @@ The <code>wordcloud</code> task has a <code>stopwords</code> parameter, this par
       
         
 <footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../simple_etl/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                A Simple ETL
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../facebook_data_project/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Facebook Data Project
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
