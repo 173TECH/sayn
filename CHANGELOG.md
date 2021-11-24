@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.5.12] - 2021-11-24
+
+### Fixed
+
+- Allow max_merge_rows with append copy tasks
+
 ## [0.5.11] - 2021-11-23
 
 ### Changed
