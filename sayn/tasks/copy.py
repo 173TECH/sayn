@@ -95,7 +95,7 @@ class Config(BaseModel):
 
     @validator("max_merge_rows")
     def merge_batch_size_val(cls, v, values):
-        if values.get("delete_key") is None:
+        if values.get("incremental_key") is None:
             raise ValueError("max_merge_rows is only applicable to incremental copy")
 
         return v
