@@ -122,16 +122,16 @@ def read_groups(groups):
             except ValidationError as e:
                 return Exc(e, where="read_tasks")
 
-    try:
-        out["tests"]
-    except:
-        for name in groups:
-            if name != "tests" and out[name].tests is not None:
-                return Err("read_groups", "tests in tasks yaml")
-        return Ok(out)
-    else:
-        if out["tests"].tasks is not None:
-            return Err("read_groups", "tasks in tests.yaml")
+    # try:
+    #     out["tests"]
+    # except:
+    #     for name in groups:
+    #         if name != "tests" and out[name].tests is not None:
+    #             return Err("read_groups", "tests in tasks yaml")
+    #     return Ok(out)
+    # else:
+    #     if out["tests"].tasks is not None:
+    #         return Err("read_groups", "tasks in tests.yaml")
 
     return Ok(out)
 
@@ -417,6 +417,12 @@ def get_tasks_dict(global_presets, groups):
     for group_name, group in groups.items():
         if group.tasks is not None:
             for task_name, task in group.tasks.items():
+                if task["type"] == "test":
+                    return Err(
+                        "dag",
+                        "test in tasks",
+                        task=task_name,
+                    )
                 if task_name in tasks:
                     return Err(
                         "dag",
@@ -431,6 +437,12 @@ def get_tasks_dict(global_presets, groups):
                     errors[task_name] = result.error
         if group.tests is not None:
             for test_name, test in group.tests.items():
+                if test["type"] != "test":
+                    return Err(
+                        "dag",
+                        "task in tests",
+                        task=task_name,
+                    )
                 if test_name in tests:
                     return Err(
                         "dag",

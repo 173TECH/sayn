@@ -425,3 +425,53 @@ def test_autosql_schemas_error02(tmp_path, target_db):
                 "table": "test_autosql_task",
             },
         ).is_err
+
+
+# AutoSqlTask Testing
+
+
+def test_autosql_test_names(tmp_path, target_db):
+    with autosql_task(tmp_path, target_db, "SELECT 1 AS x") as task:
+        assert task.setup(
+            file_name="test.sql",
+            materialisation="table",
+            destination={"table": "test_autosql_task"},
+            columns=[{"name": "x", "tests": ["unique", "not_null"]}],
+        ).is_ok
+        task.run()
+        assert task.test().is_ok
+
+
+def test_autosql_test_lists(tmp_path, target_db):
+    with autosql_task(tmp_path, target_db, "SELECT 1 AS x") as task:
+        assert task.setup(
+            file_name="test.sql",
+            materialisation="table",
+            destination={"table": "test_autosql_task"},
+            columns=[
+                {"name": "x", "tests": [{"name": "unique"}, {"name": "not_null"}]}
+            ],
+        ).is_ok
+        task.run()
+        assert task.test().is_ok
+
+
+def test_autosql_test_values(tmp_path, target_db):
+    with autosql_task(tmp_path, target_db, "SELECT '1' AS x") as task:
+        assert task.setup(
+            file_name="test.sql",
+            materialisation="table",
+            destination={"table": "test_autosql_task"},
+            columns=[
+                {
+                    "name": "x",
+                    "tests": [
+                        {"name": "unique"},
+                        {"name": "not_null"},
+                        {"name": "values", "values": ["1"]},
+                    ],
+                }
+            ],
+        ).is_ok
+        task.run()
+        assert task.test().is_ok
