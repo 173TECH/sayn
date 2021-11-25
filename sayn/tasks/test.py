@@ -65,7 +65,10 @@ class TestTask(Task):
         else:
             self.test_query = result.value
 
-        return self.success()
+        if self.run_arguments["command"] == "test":
+            self.set_run_steps(["Write Query", "Execute Query"])
+
+        return Ok()
 
     def test(self):
         with self.step("Write Test Query"):

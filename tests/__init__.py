@@ -83,7 +83,7 @@ def simulate_task(
     task.name = "test_task"  # set for compilation output during run
     task.group = "test_group"  # set for compilation output during run
     task.run_arguments = {
-        "folders": {"sql": "sql", "compile": "compile"},
+        "folders": {"sql": "sql", "compile": "compile", "tests": "tests"},
         "command": "run",
         "debug": False,
         "full_load": False,

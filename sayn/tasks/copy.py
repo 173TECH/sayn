@@ -106,7 +106,7 @@ class Config(BaseModel):
 
 
 class CopyTask(SqlTask):
-    def setup(self, **config):
+    def setup(self, **config):  # noqa: C901
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]

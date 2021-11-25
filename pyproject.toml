@@ -55,3 +55,6 @@ pytest-sugar = "^0.9.3"
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = [ "tests" ]
