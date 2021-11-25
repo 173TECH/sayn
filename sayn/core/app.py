@@ -116,7 +116,11 @@ class App:
 
     def set_tasks(self, tasks, task_query):
         self.task_query = task_query
-
+        for t in tasks.values():
+            print()
+            print(t)
+            print(t.keys())
+        # print(tasks.keys())
         if self.run_arguments["command"] == "test":
             self.dag = {
                 task["name"]: []

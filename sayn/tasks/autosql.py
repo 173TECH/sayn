@@ -163,7 +163,7 @@ class AutoSqlTask(SqlTask):
                     else:
                         tests.append(
                             {
-                                "type": t.name,
+                                "type": t.name if t.name is not None else "values",
                                 "values": t.values if t.values is not None else [],
                             }
                         )

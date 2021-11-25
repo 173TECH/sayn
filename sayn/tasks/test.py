@@ -10,7 +10,7 @@ from . import Task
 
 
 class Tests(BaseModel):
-    name: str
+    name: Optional[str]
     values: Optional[List[str]]
 
     class Config:
