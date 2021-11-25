@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional, List
 import json
@@ -68,6 +69,7 @@ class Config(BaseModel):
     destination: Destination
     ddl: Optional[Dict[str, Any]]
     delete_key: Optional[str]
+    append: bool = False
     incremental_key: Optional[str]
     max_merge_rows: Optional[int]
     max_batch_rows: Optional[int]
@@ -78,16 +80,26 @@ class Config(BaseModel):
 
     @validator("incremental_key", always=True)
     def incremental_validation(cls, v, values):
-        if (v is None) != (values.get("delete_key") is None):
-            raise ValueError(
-                'Incremental copy requires both "delete_key" and "incremental_key"'
-            )
+        if v is None:  # Full load
+            if values.get("delete_key") is not None:
+                raise ValueError(
+                    'Incremental copy requires both "incremental_key" and "delete_key" or "incremental_key" and "append: true"'
+                )
+        else:
+            if values.get("delete_key") is not None and values.get("append"):
+                raise ValueError(
+                    '"Append" incremental copy is incompatible with "delete_key"'
+                )
+            elif values.get("delete_key") is None and not values.get("append"):
+                raise ValueError(
+                    '"Append" incremental copy requires "delete_key" or  "append: True"'
+                )
 
         return v
 
     @validator("max_merge_rows")
     def merge_batch_size_val(cls, v, values):
-        if values.get("delete_key") is None:
+        if values.get("incremental_key") is None:
             raise ValueError("max_merge_rows is only applicable to incremental copy")
 
         return v
@@ -180,7 +192,15 @@ class CopyTask(SqlTask):
         self.dst_incremental_key = self.config.incremental_key
         self.max_merge_rows = self.config.max_merge_rows
         self.max_batch_rows = self.config.max_batch_rows
-        self.is_full_load = self.run_arguments["full_load"] or self.delete_key is None
+
+        if self.config.append:
+            self.mode = "append"
+        elif self.dst_incremental_key is None:
+            self.mode = "full"
+        else:
+            self.mode = "inc"
+
+        self.is_full_load = self.run_arguments["full_load"] or self.mode == "full"
 
         result = self.target_db._validate_ddl(self.config.ddl)
         if result.is_ok:
@@ -307,7 +327,7 @@ class CopyTask(SqlTask):
         if self.target_table_exists:
             load_table = self.tmp_table
             load_schema = self.tmp_schema
-            if is_full_load or self.src_incremental_key is None:
+            if is_full_load or self.mode == "full":
                 steps.append("Move Table")
             else:
                 steps.append("Merge Tables")
@@ -324,8 +344,16 @@ class CopyTask(SqlTask):
             else:
                 get_data_query = result.value
 
+            create_ddl = {k: v for k, v in self.ddl.items() if k != "columns"}
+            if self.mode == "append":
+                create_ddl["columns"] = [c for c in self.ddl["columns"]] + [
+                    {"name": "_sayn_load_ts", "type": "TIMESTAMP"}
+                ]
+            else:
+                create_ddl["columns"] = [c for c in self.ddl["columns"]]
+
             query = self.target_db.create_table(
-                load_table, schema=load_schema, replace=True, **self.ddl
+                load_table, schema=load_schema, replace=True, **create_ddl
             )
             if debug:
                 self.write_compilation_output(query, "create_table")
@@ -339,9 +367,21 @@ class CopyTask(SqlTask):
             n_records = 0
             if execute:
                 data_iter = self.source_db._read_data_stream(get_data_query)
+
+                def read_iter(iter):
+                    if self.mode == "append":
+
+                        load_time = datetime.utcnow()
+                        for record in iter:
+                            yield dict(record, _sayn_load_ts=load_time)
+
+                    else:
+                        for record in iter:
+                            yield record
+
                 n_records = self.target_db.load_data(
                     load_table,
-                    data_iter,
+                    read_iter(data_iter),
                     schema=load_schema,
                     batch_size=self.max_batch_rows,
                 )
@@ -382,7 +422,7 @@ class CopyTask(SqlTask):
 
         return Ok(n_records)
 
-    def get_columns(self):
+    def get_columns(self):  # noqa: C901
         # We get the source table definition
         source_table_def = self.source_db._get_table(
             self.source_table,
@@ -411,12 +451,18 @@ class CopyTask(SqlTask):
                         "type": c.type.compile(dialect=self.target_db.engine.dialect),
                     }
                     for c in dst_table_def.columns
+                    if not c.name.startswith("_sayn")
                 ]
 
                 # Ensure these columns are in the source
-                missing_columns = set([c.name for c in dst_table_def.columns]) - set(
-                    [c.name for c in self.source_table_def.columns]
-                )
+                missing_columns = set(
+                    [
+                        c.name
+                        for c in dst_table_def.columns
+                        if not c.name.startswith("_sayn")
+                    ]
+                ) - set([c.name for c in self.source_table_def.columns])
+
                 if len(missing_columns) > 0:
                     return Err(
                         "database_error",
@@ -488,7 +534,11 @@ class CopyTask(SqlTask):
         )
         last_incremental_value = None
 
-        if not is_full_load and self.target_table_exists:
+        if (
+            not is_full_load
+            and self.target_table_exists
+            and self.dst_incremental_key is not None
+        ):
             if execute:
                 res = self.target_db.read_data(last_incremental_value_query)
                 if len(res) == 1:

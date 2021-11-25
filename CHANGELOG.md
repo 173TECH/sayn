@@ -1,5 +1,23 @@
 # Change Log
 
+## [0.5.12] - 2021-11-24
+
+### Fixed
+
+- Allow max_merge_rows with append copy tasks
+
+## [0.5.11] - 2021-11-23
+
+### Changed
+
+- Adds append only mode for copy tasks
+
+### Fixed
+
+- Make parameter and credential names case lowercase allowing environment variables on Windows
+- Bigquery support for changing autosql models between views and tables
+- Better error messages when additional properties are specified in a task definition
+
 ## [0.5.10] - 2021-09-06
 
 ### Fixed

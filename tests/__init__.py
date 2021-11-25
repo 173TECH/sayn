@@ -111,7 +111,7 @@ def simulate_task(
     task.jinja_env.globals.update(**task_params)
 
 
-def validate_table(db, table_name, expected_data):
+def validate_table(db, table_name, expected_data, variable_columns=None):
     result = db.read_data(f"select * from {table_name}")
     if len(result) != len(expected_data):
         return False
@@ -119,8 +119,23 @@ def validate_table(db, table_name, expected_data):
     result = sorted(result, key=lambda x: list(x.values()))
     expected_data = sorted(expected_data, key=lambda x: list(x.values()))
     for i in range(len(result)):
-        if result[i] != expected_data[i]:
-            return False
+        if variable_columns is None:
+            if result[i] != expected_data[i]:
+                return False
+        else:
+            expected_clean = {
+                k: v for k, v in expected_data[i].items() if k not in variable_columns
+            }
+            result_clean = {
+                k: v for k, v in result[i].items() if k not in variable_columns
+            }
+
+            if expected_clean != result_clean:
+                return False
+
+            if result[i].keys() != expected_data[i].keys():
+                return False
+
     return True
 
 
