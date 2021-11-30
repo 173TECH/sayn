@@ -47,7 +47,7 @@ class Config(BaseModel):
     materialisation: str
     destination: Destination
     ddl: Optional[Dict[str, Any]]
-    columns: Optional[List[Columns]]
+    columns: Optional[List[Dict[str, Any]]]
 
     class Config:
         extra = Extra.forbid
@@ -104,7 +104,8 @@ class AutoSqlTask(SqlTask):
             )
         except Exception as e:
             return Exc(e)
-
+        # print(config)
+        # print(self.config)
         self.tmp_schema = (
             self.config.destination.tmp_schema or self.config.destination.db_schema
         )
@@ -116,27 +117,30 @@ class AutoSqlTask(SqlTask):
         self.delete_key = self.config.delete_key
 
         # DDL validation
-        result = self.target_db._validate_ddl(self.config.ddl)
+        result = self.target_db._validate_ddl(self.config.columns)
         if result.is_err:
             return result
         else:
-            self.ddl = result.value
+            # print(result.value)
+            self.columns = result.value["columns"]
 
+        # print(self.columns)
         # If we have columns with no type, we can't issue a create table ddl
         # and will issue a create table as select instead.
         # However, if the db doesn't support alter idx then we can't have a
         # primary key
-        self.cols_no_type = [c for c in self.ddl["columns"] if c["type"] is None]
-        if (
-            len(self.ddl["primary_key"]) > 0
-            and self.target_db.feature("CANNOT ALTER INDEXES")
-            and (len(self.ddl["columns"]) == 0 or len(self.cols_no_type) > 0)
-        ):
-            return Err(
-                "task_definition",
-                "missing_column_types_pk",
-                columns=self.cols_no_type,
-            )
+        # self.cols_no_type = [
+        #     c for c in self.ddl["columns"] if c["type"] is None]
+        # if (
+        #     len(self.ddl["primary_key"]) > 0 and
+        #     self.target_db.feature("CANNOT ALTER INDEXES") and
+        #     (len(self.ddl["columns"]) == 0 or len(self.cols_no_type) > 0)
+        # ):
+        #     return Err(
+        #         "task_definition",
+        #         "missing_column_types_pk",
+        #         columns=self.cols_no_type,
+        #     )
 
         # Template compilation
         result = self.get_template(self.config.file_name)
@@ -151,61 +155,48 @@ class AutoSqlTask(SqlTask):
         else:
             self.sql_query = result.value
 
-        if isinstance(config.get("columns"), list):
-            cols = self.config.columns
+        # print(self.run_arguments['command'])
+        if self.run_arguments["command"] == "test":
+            result = self.target_db._construct_tests(self.columns, self.table)
+            if result.is_err:
+                return result
+            else:
+                self.test_query = result.value
 
-            self.columns = []
-            for c in cols:
-                tests = []
-                for t in c.tests:
-                    if isinstance(t, str):
-                        tests.append({"type": t, "values": []})
-                    else:
-                        tests.append(
-                            {
-                                "type": t.name if t.name is not None else "values",
-                                "values": t.values if t.values is not None else [],
-                            }
-                        )
-                self.columns.append(
-                    {
-                        "name": c.name,
-                        "description": c.description,
-                        "tests": tests,
-                    }
-                )
+        # if isinstance(config.get("columns"), list):
+        #
+        #     columns = self.columns
+        #     table = self.table
+        #     query = """
+        #                SELECT col
+        #                     , cnt AS 'count'
+        #                     , type
+        #                  FROM (
+        #             """
+        #     template = self.get_template(
+        #         Path(__file__).parent / "tests/standard_tests.sql"
+        #     )
+        #     for col in columns:
+        #         tests = col["tests"]
+        #         for t in tests:
+        #             query += template.compile_obj(
+        #                 template.value,
+        #                 **{
+        #                     "table": table,
+        #                     "name": col["name"],
+        #                     "type": t["type"],
+        #                     "values": ", ".join(f"'{c}'" for c in t["values"]),
+        #                 },
+        #             ).value
+        #     parts = query.splitlines()[:-2]
+        #     query = ""
+        #     for q in parts:
+        #         query += q.strip() + "\n"
+        #     query += ") AS t;"
+        #
+        #     self.test_query = query
 
-            columns = self.columns
-            table = self.table
-            query = """
-                       SELECT col
-                            , cnt AS 'count'
-                            , type
-                         FROM (
-                    """
-            template = self.get_template(
-                Path(__file__).parent / "tests/standard_tests.sql"
-            )
-            for col in columns:
-                tests = col["tests"]
-                for t in tests:
-                    query += self.compile_obj(
-                        template.value,
-                        **{
-                            "table": table,
-                            "name": col["name"],
-                            "type": t["type"],
-                            "values": ", ".join(f"'{c}'" for c in t["values"]),
-                        },
-                    ).value
-            parts = query.splitlines()[:-2]
-            query = ""
-            for q in parts:
-                query += q.strip() + "\n"
-            query += ") AS t;"
-
-            self.test_query = query
-
+        # print(self.columns)
         return Ok()
 
     def execute(self, execute, debug):
@@ -216,7 +207,10 @@ class AutoSqlTask(SqlTask):
         if self.materialisation == "view":
             # View
             step_queries = self.target_db.replace_view(
-                self.table, self.sql_query, schema=self.schema, **self.ddl
+                self.table,
+                self.sql_query,
+                schema=self.schema,
+                **{"columns": self.columns},
             )
 
         elif (
@@ -237,7 +231,7 @@ class AutoSqlTask(SqlTask):
                 self.sql_query,
                 schema=self.schema,
                 tmp_schema=tmp_schema,
-                **self.ddl,
+                **{"columns": self.columns},
             )
 
         else:
@@ -248,7 +242,7 @@ class AutoSqlTask(SqlTask):
                 self.delete_key,
                 schema=self.schema,
                 tmp_schema=self.tmp_schema,
-                **self.ddl,
+                **{"columns": self.columns},
             )
 
         self.set_run_steps(list(step_queries.keys()))

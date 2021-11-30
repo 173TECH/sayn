@@ -80,61 +80,61 @@ class SqlTask(Task):
         else:
             self.set_run_steps(["Write Query"])
 
-        if isinstance(config.get("columns"), list):
-            cols = self.config.columns
-
-            self.columns = []
-            for c in cols:
-                tests = []
-                for t in c.tests:
-                    if isinstance(t, str):
-                        tests.append({"type": t, "values": []})
-                    else:
-                        tests.append(
-                            {
-                                "type": t.name if t.name is not None else "values",
-                                "values": t.values if t.values is not None else [],
-                            }
-                        )
-                self.columns.append(
-                    {
-                        "name": c.name,
-                        "description": c.description,
-                        "tests": tests,
-                    }
-                )
-
-            columns = self.columns
-            table = self.table
-            query = """
-                       SELECT col
-                            , cnt AS 'count'
-                            , type
-                         FROM (
-                    """
-            template = self.get_template(
-                Path(__file__).parent / "tests/standard_tests.sql"
-            )
-            for col in columns:
-                tests = col["tests"]
-                for t in tests:
-                    query += self.compile_obj(
-                        template.value,
-                        **{
-                            "table": table,
-                            "name": col["name"],
-                            "type": t["type"],
-                            "values": ", ".join(f"'{c}'" for c in t["values"]),
-                        },
-                    ).value
-            parts = query.splitlines()[:-2]
-            query = ""
-            for q in parts:
-                query += q.strip() + "\n"
-            query += ") AS t;"
-
-            self.test_query = query
-
+        # if isinstance(config.get("columns"), list):
+        #     cols = self.config.columns
+        #
+        #     self.columns = []
+        #     for c in cols:
+        #         tests = []
+        #         for t in c.tests:
+        #             if isinstance(t, str):
+        #                 tests.append({"type": t, "values": []})
+        #             else:
+        #                 tests.append(
+        #                     {
+        #                         "type": t.name if t.name is not None else "values",
+        #                         "values": t.values if t.values is not None else [],
+        #                     }
+        #                 )
+        #         self.columns.append(
+        #             {
+        #                 "name": c.name,
+        #                 "description": c.description,
+        #                 "tests": tests,
+        #             }
+        #         )
+        #
+        #     columns = self.columns
+        #     table = self.table
+        #     query = """
+        #                SELECT col
+        #                     , cnt AS 'count'
+        #                     , type
+        #                  FROM (
+        #             """
+        #     template = self.get_template(
+        #         Path(__file__).parent / "tests/standard_tests.sql"
+        #     )
+        #     for col in columns:
+        #         tests = col["tests"]
+        #         for t in tests:
+        #             query += self.compile_obj(
+        #                 template.value,
+        #                 **{
+        #                     "table": table,
+        #                     "name": col["name"],
+        #                     "type": t["type"],
+        #                     "values": ", ".join(f"'{c}'" for c in t["values"]),
+        #                 },
+        #             ).value
+        #     parts = query.splitlines()[:-2]
+        #     query = ""
+        #     for q in parts:
+        #         query += q.strip() + "\n"
+        #     query += ") AS t;"
+        #
+        #     self.test_query = query
+        #
         return Ok()
 
     def compile(self):
@@ -159,19 +159,19 @@ class SqlTask(Task):
 
         return Ok()
 
-    def test(self):
-        with self.step("Write Test Query"):
-            result = self.write_compilation_output(self.test_query, "test")
-            if result.is_err:
-                return result
-
-        with self.step("Execute Test Query"):
-            result = self.default_db.read_data(self.test_query)
-
-            if len(result) == 0:
-                return self.success()
-            else:
-                errout = "Test failed, problematic fields:\n"
-                for res in result:
-                    errout += json.dumps(res)
-                return self.fail(errout)
+    # def test(self):
+    #     with self.step("Write Test Query"):
+    #         result = self.write_compilation_output(self.test_query, "test")
+    #         if result.is_err:
+    #             return result
+    #
+    #     with self.step("Execute Test Query"):
+    #         result = self.default_db.read_data(self.test_query)
+    #
+    #         if len(result) == 0:
+    #             return self.success()
+    #         else:
+    #             errout = "Test failed, problematic fields:\n"
+    #             for res in result:
+    #                 errout += json.dumps(res)
+    #             return self.fail(errout)

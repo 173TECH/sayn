@@ -20,14 +20,6 @@ def task_tset(tmp_path, target_db, sql, data=None, **kwargs):
                 yield task
         else:
             yield task
-        # if hasattr(task, "table"):
-        #     clear_tables(
-        #         task.connections["target_db"],
-        #         [
-        #             f"{task.schema +'.' if task.schema else ''}{task.table}",
-        #             f"{task.tmp_schema +'.' if task.tmp_schema else ''}sayn_tmp_{task.table}",
-        #         ],
-        #     )
 
 
 def test_custom_test(tmp_path, target_db):
@@ -35,3 +27,10 @@ def test_custom_test(tmp_path, target_db):
         assert task.setup(file_name="test.sql").is_ok
 
         assert task.test().is_ok
+
+
+def test_custom_test_fail(tmp_path, target_db):
+    with task_tset(tmp_path, target_db, "SELECT 1 AS x WHERE x IS NOT NULL") as task:
+        assert task.setup(file_name="test.sql").is_ok
+
+        assert task.test().is_err

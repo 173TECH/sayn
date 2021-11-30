@@ -2,10 +2,10 @@ from collections import Counter
 import datetime
 import decimal
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
-from pydantic import BaseModel, validator, conlist, Extra
+from pydantic import BaseModel, validator, conlist, Extra, FilePath
 from sqlalchemy import MetaData, Table
 from sqlalchemy.engine import reflection
 from sqlalchemy.sql import sqltypes
@@ -14,96 +14,152 @@ from ..core.errors import DBError, Exc, Ok
 
 from ..utils.misc import group_list
 
+# from ..tasks.test import Columns
+
+
+class Tests(BaseModel):
+    name: Optional[str]
+    values: Optional[List[str]]
+
+    class Config:
+        extra = Extra.forbid
+
+
+class Columns(BaseModel):
+    name: str
+    description: Optional[str]
+    tests: Optional[List[Union[str, Tests]]]
+
+    class Config:
+        extra = Extra.forbid
+
+
+class Config(BaseModel):
+    test_folder: Path
+    file_name: FilePath
+
+    class Config:
+        extra = Extra.forbid
+
+    @validator("file_name", pre=True)
+    def file_name_plus_folder(cls, v, values):
+        return Path(values["test_folder"], v)
+
 
 class DDL(BaseModel):
-    class Column(BaseModel):
-        name: str
-        type: Optional[str]
-        primary: Optional[bool] = False
-        not_null: Optional[bool] = False
-        unique: Optional[bool] = False
-        dst_name: Optional[str]
+    # class Column(BaseModel):
+    #     name: str
+    #     type: Optional[str]
+    #     primary: Optional[bool] = False
+    #     not_null: Optional[bool] = False
+    #     unique: Optional[bool] = False
+    #     dst_name: Optional[str]
+    #
+    #     class Config:
+    #         extra = Extra.forbid
+    #
+    # class Index(BaseModel):
+    #     columns: conlist(str, min_items=1)
+    #
+    #     class Config:
+    #         extra = Extra.forbid
 
-        class Config:
-            extra = Extra.forbid
+    columns: Optional[List[Columns]] = list()
+    # indexes: Optional[Dict[str, Index]] = dict()
+    # # logic field - i.e. not added by the user in the ddl definition
+    # primary_key: Optional[List[str]] = []
+    #
+    # permissions: Optional[Dict[str, str]] = dict()
 
-    class Index(BaseModel):
-        columns: conlist(str, min_items=1)
+    # @validator("columns", pre=True)
+    # def transform_str_cols(cls, v, values):
+    #     if v is not None and isinstance(v, List):
+    #         return [{"name": c} if isinstance(c, str) else c for c in v]
+    #     else:
+    #         return v
+    #
+    # @validator("columns")
+    # def columns_unique(cls, v, values):
+    #     dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
+    #     if len(dupes) > 0:
+    #         raise ValueError(f"Duplicate columns: {','.join(dupes)}")
+    #     else:
+    #         return v
 
-        class Config:
-            extra = Extra.forbid
-
-    columns: Optional[List[Column]] = list()
-    indexes: Optional[Dict[str, Index]] = dict()
-    # logic field - i.e. not added by the user in the ddl definition
-    primary_key: Optional[List[str]] = []
-
-    permissions: Optional[Dict[str, str]] = dict()
-
-    @validator("columns", pre=True)
-    def transform_str_cols(cls, v, values):
-        if v is not None and isinstance(v, List):
-            return [{"name": c} if isinstance(c, str) else c for c in v]
-        else:
-            return v
-
-    @validator("columns")
-    def columns_unique(cls, v, values):
-        dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
-        if len(dupes) > 0:
-            raise ValueError(f"Duplicate columns: {','.join(dupes)}")
-        else:
-            return v
-
-    @validator("indexes")
-    def index_columns_exists(cls, v, values):
-        cols = [c.name for c in values.get("columns", list())]
-        if len(cols) > 0:
-            missing_cols = group_list(
-                [
-                    (index_name, index_column)
-                    for index_name, index in v.items()
-                    for index_column in index.columns
-                    if index_column not in cols
-                ]
-            )
-            if len(missing_cols) > 0:
-                cols_msg = ";".join(
-                    [f"On {i}: {','.join(c)}" for i, c in missing_cols.items()]
-                )
-                raise ValueError(f"Some indexes refer to missing columns: {cols_msg}")
-
-        return v
-
-    @validator("primary_key", always=True)
-    def set_pk(cls, v, values):
-        columns_pk = [c.name for c in values.get("columns", []) if c.primary]
-
-        indexes_pk = list()
-        if values.get("indexes", {}).get("primary_key") is not None:
-            indexes_pk = values.get("indexes").get("primary_key").columns
-
-        if len(columns_pk) > 0 and len(indexes_pk) > 0:
-            if set(columns_pk) != set(indexes_pk):
-                columns_pk_str = " ,".join(columns_pk)
-                indexes_pk_str = " ,".join(indexes_pk)
-                raise ValueError(
-                    f"Primary key defined in indexes ({indexes_pk_str}) does not match primary key defined in columns ({columns_pk_str})."
-                )
-
-        pk = columns_pk if len(columns_pk) > 0 else indexes_pk
-
-        return pk
+    # @validator("indexes")
+    # def index_columns_exists(cls, v, values):
+    #     cols = [c.name for c in values.get("columns", list())]
+    #     if len(cols) > 0:
+    #         missing_cols = group_list(
+    #             [
+    #                 (index_name, index_column)
+    #                 for index_name, index in v.items()
+    #                 for index_column in index.columns
+    #                 if index_column not in cols
+    #             ]
+    #         )
+    #         if len(missing_cols) > 0:
+    #             cols_msg = ";".join(
+    #                 [f"On {i}: {','.join(c)}" for i, c in missing_cols.items()]
+    #             )
+    #             raise ValueError(
+    #                 f"Some indexes refer to missing columns: {cols_msg}")
+    #
+    #     return v
+    #
+    # @validator("primary_key", always=True)
+    # def set_pk(cls, v, values):
+    #     columns_pk = [c.name for c in values.get("columns", []) if c.primary]
+    #
+    #     indexes_pk = list()
+    #     if values.get("indexes", {}).get("primary_key") is not None:
+    #         indexes_pk = values.get("indexes").get("primary_key").columns
+    #
+    #     if len(columns_pk) > 0 and len(indexes_pk) > 0:
+    #         if set(columns_pk) != set(indexes_pk):
+    #             columns_pk_str = " ,".join(columns_pk)
+    #             indexes_pk_str = " ,".join(indexes_pk)
+    #             raise ValueError(
+    #                 f"Primary key defined in indexes ({indexes_pk_str}) does not match primary key defined in columns ({columns_pk_str})."
+    #             )
+    #
+    #     pk = columns_pk if len(columns_pk) > 0 else indexes_pk
+    #
+    #     return pk
 
     def get_ddl(self):
-        return {
-            "columns": [c.dict() for c in self.columns],
-            "indexes": {
-                k: v.dict() for k, v in self.indexes.items() if k != "primary_key"
-            },
-            "permissions": self.permissions,
-            "primary_key": self.primary_key,
+        cols = self.columns
+        self.columns = []
+        for c in cols:
+            tests = []
+            for t in c.tests:
+                if isinstance(t, str):
+                    tests.append({"type": t, "values": []})
+                else:
+                    tests.append(
+                        {
+                            "type": t.name if t.name is not None else "values",
+                            "values": t.values if t.values is not None else [],
+                        }
+                    )
+            self.columns.append(
+                {
+                    "name": c.name,
+                    "description": c.description,
+                    "tests": tests,
+                }
+            )
+        # print(self.columns)
+        res = {
+            "columns": self.columns,
+            # "indexes": {
+            #     k: v.dict() for k, v in self.indexes.items() if k != "primary_key"
+            # },
+            # "permissions": self.permissions,
+            # "primary_key": self.primary_key,
         }
+        # print(res)
+        return res
 
 
 class Database:
@@ -136,6 +192,11 @@ class Database:
             undefined=StrictUndefined,
             keep_trailing_newline=True,
         )
+        self._jinja_test = Environment(
+            loader=FileSystemLoader(Path(__file__).parent.parent / "tasks/tests"),
+            undefined=StrictUndefined,
+            keep_trailing_newline=True,
+        )
 
     def feature(self, feature):
         # Supported sql_features
@@ -162,12 +223,39 @@ class Database:
         # Force a query to test the connection
         engine.execute("select 1")
 
-    def _validate_ddl(self, ddl):
-        if ddl is None or len(ddl) == 0:
+    def _construct_tests(self, columns, table):
+        query = """
+                   SELECT col
+                        , cnt AS 'count'
+                        , type
+                     FROM (
+                """
+        template = self._jinja_test.get_template("standard_tests.sql")
+        for col in columns:
+            tests = col["tests"]
+            for t in tests:
+                query += template.render(
+                    **{
+                        "table": table,
+                        "name": col["name"],
+                        "type": t["type"],
+                        "values": ", ".join(f"'{c}'" for c in t["values"]),
+                    },
+                )
+        parts = query.splitlines()[:-2]
+        query = ""
+        for q in parts:
+            query += q.strip() + "\n"
+        query += ") AS t;"
+
+        return Ok(query)
+
+    def _validate_ddl(self, columns):
+        if columns is None or len(columns) == 0:
             return Ok(self.ddl_validation_class().get_ddl())
         else:
             try:
-                return Ok(self.ddl_validation_class(**ddl).get_ddl())
+                return Ok(self.ddl_validation_class(columns=columns).get_ddl())
             except Exception as e:
                 return Exc(e, db=self.name, type=self.db_type)
 

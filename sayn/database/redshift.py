@@ -12,7 +12,7 @@ db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
 class RedshiftDDL(DDL):
     class Sorting(BaseModel):
         type: Optional[str]
-        columns: List[str]
+        # columns: List[str]
 
         class Config:
             extra = Extra.forbid
@@ -29,9 +29,9 @@ class RedshiftDDL(DDL):
     distribution: Optional[constr(regex=r"even|all|key([^,]+)")]
     sorting: Optional[Sorting]
 
-    @validator("indexes")
-    def index_columns_exists(cls, v, values):
-        raise ValueError("Indexes not supported by Redshift")
+    # @validator("indexes")
+    # def index_columns_exists(cls, v, values):
+    #     raise ValueError("Indexes not supported by Redshift")
 
     @validator("distribution")
     def validate_distribution(cls, v, values):
