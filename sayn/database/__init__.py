@@ -14,36 +14,46 @@ from ..core.errors import DBError, Exc, Ok
 
 from ..utils.misc import group_list
 
-# from ..tasks.test import Columns
+
+class Hook(BaseModel):
+    sql: str
 
 
-class Tests(BaseModel):
-    name: Optional[str]
-    values: Optional[List[str]]
+class Properties(BaseModel):
+    class Distribution(BaseModel):
+        type: str
+        columns: Optional[List[Union[str, Dict]]]
 
-    class Config:
-        extra = Extra.forbid
+    distribution: Optional[Distribution]
 
 
 class Columns(BaseModel):
     name: str
     description: Optional[str]
+
+    class Tests(BaseModel):
+        name: Optional[str]
+        values: Optional[List[str]]
+
+        class Config:
+            extra = Extra.forbid
+
     tests: Optional[List[Union[str, Tests]]]
 
     class Config:
         extra = Extra.forbid
 
 
-class Config(BaseModel):
-    test_folder: Path
-    file_name: FilePath
-
-    class Config:
-        extra = Extra.forbid
-
-    @validator("file_name", pre=True)
-    def file_name_plus_folder(cls, v, values):
-        return Path(values["test_folder"], v)
+# class Config(BaseModel):
+#     test_folder: Path
+#     file_name: FilePath
+#
+#     class Config:
+#         extra = Extra.forbid
+#
+#     @validator("file_name", pre=True)
+#     def file_name_plus_folder(cls, v, values):
+#         return Path(values["test_folder"], v)
 
 
 class DDL(BaseModel):
@@ -65,6 +75,8 @@ class DDL(BaseModel):
     #         extra = Extra.forbid
 
     columns: Optional[List[Columns]] = list()
+    properties: Optional[List[Properties]] = list()
+    post_hook: Optional[List[Hook]] = list()
     # indexes: Optional[Dict[str, Index]] = dict()
     # # logic field - i.e. not added by the user in the ddl definition
     # primary_key: Optional[List[str]] = []
@@ -128,6 +140,7 @@ class DDL(BaseModel):
     #     return pk
 
     def get_ddl(self):
+        # print(self.properties)
         cols = self.columns
         self.columns = []
         for c in cols:
@@ -150,8 +163,21 @@ class DDL(BaseModel):
                 }
             )
         # print(self.columns)
+        print(self.properties)
+        props = self.properties
+        self.properties = []
+        for p in props:
+            self.properties.append({"distribution": p.distribution.dict()})
+        print(self.post_hook)
+        hook = self.post_hook
+        self.post_hook = []
+        for h in hook:
+            self.post_hook.append({"sql": h.sql})
+        print(self.post_hook)
         res = {
             "columns": self.columns,
+            "properties": self.properties,
+            "post_hook": self.post_hook
             # "indexes": {
             #     k: v.dict() for k, v in self.indexes.items() if k != "primary_key"
             # },
@@ -250,13 +276,23 @@ class Database:
 
         return Ok(query)
 
-    def _validate_ddl(self, columns):
+    def _validate_ddl(self, columns=None, table_properties=None, post_hook=None):
         if columns is None or len(columns) == 0:
             return Ok(self.ddl_validation_class().get_ddl())
         else:
             try:
-                return Ok(self.ddl_validation_class(columns=columns).get_ddl())
+                print(table_properties)
+                return Ok(
+                    self.ddl_validation_class(
+                        columns=columns,
+                        properties=table_properties,
+                        post_hook=post_hook,
+                    ).get_ddl()
+                )
             except Exception as e:
+                print(self.name)
+                print(self.db_type)
+                print(e)
                 return Exc(e, db=self.name, type=self.db_type)
 
     def _refresh_metadata(self, only=None, schema=None):

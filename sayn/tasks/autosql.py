@@ -7,7 +7,8 @@ from pydantic import BaseModel, Field, FilePath, validator, Extra
 from ..core.errors import Exc, Ok, Err
 from ..database import Database
 from .sql import SqlTask
-from .test import Columns
+
+# from .test import Columns
 
 
 class Destination(BaseModel):
@@ -46,8 +47,10 @@ class Config(BaseModel):
     delete_key: Optional[str]
     materialisation: str
     destination: Destination
-    ddl: Optional[Dict[str, Any]]
+    # ddl: Optional[Dict[str, Any]]
     columns: Optional[List[Dict[str, Any]]]
+    table_properties: Optional[List[Dict[str, Any]]]
+    post_hook: Optional[List[Dict[str, Any]]]
 
     class Config:
         extra = Extra.forbid
@@ -73,6 +76,8 @@ class AutoSqlTask(SqlTask):
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]
+
+        print(config)
 
         # set the target db for execution
         # this check needs to happen here so we can pass db_features and db_type to the validator
@@ -105,7 +110,6 @@ class AutoSqlTask(SqlTask):
         except Exception as e:
             return Exc(e)
         # print(config)
-        # print(self.config)
         self.tmp_schema = (
             self.config.destination.tmp_schema or self.config.destination.db_schema
         )
@@ -117,11 +121,14 @@ class AutoSqlTask(SqlTask):
         self.delete_key = self.config.delete_key
 
         # DDL validation
-        result = self.target_db._validate_ddl(self.config.columns)
+        result = self.target_db._validate_ddl(
+            self.config.columns, self.config.table_properties, self.config.post_hook
+        )
         if result.is_err:
             return result
         else:
-            # print(result.value)
+            print(result.value["properties"])
+            self.properties = result.value["properties"]
             self.columns = result.value["columns"]
 
         # print(self.columns)
