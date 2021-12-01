@@ -276,12 +276,23 @@ class Database:
 
         return Ok(query)
 
-    def _validate_ddl(self, columns=None, table_properties=None, post_hook=None):
+    def _validate_ddl(self, columns=[], table_properties=[], post_hook=[]):
         if columns is None or len(columns) == 0:
             return Ok(self.ddl_validation_class().get_ddl())
         else:
             try:
-                print(columns)
+                print()
+                print(f"Columns : {columns}")
+                print(f"table_properties : {table_properties}")
+                print(f"post_hook : {post_hook}")
+                print(
+                    self.ddl_validation_class(
+                        columns=columns,
+                        properties=table_properties,
+                        post_hook=post_hook,
+                    )
+                )
+                print()
                 return Ok(
                     self.ddl_validation_class(
                         columns=columns,

@@ -48,9 +48,9 @@ class Config(BaseModel):
     materialisation: str
     destination: Destination
     # ddl: Optional[Dict[str, Any]]
-    columns: Optional[List[Dict[str, Any]]]
-    table_properties: Optional[List[Dict[str, Any]]]
-    post_hook: Optional[List[Dict[str, Any]]]
+    columns: Optional[List[Dict[str, Any]]] = list()
+    table_properties: Optional[List[Dict[str, Any]]] = list()
+    post_hook: Optional[List[Dict[str, Any]]] = list()
 
     class Config:
         extra = Extra.forbid
@@ -127,7 +127,9 @@ class AutoSqlTask(SqlTask):
         if result.is_err:
             return result
         else:
-            print(result.value["properties"])
+            print(f"Properties: {result.value['properties']}")
+            print(f"columns: {result.value['columns']}")
+            print(f"post_hook: {result.value['post_hook']}")
             self.properties = result.value["properties"]
             self.columns = result.value["columns"]
             self.post_hook = result.value["post_hook"]
