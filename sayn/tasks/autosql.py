@@ -130,8 +130,10 @@ class AutoSqlTask(SqlTask):
             print(result.value["properties"])
             self.properties = result.value["properties"]
             self.columns = result.value["columns"]
+            self.post_hook = result.value["post_hook"]
 
-        # print(self.columns)
+        print(self.columns)
+
         # If we have columns with no type, we can't issue a create table ddl
         # and will issue a create table as select instead.
         # However, if the db doesn't support alter idx then we can't have a
@@ -217,7 +219,11 @@ class AutoSqlTask(SqlTask):
                 self.table,
                 self.sql_query,
                 schema=self.schema,
-                **{"columns": self.columns},
+                **{
+                    "columns": self.columns,
+                    "properties": self.properties,
+                    "post_hook": self.post_hook,
+                },
             )
 
         elif (
@@ -238,7 +244,11 @@ class AutoSqlTask(SqlTask):
                 self.sql_query,
                 schema=self.schema,
                 tmp_schema=tmp_schema,
-                **{"columns": self.columns},
+                **{
+                    "columns": self.columns,
+                    "properties": self.properties,
+                    "post_hook": self.post_hook,
+                },
             )
 
         else:
@@ -249,7 +259,11 @@ class AutoSqlTask(SqlTask):
                 self.delete_key,
                 schema=self.schema,
                 tmp_schema=self.tmp_schema,
-                **{"columns": self.columns},
+                **{
+                    "columns": self.columns,
+                    "properties": self.properties,
+                    "post_hook": self.post_hook,
+                },
             )
 
         self.set_run_steps(list(step_queries.keys()))

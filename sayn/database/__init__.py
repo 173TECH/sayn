@@ -281,7 +281,7 @@ class Database:
             return Ok(self.ddl_validation_class().get_ddl())
         else:
             try:
-                print(table_properties)
+                print(columns)
                 return Ok(
                     self.ddl_validation_class(
                         columns=columns,
@@ -294,6 +294,21 @@ class Database:
                 print(self.db_type)
                 print(e)
                 return Exc(e, db=self.name, type=self.db_type)
+
+    def _format_properties(self, properties):
+
+        if properties["columns"]:
+            columns = []
+            for col in properties["columns"]:
+                entry = {"name": col["name"], "unique": False, "not_null": False}
+                for t in col["tests"]:
+                    if t["type"] != "values":
+                        entry.update({t["type"]: True})
+                columns.append(entry)
+
+            print(columns)
+            properties["columns"] = columns
+        return Ok(properties)
 
     def _refresh_metadata(self, only=None, schema=None):
         """Refreshes the sqlalchemy metadata object.
@@ -548,6 +563,8 @@ class Database:
 
         template = self._jinja_env.get_template("create_table.sql")
 
+        print(self.feature("CANNOT SPECIFY DDL IN SELECT"))
+
         return template.render(
             table_name=table,
             full_name=full_name,
@@ -623,6 +640,9 @@ class Database:
         tmp_schema=None,
         **ddl,
     ):
+        print(ddl)
+        ddl = self._format_properties(ddl).value
+        print(ddl)
         # Create the temporary table
         can_replace_table = self.feature("CAN REPLACE TABLE")
 
@@ -657,6 +677,8 @@ class Database:
         object_type = self._requested_objects[schema][view].get("type")
         table_exists = object_type == "table"
         view_exists = object_type == "view"
+
+        ddl = self._format_properties(ddl).value
 
         template = self._jinja_env.get_template("create_view.sql")
         create = template.render(
