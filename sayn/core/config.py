@@ -1,5 +1,4 @@
 from copy import deepcopy
-import json
 import os
 from pathlib import Path
 import re
@@ -15,7 +14,10 @@ from ..utils.misc import merge_dicts, merge_dict_list
 from ..utils.dag import upstream, topological_sort
 from .errors import Err, Exc, Ok
 
-RE_ENV_VAR_NAME = re.compile(r"SAYN_(?P<type>PARAMETER|CREDENTIAL)_(?P<name>.*)")
+RE_ENV_VAR_NAME = re.compile(
+    r"SAYN_((?P<stringify>(DATABASE|SCHEMA|TABLE)_(PREFIX|SUFFIX|STRINGIFY))"
+    r"|(?P<type>PARAMETER|CREDENTIAL)_(?P<name>.+))$"
+)
 
 
 def cleanup_compilation(folder):
@@ -53,6 +55,16 @@ class Project(BaseModel):
     parameters: Optional[Dict[str, Any]] = dict()
     presets: Optional[Dict[str, Dict[str, Any]]] = dict()
     groups: List[str] = []
+
+    database_prefix: Optional[str]
+    database_suffix: Optional[str]
+    database_stringify: Optional[str]
+    schema_prefix: Optional[str]
+    schema_suffix: Optional[str]
+    schema_stringify: Optional[str]
+    table_prefix: Optional[str]
+    table_suffix: Optional[str]
+    table_stringify: Optional[str]
 
     class Config:
         extra = Extra.forbid
@@ -125,8 +137,20 @@ def read_groups(groups):
 
 class Settings(BaseModel):
     class Environment(BaseModel):
+        class Stringify(BaseModel):
+            database_prefix: Optional[str]
+            database_suffix: Optional[str]
+            database_stringify: Optional[str]
+            schema_prefix: Optional[str]
+            schema_suffix: Optional[str]
+            schema_stringify: Optional[str]
+            table_prefix: Optional[str]
+            table_suffix: Optional[str]
+            table_stringify: Optional[str]
+
         parameters: Optional[Dict[str, Any]]
         credentials: Optional[Dict[str, Dict[str, Any]]]
+        stringify: Optional[Stringify]
 
         class Config:
             extra = Extra.forbid
@@ -136,6 +160,16 @@ class Settings(BaseModel):
         class Profile(BaseModel):
             parameters: Optional[Dict[str, Any]]
             credentials: Dict[str, str]
+
+            database_prefix: Optional[str]
+            database_suffix: Optional[str]
+            database_stringify: Optional[str]
+            schema_prefix: Optional[str]
+            schema_suffix: Optional[str]
+            schema_stringify: Optional[str]
+            table_prefix: Optional[str]
+            table_suffix: Optional[str]
+            table_stringify: Optional[str]
 
             class Config:
                 extra = Extra.forbid
@@ -201,6 +235,17 @@ class Settings(BaseModel):
                         profile_name
                     ].credentials.items()
                 },
+                "stringify": {
+                    k: v
+                    for k, v in {
+                        f"{obj_type}_{str_type}": self.profiles[profile_name].dict()[
+                            f"{obj_type}_{str_type}"
+                        ]
+                        for obj_type in ("database", "schema", "table")
+                        for str_type in ("prefix", "suffix", "stringify")
+                    }.items()
+                    if v is not None
+                },
             }
 
     yaml: Optional[SettingsYaml]
@@ -216,27 +261,40 @@ class Settings(BaseModel):
         elif self.yaml is not None:
             out = self.yaml.get_profile_info(profile_name)
         else:
-            out = {"credentials": dict(), "parameters": dict()}
+            out = {"credentials": dict(), "parameters": dict(), "stringify": dict()}
 
         if profile_name is None and self.environment is not None:
             # When no profile is specified, and there's something in the environment,
             # we try to use environment variables
             if self.environment.parameters is not None:
                 out["parameters"].update(self.environment.parameters)
+
             if self.environment.credentials is not None:
                 out["credentials"].update(self.environment.credentials)
+
+            if self.environment.stringify is not None:
+                out["stringify"].update(
+                    {k: v for k, v in self.environment.stringify if v is not None}
+                )
 
         return Ok(out)
 
 
 def read_settings():
-    environment = {"parameters": dict(), "credentials": dict()}
+    environment = {"parameters": dict(), "credentials": dict(), "stringify": dict()}
     for name, value in os.environ.items():
         name = RE_ENV_VAR_NAME.match(name)
         if name is not None:
             name = name.groupdict()
 
-            environment[name["type"].lower() + "s"][name["name"]] = YAML().load(value)
+            if name["type"] is not None:
+                environment[name["type"].lower() + "s"][name["name"]] = YAML().load(
+                    value
+                )
+            else:
+                environment["stringify"][name["stringify"].lower()] = value
+
+    print(environment)
 
     environment = {k: v for k, v in environment.items() if len(v) > 0}
     if len(environment) == 0:

@@ -243,6 +243,9 @@ class Task:
             request_tmp=request_tmp,
         )
 
+    def src(self, obj):
+        return self._wrapper.src(obj)
+
 
 class PythonTask(Task):
     def setup(self):

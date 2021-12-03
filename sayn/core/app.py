@@ -46,35 +46,79 @@ class App:
 
     def set_project(self, project):
         self.project_parameters.update(project.parameters or dict())
+        self.stringify_production = {
+            "database_prefix": project.database_prefix,
+            "database_suffix": project.database_suffix,
+            "database_stringify": project.database_stringify,
+            "schema_prefix": project.schema_prefix,
+            "schema_suffix": project.schema_suffix,
+            "schema_stringify": project.schema_stringify,
+            "table_prefix": project.table_prefix,
+            "table_suffix": project.table_suffix,
+            "table_stringify": project.table_stringify,
+        }
+        self.stringify_runtime = {
+            "database_prefix": project.database_prefix,
+            "database_suffix": project.database_suffix,
+            "database_stringify": project.database_stringify,
+            "schema_prefix": project.schema_prefix,
+            "schema_suffix": project.schema_suffix,
+            "schema_stringify": project.schema_stringify,
+            "table_prefix": project.table_prefix,
+            "table_suffix": project.table_suffix,
+            "table_stringify": project.table_stringify,
+        }
         self.credentials = {k: None for k in project.required_credentials}
         self.default_db = project.default_db
 
     def set_settings(self, settings):
-        parameters = dict()
-        credentials = dict()
-        profile_name = self.run_arguments["profile"]
+        settings_dict = settings.get_settings(self.run_arguments["profile"])
+        if settings_dict.is_err:
+            return settings_dict
+        else:
+            settings_dict = settings_dict.value
+
+        parameters = settings_dict["parameters"] or dict()
+        credentials = settings_dict["credentials"] or dict()
+        stringify = settings_dict["stringify"] or dict()
+
+        # profile_name = self.run_arguments["profile"]
 
         # Get parameters and credentials from yaml
-        if settings.yaml is not None:
-            if profile_name is not None and profile_name not in settings.yaml.profiles:
-                return Err("app_command", "wrong_profile", profile=profile_name)
+        # if settings.yaml is not None:
+        #     if profile_name is not None and profile_name not in settings.yaml.profiles:
+        #         return Err("app_command", "wrong_profile", profile=profile_name)
 
-            profile_name = profile_name or settings.yaml.default_profile
+        #     profile_name = profile_name or settings.yaml.default_profile
 
-            parameters = settings.yaml.profiles[profile_name].parameters or dict()
+        #     parameters = settings.yaml.profiles[profile_name].parameters or dict()
 
-            credentials = {
-                project_name: settings.yaml.credentials[yaml_name]
-                for project_name, yaml_name in settings.yaml.profiles[
-                    profile_name
-                ].credentials.items()
-            }
-            self.run_arguments["profile"] = profile_name
+        #     credentials = {
+        #         prof_name: settings.yaml.credentials[yaml_name]
+        #         for prof_name, yaml_name in settings.yaml.profiles[
+        #             profile_name
+        #         ].credentials.items()
+        #     }
 
-        # Update parameters and credentials with environment
-        if settings.environment is not None:
-            parameters.update(settings.environment.parameters or dict())
-            credentials.update(settings.environment.credentials or dict())
+        #     stringify = {
+        #         k: v
+        #         for k, v in settings.yaml.profiles[profile_name].stringify.items()
+        #         if v is not None
+        #     }
+
+        #     self.run_arguments["profile"] = profile_name
+
+        # # Update parameters and credentials with environment
+        # if settings.environment is not None:
+        #     parameters.update(settings.environment.parameters or dict())
+        #     credentials.update(settings.environment.credentials or dict())
+        #     stringify.update(
+        #         {
+        #             k: v
+        #             for k, v in settings.environment.stringify.items()
+        #             if v is not None
+        #         }
+        #     )
 
         # Validate the given parameters
         error_items = set(parameters.keys()) - set(self.project_parameters.keys())
@@ -86,6 +130,8 @@ class App:
             )
 
         self.project_parameters.update(parameters)
+
+        self.stringify_runtime.update(stringify)
 
         # Validate credentials
         error_items = set(credentials.keys()) - set(self.credentials.keys())
@@ -149,6 +195,7 @@ class App:
                 self.connections,
                 self.default_db,
                 self.project_parameters,
+                self.stringify_runtime,
                 self.run_arguments,
                 self.python_loader,
             )

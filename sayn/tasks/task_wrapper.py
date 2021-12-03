@@ -26,6 +26,8 @@ _excluded_properties = (
     "tags",
     "group",
     "parents",
+    "sources",
+    "outputs",
     "parameters",
     "class",
     "preset",
@@ -56,7 +58,9 @@ class TaskWrapper:
     name: str = None
     group: str = None
     tags: List[str] = list()
-    parents: List[Any] = list()
+    parents: List[Any] = set()
+    sources: List[Any] = set()
+    outputs: List[Any] = set()
     project_parameters: Dict[str, Any] = dict()
     task_parameters: Dict[str, Any] = dict()
     in_query: bool = True
@@ -91,6 +95,7 @@ class TaskWrapper:
         connections,
         default_db,
         project_parameters,
+        db_obj_stringify,
         run_arguments,
         python_loader,
     ):
@@ -178,6 +183,7 @@ class TaskWrapper:
                 {k: v for k, v in task_info.items() if k not in _excluded_properties},
                 run_arguments,
                 project_parameters,
+                db_obj_stringify,
                 default_db,
                 connections,
             )
@@ -185,6 +191,8 @@ class TaskWrapper:
                 runner, runner_config = result.value
             else:
                 return failed(result)
+
+            print(self.parents, self.sources, self.outputs)
 
             # Run the setup stage for the runner and return the results
             return setup_runner(runner, runner_config)
@@ -195,6 +203,7 @@ class TaskWrapper:
         runner_config,
         run_arguments,
         project_parameters,
+        db_obj_stringify,
         default_db,
         connections,
     ):
@@ -239,6 +248,35 @@ class TaskWrapper:
         # Add the task paramters to the jinja environment
         jinja_env.globals.update(**runner.task_parameters)
         runner.jinja_env = jinja_env
+        runner.jinja_env.globals["src"] = self.src
+
+        # TODO change this
+        runner._wrapper = self
+
+        self.stringify = {
+            key: "{{ " + key + " }}" for key in ("database", "schema", "table")
+        }
+
+        for obj_type in ("database", "schema", "table"):
+            if db_obj_stringify.get(f"{obj_type}_stringify") is not None:
+                self.stringify[obj_type] = db_obj_stringify[f"{obj_type}_stringify"]
+            else:
+                if db_obj_stringify.get(f"{obj_type}_prefix") is not None:
+                    self.stringify[obj_type] = (
+                        db_obj_stringify[f"{obj_type}_prefix"]
+                        + "_"
+                        + self.stringify[obj_type]
+                    )
+                if db_obj_stringify.get(f"{obj_type}_suffix") is not None:
+                    self.stringify[obj_type] = (
+                        self.stringify[obj_type]
+                        + "_"
+                        + db_obj_stringify[f"{obj_type}_suffix"]
+                    )
+
+        self.stringify = {
+            k: jinja_env.from_string(v) for k, v in self.stringify.items()
+        }
 
         # Now we can compile the other properties
         try:
@@ -296,3 +334,41 @@ class TaskWrapper:
                 result = Exc(e)
 
             return result
+
+    def obj(self, *args):
+        args = [a for a in args if a is not None]
+        full = ".".join(args)
+        args = full.split(".")
+
+        database = None
+        schema = None
+        table = None
+
+        if len(args) == 1:
+            table = args[0]
+        elif len(args) == 2:
+            schema = args[0]
+            table = args[1]
+        elif len(args) == 3:
+            database = args[0]
+            schema = args[1]
+            table = args[2]
+        else:
+            raise ValueError("Too many arguments")
+
+        full = ""
+        if database is not None:
+            full += self.stringify["database"].render(database=database) + "."
+
+        if schema is not None:
+            full += self.stringify["schema"].render(schema=schema) + "."
+
+        full += self.stringify["table"].render(table=table)
+
+        return full
+
+    def src(self, obj):
+        obj = self.obj(obj)
+        print(obj)
+        self.sources.add(obj)
+        return obj
