@@ -20,15 +20,36 @@ class Hook(BaseModel):
 
 
 class Properties(BaseModel):
-    class Distribution(BaseModel):
-        type: str
+    class Indexes(BaseModel):
         columns: Optional[List[Union[str, Dict]]]
 
-    distribution: Optional[Distribution]
+    indexes: Optional[Dict[str, Indexes]]
+
+    @validator("indexes")
+    def index_columns_exists(cls, v, values):
+        cols = [c.name for c in values.get("columns", list())]
+        if len(cols) > 0:
+            missing_cols = group_list(
+                [
+                    (index_name, index_column)
+                    for index_name, index in v.items()
+                    for index_column in index.columns
+                    if index_column not in cols
+                ]
+            )
+            if len(missing_cols) > 0:
+                cols_msg = ";".join(
+                    [f"On {i}: {','.join(c)}" for i, c in missing_cols.items()]
+                )
+                raise ValueError(f"Some indexes refer to missing columns: {cols_msg}")
+
+        return v
 
 
 class Columns(BaseModel):
     name: str
+    type: str = None
+    dst_name: str = None
     description: Optional[str]
 
     class Tests(BaseModel):
@@ -38,7 +59,7 @@ class Columns(BaseModel):
         class Config:
             extra = Extra.forbid
 
-    tests: Optional[List[Union[str, Tests]]]
+    tests: Optional[List[Union[str, Tests]]] = list()
 
     class Config:
         extra = Extra.forbid
@@ -83,20 +104,20 @@ class DDL(BaseModel):
     #
     # permissions: Optional[Dict[str, str]] = dict()
 
-    # @validator("columns", pre=True)
-    # def transform_str_cols(cls, v, values):
-    #     if v is not None and isinstance(v, List):
-    #         return [{"name": c} if isinstance(c, str) else c for c in v]
-    #     else:
-    #         return v
-    #
-    # @validator("columns")
-    # def columns_unique(cls, v, values):
-    #     dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
-    #     if len(dupes) > 0:
-    #         raise ValueError(f"Duplicate columns: {','.join(dupes)}")
-    #     else:
-    #         return v
+    @validator("columns", pre=True)
+    def transform_str_cols(cls, v, values):
+        if v is not None and isinstance(v, List):
+            return [{"name": c} if isinstance(c, str) else c for c in v]
+        else:
+            return v
+
+    @validator("columns")
+    def columns_unique(cls, v, values):
+        dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
+        if len(dupes) > 0:
+            raise ValueError(f"Duplicate columns: {','.join(dupes)}")
+        else:
+            return v
 
     # @validator("indexes")
     # def index_columns_exists(cls, v, values):
@@ -140,7 +161,7 @@ class DDL(BaseModel):
     #     return pk
 
     def get_ddl(self):
-        # print(self.properties)
+
         cols = self.columns
         self.columns = []
         for c in cols:
@@ -159,32 +180,28 @@ class DDL(BaseModel):
                 {
                     "name": c.name,
                     "description": c.description,
+                    "dst_name": c.dst_name,
+                    "type": c.type,
                     "tests": tests,
                 }
             )
-        # print(self.columns)
-        print(self.properties)
+
         props = self.properties
         self.properties = []
         for p in props:
-            self.properties.append({"distribution": p.distribution.dict()})
-        print(self.post_hook)
+            self.properties.append(p.dict())
+
         hook = self.post_hook
         self.post_hook = []
         for h in hook:
-            self.post_hook.append({"sql": h.sql})
-        print(self.post_hook)
+            self.post_hook.append(h.dict())
+
         res = {
             "columns": self.columns,
             "properties": self.properties,
-            "post_hook": self.post_hook
-            # "indexes": {
-            #     k: v.dict() for k, v in self.indexes.items() if k != "primary_key"
-            # },
-            # "permissions": self.permissions,
-            # "primary_key": self.primary_key,
+            "post_hook": self.post_hook,
         }
-        # print(res)
+
         return res
 
 
@@ -249,21 +266,23 @@ class Database:
         # Force a query to test the connection
         engine.execute("select 1")
 
-    def _construct_tests(self, columns, table):
+    def _construct_tests(self, columns, table, schema=None):
         query = """
                    SELECT col
-                        , cnt AS 'count'
+                        , cnt AS "count"
                         , type
                      FROM (
                 """
         template = self._jinja_test.get_template("standard_tests.sql")
+
         for col in columns:
             tests = col["tests"]
             for t in tests:
                 query += template.render(
                     **{
                         "table": table,
-                        "name": col["name"],
+                        "schema": schema,
+                        "name": col["name"] if not col["dst_name"] else col["dst_name"],
                         "type": t["type"],
                         "values": ", ".join(f"'{c}'" for c in t["values"]),
                     },
@@ -281,18 +300,6 @@ class Database:
             return Ok(self.ddl_validation_class().get_ddl())
         else:
             try:
-                print()
-                print(f"Columns : {columns}")
-                print(f"table_properties : {table_properties}")
-                print(f"post_hook : {post_hook}")
-                print(
-                    self.ddl_validation_class(
-                        columns=columns,
-                        properties=table_properties,
-                        post_hook=post_hook,
-                    )
-                )
-                print()
                 return Ok(
                     self.ddl_validation_class(
                         columns=columns,
@@ -301,9 +308,6 @@ class Database:
                     ).get_ddl()
                 )
             except Exception as e:
-                print(self.name)
-                print(self.db_type)
-                print(e)
                 return Exc(e, db=self.name, type=self.db_type)
 
     def _format_properties(self, properties):
@@ -311,14 +315,27 @@ class Database:
         if properties["columns"]:
             columns = []
             for col in properties["columns"]:
-                entry = {"name": col["name"], "unique": False, "not_null": False}
+                entry = {
+                    "name": col["name"],
+                    "type": col["type"],
+                    "unique": False,
+                    "not_null": False,
+                }
                 for t in col["tests"]:
                     if t["type"] != "values":
                         entry.update({t["type"]: True})
                 columns.append(entry)
 
-            print(columns)
             properties["columns"] = columns
+        if properties["properties"]:
+            for pro in properties["properties"]:
+                for p in pro:
+                    properties[p] = pro[p]
+                    # entry = {p: pro[p]}
+                # print(f'pro {pro}')
+                # print(entry)
+                # props.append(entry)
+
         return Ok(properties)
 
     def _refresh_metadata(self, only=None, schema=None):
@@ -482,6 +499,7 @@ class Database:
         buffer = list()
 
         result = self._validate_ddl(ddl)
+
         if result.is_err:
             raise DBError(
                 self.name,
@@ -574,8 +592,6 @@ class Database:
 
         template = self._jinja_env.get_template("create_table.sql")
 
-        print(self.feature("CANNOT SPECIFY DDL IN SELECT"))
-
         return template.render(
             table_name=table,
             full_name=full_name,
@@ -651,9 +667,8 @@ class Database:
         tmp_schema=None,
         **ddl,
     ):
-        print(ddl)
+        # print(ddl)
         ddl = self._format_properties(ddl).value
-        print(ddl)
         # Create the temporary table
         can_replace_table = self.feature("CAN REPLACE TABLE")
 
@@ -671,7 +686,7 @@ class Database:
             create_or_replace = self.create_table(
                 tmp_table, tmp_schema, select=select, replace=True, **ddl
             )
-
+            # print(f'dst_schema {schema}')
             # Move the table to its final location
             move = self.move_table(
                 tmp_table,

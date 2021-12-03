@@ -54,27 +54,27 @@ def test_copy_task(source_db, target_db):
         )
 
 
-# @pytest.mark.target_dbs(["sqlite", "postgresql", "mysql", "redshift", "snowflake"])
-# def test_copy_task_ddl(source_db, target_db):
-#     """Testing copy task with no error"""
-#     with copy_task(
-#         source_db,
-#         target_db,
-#         source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
-#     ) as task:
-#         assert task.setup(
-#             source={"db": "source_db", "table": "source_table"},
-#             destination={"table": "dst_table"},
-#             ddl={"columns": [{"name": "x", "type": "int"}]},
-#         ).is_ok
-#
-#         assert task.run().is_ok
-#
-#         assert validate_table(
-#             task.default_db,
-#             "dst_table",
-#             [{"x": 1}, {"x": 2}, {"x": 3}],
-#         )
+@pytest.mark.target_dbs(["sqlite", "postgresql", "mysql", "redshift", "snowflake"])
+def test_copy_task_ddl(source_db, target_db):
+    """Testing copy task with no error"""
+    with copy_task(
+        source_db,
+        target_db,
+        source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
+    ) as task:
+        assert task.setup(
+            source={"db": "source_db", "table": "source_table"},
+            destination={"table": "dst_table"},
+            columns=[{"name": "x", "type": "int"}],
+        ).is_ok
+
+        assert task.run().is_ok
+
+        assert validate_table(
+            task.default_db,
+            "dst_table",
+            [{"x": 1}, {"x": 2}, {"x": 3}],
+        )
 
 
 @pytest.mark.target_dbs(["bigquery"])
@@ -100,26 +100,26 @@ def test_copy_task_ddl_bq(source_db, target_db):
         )
 
 
-# def test_copy_task_ddl_rename(source_db, target_db):
-#     """Testing copy task with no error"""
-#     with copy_task(
-#         source_db,
-#         target_db,
-#         source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
-#     ) as task:
-#         assert task.setup(
-#             source={"db": "source_db", "table": "source_table"},
-#             destination={"table": "dst_table"},
-#             ddl={"columns": [{"name": "x", "dst_name": "y"}]},
-#         ).is_ok
-#
-#         assert task.run().is_ok
-#
-#         assert validate_table(
-#             task.default_db,
-#             "dst_table",
-#             [{"y": 1}, {"y": 2}, {"y": 3}],
-#         )
+def test_copy_task_ddl_rename(source_db, target_db):
+    """Testing copy task with no error"""
+    with copy_task(
+        source_db,
+        target_db,
+        source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
+    ) as task:
+        assert task.setup(
+            source={"db": "source_db", "table": "source_table"},
+            destination={"table": "dst_table"},
+            columns=[{"name": "x", "dst_name": "y"}],
+        ).is_ok
+
+        assert task.run().is_ok
+
+        assert validate_table(
+            task.default_db,
+            "dst_table",
+            [{"y": 1}, {"y": 2}, {"y": 3}],
+        )
 
 
 def test_copy_task_error(source_db, target_db):

@@ -33,7 +33,7 @@ def test_ddl_cols01():
         "columns": [
             {
                 "name": "col1",
-                # "type": None,
+                "type": None,
                 # "primary": False,
                 "not_null": False,
                 "unique": False,
@@ -57,7 +57,7 @@ def test_ddl_cols02():
         "columns": [
             {
                 "name": "col1",
-                # "type": None,
+                "type": None,
                 # "primary": False,
                 "not_null": False,
                 "unique": False,
@@ -65,7 +65,7 @@ def test_ddl_cols02():
             },
             {
                 "name": "col2",
-                # "type": None,
+                "type": None,
                 # "primary": False,
                 "not_null": False,
                 "unique": False,
@@ -80,7 +80,10 @@ def test_ddl_cols02():
 def test_ddl_cols03():
     result = validate_ddl(
         {
-            "columns": [{"name": "col1", "tests": []}, {"name": "col2", "tests": []}],
+            "columns": [
+                {"name": "col1", "tests": []},
+                {"name": "col2", "type": "BIGINT", "tests": []},
+            ],
             "table_properties": [],
             "post_hook": [],
         }
@@ -89,7 +92,7 @@ def test_ddl_cols03():
         "columns": [
             {
                 "name": "col1",
-                # "type": None,
+                "type": None,
                 # "primary": False,
                 "not_null": False,
                 "unique": False,
@@ -97,7 +100,7 @@ def test_ddl_cols03():
             },
             {
                 "name": "col2",
-                # "type": "BIGINT",
+                "type": "BIGINT",
                 # "primary": False,
                 "not_null": False,
                 "unique": False,
@@ -114,7 +117,7 @@ def test_ddl_cols04():
         {
             "columns": [
                 {"name": "col1", "tests": []},
-                {"name": "col2", "tests": ["unique"]},
+                {"name": "col2", "type": "BIGINT", "tests": ["unique"]},
             ],
             "table_properties": [],
             "post_hook": [],
@@ -124,7 +127,7 @@ def test_ddl_cols04():
         "columns": [
             {
                 "name": "col1",
-                # "type": None,
+                "type": None,
                 # "primary": False,
                 "not_null": False,
                 "unique": False,
@@ -132,7 +135,7 @@ def test_ddl_cols04():
             },
             {
                 "name": "col2",
-                # "type": "BIGINT",
+                "type": "BIGINT",
                 # "primary": True,
                 "not_null": False,
                 "unique": True,
@@ -149,7 +152,7 @@ def test_ddl_cols05():
         {
             "columns": [
                 {"name": "col1", "tests": ["not_null"]},
-                {"name": "col2", "tests": ["unique"]},
+                {"name": "col2", "type": "BIGINT", "tests": ["unique"]},
             ],
             "table_properties": [],
             "post_hook": [],
@@ -159,7 +162,7 @@ def test_ddl_cols05():
         "columns": [
             {
                 "name": "col1",
-                # "type": None,
+                "type": None,
                 # "primary": False,
                 "not_null": True,
                 "unique": False,
@@ -167,7 +170,7 @@ def test_ddl_cols05():
             },
             {
                 "name": "col2",
-                # "type": "BIGINT",
+                "type": "BIGINT",
                 # "primary": True,
                 "not_null": False,
                 "unique": True,
@@ -184,7 +187,7 @@ def test_ddl_cols06():
         {
             "columns": [
                 {"name": "col1", "tests": ["not_null", "unique"]},
-                {"name": "col2", "tests": [{"name": "not_null"}]},
+                {"name": "col2", "type": "BIGINT", "tests": [{"name": "not_null"}]},
             ],
             "table_properties": [],
             "post_hook": [],
@@ -194,7 +197,7 @@ def test_ddl_cols06():
         "columns": [
             {
                 "name": "col1",
-                # "type": None,
+                "type": None,
                 # "primary": True,
                 "not_null": True,
                 "unique": True,
@@ -202,7 +205,7 @@ def test_ddl_cols06():
             },
             {
                 "name": "col2",
-                # "type": "BIGINT",
+                "type": "BIGINT",
                 # "primary": True,
                 "not_null": True,
                 "unique": False,

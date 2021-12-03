@@ -77,8 +77,6 @@ class AutoSqlTask(SqlTask):
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]
 
-        print(config)
-
         # set the target db for execution
         # this check needs to happen here so we can pass db_features and db_type to the validator
         if (
@@ -109,7 +107,7 @@ class AutoSqlTask(SqlTask):
             )
         except Exception as e:
             return Exc(e)
-        # print(config)
+
         self.tmp_schema = (
             self.config.destination.tmp_schema or self.config.destination.db_schema
         )
@@ -127,14 +125,9 @@ class AutoSqlTask(SqlTask):
         if result.is_err:
             return result
         else:
-            print(f"Properties: {result.value['properties']}")
-            print(f"columns: {result.value['columns']}")
-            print(f"post_hook: {result.value['post_hook']}")
             self.properties = result.value["properties"]
             self.columns = result.value["columns"]
             self.post_hook = result.value["post_hook"]
-
-        print(self.columns)
 
         # If we have columns with no type, we can't issue a create table ddl
         # and will issue a create table as select instead.
@@ -166,48 +159,15 @@ class AutoSqlTask(SqlTask):
         else:
             self.sql_query = result.value
 
-        # print(self.run_arguments['command'])
         if self.run_arguments["command"] == "test":
-            result = self.target_db._construct_tests(self.columns, self.table)
+            result = self.target_db._construct_tests(
+                self.columns, self.table, self.schema
+            )
             if result.is_err:
                 return result
             else:
                 self.test_query = result.value
 
-        # if isinstance(config.get("columns"), list):
-        #
-        #     columns = self.columns
-        #     table = self.table
-        #     query = """
-        #                SELECT col
-        #                     , cnt AS 'count'
-        #                     , type
-        #                  FROM (
-        #             """
-        #     template = self.get_template(
-        #         Path(__file__).parent / "tests/standard_tests.sql"
-        #     )
-        #     for col in columns:
-        #         tests = col["tests"]
-        #         for t in tests:
-        #             query += template.compile_obj(
-        #                 template.value,
-        #                 **{
-        #                     "table": table,
-        #                     "name": col["name"],
-        #                     "type": t["type"],
-        #                     "values": ", ".join(f"'{c}'" for c in t["values"]),
-        #                 },
-        #             ).value
-        #     parts = query.splitlines()[:-2]
-        #     query = ""
-        #     for q in parts:
-        #         query += q.strip() + "\n"
-        #     query += ") AS t;"
-        #
-        #     self.test_query = query
-
-        # print(self.columns)
         return Ok()
 
     def execute(self, execute, debug):

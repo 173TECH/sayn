@@ -9,7 +9,8 @@ from sqlalchemy import or_, select, column
 from ..core.errors import Err, Exc, Ok
 from ..database import Database
 from .sql import SqlTask
-from .test import Columns
+
+# from .test import Columns
 
 
 class Source(BaseModel):
@@ -67,13 +68,15 @@ class Destination(BaseModel):
 class Config(BaseModel):
     source: Source
     destination: Destination
-    ddl: Optional[Dict[str, Any]]
+    # ddl: Optional[Dict[str, Any]]
     delete_key: Optional[str]
     append: bool = False
     incremental_key: Optional[str]
     max_merge_rows: Optional[int]
     max_batch_rows: Optional[int]
-    columns: Optional[List[Columns]]
+    columns: Optional[List[Dict[str, Any]]] = list()
+    table_properties: Optional[List[Dict[str, Any]]] = list()
+    post_hook: Optional[List[Dict[str, Any]]] = list()
 
     class Config:
         extra = Extra.forbid
@@ -202,73 +205,31 @@ class CopyTask(SqlTask):
 
         self.is_full_load = self.run_arguments["full_load"] or self.mode == "full"
 
-        result = self.target_db._validate_ddl(self.config.ddl)
+        result = self.target_db._validate_ddl(
+            self.config.columns, self.config.table_properties, self.config.post_hook
+        )
         if result.is_ok:
-            self.ddl = result.value
+            self.properties = result.value["properties"]
+            self.columns = result.value["columns"]
+            self.post_hook = result.value["post_hook"]
 
             # Check if the incremental_key in the destination needs renaming
-            if self.dst_incremental_key is not None and len(self.ddl["columns"]) > 0:
+            if self.dst_incremental_key is not None and len(self.columns) > 0:
                 columns_dict = {
-                    c["name"]: c["dst_name"] or c["name"] for c in self.ddl["columns"]
+                    c["name"]: c["dst_name"] or c["name"] for c in self.columns
                 }
                 self.dst_incremental_key = columns_dict[self.src_incremental_key]
         else:
             return result
 
-        if isinstance(config.get("columns"), list):
-            cols = self.config.columns
-
-            self.columns = []
-            for c in cols:
-                tests = []
-                for t in c.tests:
-                    if isinstance(t, str):
-                        tests.append({"type": t, "values": []})
-                    else:
-                        tests.append(
-                            {
-                                "type": t.name if t.name is not None else "values",
-                                "values": t.values if t.values is not None else [],
-                            }
-                        )
-                self.columns.append(
-                    {
-                        "name": c.name,
-                        "description": c.description,
-                        "tests": tests,
-                    }
-                )
-
-            columns = self.columns
-            table = self.table
-            query = """
-                       SELECT col
-                            , cnt AS 'count'
-                            , type
-                         FROM (
-                    """
-            template = self.get_template(
-                Path(__file__).parent / "tests/standard_tests.sql"
+        if self.run_arguments["command"] == "test":
+            result = self.target_db._construct_tests(
+                self.columns, self.table, self.schema
             )
-            for col in columns:
-                tests = col["tests"]
-                for t in tests:
-                    query += self.compile_obj(
-                        template.value,
-                        **{
-                            "table": table,
-                            "name": col["name"],
-                            "type": t["type"],
-                            "values": ", ".join(f"'{c}'" for c in t["values"]),
-                        },
-                    ).value
-            parts = query.splitlines()[:-2]
-            query = ""
-            for q in parts:
-                query += q.strip() + "\n"
-            query += ") AS t;"
-
-            self.test_query = query
+            if result.is_err:
+                return result
+            else:
+                self.test_query = result.value
 
         return Ok()
 
@@ -344,13 +305,13 @@ class CopyTask(SqlTask):
             else:
                 get_data_query = result.value
 
-            create_ddl = {k: v for k, v in self.ddl.items() if k != "columns"}
+            create_ddl = {k: v for k, v in self.properties}
             if self.mode == "append":
-                create_ddl["columns"] = [c for c in self.ddl["columns"]] + [
+                create_ddl["columns"] = [c for c in self.columns] + [
                     {"name": "_sayn_load_ts", "type": "TIMESTAMP"}
                 ]
             else:
-                create_ddl["columns"] = [c for c in self.ddl["columns"]]
+                create_ddl["columns"] = [c for c in self.columns]
 
             query = self.target_db.create_table(
                 load_table, schema=load_schema, replace=True, **create_ddl
@@ -394,7 +355,11 @@ class CopyTask(SqlTask):
                 self.table,
                 src_schema=load_schema,
                 dst_schema=self.schema,
-                **self.ddl,
+                **{
+                    "columns": self.columns,
+                    "properties": self.properties,
+                    "post_hook": self.post_hook,
+                },
             )
         elif final_step == "Merge Tables":
             query = self.target_db.merge_tables(
@@ -403,7 +368,11 @@ class CopyTask(SqlTask):
                 self.delete_key,
                 src_schema=load_schema,
                 dst_schema=self.schema,
-                **self.ddl,
+                **{
+                    "columns": self.columns,
+                    "properties": self.properties,
+                    "post_hook": self.post_hook,
+                },
             )
         else:
             query = None
@@ -438,14 +407,14 @@ class CopyTask(SqlTask):
             )
         self.source_table_def = source_table_def
 
-        if len(self.ddl["columns"]) == 0:
+        if len(self.columns) == 0:
             dst_table_def = None
             if not self.is_full_load:
                 dst_table_def = self.target_db._get_table(self.table, self.schema)
 
             if dst_table_def is not None:
                 # In incremental loads we use the destination table to determine the columns
-                self.ddl["columns"] = [
+                self.columns = [
                     {
                         "name": c.name,
                         "type": c.type.compile(dialect=self.target_db.engine.dialect),
@@ -480,10 +449,10 @@ class CopyTask(SqlTask):
                         col_type = self.target_db._py2sqa(c.type.python_type)
                     except:
                         col_type = c.type.compile(self.target_db.engine.dialect)
-                    self.ddl["columns"].append({"name": c.name, "type": col_type})
+                    self.columns.append({"name": c.name, "type": col_type})
         else:
             # Fill up column types from the source table
-            for col in self.ddl["columns"]:
+            for col in self.columns:
                 if col.get("name") not in self.source_table_def.columns:
                     return Err(
                         "database_error",
@@ -504,7 +473,7 @@ class CopyTask(SqlTask):
                             self.source_table_def.columns[col["name"]].type.python_type
                         )
 
-        for col in self.ddl["columns"]:
+        for col in self.columns:
             col["src_name"] = col["name"]
             if col.get("dst_name") is not None:
                 col["name"] = col["dst_name"]
@@ -528,7 +497,7 @@ class CopyTask(SqlTask):
                 column(c["src_name"]).label(c["name"])
                 if c["src_name"] != c["name"]
                 else column(c["src_name"])
-                for c in self.ddl["columns"]
+                for c in self.columns
             ],
             from_obj=self.source_table_def,
         )

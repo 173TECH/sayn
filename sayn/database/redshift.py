@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Union
 
 from pydantic import BaseModel, constr, validator, Extra
 from sqlalchemy import create_engine
@@ -7,6 +7,34 @@ from ..core.errors import DBError
 from . import Database, DDL
 
 db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
+
+
+class Properties(BaseModel):
+    class Indexes(BaseModel):
+        columns: Optional[List[Union[str, Dict]]]
+
+    distribution: Optional[Dict[str, Indexes]]
+
+    # @validator("indexes")
+    # def index_columns_exists(cls, v, values):
+    #     cols = [c.name for c in values.get("columns", list())]
+    #     if len(cols) > 0:
+    #         missing_cols = group_list(
+    #             [
+    #                 (index_name, index_column)
+    #                 for index_name, index in v.items()
+    #                 for index_column in index.columns
+    #                 if index_column not in cols
+    #             ]
+    #         )
+    #         if len(missing_cols) > 0:
+    #             cols_msg = ";".join(
+    #                 [f"On {i}: {','.join(c)}" for i, c in missing_cols.items()]
+    #             )
+    #             raise ValueError(
+    #                 f"Some indexes refer to missing columns: {cols_msg}")
+    #
+    #     return v
 
 
 class RedshiftDDL(DDL):
@@ -26,39 +54,40 @@ class RedshiftDDL(DDL):
 
             return v.upper()
 
-    distribution: Optional[constr(regex=r"even|all|key([^,]+)")]
-    sorting: Optional[Sorting]
-
+    properties: Optional[List[Properties]] = list()
+    # distribution: Optional[constr(regex=r"even|all|key([^,]+)")]
+    # sorting: Optional[Sorting]
+    #
     # @validator("indexes")
     # def index_columns_exists(cls, v, values):
     #     raise ValueError("Indexes not supported by Redshift")
-
-    @validator("distribution")
-    def validate_distribution(cls, v, values):
-        distribution = {"type": v.upper() if v in ("even", "all") else "KEY"}
-        if distribution["type"] == "KEY":
-            distribution["column"] = v[len("key(") : -1]
-            if (
-                len(values["columns"]) > 0
-                and distribution["column"] not in values["columns"]
-            ):
-                raise ValueError(
-                    f'Distribution key "{distribution["column"]}" is not declared in columns'
-                )
-
-        return distribution
-
-    def get_ddl(self):
-        return {
-            "columns": [
-                {"name": c} if isinstance(c, str) else c.dict() for c in self.columns
-            ],
-            "indexes": {k: v.dict() for k, v in self.indexes.items()},
-            "permissions": self.permissions,
-            "distribution": self.distribution,
-            "sorting": self.sorting.dict() if self.sorting is not None else None,
-            "primary_key": list(),
-        }
+    #
+    # @validator("distribution")
+    # def validate_distribution(cls, v, values):
+    #     distribution = {"type": v.upper() if v in ("even", "all") else "KEY"}
+    #     if distribution["type"] == "KEY":
+    #         distribution["column"] = v[len("key("): -1]
+    #         if (
+    #             len(values["columns"]) > 0 and
+    #             distribution["column"] not in values["columns"]
+    #         ):
+    #             raise ValueError(
+    #                 f'Distribution key "{distribution["column"]}" is not declared in columns'
+    #             )
+    #
+    #     return distribution
+    #
+    # def get_ddl(self):
+    #     return {
+    #         "columns": [
+    #             {"name": c} if isinstance(c, str) else c.dict() for c in self.columns
+    #         ],
+    #         "indexes": {k: v.dict() for k, v in self.indexes.items()},
+    #         "permissions": self.permissions,
+    #         "distribution": self.distribution,
+    #         "sorting": self.sorting.dict() if self.sorting is not None else None,
+    #         "primary_key": list(),
+    #     }
 
 
 class Redshift(Database):
