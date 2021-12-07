@@ -3,6 +3,7 @@ import json
 
 from pydantic import BaseModel, FilePath, validator, Extra
 from typing import Optional, List
+from terminaltables import AsciiTable
 
 from ..core.errors import Ok, Err, Exc
 from ..database import Database
@@ -171,7 +172,11 @@ class SqlTask(Task):
     #         if len(result) == 0:
     #             return self.success()
     #         else:
-    #             errout = "Test failed, problematic fields:\n"
+    #             errout = "Test failed, summary:\n"
+    #             data = []
+    #             data.append(['Failed Fields', 'Count', 'Test Type'])
     #             for res in result:
-    #                 errout += json.dumps(res)
-    #             return self.fail(errout)
+    #                 data.append(list(res.values()))
+    #             table = AsciiTable(data)
+    #
+    #             return self.fail(errout + table.table)

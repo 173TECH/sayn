@@ -3,6 +3,7 @@ from typing import Dict, Any, Optional, List
 import json
 
 from pydantic import BaseModel, Field, FilePath, validator, Extra
+from terminaltables import AsciiTable
 
 from ..core.errors import Exc, Ok, Err
 from ..database import Database
@@ -127,8 +128,6 @@ class AutoSqlTask(SqlTask):
         else:
             self.columns = result.value
 
-        print(self.columns)
-
         # If we have columns with no type, we can't issue a create table ddl
         # and will issue a create table as select instead.
         # However, if the db doesn't support alter idx then we can't have a
@@ -251,7 +250,11 @@ class AutoSqlTask(SqlTask):
                 if len(result) == 0:
                     return self.success()
                 else:
-                    errout = "Test failed, problematic fields:\n"
+                    errout = "Test failed, summary:\n"
+                    data = []
+                    data.append(["Failed Fields", "Count", "Test Type"])
                     for res in result:
-                        errout += json.dumps(res)
-                    return self.fail(errout)
+                        data.append(list(res.values()))
+                    table = AsciiTable(data)
+
+                    return self.fail(errout + table.table)

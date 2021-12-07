@@ -5,6 +5,7 @@ import json
 
 from pydantic import BaseModel, Field, validator, Extra
 from sqlalchemy import or_, select, column
+from terminaltables import AsciiTable
 
 from ..core.errors import Err, Exc, Ok
 from ..database import Database
@@ -280,10 +281,14 @@ class CopyTask(SqlTask):
                 if len(result) == 0:
                     return self.success()
                 else:
-                    errout = "Test failed, problematic fields:\n"
+                    errout = "Test failed, summary:\n"
+                    data = []
+                    data.append(["Failed Fields", "Count", "Test Type"])
                     for res in result:
-                        errout += json.dumps(res)
-                    return self.fail(errout)
+                        data.append(list(res.values()))
+                    table = AsciiTable(data)
+
+                    return self.fail(errout + table.table)
 
     def execute(self, execute, debug, is_full_load, limit=None):
         # Introspect target
