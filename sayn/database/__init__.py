@@ -60,6 +60,9 @@ class Database:
 
             indexes: Optional[Dict[str, Indexes]]
 
+            class Config:
+                extra = Extra.forbid
+
             @validator("indexes")
             def index_columns_exists(cls, v, values):
                 cols = [c.name for c in values.get("columns", list())]
