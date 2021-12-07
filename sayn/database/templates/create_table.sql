@@ -24,7 +24,7 @@ CREATE TABLE {{ full_name }}
 {%- for col_def in columns %}
     {{ col_def['name'] }} {{ col_def['type'] }}
     {{- ' UNIQUE' if col_def.get('unique')}}
-    {{- ' NOT NULL' if col_def.get('unique')}}
+    {{- ' NOT NULL' if col_def.get('not_null')}}
     {{- ',' if not loop.last else ''}}
 {%- endfor %}
 )

@@ -1,97 +1,116 @@
+from collections import Counter
 from typing import List, Optional, Dict, Union
 
 from pydantic import BaseModel, constr, validator, Extra
 from sqlalchemy import create_engine
 
 from ..core.errors import DBError
-from . import Database, DDL
+from . import Database, Columns, Hook
 
 db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
 
 
-class Properties(BaseModel):
-    class Indexes(BaseModel):
-        columns: Optional[List[Union[str, Dict]]]
+class Redshift(Database):
+    class DDL(BaseModel):
+        class Properties(BaseModel):
+            class Sorting(BaseModel):
+                type: Optional[str]
+                columns: List[str]
 
-    distribution: Optional[Dict[str, Indexes]]
+                class Config:
+                    extra = Extra.forbid
 
-    # @validator("indexes")
-    # def index_columns_exists(cls, v, values):
-    #     cols = [c.name for c in values.get("columns", list())]
-    #     if len(cols) > 0:
-    #         missing_cols = group_list(
-    #             [
-    #                 (index_name, index_column)
-    #                 for index_name, index in v.items()
-    #                 for index_column in index.columns
-    #                 if index_column not in cols
-    #             ]
-    #         )
-    #         if len(missing_cols) > 0:
-    #             cols_msg = ";".join(
-    #                 [f"On {i}: {','.join(c)}" for i, c in missing_cols.items()]
-    #             )
-    #             raise ValueError(
-    #                 f"Some indexes refer to missing columns: {cols_msg}")
-    #
-    #     return v
+                @validator("type")
+                def validate_type(cls, v, values):
+                    if v.upper() not in ("COMPOUND", "INTERLEAVED"):
+                        raise ValueError(
+                            'Sorting type must be one of "COMPOUND" or "INTERLEAVED"'
+                        )
 
+                    return v.upper()
 
-class RedshiftDDL(DDL):
-    class Sorting(BaseModel):
-        type: Optional[str]
-        # columns: List[str]
+            distribution: Optional[constr(regex=r"even|all|key([^,]+)")]
+            sorting: Optional[Sorting]
+
+            @validator("distribution")
+            def validate_distribution(cls, v, values):
+                distribution = {"type": v.upper() if v in ("even", "all") else "KEY"}
+                if distribution["type"] == "KEY":
+                    distribution["column"] = v[len("key(") : -1]
+                    if (
+                        len(values["columns"]) > 0
+                        and distribution["column"] not in values["columns"]
+                    ):
+                        raise ValueError(
+                            f'Distribution key "{distribution["column"]}" is not declared in columns'
+                        )
+
+                return distribution
+
+        columns: Optional[List[Columns]] = list()
+        properties: Optional[List[Properties]] = list()
+        post_hook: Optional[List[Hook]] = list()
 
         class Config:
             extra = Extra.forbid
 
-        @validator("type")
-        def validate_type(cls, v, values):
-            if v.upper() not in ("COMPOUND", "INTERLEAVED"):
-                raise ValueError(
-                    'Sorting type must be one of "COMPOUND" or "INTERLEAVED"'
+        @validator("columns", pre=True)
+        def transform_str_cols(cls, v, values):
+            if v is not None and isinstance(v, List):
+                return [{"name": c} if isinstance(c, str) else c for c in v]
+            else:
+                return v
+
+        @validator("columns")
+        def columns_unique(cls, v, values):
+            dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
+            if len(dupes) > 0:
+                raise ValueError(f"Duplicate columns: {','.join(dupes)}")
+            else:
+                return v
+
+        def get_ddl(self):
+            cols = self.columns
+            self.columns = []
+            for c in cols:
+                tests = []
+                for t in c.tests:
+                    if isinstance(t, str):
+                        tests.append({"type": t, "values": []})
+                    else:
+                        tests.append(
+                            {
+                                "type": t.name if t.name is not None else "values",
+                                "values": t.values if t.values is not None else [],
+                            }
+                        )
+                self.columns.append(
+                    {
+                        "name": c.name,
+                        "description": c.description,
+                        "dst_name": c.dst_name,
+                        "type": c.type,
+                        "tests": tests,
+                    }
                 )
 
-            return v.upper()
+            props = self.properties
+            self.properties = []
+            for p in props:
+                self.properties.append(p.dict())
 
-    properties: Optional[List[Properties]] = list()
-    # distribution: Optional[constr(regex=r"even|all|key([^,]+)")]
-    # sorting: Optional[Sorting]
-    #
-    # @validator("indexes")
-    # def index_columns_exists(cls, v, values):
-    #     raise ValueError("Indexes not supported by Redshift")
-    #
-    # @validator("distribution")
-    # def validate_distribution(cls, v, values):
-    #     distribution = {"type": v.upper() if v in ("even", "all") else "KEY"}
-    #     if distribution["type"] == "KEY":
-    #         distribution["column"] = v[len("key("): -1]
-    #         if (
-    #             len(values["columns"]) > 0 and
-    #             distribution["column"] not in values["columns"]
-    #         ):
-    #             raise ValueError(
-    #                 f'Distribution key "{distribution["column"]}" is not declared in columns'
-    #             )
-    #
-    #     return distribution
-    #
-    # def get_ddl(self):
-    #     return {
-    #         "columns": [
-    #             {"name": c} if isinstance(c, str) else c.dict() for c in self.columns
-    #         ],
-    #         "indexes": {k: v.dict() for k, v in self.indexes.items()},
-    #         "permissions": self.permissions,
-    #         "distribution": self.distribution,
-    #         "sorting": self.sorting.dict() if self.sorting is not None else None,
-    #         "primary_key": list(),
-    #     }
+            hook = self.post_hook
+            self.post_hook = []
+            for h in hook:
+                self.post_hook.append(h.dict())
 
+            res = {
+                "columns": self.columns,
+                "properties": self.properties,
+                "post_hook": self.post_hook,
+            }
 
-class Redshift(Database):
-    ddl_validation_class = RedshiftDDL
+            return res
 
     def feature(self, feature):
         return feature in (
@@ -149,6 +168,7 @@ class Redshift(Database):
         return create_engine("postgresql://", **settings)
 
     def _get_table_attributes(self, ddl):
+
         if ddl["sorting"] is None and ddl["distribution"] is None:
             return ""
 

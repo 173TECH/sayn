@@ -457,6 +457,8 @@ def test_autosql_test_lists(tmp_path, target_db):
             columns=[
                 {"name": "x", "tests": [{"name": "unique"}, {"name": "not_null"}]}
             ],
+            table_properties=[],
+            post_hook=[],
         ).is_ok
         task.run()
         assert task.test().is_ok

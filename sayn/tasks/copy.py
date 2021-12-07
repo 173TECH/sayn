@@ -209,14 +209,16 @@ class CopyTask(SqlTask):
             self.config.columns, self.config.table_properties, self.config.post_hook
         )
         if result.is_ok:
-            self.properties = result.value["properties"]
-            self.columns = result.value["columns"]
-            self.post_hook = result.value["post_hook"]
+            self.columns = result.value
 
             # Check if the incremental_key in the destination needs renaming
-            if self.dst_incremental_key is not None and len(self.columns) > 0:
+            if (
+                self.dst_incremental_key is not None
+                and len(self.columns["columns"]) > 0
+            ):
                 columns_dict = {
-                    c["name"]: c["dst_name"] or c["name"] for c in self.columns
+                    c["name"]: c["dst_name"] or c["name"]
+                    for c in self.columns["columns"]
                 }
                 self.dst_incremental_key = columns_dict[self.src_incremental_key]
         else:
@@ -224,7 +226,7 @@ class CopyTask(SqlTask):
 
         if self.run_arguments["command"] == "test":
             result = self.target_db._construct_tests(
-                self.columns, self.table, self.schema
+                self.columns["columns"], self.table, self.schema
             )
             if result.is_err:
                 return result
@@ -264,21 +266,24 @@ class CopyTask(SqlTask):
         return result
 
     def test(self):
-        with self.step("Write Test Query"):
-            result = self.write_compilation_output(self.test_query, "test")
-            if result.is_err:
-                return result
+        if self.test_query == "":
+            return self.success()
+        else:
+            with self.step("Write Test Query"):
+                result = self.write_compilation_output(self.test_query, "test")
+                if result.is_err:
+                    return result
 
-        with self.step("Execute Test Query"):
-            result = self.default_db.read_data(self.test_query)
+            with self.step("Execute Test Query"):
+                result = self.default_db.read_data(self.test_query)
 
-            if len(result) == 0:
-                return self.success()
-            else:
-                errout = "Test failed, problematic fields:\n"
-                for res in result:
-                    errout += json.dumps(res)
-                return self.fail(errout)
+                if len(result) == 0:
+                    return self.success()
+                else:
+                    errout = "Test failed, problematic fields:\n"
+                    for res in result:
+                        errout += json.dumps(res)
+                    return self.fail(errout)
 
     def execute(self, execute, debug, is_full_load, limit=None):
         # Introspect target
@@ -305,13 +310,14 @@ class CopyTask(SqlTask):
             else:
                 get_data_query = result.value
 
-            create_ddl = {k: v for k, v in self.properties}
+            create_ddl = {k: v for k, v in self.columns.items() if k != "columns"}
+
             if self.mode == "append":
-                create_ddl["columns"] = [c for c in self.columns] + [
+                create_ddl["columns"] = [c for c in self.columns["columns"]] + [
                     {"name": "_sayn_load_ts", "type": "TIMESTAMP"}
                 ]
             else:
-                create_ddl["columns"] = [c for c in self.columns]
+                create_ddl["columns"] = [c for c in self.columns["columns"]]
 
             query = self.target_db.create_table(
                 load_table, schema=load_schema, replace=True, **create_ddl
@@ -355,11 +361,7 @@ class CopyTask(SqlTask):
                 self.table,
                 src_schema=load_schema,
                 dst_schema=self.schema,
-                **{
-                    "columns": self.columns,
-                    "properties": self.properties,
-                    "post_hook": self.post_hook,
-                },
+                **self.columns,
             )
         elif final_step == "Merge Tables":
             query = self.target_db.merge_tables(
@@ -368,11 +370,7 @@ class CopyTask(SqlTask):
                 self.delete_key,
                 src_schema=load_schema,
                 dst_schema=self.schema,
-                **{
-                    "columns": self.columns,
-                    "properties": self.properties,
-                    "post_hook": self.post_hook,
-                },
+                **self.columns,
             )
         else:
             query = None
@@ -407,14 +405,14 @@ class CopyTask(SqlTask):
             )
         self.source_table_def = source_table_def
 
-        if len(self.columns) == 0:
+        if len(self.columns["columns"]) == 0:
             dst_table_def = None
             if not self.is_full_load:
                 dst_table_def = self.target_db._get_table(self.table, self.schema)
 
             if dst_table_def is not None:
                 # In incremental loads we use the destination table to determine the columns
-                self.columns = [
+                self.columns["columns"] = [
                     {
                         "name": c.name,
                         "type": c.type.compile(dialect=self.target_db.engine.dialect),
@@ -449,10 +447,10 @@ class CopyTask(SqlTask):
                         col_type = self.target_db._py2sqa(c.type.python_type)
                     except:
                         col_type = c.type.compile(self.target_db.engine.dialect)
-                    self.columns.append({"name": c.name, "type": col_type})
+                    self.columns["columns"].append({"name": c.name, "type": col_type})
         else:
             # Fill up column types from the source table
-            for col in self.columns:
+            for col in self.columns["columns"]:
                 if col.get("name") not in self.source_table_def.columns:
                     return Err(
                         "database_error",
@@ -473,7 +471,7 @@ class CopyTask(SqlTask):
                             self.source_table_def.columns[col["name"]].type.python_type
                         )
 
-        for col in self.columns:
+        for col in self.columns["columns"]:
             col["src_name"] = col["name"]
             if col.get("dst_name") is not None:
                 col["name"] = col["dst_name"]
@@ -497,7 +495,7 @@ class CopyTask(SqlTask):
                 column(c["src_name"]).label(c["name"])
                 if c["src_name"] != c["name"]
                 else column(c["src_name"])
-                for c in self.columns
+                for c in self.columns["columns"]
             ],
             from_obj=self.source_table_def,
         )

@@ -125,9 +125,9 @@ class AutoSqlTask(SqlTask):
         if result.is_err:
             return result
         else:
-            self.properties = result.value["properties"]
-            self.columns = result.value["columns"]
-            self.post_hook = result.value["post_hook"]
+            self.columns = result.value
+
+        print(self.columns)
 
         # If we have columns with no type, we can't issue a create table ddl
         # and will issue a create table as select instead.
@@ -161,7 +161,7 @@ class AutoSqlTask(SqlTask):
 
         if self.run_arguments["command"] == "test":
             result = self.target_db._construct_tests(
-                self.columns, self.table, self.schema
+                self.columns["columns"], self.table, self.schema
             )
             if result.is_err:
                 return result
@@ -181,11 +181,7 @@ class AutoSqlTask(SqlTask):
                 self.table,
                 self.sql_query,
                 schema=self.schema,
-                **{
-                    "columns": self.columns,
-                    "properties": self.properties,
-                    "post_hook": self.post_hook,
-                },
+                **self.columns,
             )
 
         elif (
@@ -206,11 +202,7 @@ class AutoSqlTask(SqlTask):
                 self.sql_query,
                 schema=self.schema,
                 tmp_schema=tmp_schema,
-                **{
-                    "columns": self.columns,
-                    "properties": self.properties,
-                    "post_hook": self.post_hook,
-                },
+                **self.columns,
             )
 
         else:
@@ -221,11 +213,7 @@ class AutoSqlTask(SqlTask):
                 self.delete_key,
                 schema=self.schema,
                 tmp_schema=self.tmp_schema,
-                **{
-                    "columns": self.columns,
-                    "properties": self.properties,
-                    "post_hook": self.post_hook,
-                },
+                **self.columns,
             )
 
         self.set_run_steps(list(step_queries.keys()))
@@ -249,18 +237,21 @@ class AutoSqlTask(SqlTask):
         return self.execute(True, self.run_arguments["debug"])
 
     def test(self):
-        with self.step("Write Test Query"):
-            result = self.write_compilation_output(self.test_query, "test")
-            if result.is_err:
-                return result
+        if self.test_query == "":
+            return self.success()
+        else:
+            with self.step("Write Test Query"):
+                result = self.write_compilation_output(self.test_query, "test")
+                if result.is_err:
+                    return result
 
-        with self.step("Execute Test Query"):
-            result = self.default_db.read_data(self.test_query)
+            with self.step("Execute Test Query"):
+                result = self.default_db.read_data(self.test_query)
 
-            if len(result) == 0:
-                return self.success()
-            else:
-                errout = "Test failed, problematic fields:\n"
-                for res in result:
-                    errout += json.dumps(res)
-                return self.fail(errout)
+                if len(result) == 0:
+                    return self.success()
+                else:
+                    errout = "Test failed, problematic fields:\n"
+                    for res in result:
+                        errout += json.dumps(res)
+                    return self.fail(errout)
