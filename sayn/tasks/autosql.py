@@ -165,7 +165,8 @@ class AutoSqlTask(SqlTask):
             if result.is_err:
                 return result
             else:
-                self.test_query = result.value
+                self.test_query = result.value[0]
+                self.test_breakdown = result.value[1]
 
         return Ok()
 
@@ -246,6 +247,17 @@ class AutoSqlTask(SqlTask):
 
             with self.step("Execute Test Query"):
                 result = self.default_db.read_data(self.test_query)
+
+                for brk in self.test_breakdown:
+                    if brk["status"]:
+                        self.info(
+                            f" - Testing {brk['column']} for {brk['type']} is already constrained"
+                        )
+
+                    else:
+                        self.info(
+                            f" + Testing {brk['column']} for {brk['type']} was executed!"
+                        )
 
                 if len(result) == 0:
                     return self.success()

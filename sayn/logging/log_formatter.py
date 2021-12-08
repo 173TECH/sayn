@@ -254,7 +254,9 @@ class LogFormatter:
             message = [self.bad(f"Validation errors found ({duration})")]
             message.extend(
                 [
-                    self.red(f"  In {' > '.join(e['loc'])}: {e['msg']}")
+                    self.red(
+                        f"  In {' > '.join([str(item) for item in e['loc']])}: {e['msg']}"
+                    )
                     for e in error.details["errors"]
                 ]
             )

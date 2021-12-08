@@ -135,9 +135,13 @@ class Bigquery(Database):
                 """
         template = self._jinja_test.get_template("standard_tests_bigquery.sql")
         count_tests = 0
+        breakdown = []
         for col in columns:
             tests = col["tests"]
             for t in tests:
+                breakdown.append(
+                    {"column": col["name"], "type": t["type"], "status": col[t["type"]]}
+                )
                 if col[t["type"]] is False:
                     count_tests += 1
                     query += template.render(
@@ -158,9 +162,9 @@ class Bigquery(Database):
         query += ") AS t;"
 
         if count_tests == 0:
-            return Ok("")
+            return Ok(["", breakdown])
 
-        return Ok(query)
+        return Ok([query, breakdown])
 
     def _format_properties(self, properties):
 

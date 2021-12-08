@@ -205,9 +205,13 @@ class Database:
                 """
         template = self._jinja_test.get_template("standard_tests.sql")
         count_tests = 0
+        breakdown = []
         for col in columns:
             tests = col["tests"]
             for t in tests:
+                breakdown.append(
+                    {"column": col["name"], "type": t["type"], "status": col[t["type"]]}
+                )
                 if col[t["type"]] is False:
                     count_tests += 1
                     query += template.render(
@@ -228,12 +232,11 @@ class Database:
         query += ") AS t;"
 
         if count_tests == 0:
-            return Ok("")
+            return Ok(["", breakdown])
 
-        return Ok(query)
+        return Ok([query, breakdown])
 
     def _validate_ddl(self, columns=[], table_properties=[], post_hook=[]):
-
         if len(columns) == 0 and len(table_properties) == 0 and len(post_hook) == 0:
             return self._format_properties(self.DDL().get_ddl())
         else:
@@ -246,7 +249,8 @@ class Database:
                     ).get_ddl()
                 )
             except Exception as e:
-                return Exc(str(e), db=self.name, type=self.db_type)
+
+                return Exc(e, db=self.name, type=self.db_type)
 
     def _format_properties(self, properties):
 
