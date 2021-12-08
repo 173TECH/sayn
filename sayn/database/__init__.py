@@ -200,8 +200,9 @@ class Database:
 
     def _construct_tests(self, columns, table, schema=None):
         query = """
-                   SELECT col
-                        , cnt AS "count"
+                   SELECT val
+                        , col
+                        , cnt
                         , type
                      FROM (
                 """
@@ -221,7 +222,7 @@ class Database:
                     }
                 )
 
-                if col[t["type"]] is False and not t["execute"]:
+                if col[t["type"]] is False and t["execute"]:
                     count_tests += 1
                     query += template.render(
                         **{
@@ -234,6 +235,8 @@ class Database:
                             "values": ", ".join(f"'{c}'" for c in t["values"]),
                         },
                     )
+            breakdown.append({"print": True})
+        breakdown = breakdown[:-1]
         parts = query.splitlines()[:-2]
         query = ""
         for q in parts:
@@ -505,6 +508,7 @@ class Database:
         Returns:
             sqlalchemy.Table: A table object from sqlalchemy
         """
+
         table_def = Table(table, self.metadata, schema=schema, extend_existing=True)
 
         if table_def.exists():

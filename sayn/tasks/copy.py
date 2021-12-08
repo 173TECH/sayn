@@ -269,20 +269,7 @@ class CopyTask(SqlTask):
 
     def test(self):
         if self.test_query == "":
-            for brk in self.test_breakdown:
-                if not brk["execute"]:
-                    self.info(
-                        f" - Testing {brk['column']} for {brk['type']} was skipped."
-                    )
-                elif brk["status"] and brk["execute"]:
-                    self.info(
-                        f" > Testing {brk['column']} for {brk['type']} is already constrained."
-                    )
-
-                else:
-                    self.info(
-                        f" + Testing {brk['column']} for {brk['type']} was executed!"
-                    )
+            self.info(self.get_test_breakdown(self.test_breakdown))
             return self.success()
         else:
             with self.step("Write Test Query"):
@@ -293,29 +280,19 @@ class CopyTask(SqlTask):
             with self.step("Execute Test Query"):
                 result = self.default_db.read_data(self.test_query)
 
-                for brk in self.test_breakdown:
-                    if not brk["execute"]:
-                        self.info(
-                            f" - Testing {brk['column']} for {brk['type']} was skipped."
-                        )
-                    elif brk["status"] and brk["execute"]:
-                        self.info(
-                            f" > Testing {brk['column']} for {brk['type']} is already constrained."
-                        )
-
-                    else:
-                        self.info(
-                            f" + Testing {brk['column']} for {brk['type']} was executed!"
-                        )
+                self.info(self.get_test_breakdown(self.test_breakdown))
 
                 if len(result) == 0:
                     return self.success()
                 else:
                     errout = "Test failed, summary:\n"
                     data = []
-                    data.append(["Failed Fields", "Count", "Test Type"])
+                    data.append(
+                        ["Breach Count", "Prob. Value", "Test Type", "Failed Fields"]
+                    )
+
                     for res in result:
-                        data.append(list(res.values()))
+                        data.append([res["cnt"], res["val"], res["type"], res["col"]])
                     table = AsciiTable(data)
 
                     return self.fail(errout + table.table)

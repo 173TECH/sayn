@@ -129,7 +129,8 @@ class Bigquery(Database):
 
     def _construct_tests(self, columns, table, schema=None):
         query = """
-                   SELECT col
+                   SELECT val
+                        , col
                         , cnt
                         , type
                      FROM (
@@ -148,7 +149,7 @@ class Bigquery(Database):
                         "execute": t["execute"],
                     }
                 )
-                if col[t["type"]] is False:
+                if col[t["type"]] is False and t["execute"]:
                     count_tests += 1
                     query += template.render(
                         **{
@@ -161,6 +162,8 @@ class Bigquery(Database):
                             "values": ", ".join(f"'{c}'" for c in t["values"]),
                         },
                     )
+            breakdown.append({"print": True})
+        breakdown = breakdown[:-1]
         parts = query.splitlines()[:-2]
         query = ""
         for q in parts:

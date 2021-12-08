@@ -32,20 +32,8 @@ class Redshift(Database):
             distribution: Optional[constr(regex=r"even|all|key([^,]+)")]
             sorting: Optional[Sorting]
 
-            @validator("distribution")
-            def validate_distribution(cls, v, values):
-                distribution = {"type": v.upper() if v in ("even", "all") else "KEY"}
-                if distribution["type"] == "KEY":
-                    distribution["column"] = v[len("key(") : -1]
-                    if (
-                        len(values["columns"]) > 0
-                        and distribution["column"] not in values["columns"]
-                    ):
-                        raise ValueError(
-                            f'Distribution key "{distribution["column"]}" is not declared in columns'
-                        )
-
-                return distribution
+            class Config:
+                extra = Extra.forbid
 
         columns: Optional[List[Columns]] = list()
         properties: Optional[List[Properties]] = list()
@@ -66,6 +54,29 @@ class Redshift(Database):
             dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
             if len(dupes) > 0:
                 raise ValueError(f"Duplicate columns: {','.join(dupes)}")
+            else:
+                return v
+
+        @validator("properties")
+        def validate_distribution(cls, v, values):
+            if len(v) > 0:
+                for props in v:
+                    if props.distribution:
+                        distribution = {
+                            "type": props.upper() if props in ("even", "all") else "KEY"
+                        }
+                        if distribution["type"] == "KEY":
+                            distribution["column"] = props.distribution[
+                                len("key(") : -1
+                            ]
+                            if len(values.get("columns")) > 0 and distribution[
+                                "column"
+                            ] not in values.get("columns"):
+                                raise ValueError(
+                                    f'Distribution key "{distribution["column"]}" is not declared in columns'
+                                )
+                        props.distribution = distribution
+                return v
             else:
                 return v
 

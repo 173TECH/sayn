@@ -40,12 +40,12 @@ CLUSTER BY {{ cluster|join(', ') }}
 {% endif %}
 
 {%- if distribution is defined and distribution is not none %}
-DISTSTYLE {{ distribution['style'] }}
-{% if distribution['style'] == 'key' %}DISTKEY({{ distribution['key'] }}){% endif %}
+DISTSTYLE {{ distribution['type'] }}
+{% if distribution['type'] == 'KEY' %}DISTKEY({{ distribution['column'] }}){% endif %}
 {% endif %}
 
 {%- if sorting is defined and sorting is not none %}
-{{ sorting['type']+' ' if 'type' in sorting else '' }}SORTKEY({{ sorting['columns']|join(', ') }})
+{{ sorting['type']+' ' if sorting['type']  else '' }}SORTKEY({{ sorting['columns']|join(', ') }})
 {% endif %}
 {% endblock -%}
 
