@@ -73,6 +73,9 @@ class VoidTracker:
     def finish_current_step(self):
         pass
 
+    def info(self, msg):
+        pass
+
 
 vd = VoidTracker()
 

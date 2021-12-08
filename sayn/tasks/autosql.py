@@ -238,6 +238,20 @@ class AutoSqlTask(SqlTask):
 
     def test(self):
         if self.test_query == "":
+            for brk in self.test_breakdown:
+                if not brk["execute"]:
+                    self.info(
+                        f" - Testing {brk['column']} for {brk['type']} was skipped."
+                    )
+                elif brk["status"] and brk["execute"]:
+                    self.info(
+                        f" > Testing {brk['column']} for {brk['type']} is already constrained."
+                    )
+
+                else:
+                    self.info(
+                        f" + Testing {brk['column']} for {brk['type']} was executed!"
+                    )
             return self.success()
         else:
             with self.step("Write Test Query"):
@@ -249,9 +263,13 @@ class AutoSqlTask(SqlTask):
                 result = self.default_db.read_data(self.test_query)
 
                 for brk in self.test_breakdown:
-                    if brk["status"]:
+                    if not brk["execute"]:
                         self.info(
-                            f" - Testing {brk['column']} for {brk['type']} is already constrained"
+                            f" - Testing {brk['column']} for {brk['type']} was skipped."
+                        )
+                    elif brk["status"] and brk["execute"]:
+                        self.info(
+                            f" > Testing {brk['column']} for {brk['type']} is already constrained."
                         )
 
                     else:

@@ -67,12 +67,13 @@ class Bigquery(Database):
                 tests = []
                 for t in c.tests:
                     if isinstance(t, str):
-                        tests.append({"type": t, "values": []})
+                        tests.append({"type": t, "values": [], "execute": True})
                     else:
                         tests.append(
                             {
                                 "type": t.name if t.name is not None else "values",
                                 "values": t.values if t.values is not None else [],
+                                "execute": t.execute,
                             }
                         )
                 self.columns.append(
@@ -140,7 +141,12 @@ class Bigquery(Database):
             tests = col["tests"]
             for t in tests:
                 breakdown.append(
-                    {"column": col["name"], "type": t["type"], "status": col[t["type"]]}
+                    {
+                        "column": col["name"],
+                        "type": t["type"],
+                        "status": col[t["type"]],
+                        "execute": t["execute"],
+                    }
                 )
                 if col[t["type"]] is False:
                     count_tests += 1

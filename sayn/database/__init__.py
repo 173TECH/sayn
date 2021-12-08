@@ -28,6 +28,7 @@ class Columns(BaseModel):
     class Tests(BaseModel):
         name: Optional[str]
         values: Optional[List[str]]
+        execute: bool = True
 
         class Config:
             extra = Extra.forbid
@@ -114,12 +115,13 @@ class Database:
                 tests = []
                 for t in c.tests:
                     if isinstance(t, str):
-                        tests.append({"type": t, "values": []})
+                        tests.append({"type": t, "values": [], "execute": True})
                     else:
                         tests.append(
                             {
                                 "type": t.name if t.name is not None else "values",
                                 "values": t.values if t.values is not None else [],
+                                "execute": t.execute,
                             }
                         )
                 self.columns.append(
@@ -206,13 +208,20 @@ class Database:
         template = self._jinja_test.get_template("standard_tests.sql")
         count_tests = 0
         breakdown = []
+
         for col in columns:
             tests = col["tests"]
             for t in tests:
                 breakdown.append(
-                    {"column": col["name"], "type": t["type"], "status": col[t["type"]]}
+                    {
+                        "column": col["name"],
+                        "type": t["type"],
+                        "status": col[t["type"]],
+                        "execute": t["execute"],
+                    }
                 )
-                if col[t["type"]] is False:
+
+                if col[t["type"]] is False and not t["execute"]:
                     count_tests += 1
                     query += template.render(
                         **{
