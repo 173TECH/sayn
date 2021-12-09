@@ -85,7 +85,7 @@ class TestTask(Task):
             else:
                 errout = "Test failed, summary:\n"
                 data = []
-                data.append(["Failed Fields", "Count", "Test Type"])
+                # data.append(["Failed Fields", "Count", "Test Type"])
                 for res in result:
                     data.append(list(res.values()))
                 table = AsciiTable(data)
