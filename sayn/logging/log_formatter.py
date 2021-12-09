@@ -191,7 +191,7 @@ class LogFormatter:
                 [
                     self.red(l)
                     for it in traceback.format_exception(
-                        etype=type(exc), value=exc, tb=exc.__traceback__
+                        exc, value=exc, tb=exc.__traceback__
                     )
                     for l in it.split("\n")
                 ]
