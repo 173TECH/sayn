@@ -11,6 +11,7 @@ from ..database import Database
 class TaskStatus(Enum):
     NOT_IN_QUERY = "not_in_query"
 
+    CONFIGURING = "config"
     SETTING_UP = "setting_up"
     READY = "ready"
     SETUP_FAILED = "setup_failed"
@@ -243,11 +244,16 @@ class Task:
             request_tmp=request_tmp,
         )
 
-    def src(self, obj):
-        return self._wrapper.src(obj)
+    def setup(self):
+        self.debug("Nothing to be done")
+        return self.success()
 
 
 class PythonTask(Task):
+    def config(self):
+        self.debug("Nothing to be done")
+        return self.success()
+
     def setup(self):
         self.debug("Nothing to be done")
         return self.success()
@@ -259,3 +265,21 @@ class PythonTask(Task):
     def compile(self):
         self.debug("Nothing to be done")
         return self.success()
+
+
+class FailedTask(Task):
+    def config(self):
+        self.debug("Nothing to be done")
+        return self.fail()
+
+    def setup(self):
+        self.debug("Nothing to be done")
+        return self.fail()
+
+    def run(self):
+        self.debug("Nothing to be done")
+        return self.fail()
+
+    def compile(self):
+        self.debug("Nothing to be done")
+        return self.fail()

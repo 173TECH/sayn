@@ -66,7 +66,7 @@ class Config(BaseModel):
 
 
 class AutoSqlTask(SqlTask):
-    def setup(self, **config):
+    def config(self, **config):
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]
@@ -102,11 +102,13 @@ class AutoSqlTask(SqlTask):
         except Exception as e:
             return Exc(e)
 
+        # Output calculation
         self.tmp_schema = (
             self.config.destination.tmp_schema or self.config.destination.db_schema
         )
         self.schema = self.config.destination.db_schema
         self.table = self.config.destination.table
+
         self.use_db_object(self.table, schema=self.schema, tmp_schema=self.tmp_schema)
 
         self.materialisation = self.config.materialisation
@@ -136,6 +138,10 @@ class AutoSqlTask(SqlTask):
             )
 
         # Template compilation
+        self.jinja_env.globals["src"] = lambda x: self.src(
+            x, connection=self._target_db
+        )
+
         result = self.get_template(self.config.file_name)
         if result.is_err:
             return result
@@ -147,6 +153,19 @@ class AutoSqlTask(SqlTask):
             return result
         else:
             self.sql_query = result.value
+
+        if self.tmp_schema is None:
+            tmp_table = f"sayn_tmp_{self.table}"
+        else:
+            tmp_table = f"{self.tmp_schema}.sayn_tmp_{self.table}"
+
+        if self.schema is None:
+            table = self.table
+        else:
+            table = f"{self.schema}.{self.table}"
+
+        self.out(tmp_table, self.target_db)
+        self.out(table, self.target_db)
 
         return Ok()
 

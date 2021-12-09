@@ -567,6 +567,60 @@ class Database:
 
         return {"Create Table": create_or_replace, "Merge Tables": merge}
 
+    def get_db_object(self, database, schema, obj, stringify, prod_stringify):
+        return self.DbObject(database, schema, obj, self, stringify, prod_stringify)
+
+    class DbObject:
+        def __init__(
+            self, database, schema, obj, connection, stringify, prod_stringify
+        ):
+            self.database = database
+            self.schema = schema
+            self.obj = obj
+            self.connection = connection
+            self.stringify = stringify
+            self.prod_stringify = prod_stringify
+
+            self.value = ""
+            self.prod_value = ""
+            if self.database is not None:
+                self.value += (
+                    self.stringify["database"].render(database=self.database) + "."
+                )
+                self.prod_value += (
+                    self.prod_stringify["database"].render(database=self.database) + "."
+                )
+
+            if self.schema is not None:
+                self.value += self.stringify["schema"].render(schema=self.schema) + "."
+                self.prod_value += (
+                    self.prod_stringify["schema"].render(schema=self.schema) + "."
+                )
+
+            self.value += self.stringify["table"].render(table=self.obj)
+            self.prod_value += self.prod_stringify["table"].render(table=self.obj)
+
+        def __hash__(self):
+            return hash(self.get_key())
+
+        def __eq__(self, obj):
+            return self.get_key() == obj.get_key()
+
+        def __lt__(self, obj):
+            return self.get_key() > obj.get_key()
+
+        def __repr__(self):
+            return self.get_key()
+
+        def get_key(self):
+            return f"{self.connection.name}:{self.database or ''}.{self.schema or ''}.{self.obj}"
+
+        def get_value(self):
+            return self.value
+
+        def get_prod_value(self):
+            return self.prod_value
+
 
 def fully_qualify(name, schema=None):
     return f"{schema+'.' if schema is not None else ''}{name}"

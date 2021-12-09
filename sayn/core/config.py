@@ -294,8 +294,6 @@ def read_settings():
             else:
                 environment["stringify"][name["stringify"].lower()] = value
 
-    print(environment)
-
     environment = {k: v for k, v in environment.items() if len(v) > 0}
     if len(environment) == 0:
         environment = None

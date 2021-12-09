@@ -46,7 +46,7 @@ class SqlTask(Task):
             request_tmp=request_tmp,
         )
 
-    def setup(self, **config):
+    def config(self, **config):
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]

@@ -1,4 +1,5 @@
 from datetime import datetime, date, timedelta
+from itertools import groupby
 from uuid import UUID, uuid4
 
 from ..tasks.task_wrapper import TaskWrapper
@@ -7,6 +8,34 @@ from .config import get_connections
 from .errors import Err, Ok
 from ..logging import EventTracker
 from ..database import Database
+
+from ..tasks import FailedTask
+from ..tasks.dummy import DummyTask
+from ..tasks.sql import SqlTask
+from ..tasks.autosql import AutoSqlTask
+from ..tasks.copy import CopyTask
+
+_creators = {
+    "dummy": DummyTask,
+    "sql": SqlTask,
+    "autosql": AutoSqlTask,
+    "copy": CopyTask,
+}
+
+_excluded_properties = (
+    "name",
+    "type",
+    "tags",
+    "group",
+    "parents",
+    "sources",
+    "outputs",
+    "parameters",
+    "class",
+    "preset",
+    "on_fail",
+)
+
 
 run_id = uuid4()
 
@@ -157,12 +186,81 @@ class App:
 
         return Ok()
 
+    def get_task_class(self, task_type, config):
+        if task_type == "python":
+            return self.python_loader.get_class("python_tasks", config.get("class"))
+        elif task_type in _creators:
+            return Ok(_creators[task_type])
+        else:
+            return Err(
+                "task_type",
+                "invalid_task_type_error",
+                type=task_type,
+                group=config["group"],
+            )
+
     def set_tasks(self, tasks, task_query):
+        # We first need to do the config of tasks
+        for task_name, task in tasks.items():
+            task_tracker = self.tracker.get_task_tracker(task_name)
+            task_tracker._report_event("start_stage")
+            start_ts = datetime.now()
+
+            result = self.get_task_class(task["type"], task)
+            if result.is_err:
+                task_class = FailedTask
+            else:
+                task_class = result.value
+
+            self.tasks[task_name] = TaskWrapper(
+                task["group"],
+                task_name,
+                task["type"],
+                task.get("parameters"),
+                task.get("on_fail"),
+                task.get("parents"),
+                task.get("sources"),
+                task.get("outputs"),
+                task.get("tags"),
+                task,
+                task_tracker,
+                task_class,
+            )
+
+            result = self.tasks[task_name].config(
+                self.connections,
+                self.default_db,
+                self.project_parameters,
+                self.stringify_runtime,
+                self.run_arguments,
+            )
+
+            task_tracker._report_event(
+                "finish_stage", duration=datetime.now() - start_ts, result=result
+            )
+
+        # Now that all tasks are configured, we set the relationships so that we
+        # can calculate the dag
+
+        self.tracker.info("done config==============")
+
+        output_to_task = [
+            (output, task_name)
+            for task_name, task in self.tasks.items()
+            for output in task.outputs
+        ]
+
+        output_to_task = {
+            k: [gg[1] for gg in g]
+            for k, g in groupby(sorted(output_to_task), key=lambda x: x[0])
+        }
+        for task_name, task in self.tasks.items():
+            task.set_parents(self.tasks, output_to_task)
+
         self.task_query = task_query
 
         self.dag = {
-            task["name"]: [p for p in task.get("parents", list())]
-            for task in tasks.values()
+            task.name: [p.name for p in task.parents] for task in self.tasks.values()
         }
 
         topo_sort = topological_sort(self.dag)
@@ -186,19 +284,7 @@ class App:
                 task_tracker._report_event("start_stage")
             start_ts = datetime.now()
 
-            self.tasks[task_name] = TaskWrapper()
-            result = self.tasks[task_name].setup(
-                task,
-                [self.tasks[p] for p in task.get("parents", list())],
-                task_name in tasks_in_query,
-                task_tracker,
-                self.connections,
-                self.default_db,
-                self.project_parameters,
-                self.stringify_runtime,
-                self.run_arguments,
-                self.python_loader,
-            )
+            result = self.tasks[task_name].setup(task_name in tasks_in_query)
 
             if task_name in tasks_in_query:
                 task_tracker._report_event(
