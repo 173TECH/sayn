@@ -414,15 +414,10 @@ def get_tasks_dict(global_presets, groups):
     errors = dict()
     tasks = dict()
     tests = dict()
+
     for group_name, group in groups.items():
         if group.tasks is not None:
             for task_name, task in group.tasks.items():
-                if task["type"] == "test":
-                    return Err(
-                        "dag",
-                        "test in tasks",
-                        task=task_name,
-                    )
                 if task_name in tasks:
                     return Err(
                         "dag",
@@ -435,6 +430,13 @@ def get_tasks_dict(global_presets, groups):
                     tasks[task_name] = result.value
                 else:
                     errors[task_name] = result.error
+                if tasks[task_name]["type"] == "test":
+                    return Err(
+                        "dag",
+                        "test in tasks",
+                        task=task_name,
+                    )
+
         if group.tests is not None:
             for test_name, test in group.tests.items():
                 if "type" in test.keys():
@@ -451,11 +453,6 @@ def get_tasks_dict(global_presets, groups):
                         task=task_name,
                         groups=(group_name, tasks[task_name]["group"]),
                     )
-                result = get_task_dict(test, test_name, group_name, presets)
-                if result.is_ok:
-                    tests[test_name] = result.value
-                else:
-                    errors[task_name] = result.error
 
     for t in tests:
         if t in tasks.keys():
@@ -464,6 +461,7 @@ def get_tasks_dict(global_presets, groups):
                 "Duplicate tests in tasks",
                 task=test_name,
             )
+
     if len(errors) > 0:
         return Err("get_tasks_dict", "task_parsing_error", errors=errors)
     else:
