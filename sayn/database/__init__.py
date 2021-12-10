@@ -280,7 +280,7 @@ class Database:
                 if "tests" in col:
                     entry.update({"tests": col["tests"]})
                     for t in col["tests"]:
-                        if t["type"] != "values":
+                        if t["type"] != "values" and col["type"]:
                             entry.update({t["type"]: True})
                 columns.append(entry)
 
