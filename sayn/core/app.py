@@ -23,7 +23,7 @@ class App:
             "sql": "sql",
             "compile": "compile",
             "logs": "logs",
-            "tests": "tests",
+            "tests": "sql/tests",
         },
         "full_load": False,
         "start_dt": date.today() - timedelta(days=1),
