@@ -459,6 +459,7 @@ def get_tasks_dict(global_presets, groups):
                 else:
                     errors[task_name] = result.error
 
+
     for t in tests:
         if t in tasks.keys():
             return Err(
