@@ -3,6 +3,7 @@ from enum import Enum
 from pathlib import Path
 
 from jinja2 import Template
+from terminaltables import AsciiTable
 
 from ..core.errors import Err, Exc, Ok
 from ..database import Database
@@ -159,6 +160,22 @@ class Task:
         yield
         self.tracker.finish_current_step()
 
+    def get_test_breakdown(self, breakdown):
+        data = []
+        data.append(["Status", "Test Type", "Fields Tested"])
+        for brk in breakdown:
+            if "print" in brk:
+                data.append([" ", " ", " "])
+            elif not brk["execute"]:
+                data.append(["SKIPPED", brk["type"], brk["column"]])
+            elif brk["status"] and brk["execute"]:
+                data.append(["RESOLVED", brk["type"], brk["column"]])
+            else:
+                data.append(["EXECUTED", brk["type"], brk["column"]])
+
+        table = AsciiTable(data)
+        return "\n" + table.table
+
     # Jinja methods
 
     def get_template(self, obj):
@@ -254,5 +271,9 @@ class PythonTask(Task):
         return self.success()
 
     def compile(self):
+        self.debug("Nothing to be done")
+        return self.success()
+
+    def test(self):
         self.debug("Nothing to be done")
         return self.success()

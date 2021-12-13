@@ -2,10 +2,10 @@ from collections import Counter
 import datetime
 import decimal
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
-from pydantic import BaseModel, validator, conlist, Extra
+from pydantic import BaseModel, validator, conlist, Extra, FilePath, constr
 from sqlalchemy import MetaData, Table
 from sqlalchemy.engine import reflection
 from sqlalchemy.sql import sqltypes
@@ -15,95 +15,28 @@ from ..core.errors import DBError, Exc, Ok
 from ..utils.misc import group_list
 
 
-class DDL(BaseModel):
-    class Column(BaseModel):
-        name: str
-        type: Optional[str]
-        primary: Optional[bool] = False
-        not_null: Optional[bool] = False
-        unique: Optional[bool] = False
-        dst_name: Optional[str]
+class Hook(BaseModel):
+    sql: str
+
+
+class Columns(BaseModel):
+    name: str
+    type: str = None
+    dst_name: str = None
+    description: Optional[str]
+
+    class Tests(BaseModel):
+        name: Optional[str]
+        values: Optional[List[str]]
+        execute: bool = True
 
         class Config:
             extra = Extra.forbid
 
-    class Index(BaseModel):
-        columns: conlist(str, min_items=1)
+    tests: Optional[List[Union[str, Tests]]] = list()
 
-        class Config:
-            extra = Extra.forbid
-
-    columns: Optional[List[Column]] = list()
-    indexes: Optional[Dict[str, Index]] = dict()
-    # logic field - i.e. not added by the user in the ddl definition
-    primary_key: Optional[List[str]] = []
-
-    permissions: Optional[Dict[str, str]] = dict()
-
-    @validator("columns", pre=True)
-    def transform_str_cols(cls, v, values):
-        if v is not None and isinstance(v, List):
-            return [{"name": c} if isinstance(c, str) else c for c in v]
-        else:
-            return v
-
-    @validator("columns")
-    def columns_unique(cls, v, values):
-        dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
-        if len(dupes) > 0:
-            raise ValueError(f"Duplicate columns: {','.join(dupes)}")
-        else:
-            return v
-
-    @validator("indexes")
-    def index_columns_exists(cls, v, values):
-        cols = [c.name for c in values.get("columns", list())]
-        if len(cols) > 0:
-            missing_cols = group_list(
-                [
-                    (index_name, index_column)
-                    for index_name, index in v.items()
-                    for index_column in index.columns
-                    if index_column not in cols
-                ]
-            )
-            if len(missing_cols) > 0:
-                cols_msg = ";".join(
-                    [f"On {i}: {','.join(c)}" for i, c in missing_cols.items()]
-                )
-                raise ValueError(f"Some indexes refer to missing columns: {cols_msg}")
-
-        return v
-
-    @validator("primary_key", always=True)
-    def set_pk(cls, v, values):
-        columns_pk = [c.name for c in values.get("columns", []) if c.primary]
-
-        indexes_pk = list()
-        if values.get("indexes", {}).get("primary_key") is not None:
-            indexes_pk = values.get("indexes").get("primary_key").columns
-
-        if len(columns_pk) > 0 and len(indexes_pk) > 0:
-            if set(columns_pk) != set(indexes_pk):
-                columns_pk_str = " ,".join(columns_pk)
-                indexes_pk_str = " ,".join(indexes_pk)
-                raise ValueError(
-                    f"Primary key defined in indexes ({indexes_pk_str}) does not match primary key defined in columns ({columns_pk_str})."
-                )
-
-        pk = columns_pk if len(columns_pk) > 0 else indexes_pk
-
-        return pk
-
-    def get_ddl(self):
-        return {
-            "columns": [c.dict() for c in self.columns],
-            "indexes": {
-                k: v.dict() for k, v in self.indexes.items() if k != "primary_key"
-            },
-            "permissions": self.permissions,
-            "primary_key": self.primary_key,
-        }
+    class Config:
+        extra = Extra.forbid
 
 
 class Database:
@@ -121,7 +54,105 @@ class Database:
         metadata (sqlalchemy.MetaData): A metadata object associated with the engine.
     """
 
-    ddl_validation_class = DDL
+    class DDL(BaseModel):
+        class Properties(BaseModel):
+            class Indexes(BaseModel):
+                columns: Optional[List[Union[str, Dict]]]
+
+            indexes: Optional[Dict[str, Indexes]]
+
+            class Config:
+                extra = Extra.forbid
+
+            @validator("indexes")
+            def index_columns_exists(cls, v, values):
+                cols = [c.name for c in values.get("columns", list())]
+                if len(cols) > 0:
+                    missing_cols = group_list(
+                        [
+                            (index_name, index_column)
+                            for index_name, index in v.items()
+                            for index_column in index.columns
+                            if index_column not in cols
+                        ]
+                    )
+                    if len(missing_cols) > 0:
+                        cols_msg = ";".join(
+                            [f"On {i}: {','.join(c)}" for i, c in missing_cols.items()]
+                        )
+                        raise ValueError(
+                            f"Some indexes refer to missing columns: {cols_msg}"
+                        )
+
+                return v
+
+        columns: Optional[List[Columns]] = list()
+        properties: Optional[List[Properties]] = list()
+        post_hook: Optional[List[Hook]] = list()
+
+        class Config:
+            extra = Extra.forbid
+
+        @validator("columns", pre=True)
+        def transform_str_cols(cls, v, values):
+            if v is not None and isinstance(v, List):
+                return [{"name": c} if isinstance(c, str) else c for c in v]
+            else:
+                return v
+
+        @validator("columns")
+        def columns_unique(cls, v, values):
+            dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
+            if len(dupes) > 0:
+                raise ValueError(f"Duplicate columns: {','.join(dupes)}")
+            else:
+                return v
+
+        def get_ddl(self):
+            cols = self.columns
+            self.columns = []
+            for c in cols:
+                tests = []
+                for t in c.tests:
+                    if isinstance(t, str):
+                        tests.append({"type": t, "values": [], "execute": True})
+                    else:
+                        tests.append(
+                            {
+                                "type": t.name if t.name is not None else "values",
+                                "values": t.values if t.values is not None else [],
+                                "execute": t.execute,
+                            }
+                        )
+                self.columns.append(
+                    {
+                        "name": c.name,
+                        "description": c.description,
+                        "dst_name": c.dst_name,
+                        "type": c.type,
+                        "tests": tests,
+                    }
+                )
+
+            props = self.properties
+            self.properties = []
+            for p in props:
+                self.properties.append(p.dict())
+
+            hook = self.post_hook
+            self.post_hook = []
+            for h in hook:
+                self.post_hook.append(h.dict())
+
+            res = {
+                "columns": self.columns,
+                "properties": self.properties,
+                "post_hook": self.post_hook,
+            }
+
+            return res
+
+    # ddl_validation_class = DDL
 
     _requested_objects = None
 
@@ -133,6 +164,11 @@ class Database:
         self._requested_objects = dict()
         self._jinja_env = Environment(
             loader=FileSystemLoader(Path(__file__).parent / "templates"),
+            undefined=StrictUndefined,
+            keep_trailing_newline=True,
+        )
+        self._jinja_test = Environment(
+            loader=FileSystemLoader(Path(__file__).parent.parent / "tasks/tests"),
             undefined=StrictUndefined,
             keep_trailing_newline=True,
         )
@@ -162,14 +198,100 @@ class Database:
         # Force a query to test the connection
         engine.execute("select 1")
 
-    def _validate_ddl(self, ddl):
-        if ddl is None or len(ddl) == 0:
-            return Ok(self.ddl_validation_class().get_ddl())
+    def _construct_tests(self, columns, table, schema=None):
+        query = """
+                   SELECT val
+                        , col
+                        , cnt
+                        , type
+                     FROM (
+                """
+        template = self._jinja_test.get_template("standard_tests.sql")
+        count_tests = 0
+        breakdown = []
+
+        for col in columns:
+            tests = col["tests"]
+            for t in tests:
+                breakdown.append(
+                    {
+                        "column": col["name"],
+                        "type": t["type"],
+                        "status": col[t["type"]],
+                        "execute": t["execute"],
+                    }
+                )
+
+                if col[t["type"]] is False and t["execute"]:
+                    count_tests += 1
+                    query += template.render(
+                        **{
+                            "table": table,
+                            "schema": schema,
+                            "name": col["name"]
+                            if not col["dst_name"]
+                            else col["dst_name"],
+                            "type": t["type"],
+                            "values": ", ".join(f"'{c}'" for c in t["values"]),
+                        },
+                    )
+            breakdown.append({"print": True})
+        breakdown = breakdown[:-1]
+        parts = query.splitlines()[:-2]
+        query = ""
+        for q in parts:
+            query += q.strip() + "\n"
+        query += ") AS t;"
+
+        if count_tests == 0:
+            return Ok(["", breakdown])
+
+        return Ok([query, breakdown])
+
+    def _validate_ddl(self, columns=[], table_properties=[], post_hook=[]):
+        if len(columns) == 0 and len(table_properties) == 0 and len(post_hook) == 0:
+            return self._format_properties(self.DDL().get_ddl())
         else:
             try:
-                return Ok(self.ddl_validation_class(**ddl).get_ddl())
+                return self._format_properties(
+                    self.DDL(
+                        columns=columns,
+                        properties=table_properties,
+                        post_hook=post_hook,
+                    ).get_ddl()
+                )
             except Exception as e:
+
                 return Exc(e, db=self.name, type=self.db_type)
+
+    def _format_properties(self, properties):
+
+        if properties["columns"]:
+            columns = []
+            for col in properties["columns"]:
+                entry = {
+                    "name": col["name"],
+                    "type": col["type"],
+                    "dst_name": col["dst_name"],
+                    "unique": False,
+                    "not_null": False,
+                    "values": False,
+                }
+                if "tests" in col:
+                    entry.update({"tests": col["tests"]})
+                    for t in col["tests"]:
+                        if t["type"] != "values" and col["type"]:
+                            entry.update({t["type"]: True})
+                columns.append(entry)
+
+            properties["columns"] = columns
+        if properties["properties"]:
+            for pro in properties["properties"]:
+                for p in pro:
+                    if pro[p] is not None:
+                        properties[p] = pro[p]
+
+        return Ok(properties)
 
     def _refresh_metadata(self, only=None, schema=None):
         """Refreshes the sqlalchemy metadata object.
@@ -332,6 +454,7 @@ class Database:
         buffer = list()
 
         result = self._validate_ddl(ddl)
+
         if result.is_err:
             raise DBError(
                 self.name,
@@ -385,6 +508,7 @@ class Database:
         Returns:
             sqlalchemy.Table: A table object from sqlalchemy
         """
+
         table_def = Table(table, self.metadata, schema=schema, extend_existing=True)
 
         if table_def.exists():
@@ -499,6 +623,7 @@ class Database:
         tmp_schema=None,
         **ddl,
     ):
+
         # Create the temporary table
         can_replace_table = self.feature("CAN REPLACE TABLE")
 
@@ -533,6 +658,8 @@ class Database:
         object_type = self._requested_objects[schema][view].get("type")
         table_exists = object_type == "table"
         view_exists = object_type == "view"
+
+        # ddl = self._format_properties(ddl).value
 
         template = self._jinja_env.get_template("create_view.sql")
         create = template.render(

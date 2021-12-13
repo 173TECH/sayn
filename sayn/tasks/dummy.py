@@ -10,3 +10,6 @@ class DummyTask(Task):
 
     def run(self):
         return self.success()
+
+    def test(self):
+        return self.success()

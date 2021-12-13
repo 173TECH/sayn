@@ -18,10 +18,10 @@ ALTER TABLE {{ src_prefix }}{{ dst_table }} SET SCHEMA {{ dst_schema }};
 {% if indexes is defined %}
   {% for name, idx_def in indexes.items() %}
     {% if not cannot_alter_indexes %}
-ALTER INDEX {{ dst_schema }}{{ src_table }}_{{ name }} RENAME TO {{ dst_table }}_{{ name }};
+ALTER INDEX {{ dst_prefix }}{{ src_table }}_{{ name }} RENAME TO {{ dst_table }}_{{ name }};
     {% else %}
-DROP INDEX IF EXISTS {{ dst_schema }}{{ src_table }}_{{ name }};
-CREATE INDEX {{ dst_table }}_{{ name }} ON {{ dst_schema }}{{ dst_table }}({{ ', '.join(idx_def['columns']) }});
+DROP INDEX IF EXISTS {{ dst_prefix }}{{ src_table }}_{{ name }};
+CREATE INDEX {{ dst_table }}_{{ name }} ON {{ dst_prefix }}{{ dst_table }}({{ ', '.join(idx_def['columns']) }});
     {% endif %}
   {% endfor %}
 {% endif %}

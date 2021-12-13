@@ -1,5 +1,6 @@
 from datetime import datetime, date, timedelta
 from uuid import UUID, uuid4
+import os
 
 from ..tasks.task_wrapper import TaskWrapper
 from ..utils.dag import query as dag_query, topological_sort
@@ -22,6 +23,7 @@ class App:
             "sql": "sql",
             "compile": "compile",
             "logs": "logs",
+            "tests": "tests",
         },
         "full_load": False,
         "start_dt": date.today() - timedelta(days=1),
@@ -36,6 +38,7 @@ class App:
 
     tasks = dict()
     dag = dict()
+    tests = dict()
 
     task_query = list()
     tasks_to_run = dict()
@@ -114,10 +117,18 @@ class App:
     def set_tasks(self, tasks, task_query):
         self.task_query = task_query
 
-        self.dag = {
-            task["name"]: [p for p in task.get("parents", list())]
-            for task in tasks.values()
-        }
+        if self.run_arguments["command"] == "test":
+            self.dag = {
+                task["name"]: []
+                for task in tasks.values()
+                if "columns" in task.keys() or "test" in task["type"]
+            }
+        else:
+            self.dag = {
+                task["name"]: [p for p in task.get("parents", list())]
+                for task in tasks.values()
+                if "test" not in task["type"]
+            }
 
         topo_sort = topological_sort(self.dag)
         if topo_sort.is_err:
@@ -126,15 +137,20 @@ class App:
         self._tasks_dict = {
             task_name: tasks[task_name] for task_name in topo_sort.value
         }
-
         result = dag_query(self.dag, self.task_query)
         if result.is_err:
             return result
         else:
             tasks_in_query = result.value
+
         self.tracker.set_tasks(tasks_in_query)
 
         for task_name, task in self._tasks_dict.items():
+            if self.run_arguments["command"] == "test":
+                parents = []
+            else:
+                parents = [self.tasks[p] for p in task.get("parents", list())]
+
             task_tracker = self.tracker.get_task_tracker(task_name)
             if task_name in tasks_in_query:
                 task_tracker._report_event("start_stage")
@@ -143,7 +159,7 @@ class App:
             self.tasks[task_name] = TaskWrapper()
             result = self.tasks[task_name].setup(
                 task,
-                [self.tasks[p] for p in task.get("parents", list())],
+                parents,
                 task_name in tasks_in_query,
                 task_tracker,
                 self.connections,
@@ -172,8 +188,12 @@ class App:
     def compile(self):
         self.execute_dag("compile")
 
+    def test(self):
+        self.execute_dag("test")
+
     def execute_dag(self, command):
         self.run_arguments["command"] = command
+
         # Execution of relevant tasks
         tasks_in_query = {k: v for k, v in self.tasks.items() if v.in_query}
         self.tracker.start_stage(command, tasks=list(tasks_in_query.keys()))
@@ -187,8 +207,10 @@ class App:
 
             if command == "run":
                 result = task.run()
-            else:
+            elif command == "compile":
                 result = task.compile()
+            else:
+                result = task.test()
 
             if task.in_query:
                 task.tracker._report_event(

@@ -12,12 +12,14 @@ from .dummy import DummyTask
 from .sql import SqlTask
 from .autosql import AutoSqlTask
 from .copy import CopyTask
+from .test import TestTask
 
 _creators = {
     "dummy": DummyTask,
     "sql": SqlTask,
     "autosql": AutoSqlTask,
     "copy": CopyTask,
+    "test": TestTask,
 }
 
 _excluded_properties = (
@@ -102,7 +104,6 @@ class TaskWrapper:
         def setup_runner(runner, runner_config):
             try:
                 result = runner.setup(**runner_config)
-
             except Exception as exc:
                 result = Exc(exc)
 
@@ -198,8 +199,8 @@ class TaskWrapper:
         default_db,
         connections,
     ):
-        runner = task_class()
 
+        runner = task_class()
         # Add the basic properties
         runner.name = self.name
         runner.group = self.group
@@ -267,6 +268,9 @@ class TaskWrapper:
     def compile(self):
         return self.execute_task("compile")
 
+    def test(self):
+        return self.execute_task("test")
+
     def execute_task(self, command):
         result = self.check_skip()
         if result.is_err or result.value == TaskStatus.SKIPPED:
@@ -282,8 +286,10 @@ class TaskWrapper:
             try:
                 if command == "run":
                     result = self.runner.run()
-                else:
+                elif command == "compile":
                     result = self.runner.compile()
+                else:
+                    result = self.runner.test()
                 if result is None:
                     self.status = TaskStatus.FAILED
                     result = Err("execution", "none_return_value")

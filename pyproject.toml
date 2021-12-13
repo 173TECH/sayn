@@ -16,6 +16,7 @@ python = ">= 3.6.1, < 3.11"
 Click = "^8.0"
 jinja2 = "^2.10.3"
 sqlalchemy = "^1.3.12"
+terminaltables = "^3.1.0"
 pydantic = "^1.8"
 colorama = "^0.4.3"
 halo = "^0.0.30"
@@ -56,3 +57,6 @@ livereload = "^2.6.3"
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = [ "tests" ]

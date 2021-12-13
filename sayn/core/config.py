@@ -102,6 +102,7 @@ def read_project():
 class TaskGroup(BaseModel):
     presets: Optional[Dict[str, Dict[str, Any]]] = dict()
     tasks: Optional[Dict[str, Dict[str, Any]]]
+    tests: Optional[Dict[str, Dict[str, Any]]]
 
     class Config:
         extra = Extra.forbid
@@ -116,9 +117,21 @@ def read_groups(groups):
             return result
         else:
             try:
+
                 out[name] = TaskGroup(**result.value)
             except ValidationError as e:
                 return Exc(e, where="read_tasks")
+
+    # try:
+    #     out["tests"]
+    # except:
+    #     for name in groups:
+    #         if name != "tests" and out[name].tests is not None:
+    #             return Err("read_groups", "tests in tasks yaml")
+    #     return Ok(out)
+    # else:
+    #     if out["tests"].tasks is not None:
+    #         return Err("read_groups", "tasks in tests.yaml")
 
     return Ok(out)
 
@@ -400,6 +413,8 @@ def get_tasks_dict(global_presets, groups):
 
     errors = dict()
     tasks = dict()
+    tests = dict()
+
     for group_name, group in groups.items():
         if group.tasks is not None:
             for task_name, task in group.tasks.items():
@@ -415,8 +430,39 @@ def get_tasks_dict(global_presets, groups):
                     tasks[task_name] = result.value
                 else:
                     errors[task_name] = result.error
+                if tasks[task_name]["type"] == "test":
+                    return Err(
+                        "dag",
+                        "test in tasks",
+                        task=task_name,
+                    )
+
+        if group.tests is not None:
+            for test_name, test in group.tests.items():
+                if "type" in test.keys():
+                    return Err(
+                        "dag",
+                        "Tests have no types",
+                        task=test_name,
+                    )
+                test["type"] = "test"
+                if test_name in tests:
+                    return Err(
+                        "dag",
+                        "duplicate_task",
+                        task=task_name,
+                        groups=(group_name, tasks[task_name]["group"]),
+                    )
+
+    for t in tests:
+        if t in tasks.keys():
+            return Err(
+                "dag",
+                "Duplicate tests in tasks",
+                task=test_name,
+            )
 
     if len(errors) > 0:
         return Err("get_tasks_dict", "task_parsing_error", errors=errors)
     else:
-        return Ok(tasks)
+        return Ok(merge_dicts(tasks, tests))

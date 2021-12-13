@@ -254,7 +254,9 @@ class LogFormatter:
             message = [self.bad(f"Validation errors found ({duration})")]
             message.extend(
                 [
-                    self.red(f"  In {' > '.join(e['loc'])}: {e['msg']}")
+                    self.red(
+                        f"  In {' > '.join([str(item) for item in e['loc']])}: {e['msg']}"
+                    )
                     for e in error.details["errors"]
                 ]
             )
@@ -373,7 +375,7 @@ class LogFormatter:
     def app_stage_start(self, stage, details):
         if stage == "setup":
             return {"level": "info", "message": "Setting up..."}
-        elif stage in ("run", "compile"):
+        elif stage in ("run", "compile", "test"):
             return {
                 "level": "info",
                 "message": self.bright(
@@ -407,7 +409,7 @@ class LogFormatter:
                 out.append(self.good(f"Tasks to run: {self.blist(succeeded)}"))
             return {"level": level, "message": out}
 
-        elif stage in ("run", "compile"):
+        elif stage in ("run", "compile", "test"):
             if len(failed) > 0 or len(skipped) > 0:
                 out = [
                     self.red(
@@ -449,7 +451,7 @@ class LogFormatter:
 
         if stage == "setup":
             return {"level": "info", "message": f"{task_progress} {self.bright(task)}"}
-        elif stage in ("run", "compile"):
+        elif stage in ("run", "compile", "test"):
             return {
                 "level": "info",
                 "message": f"{self.bright(task_progress +' ' +task)} (started at {ts})",
@@ -472,7 +474,7 @@ class LogFormatter:
         task_progress = f"[{step_order}/{total_steps}]"
         ts = f"[{human(details['ts'])}]" if self.output_ts else ""
 
-        if stage in ("run", "compile"):
+        if stage in ("run", "compile", "test"):
             return {
                 "level": "info",
                 "message": self.info(

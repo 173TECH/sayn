@@ -1,12 +1,17 @@
 from datetime import datetime
-from typing import Any, Dict, Optional
+from pathlib import Path
+from typing import Any, Dict, Optional, List
+import json
 
 from pydantic import BaseModel, Field, validator, Extra
 from sqlalchemy import or_, select, column
+from terminaltables import AsciiTable
 
 from ..core.errors import Err, Exc, Ok
 from ..database import Database
 from .sql import SqlTask
+
+# from .test import Columns
 
 
 class Source(BaseModel):
@@ -64,12 +69,15 @@ class Destination(BaseModel):
 class Config(BaseModel):
     source: Source
     destination: Destination
-    ddl: Optional[Dict[str, Any]]
+    # ddl: Optional[Dict[str, Any]]
     delete_key: Optional[str]
     append: bool = False
     incremental_key: Optional[str]
     max_merge_rows: Optional[int]
     max_batch_rows: Optional[int]
+    columns: Optional[List[Dict[str, Any]]] = list()
+    table_properties: Optional[List[Dict[str, Any]]] = list()
+    post_hook: Optional[List[Dict[str, Any]]] = list()
 
     class Config:
         extra = Extra.forbid
@@ -102,7 +110,7 @@ class Config(BaseModel):
 
 
 class CopyTask(SqlTask):
-    def setup(self, **config):
+    def setup(self, **config):  # noqa: C901
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]
@@ -198,18 +206,34 @@ class CopyTask(SqlTask):
 
         self.is_full_load = self.run_arguments["full_load"] or self.mode == "full"
 
-        result = self.target_db._validate_ddl(self.config.ddl)
+        result = self.target_db._validate_ddl(
+            self.config.columns, self.config.table_properties, self.config.post_hook
+        )
         if result.is_ok:
-            self.ddl = result.value
+            self.columns = result.value
 
             # Check if the incremental_key in the destination needs renaming
-            if self.dst_incremental_key is not None and len(self.ddl["columns"]) > 0:
+            if (
+                self.dst_incremental_key is not None
+                and len(self.columns["columns"]) > 0
+            ):
                 columns_dict = {
-                    c["name"]: c["dst_name"] or c["name"] for c in self.ddl["columns"]
+                    c["name"]: c["dst_name"] or c["name"]
+                    for c in self.columns["columns"]
                 }
                 self.dst_incremental_key = columns_dict[self.src_incremental_key]
         else:
             return result
+
+        if self.run_arguments["command"] == "test":
+            result = self.target_db._construct_tests(
+                self.columns["columns"], self.table, self.schema
+            )
+            if result.is_err:
+                return result
+            else:
+                self.test_query = result.value[0]
+                self.test_breakdown = result.value[1]
 
         return Ok()
 
@@ -243,6 +267,36 @@ class CopyTask(SqlTask):
 
         return result
 
+    def test(self):
+        if self.test_query == "":
+            self.info(self.get_test_breakdown(self.test_breakdown))
+            return self.success()
+        else:
+            with self.step("Write Test Query"):
+                result = self.write_compilation_output(self.test_query, "test")
+                if result.is_err:
+                    return result
+
+            with self.step("Execute Test Query"):
+                result = self.default_db.read_data(self.test_query)
+
+                self.info(self.get_test_breakdown(self.test_breakdown))
+
+                if len(result) == 0:
+                    return self.success()
+                else:
+                    errout = "Test failed, summary:\n"
+                    data = []
+                    data.append(
+                        ["Breach Count", "Prob. Value", "Test Type", "Failed Fields"]
+                    )
+
+                    for res in result:
+                        data.append([res["cnt"], res["val"], res["type"], res["col"]])
+                    table = AsciiTable(data)
+
+                    return self.fail(errout + table.table)
+
     def execute(self, execute, debug, is_full_load, limit=None):
         # Introspect target
         self.target_table_exists = self.target_db._table_exists(self.table, self.schema)
@@ -268,13 +322,14 @@ class CopyTask(SqlTask):
             else:
                 get_data_query = result.value
 
-            create_ddl = {k: v for k, v in self.ddl.items() if k != "columns"}
+            create_ddl = {k: v for k, v in self.columns.items() if k != "columns"}
+
             if self.mode == "append":
-                create_ddl["columns"] = [c for c in self.ddl["columns"]] + [
+                create_ddl["columns"] = [c for c in self.columns["columns"]] + [
                     {"name": "_sayn_load_ts", "type": "TIMESTAMP"}
                 ]
             else:
-                create_ddl["columns"] = [c for c in self.ddl["columns"]]
+                create_ddl["columns"] = [c for c in self.columns["columns"]]
 
             query = self.target_db.create_table(
                 load_table, schema=load_schema, replace=True, **create_ddl
@@ -318,7 +373,7 @@ class CopyTask(SqlTask):
                 self.table,
                 src_schema=load_schema,
                 dst_schema=self.schema,
-                **self.ddl,
+                **self.columns,
             )
         elif final_step == "Merge Tables":
             query = self.target_db.merge_tables(
@@ -327,7 +382,7 @@ class CopyTask(SqlTask):
                 self.delete_key,
                 src_schema=load_schema,
                 dst_schema=self.schema,
-                **self.ddl,
+                **self.columns,
             )
         else:
             query = None
@@ -362,14 +417,14 @@ class CopyTask(SqlTask):
             )
         self.source_table_def = source_table_def
 
-        if len(self.ddl["columns"]) == 0:
+        if len(self.columns["columns"]) == 0:
             dst_table_def = None
             if not self.is_full_load:
                 dst_table_def = self.target_db._get_table(self.table, self.schema)
 
             if dst_table_def is not None:
                 # In incremental loads we use the destination table to determine the columns
-                self.ddl["columns"] = [
+                self.columns["columns"] = [
                     {
                         "name": c.name,
                         "type": c.type.compile(dialect=self.target_db.engine.dialect),
@@ -404,10 +459,10 @@ class CopyTask(SqlTask):
                         col_type = self.target_db._py2sqa(c.type.python_type)
                     except:
                         col_type = c.type.compile(self.target_db.engine.dialect)
-                    self.ddl["columns"].append({"name": c.name, "type": col_type})
+                    self.columns["columns"].append({"name": c.name, "type": col_type})
         else:
             # Fill up column types from the source table
-            for col in self.ddl["columns"]:
+            for col in self.columns["columns"]:
                 if col.get("name") not in self.source_table_def.columns:
                     return Err(
                         "database_error",
@@ -428,7 +483,7 @@ class CopyTask(SqlTask):
                             self.source_table_def.columns[col["name"]].type.python_type
                         )
 
-        for col in self.ddl["columns"]:
+        for col in self.columns["columns"]:
             col["src_name"] = col["name"]
             if col.get("dst_name") is not None:
                 col["name"] = col["dst_name"]
@@ -452,7 +507,7 @@ class CopyTask(SqlTask):
                 column(c["src_name"]).label(c["name"])
                 if c["src_name"] != c["name"]
                 else column(c["src_name"])
-                for c in self.ddl["columns"]
+                for c in self.columns["columns"]
             ],
             from_obj=self.source_table_def,
         )
