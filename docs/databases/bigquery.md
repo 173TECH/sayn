@@ -7,6 +7,12 @@ installed with:
 pip install "sayn[bigquery]"
 ```
 
+!!! warning
+    Currently the latest version of [pybigquery](https://github.com/mxmzdlv/pybigquery){target="\_blank"}
+    will not install on Python 3.10. `pip install pybigquery` can be used to install an earlier version
+    although some problems might arise, so we recommend using Python 3.9 instead.
+
+
 The [Bigquery](https://cloud.google.com/bigquery){target="\_blank"} connector looks for the following parameters:
 
 Parameter        | Description                           | Default

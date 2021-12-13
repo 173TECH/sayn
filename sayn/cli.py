@@ -81,6 +81,7 @@ class CliApp(App):
         task_query = self.check_abort(
             get_query(tasks_dict, include=include, exclude=exclude)
         )
+
         self.check_abort(self.set_tasks(tasks_dict, task_query))
 
         self.tracker.finish_current_stage(
@@ -239,6 +240,21 @@ def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
     app = CliApp("run", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
 
     app.run()
+    if any([t.status == TaskStatus.FAILED for _, t in app.tasks.items()]):
+        sys.exit(-1)
+    else:
+        sys.exit()
+
+
+@cli.command(help="Test SAYN tasks.")
+@click_run_options
+def test(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
+
+    tasks = [i for t in tasks for i in t.strip().split(" ")]
+    exclude = [i for t in exclude for i in t.strip().split(" ")]
+    app = CliApp("test", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
+
+    app.test()
     if any([t.status == TaskStatus.FAILED for _, t in app.tasks.items()]):
         sys.exit(-1)
     else:

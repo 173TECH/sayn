@@ -1,11 +1,15 @@
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
+import json
 
 from pydantic import BaseModel, Field, FilePath, validator, Extra
+from terminaltables import AsciiTable
 
 from ..core.errors import Exc, Ok, Err
 from ..database import Database
 from .sql import SqlTask
+
+# from .test import Columns
 
 
 class Destination(BaseModel):
@@ -44,7 +48,10 @@ class Config(BaseModel):
     delete_key: Optional[str]
     materialisation: str
     destination: Destination
-    ddl: Optional[Dict[str, Any]]
+    # ddl: Optional[Dict[str, Any]]
+    columns: Optional[List[Dict[str, Any]]] = list()
+    table_properties: Optional[List[Dict[str, Any]]] = list()
+    post_hook: Optional[List[Dict[str, Any]]] = list()
 
     class Config:
         extra = Extra.forbid
@@ -115,27 +122,30 @@ class AutoSqlTask(SqlTask):
         self.delete_key = self.config.delete_key
 
         # DDL validation
-        result = self.target_db._validate_ddl(self.config.ddl)
+        result = self.target_db._validate_ddl(
+            self.config.columns, self.config.table_properties, self.config.post_hook
+        )
         if result.is_err:
             return result
         else:
-            self.ddl = result.value
+            self.columns = result.value
 
         # If we have columns with no type, we can't issue a create table ddl
         # and will issue a create table as select instead.
         # However, if the db doesn't support alter idx then we can't have a
         # primary key
-        self.cols_no_type = [c for c in self.ddl["columns"] if c["type"] is None]
-        if (
-            len(self.ddl["primary_key"]) > 0
-            and self.target_db.feature("CANNOT ALTER INDEXES")
-            and (len(self.ddl["columns"]) == 0 or len(self.cols_no_type) > 0)
-        ):
-            return Err(
-                "task_definition",
-                "missing_column_types_pk",
-                columns=self.cols_no_type,
-            )
+        # self.cols_no_type = [
+        #     c for c in self.ddl["columns"] if c["type"] is None]
+        # if (
+        #     len(self.ddl["primary_key"]) > 0 and
+        #     self.target_db.feature("CANNOT ALTER INDEXES") and
+        #     (len(self.ddl["columns"]) == 0 or len(self.cols_no_type) > 0)
+        # ):
+        #     return Err(
+        #         "task_definition",
+        #         "missing_column_types_pk",
+        #         columns=self.cols_no_type,
+        #     )
 
         # Template compilation
         self.jinja_env.globals["src"] = lambda x: self.src(
@@ -166,7 +176,16 @@ class AutoSqlTask(SqlTask):
 
         self.out(tmp_table, self.target_db)
         self.out(table, self.target_db)
-
+        # TODO - review from test
+        # if self.run_arguments["command"] == "test":
+        #     result = self.target_db._construct_tests(
+        #         self.columns["columns"], self.table, self.schema
+        #     )
+        #     if result.is_err:
+        #         return result
+        #     else:
+        #         self.test_query = result.value[0]
+        #         self.test_breakdown = result.value[1]
         return Ok()
 
     def execute(self, execute, debug):
@@ -177,7 +196,10 @@ class AutoSqlTask(SqlTask):
         if self.materialisation == "view":
             # View
             step_queries = self.target_db.replace_view(
-                self.table, self.sql_query, schema=self.schema, **self.ddl
+                self.table,
+                self.sql_query,
+                schema=self.schema,
+                **self.columns,
             )
 
         elif (
@@ -198,7 +220,7 @@ class AutoSqlTask(SqlTask):
                 self.sql_query,
                 schema=self.schema,
                 tmp_schema=tmp_schema,
-                **self.ddl,
+                **self.columns,
             )
 
         else:
@@ -209,7 +231,7 @@ class AutoSqlTask(SqlTask):
                 self.delete_key,
                 schema=self.schema,
                 tmp_schema=self.tmp_schema,
-                **self.ddl,
+                **self.columns,
             )
 
         self.set_run_steps(list(step_queries.keys()))
@@ -231,3 +253,33 @@ class AutoSqlTask(SqlTask):
 
     def run(self):
         return self.execute(True, self.run_arguments["debug"])
+
+    def test(self):
+        if self.test_query == "":
+            self.info(self.get_test_breakdown(self.test_breakdown))
+            return self.success()
+        else:
+            with self.step("Write Test Query"):
+                result = self.write_compilation_output(self.test_query, "test")
+                if result.is_err:
+                    return result
+
+            with self.step("Execute Test Query"):
+                result = self.default_db.read_data(self.test_query)
+
+                self.info(self.get_test_breakdown(self.test_breakdown))
+
+                if len(result) == 0:
+                    return self.success()
+                else:
+                    errout = "Test failed, summary:\n"
+                    data = []
+                    data.append(
+                        ["Breach Count", "Prob. Value", "Test Type", "Failed Fields"]
+                    )
+
+                    for res in result:
+                        data.append([res["cnt"], res["val"], res["type"], res["col"]])
+                    table = AsciiTable(data)
+
+                    return self.fail(errout + table.table)

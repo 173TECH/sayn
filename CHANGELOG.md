@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.5.13] - 2021-12-13
+
+### Changed
+
+- Enables installation on Python 3.10
+
+### Fixed
+
+- Fixes colour of last message in SAYN cli
+
 ## [0.5.12] - 2021-11-24
 
 ### Fixed

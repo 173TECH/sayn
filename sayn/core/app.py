@@ -1,6 +1,7 @@
 from datetime import datetime, date, timedelta
 from itertools import groupby
 from uuid import UUID, uuid4
+import os
 
 from ..tasks.task_wrapper import TaskWrapper
 from ..utils.dag import query as dag_query, topological_sort
@@ -51,6 +52,7 @@ class App:
             "sql": "sql",
             "compile": "compile",
             "logs": "logs",
+            "tests": "tests",
         },
         "full_load": False,
         "start_dt": date.today() - timedelta(days=1),
@@ -65,6 +67,7 @@ class App:
 
     tasks = dict()
     dag = dict()
+    tests = dict()
 
     task_query = list()
     tasks_to_run = dict()
@@ -258,9 +261,18 @@ class App:
         for task_name, task in task_objects.items():
             task.set_parents(task_objects, output_to_task)
 
-        self.dag = {
-            task.name: [p.name for p in task.parents] for task in task_objects.values()
-        }
+        if self.run_arguments["command"] == "test":
+            self.dag = {
+                task.name: []
+                for task in task_objects.values()
+                if "columns" in task.keys() or "test" in task["type"]
+            }
+        else:
+            self.dag = {
+                task.name: [p for p in task.parents]
+                for task in task_objects.values()
+                if "test" not in task["type"]
+            }
 
         topo_sort = topological_sort(self.dag)
         if topo_sort.is_err:
@@ -281,12 +293,21 @@ class App:
             return result
         else:
             tasks_in_query = result.value
+
         self.tracker.set_tasks(tasks_in_query)
 
         for task_order, task_info in enumerate(self.tasks.items()):
             task_name, task = task_info
             task_tracker = task.tracker
             task_tracker._task_order = task_order
+            #  TODO - review from test
+            # for task_name, task in self._tasks_dict.items():
+            #     if self.run_arguments["command"] == "test":
+            #         parents = []
+            #     else:
+            #         parents = [self.tasks[p] for p in task.get("parents", list())]
+
+            #     task_tracker = self.tracker.get_task_tracker(task_name)
             if task_name in tasks_in_query:
                 task_tracker._report_event("start_stage")
             start_ts = datetime.now()
@@ -312,8 +333,12 @@ class App:
     def compile(self):
         self.execute_dag("compile")
 
+    def test(self):
+        self.execute_dag("test")
+
     def execute_dag(self, command):
         self.run_arguments["command"] = command
+
         # Execution of relevant tasks
         tasks_in_query = {k: v for k, v in self.tasks.items() if v.in_query}
         self.tracker.start_stage(command, tasks=list(tasks_in_query.keys()))
@@ -327,8 +352,10 @@ class App:
 
             if command == "run":
                 result = task.run()
-            else:
+            elif command == "compile":
                 result = task.compile()
+            else:
+                result = task.test()
 
             if task.in_query:
                 task.tracker._report_event(

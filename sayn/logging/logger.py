@@ -42,7 +42,7 @@ class Logger:
         self.print(
             self.fmt.task_stage_finish(stage, task, task_order, total_tasks, details)
         )
-        if stage in ("run", "compile"):
+        if stage in ("run", "compile", "test"):
             self.print()
 
     def task_set_steps(self, details):

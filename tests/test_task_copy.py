@@ -65,7 +65,7 @@ def test_copy_task_ddl(source_db, target_db):
         assert task.setup(
             source={"db": "source_db", "table": "source_table"},
             destination={"table": "dst_table"},
-            ddl={"columns": [{"name": "x", "type": "int"}]},
+            columns=[{"name": "x", "type": "int"}],
         ).is_ok
 
         assert task.run().is_ok
@@ -110,7 +110,7 @@ def test_copy_task_ddl_rename(source_db, target_db):
         assert task.setup(
             source={"db": "source_db", "table": "source_table"},
             destination={"table": "dst_table"},
-            ddl={"columns": [{"name": "x", "dst_name": "y"}]},
+            columns=[{"name": "x", "dst_name": "y"}],
         ).is_ok
 
         assert task.run().is_ok
