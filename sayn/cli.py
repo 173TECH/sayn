@@ -58,7 +58,7 @@ class CliApp(App):
         cleanup_compilation(self.run_arguments["folders"]["compile"])
 
         # SETUP THE APP: read project config and settings, interpret cli arguments and setup the dag
-        self.tracker.start_stage("setup")
+        self.tracker.start_stage("config")
 
         # Read the project configuration
         project = self.check_abort(read_project())

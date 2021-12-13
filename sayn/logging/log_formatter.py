@@ -370,7 +370,9 @@ class LogFormatter:
                 return {"level": "info", "message": self.good(msg)}
 
     def app_stage_start(self, stage, details):
-        if stage == "setup":
+        if stage == "config":
+            return {"level": "info", "message": "Configuring Project..."}
+        elif stage == "setup":
             return {"level": "info", "message": "Setting up..."}
         elif stage in ("run", "compile"):
             return {
@@ -393,7 +395,20 @@ class LogFormatter:
             f"Success: {len(succeeded)}. Failed {len(failed)}. Skipped {len(skipped)}."
         )
 
-        if stage == "setup":
+        if stage == "config":
+            out = ["Finished project config:"]
+            level = "info"
+            if len(failed) > 0:
+                out.append(self.bad(f"Tasks failed: {self.blist(failed)}"))
+                level = "error"
+            if len(skipped) > 0:
+                out.append(self.warn(f"Tasks to skip: {self.blist(skipped)}"))
+                level = "error"
+            if len(succeeded) > 0:
+                out.append(self.good(f"Tasks to run: {self.blist(succeeded)}"))
+            return {"level": level, "message": out}
+
+        elif stage == "setup":
             out = ["Finished setup:"]
             level = "info"
             if len(failed) > 0:
@@ -446,7 +461,9 @@ class LogFormatter:
         task_progress = f"[{task_order}/{total_tasks}]"
         ts = human(details["ts"])
 
-        if stage == "setup":
+        if stage == "config":
+            return {"level": "info", "message": f"{self.bright(task)}"}
+        elif stage == "setup":
             return {"level": "info", "message": f"{task_progress} {self.bright(task)}"}
         elif stage in ("run", "compile"):
             return {

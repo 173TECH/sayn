@@ -200,7 +200,10 @@ class App:
             )
 
     def set_tasks(self, tasks, task_query):
+        self.task_query = task_query
+
         # We first need to do the config of tasks
+        task_objects = dict()
         for task_name, task in tasks.items():
             task_tracker = self.tracker.get_task_tracker(task_name)
             task_tracker._report_event("start_stage")
@@ -212,7 +215,7 @@ class App:
             else:
                 task_class = result.value
 
-            self.tasks[task_name] = TaskWrapper(
+            task_objects[task_name] = TaskWrapper(
                 task["group"],
                 task_name,
                 task["type"],
@@ -227,7 +230,7 @@ class App:
                 task_class,
             )
 
-            result = self.tasks[task_name].config(
+            result = task_objects[task_name].config(
                 self.connections,
                 self.default_db,
                 self.project_parameters,
@@ -242,11 +245,9 @@ class App:
         # Now that all tasks are configured, we set the relationships so that we
         # can calculate the dag
 
-        self.tracker.info("done config==============")
-
         output_to_task = [
             (output, task_name)
-            for task_name, task in self.tasks.items()
+            for task_name, task in task_objects.items()
             for output in task.outputs
         ]
 
@@ -254,22 +255,26 @@ class App:
             k: [gg[1] for gg in g]
             for k, g in groupby(sorted(output_to_task), key=lambda x: x[0])
         }
-        for task_name, task in self.tasks.items():
-            task.set_parents(self.tasks, output_to_task)
-
-        self.task_query = task_query
+        for task_name, task in task_objects.items():
+            task.set_parents(task_objects, output_to_task)
 
         self.dag = {
-            task.name: [p.name for p in task.parents] for task in self.tasks.values()
+            task.name: [p.name for p in task.parents] for task in task_objects.values()
         }
 
         topo_sort = topological_sort(self.dag)
         if topo_sort.is_err:
             return topo_sort
+        else:
+            topo_sort = topo_sort.value
 
-        self._tasks_dict = {
-            task_name: tasks[task_name] for task_name in topo_sort.value
-        }
+        self.tasks = {task_name: task_objects[task_name] for task_name in topo_sort}
+
+        self.tracker.finish_current_stage(
+            tasks={k: v.status for k, v in self.tasks.items()}
+        )
+
+        self.tracker.start_stage("setup")
 
         result = dag_query(self.dag, self.task_query)
         if result.is_err:
@@ -278,8 +283,10 @@ class App:
             tasks_in_query = result.value
         self.tracker.set_tasks(tasks_in_query)
 
-        for task_name, task in self._tasks_dict.items():
-            task_tracker = self.tracker.get_task_tracker(task_name)
+        for task_order, task_info in enumerate(self.tasks.items()):
+            task_name, task = task_info
+            task_tracker = task.tracker
+            task_tracker._task_order = task_order
             if task_name in tasks_in_query:
                 task_tracker._report_event("start_stage")
             start_ts = datetime.now()
