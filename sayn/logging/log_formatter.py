@@ -191,7 +191,7 @@ class LogFormatter:
                 [
                     self.red(l)
                     for it in traceback.format_exception(
-                        etype=type(exc), value=exc, tb=exc.__traceback__
+                        exc, value=exc, tb=exc.__traceback__
                     )
                     for l in it.split("\n")
                 ]
@@ -362,9 +362,10 @@ class LogFormatter:
         if "error" in details:
             return self.error_result(details["duration"], details["error"].error)
         else:
-            errors = details["tasks"].get("failed", list()) + details["tasks"].get(
-                "skipped", list()
-            )
+            errors = [
+                t for t in list(details["tasks"].values()) if "FAILED" in str(t)
+            ] + [t for t in list(details["tasks"].values()) if "SKIPPED" in str(t)]
+
             msg = f"Execution of SAYN took {human(details['duration'])}"
             if len(errors) > 0:
                 return {"level": "error", "message": self.bad(msg)}
