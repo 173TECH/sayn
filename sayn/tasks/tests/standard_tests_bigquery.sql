@@ -12,7 +12,6 @@
 {%- endif %}
  GROUP BY l.{{ name }}
 HAVING COUNT(*) > {%- if type == 'unique' %} 1 {%- else %} 0 {%- endif %}
-ORDER BY cnt DESC
 LIMIT 5)
 
 UNION ALL

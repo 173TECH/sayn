@@ -254,7 +254,8 @@ class AutoSqlTask(SqlTask):
                 if len(result) == 0:
                     return self.success()
                 else:
-                    errout = "Test failed, summary:\n"
+                    errout = "Test failed, summary:\n\n"
+                    errout += f"Total number of offending records: {sum([item['cnt'] for item in result])} \n"
                     data = []
                     data.append(
                         ["Breach Count", "Prob. Value", "Test Type", "Failed Fields"]
@@ -264,4 +265,6 @@ class AutoSqlTask(SqlTask):
                         data.append([res["cnt"], res["val"], res["type"], res["col"]])
                     table = AsciiTable(data)
 
-                    return self.fail(errout + table.table)
+                    errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
+
+                    return self.fail(errout + table.table + "\n\n" + errinfo)
