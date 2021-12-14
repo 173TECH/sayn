@@ -1,6 +1,6 @@
 {% set dst_schema = schema+'.' if schema else '' %}
 
-SELECT CAST(l.{{ name }} AS VARCHAR) AS val
+(SELECT CAST(l.{{ name }} AS VARCHAR) AS val
      , COUNT(*) AS cnt
      , '{{ type }}' AS type
      , '{{ name }}' AS col
@@ -12,5 +12,6 @@ SELECT CAST(l.{{ name }} AS VARCHAR) AS val
 {%- endif %}
  GROUP BY l.{{ name }}
 HAVING COUNT(*) > {%- if type == 'unique' %} 1 {%- else %} 0 {%- endif %}
+LIMIT 5)
 
 UNION ALL
