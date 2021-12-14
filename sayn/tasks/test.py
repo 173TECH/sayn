@@ -65,6 +65,7 @@ class TestTask(Task):
             return result
         else:
             self.test_query = result.value
+            self.test_query += " LIMIT 5\n"
 
         if self.run_arguments["command"] == "test":
             self.set_run_steps(["Write Query", "Execute Query"])
@@ -90,4 +91,6 @@ class TestTask(Task):
                     data.append(list(res.values()))
                 table = AsciiTable(data)
 
-                return self.fail(errout + table.table)
+                errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
+
+                return self.fail(errout + table.table + "\n\n" + errinfo)
