@@ -65,7 +65,7 @@ class TestTask(Task):
             return result
         else:
             self.test_query = result.value
-            self.test_query += "LIMIT 5\n"
+            self.test_query += " LIMIT 5\n"
 
         if self.run_arguments["command"] == "test":
             self.set_run_steps(["Write Query", "Execute Query"])
