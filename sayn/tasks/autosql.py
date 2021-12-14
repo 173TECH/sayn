@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-import json
 
 from pydantic import BaseModel, Field, FilePath, validator, Extra
 from terminaltables import AsciiTable
@@ -110,12 +109,29 @@ class AutoSqlTask(SqlTask):
             return Exc(e)
 
         # Output calculation
-        self.tmp_schema = (
-            self.config.destination.tmp_schema or self.config.destination.db_schema
-        )
-        self.schema = self.config.destination.db_schema
-        self.table = self.config.destination.table
+        if self.config.destination.db_schema is not None:
+            obj = self.out(
+                f"{self.config.destination.db_schema}.{self.config.destination.table}"
+            )
+            self.schema = obj.split(".")[0]
+            self.table = obj.split(".")[1]
+        else:
+            obj = self.out(self.config.destination.table, self.target_db)
+            self.schema = None
+            self.table = obj
 
+        if self.config.destination.tmp_schema is not None:
+            obj = self.out(
+                f"{self.config.destination.tmp_schema}.sayn_tmp_{self.config.destination.table}"
+            )
+            self.tmp_schema = obj.split(".")[0]
+            self.tmp_table = obj.split(".")[1]
+        else:
+            obj = self.out(f"sayn_tmp_{self.config.destination.table}", self.target_db)
+            self.tmp_schema = None
+            self.tmp_table = obj
+
+        # TODO - remove this
         self.use_db_object(self.table, schema=self.schema, tmp_schema=self.tmp_schema)
 
         self.materialisation = self.config.materialisation
@@ -164,28 +180,16 @@ class AutoSqlTask(SqlTask):
         else:
             self.sql_query = result.value
 
-        if self.tmp_schema is None:
-            tmp_table = f"sayn_tmp_{self.table}"
-        else:
-            tmp_table = f"{self.tmp_schema}.sayn_tmp_{self.table}"
+        if self.run_arguments["command"] == "test":
+            result = self.target_db._construct_tests(
+                self.columns["columns"], self.table, self.schema
+            )
+            if result.is_err:
+                return result
+            else:
+                self.test_query = result.value[0]
+                self.test_breakdown = result.value[1]
 
-        if self.schema is None:
-            table = self.table
-        else:
-            table = f"{self.schema}.{self.table}"
-
-        self.out(tmp_table, self.target_db)
-        self.out(table, self.target_db)
-        # TODO - review from test
-        # if self.run_arguments["command"] == "test":
-        #     result = self.target_db._construct_tests(
-        #         self.columns["columns"], self.table, self.schema
-        #     )
-        #     if result.is_err:
-        #         return result
-        #     else:
-        #         self.test_query = result.value[0]
-        #         self.test_breakdown = result.value[1]
         return Ok()
 
     def execute(self, execute, debug):

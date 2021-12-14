@@ -1,7 +1,6 @@
 from datetime import datetime, date, timedelta
 from itertools import groupby
 from uuid import UUID, uuid4
-import os
 
 from ..tasks.task_wrapper import TaskWrapper
 from ..utils.dag import query as dag_query, topological_sort
@@ -264,14 +263,15 @@ class App:
         if self.run_arguments["command"] == "test":
             self.dag = {
                 task.name: []
-                for task in task_objects.values()
+                for task in tasks.values()
                 if "columns" in task.keys() or "test" in task["type"]
             }
         else:
             self.dag = {
-                task.name: [p for p in task.parents]
+                task.name: [p.name for p in task.parents]
                 for task in task_objects.values()
-                if "test" not in task["type"]
+                # TODO - fix for tests
+                # if "test" not in task["type"]
             }
 
         topo_sort = topological_sort(self.dag)
@@ -299,7 +299,7 @@ class App:
         for task_order, task_info in enumerate(self.tasks.items()):
             task_name, task = task_info
             task_tracker = task.tracker
-            task_tracker._task_order = task_order
+            task_tracker._task_order = task_order + 1
             #  TODO - review from test
             # for task_name, task in self._tasks_dict.items():
             #     if self.run_arguments["command"] == "test":
