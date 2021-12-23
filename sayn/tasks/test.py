@@ -1,13 +1,12 @@
 from pathlib import Path
-import json
 
-from pydantic import BaseModel, Field, FilePath, validator, Extra
+from pydantic import BaseModel, FilePath, validator, Extra
 from typing import List, Optional, Union
 from terminaltables import AsciiTable
 
 from ..core.errors import Ok, Err, Exc
 from ..database import Database
-from . import Task
+from .task import Task
 
 
 class Tests(BaseModel):

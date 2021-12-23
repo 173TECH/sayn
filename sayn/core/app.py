@@ -9,7 +9,7 @@ from .errors import Err, Ok
 from ..logging import EventTracker
 from ..database import Database
 
-from ..tasks import FailedTask
+from ..tasks.task import FailedTask
 from ..tasks.dummy import DummyTask
 from ..tasks.sql import SqlTask
 from ..tasks.autosql import AutoSqlTask

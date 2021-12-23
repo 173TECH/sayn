@@ -8,4 +8,4 @@
 __version__ = "0.5.13"
 
 
-from .tasks import PythonTask
+from .tasks.python import PythonTask

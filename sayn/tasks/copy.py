@@ -1,7 +1,5 @@
 from datetime import datetime
-from pathlib import Path
 from typing import Any, Dict, Optional, List
-import json
 
 from pydantic import BaseModel, Field, validator, Extra
 from sqlalchemy import or_, select, column

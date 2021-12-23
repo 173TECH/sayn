@@ -7,7 +7,7 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from ..core.errors import Err, Exc, Ok, Result
 from ..utils.misc import map_nested
 
-from . import FailedTask, Task, TaskStatus
+from .task import FailedTask, Task, TaskStatus
 from .dummy import DummyTask
 from .sql import SqlTask
 from .autosql import AutoSqlTask

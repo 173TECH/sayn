@@ -18,7 +18,7 @@ from .core.config import (
     get_tasks_dict,
 )
 from .core.errors import Err, Result
-from .tasks import TaskStatus
+from .tasks.task import TaskStatus
 
 yesterday = date.today() - timedelta(days=1)
 
