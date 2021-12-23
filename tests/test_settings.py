@@ -30,6 +30,7 @@ credentials:
         assert settings.get_settings().value == {
             "credentials": {"warehouse": {"type": "sqlite", "database": "dev.db"}},
             "parameters": None,
+            "stringify": dict(),
         }
 
 
@@ -51,6 +52,7 @@ credentials:
         assert settings.get_settings().value == {
             "credentials": {"warehouse": {"type": "sqlite", "database": "dev.db"}},
             "parameters": None,
+            "stringify": dict(),
         }
 
 
@@ -154,6 +156,7 @@ def test_env_01(tmpdir):
         assert settings.get_settings().value == {
             "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
             "parameters": {"param1": "value1"},
+            "stringify": dict(),
         }
 
 
@@ -168,6 +171,7 @@ def test_env_02(tmpdir):
         assert settings.get_settings().value == {
             "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
             "parameters": {"param1": "value1"},
+            "stringify": dict(),
         }
 
 
@@ -182,6 +186,7 @@ def test_env_03(tmpdir):
         assert settings.get_settings().value == {
             "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
             "parameters": {"param1": ["value1", "value2"]},
+            "stringify": dict(),
         }
 
 
@@ -196,6 +201,7 @@ def test_env_04(tmpdir):
         assert settings.get_settings().value == {
             "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
             "parameters": {"param1": 1},
+            "stringify": dict(),
         }
 
 
@@ -216,4 +222,5 @@ def test_env_05(tmpdir):
                     "key3": ["value3", "value4"],
                 }
             },
+            "stringify": dict(),
         }

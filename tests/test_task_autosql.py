@@ -30,11 +30,12 @@ def autosql_task(tmp_path, target_db, sql, data=None, **kwargs):
 
 def test_autosql_task_table(tmp_path, target_db):
     with autosql_task(tmp_path, target_db, "SELECT 1 AS x") as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={"table": "test_autosql_task"},
         ).is_ok
+        assert task.setup().is_ok
 
         task.target_db._introspect()
         assert task.run().is_ok
@@ -43,11 +44,12 @@ def test_autosql_task_table(tmp_path, target_db):
 
 def test_autosql_task_view(tmp_path, target_db):
     with autosql_task(tmp_path, target_db, "SELECT 1 AS x") as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="view",
             destination={"table": "test_autosql_task"},
         ).is_ok
+        assert task.setup().is_ok
 
         task.target_db._introspect()
         assert task.run().is_ok
@@ -75,12 +77,13 @@ def test_autosql_task_incremental(tmp_path, target_db):
             ],
         },
     ) as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="incremental",
             destination={"table": "test_autosql_task"},
             delete_key="id",
         ).is_ok
+        assert task.setup().is_ok
 
         task.target_db._introspect()
         assert task.run().is_ok
@@ -102,11 +105,12 @@ def test_autosql_task_compile(tmp_path, target_db):
         "SELECT 1 AS x",
         run_arguments={"command": "compile"},
     ) as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={"table": "test_autosql_task"},
         ).is_ok
+        assert task.setup().is_ok
 
         task.target_db._introspect()
         assert task.compile().is_ok
@@ -119,12 +123,13 @@ def test_autosql_task_param(tmp_path, target_db):
         "SELECT {{number}} AS x",
         task_params={"number": 1},
     ) as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={"table": "test_autosql_task"},
         ).is_ok
         task.target_db._introspect()
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -136,7 +141,7 @@ def test_autosql_task_param(tmp_path, target_db):
 
 def test_autosql_task_config_error1(tmp_path, target_db):
     with autosql_task(tmp_path, target_db, "SELECT 1 AS x") as task:
-        assert task.setup(
+        assert task.config(
             file_nam="test.sql",
             materialisation="table",
             destination={"table": "test_autosql_task"},
@@ -145,7 +150,7 @@ def test_autosql_task_config_error1(tmp_path, target_db):
 
 def test_autosql_task_config_error2(tmp_path, target_db):
     with autosql_task(tmp_path, target_db, "SELECT 1 AS x") as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="wrong",
             destination={"table": "test_autosql_task"},
@@ -159,7 +164,7 @@ def test_autosql_task_config_error3(tmp_path, target_db):
         target_db,
         "SELECT {{number}} AS x",
     ) as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={"table": "test_autosql_task"},
@@ -173,12 +178,13 @@ def test_autosql_task_run_error(tmp_path, target_db):
         target_db,
         "SELECT * FROM non_existing_table",
     ) as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={"table": "test_autosql_task"},
         ).is_ok
         task.target_db._introspect()
+        assert task.setup().is_ok
 
         assert task.run().is_err
 
@@ -189,12 +195,13 @@ def test_autosql_task_run_error(tmp_path, target_db):
 def test_autosql_task_table_db_dst(tmp_path, target_db):
     """Test autosql with db destination set"""
     with autosql_task(tmp_path, target_db, "SELECT 1 AS x") as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={"db": "target_db", "table": "test_autosql_task"},
         ).is_ok
         task.target_db._introspect()
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -207,7 +214,7 @@ def test_autosql_task_table_db_dst(tmp_path, target_db):
 def test_autosql_task_table_wrong_db_dst(tmp_path, target_db):
     """Test autosql with db destination set but does not exist in connections"""
     with autosql_task(tmp_path, target_db, "SELECT 1 AS x") as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={"db": "wrong_dst", "table": "test_autosql_task"},
@@ -220,13 +227,14 @@ def test_autosql_task_table_wrong_db_dst(tmp_path, target_db):
 @pytest.mark.target_dbs(["sqlite"])
 def test_autosql_task_run_ddl_columns(tmp_path, target_db):
     with autosql_task(tmp_path, target_db, "SELECT 1 AS x") as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={"table": "test_autosql_task"},
             columns=[{"name": "x", "type": "integer"}],
         ).is_ok
         task.target_db._introspect()
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         # test the pk has indeed been set
@@ -292,7 +300,7 @@ def test_autosql_task_run_ddl_diff_col_order(tmp_path, target_db):
         target_db,
         "SELECT 1 AS y, '1' AS x",
     ) as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={"table": "test_autosql_task"},
@@ -302,6 +310,7 @@ def test_autosql_task_run_ddl_diff_col_order(tmp_path, target_db):
             ],
         ).is_ok
         task.target_db._introspect()
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -323,7 +332,7 @@ def test_autosql_task_run_ddl_diff_col_order_bq(tmp_path, target_db):
         target_db,
         "SELECT 1 AS y, '1' AS x",
     ) as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={"table": "test_autosql_task"},
@@ -333,6 +342,7 @@ def test_autosql_task_run_ddl_diff_col_order_bq(tmp_path, target_db):
             ],
         ).is_ok
         task.target_db._introspect()
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -353,12 +363,13 @@ def test_autosql_schemas01(tmp_path, target_db):
         target_db,
         "SELECT 1 AS y, '1' AS x",
     ) as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={"schema": "test2", "table": "test_autosql_task"},
         ).is_ok
         task.target_db._introspect()
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -376,7 +387,7 @@ def test_autosql_schemas_error01(tmp_path, target_db):
         target_db,
         "SELECT 1 AS y, '1' AS x",
     ) as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={"schema": "test2", "table": "test_autosql_task"},
@@ -391,7 +402,7 @@ def test_autosql_schemas02(tmp_path, target_db):
         target_db,
         "SELECT 1 AS y, '1' AS x",
     ) as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={
@@ -401,6 +412,7 @@ def test_autosql_schemas02(tmp_path, target_db):
             },
         ).is_ok
         task.target_db._introspect()
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -418,7 +430,7 @@ def test_autosql_schemas_error02(tmp_path, target_db):
         target_db,
         "SELECT 1 AS y, '1' AS x",
     ) as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={
@@ -436,13 +448,13 @@ def test_autosql_test_names(tmp_path, target_db):
     with autosql_task(
         tmp_path, target_db, "SELECT 1 AS x", run_arguments={"command": "test"}
     ) as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={"table": "test_autosql_task"},
             columns=[{"name": "x", "tests": ["unique", "not_null"]}],
         ).is_ok
-        task.run()
+        assert task.setup().is_ok
         assert task.test().is_ok
 
 
@@ -450,7 +462,7 @@ def test_autosql_test_lists(tmp_path, target_db):
     with autosql_task(
         tmp_path, target_db, "SELECT 1 AS x", run_arguments={"command": "test"}
     ) as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={"table": "test_autosql_task"},
@@ -460,7 +472,7 @@ def test_autosql_test_lists(tmp_path, target_db):
             table_properties=[],
             post_hook=[],
         ).is_ok
-        task.run()
+        assert task.setup().is_ok
         assert task.test().is_ok
 
 
@@ -468,7 +480,7 @@ def test_autosql_test_values(tmp_path, target_db):
     with autosql_task(
         tmp_path, target_db, "SELECT '1' AS x", run_arguments={"command": "test"}
     ) as task:
-        assert task.setup(
+        assert task.config(
             file_name="test.sql",
             materialisation="table",
             destination={"table": "test_autosql_task"},
@@ -483,5 +495,5 @@ def test_autosql_test_values(tmp_path, target_db):
                 }
             ],
         ).is_ok
-        task.run()
+        assert task.setup().is_ok
         assert task.test().is_ok
