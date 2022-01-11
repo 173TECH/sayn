@@ -268,37 +268,53 @@ class CopyTask(SqlTask):
         return result
 
     def test(self):
+        step_queries = {
+            "Write Test Query": self.test_query,
+            "Execute Test Query": self.test_query,
+        }
+
         if self.test_query == "":
             self.info(self.get_test_breakdown(self.test_breakdown))
             return self.success()
         else:
-            with self.step("Write Test Query"):
-                result = self.write_compilation_output(self.test_query, "test")
-                if result.is_err:
-                    return result
+            self.set_run_steps(list(step_queries.keys()))
 
-            with self.step("Execute Test Query"):
-                result = self.default_db.read_data(self.test_query)
+            for step, query in step_queries.items():
+                with self.step(step):
+                    if "Write" in step:
+                        self.write_compilation_output(query, "test")
+                    if "Execute" in step:
+                        try:
+                            result = self.default_db.read_data(query)
+                        except Exception as e:
+                            return Exc(e)
 
-                self.info(self.get_test_breakdown(self.test_breakdown))
+                        self.info(self.get_test_breakdown(self.test_breakdown))
 
-                if len(result) == 0:
-                    return self.success()
-                else:
-                    errout = "Test failed, summary:\n\n"
-                    errout += f"Total number of offending records: {sum([item['cnt'] for item in result])} \n"
-                    data = []
-                    data.append(
-                        ["Breach Count", "Prob. Value", "Test Type", "Failed Fields"]
-                    )
+                        if len(result) == 0:
+                            return self.success()
+                        else:
+                            errout = "Test failed, summary:\n\n"
+                            errout += f"Total number of offending records: {sum([item['cnt'] for item in result])} \n"
+                            data = []
+                            data.append(
+                                [
+                                    "Breach Count",
+                                    "Prob. Value",
+                                    "Test Type",
+                                    "Failed Fields",
+                                ]
+                            )
 
-                    for res in result:
-                        data.append([res["cnt"], res["val"], res["type"], res["col"]])
-                    table = AsciiTable(data)
+                            for res in result:
+                                data.append(
+                                    [res["cnt"], res["val"], res["type"], res["col"]]
+                                )
+                            table = AsciiTable(data)
 
-                    errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
+                            errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
 
-                    return self.fail(errout + table.table + "\n\n" + errinfo)
+                            return self.fail(errout + table.table + "\n\n" + errinfo)
 
     def execute(self, execute, debug, is_full_load, limit=None):
         # Introspect target

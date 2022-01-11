@@ -8,14 +8,12 @@ from terminaltables import AsciiTable
 from ..core.errors import Ok, Err, Exc
 from ..database import Database
 from . import Task
-from .test import Columns
 
 
 class Config(BaseModel):
     sql_folder: Path
     file_name: FilePath
     db: Optional[str]
-    columns: Optional[List[Columns]]
 
     class Config:
         extra = Extra.forbid

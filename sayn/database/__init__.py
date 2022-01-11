@@ -27,7 +27,7 @@ class Columns(BaseModel):
 
     class Tests(BaseModel):
         name: Optional[str]
-        values: Optional[List[str]]
+        allowed_values: Optional[List[str]]
         execute: bool = True
 
         class Config:
@@ -115,12 +115,16 @@ class Database:
                 tests = []
                 for t in c.tests:
                     if isinstance(t, str):
-                        tests.append({"type": t, "values": [], "execute": True})
+                        tests.append({"type": t, "allowed_values": [], "execute": True})
                     else:
                         tests.append(
                             {
-                                "type": t.name if t.name is not None else "values",
-                                "values": t.values if t.values is not None else [],
+                                "type": t.name
+                                if t.name is not None
+                                else "allowed_values",
+                                "allowed_values": t.allowed_values
+                                if t.allowed_values is not None
+                                else [],
                                 "execute": t.execute,
                             }
                         )
@@ -232,7 +236,9 @@ class Database:
                             if not col["dst_name"]
                             else col["dst_name"],
                             "type": t["type"],
-                            "values": ", ".join(f"'{c}'" for c in t["values"]),
+                            "allowed_values": ", ".join(
+                                f"'{c}'" for c in t["allowed_values"]
+                            ),
                         },
                     )
             breakdown.append({"print": True})
@@ -275,12 +281,12 @@ class Database:
                     "dst_name": col["dst_name"],
                     "unique": False,
                     "not_null": False,
-                    "values": False,
+                    "allowed_values": False,
                 }
                 if "tests" in col:
                     entry.update({"tests": col["tests"]})
                     for t in col["tests"]:
-                        if t["type"] != "values" and col["type"]:
+                        if t["type"] != "allowed_values" and col["type"]:
                             entry.update({t["type"]: True})
                 columns.append(entry)
 

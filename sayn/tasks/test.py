@@ -10,23 +10,6 @@ from ..database import Database
 from . import Task
 
 
-class Tests(BaseModel):
-    name: Optional[str]
-    values: Optional[List[str]]
-
-    class Config:
-        extra = Extra.forbid
-
-
-class Columns(BaseModel):
-    name: str
-    description: Optional[str]
-    tests: List[Union[str, Tests]]
-
-    class Config:
-        extra = Extra.forbid
-
-
 class Config(BaseModel):
     test_folder: Path
     file_name: FilePath
@@ -67,30 +50,58 @@ class TestTask(Task):
             self.test_query = result.value
             self.test_query += " LIMIT 5\n"
 
-        if self.run_arguments["command"] == "test":
-            self.set_run_steps(["Write Query", "Execute Query"])
-
         return Ok()
 
     def test(self):
-        with self.step("Write Test Query"):
-            result = self.write_compilation_output(self.test_query, "test")
-            if result.is_err:
-                return result
+        step_queries = {
+            "Write Test Query": self.test_query,
+            "Execute Test Query": self.test_query,
+        }
+        if self.run_arguments["command"] == "test":
+            self.set_run_steps(list(step_queries.keys()))
 
-        with self.step("Execute Test Query"):
-            result = self.default_db.read_data(self.test_query)
+        for step, query in step_queries.items():
+            with self.step(step):
+                if "Write" in step:
+                    self.write_compilation_output(query, "test")
+                if "Execute" in step:
+                    try:
+                        result = self.default_db.read_data(query)
+                    except Exception as e:
+                        return Exc(e)
 
-            if len(result) == 0:
-                return self.success()
-            else:
-                errout = "Test failed, summary:\n"
-                data = []
-                # data.append(["Failed Fields", "Count", "Test Type"])
-                for res in result:
-                    data.append(list(res.values()))
-                table = AsciiTable(data)
+                    if len(result) == 0:
+                        return self.success()
+                    else:
+                        errout = "Test failed, summary:\n"
+                        data = []
+                        # data.append(["Failed Fields", "Count", "Test Type"])
+                        for res in result:
+                            data.append(list(res.values()))
+                        table = AsciiTable(data)
 
-                errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
+                        errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
 
-                return self.fail(errout + table.table + "\n\n" + errinfo)
+                        return self.fail(errout + table.table + "\n\n" + errinfo)
+
+        # with self.step("Write Test Query"):
+        #     result = self.write_compilation_output(self.test_query, "test")
+        #     if result.is_err:
+        #         return result
+
+        # with self.step("Execute Test Query"):
+        #     result = self.default_db.read_data(self.test_query)
+        #
+        #     if len(result) == 0:
+        #         return self.success()
+        #     else:
+        #         errout = "Test failed, summary:\n"
+        #         data = []
+        #         # data.append(["Failed Fields", "Count", "Test Type"])
+        #         for res in result:
+        #             data.append(list(res.values()))
+        #         table = AsciiTable(data)
+        #
+        #         errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
+        #
+        #         return self.fail(errout + table.table + "\n\n" + errinfo)
