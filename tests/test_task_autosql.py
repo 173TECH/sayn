@@ -478,7 +478,7 @@ def test_autosql_test_values(tmp_path, target_db):
                     "tests": [
                         {"name": "unique"},
                         {"name": "not_null"},
-                        {"name": "values", "values": ["1"]},
+                        {"name": "allowed_values", "allowed_values": ["1"]},
                     ],
                 }
             ],
