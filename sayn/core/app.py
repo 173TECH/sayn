@@ -237,12 +237,10 @@ class App:
                 event="finish_app",
                 duration=duration,
                 tasks={k: v.status for k, v in self.tasks.items()},
-                test=True if self.run_arguments["command"] == "test" else False,
             )
         else:
             self.tracker.report_event(
                 event="finish_app",
                 duration=duration,
                 error=error,
-                test=True if self.run_arguments["command"] == "test" else False,
             )
