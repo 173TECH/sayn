@@ -213,7 +213,7 @@ class Database:
         template = self._jinja_test.get_template("standard_tests.sql")
         count_tests = 0
         breakdown = []
-
+        print(columns)
         for col in columns:
             tests = col["tests"]
             for t in tests:
@@ -271,7 +271,7 @@ class Database:
                 return Exc(e, db=self.name, type=self.db_type)
 
     def _format_properties(self, properties):
-
+        print(properties)
         if properties["columns"]:
             columns = []
             for col in properties["columns"]:
