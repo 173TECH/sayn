@@ -85,7 +85,8 @@ class CliApp(App):
         self.check_abort(self.set_tasks(tasks_dict, task_query))
 
         self.tracker.finish_current_stage(
-            tasks={k: v.status for k, v in self.tasks.items()}
+            tasks={k: v.status for k, v in self.tasks.items()},
+            test=True if self.run_arguments["command"] == "test" else False,
         )
 
     def check_abort(self, result):

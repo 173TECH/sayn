@@ -218,7 +218,8 @@ class App:
                 )
 
         self.tracker.finish_current_stage(
-            tasks={k: v.status for k, v in tasks_in_query.items()}
+            tasks={k: v.status for k, v in tasks_in_query.items()},
+            test=True if self.run_arguments["command"] == "test" else False,
         )
 
         self.finish_app()
@@ -236,10 +237,12 @@ class App:
                 event="finish_app",
                 duration=duration,
                 tasks={k: v.status for k, v in self.tasks.items()},
+                test=True if self.run_arguments["command"] == "test" else False,
             )
         else:
             self.tracker.report_event(
                 event="finish_app",
                 duration=duration,
                 error=error,
+                test=True if self.run_arguments["command"] == "test" else False,
             )

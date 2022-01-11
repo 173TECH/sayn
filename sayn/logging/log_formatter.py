@@ -392,21 +392,22 @@ class LogFormatter:
         skipped = tasks.get("skipped", list())
         duration = human(details["duration"])
         totals_msg = (
-            f"Total tasks: {len(succeeded+failed+skipped)}. "
+            f"Total {'tasks' if details.get('test', False) is False else 'tests'}: {len(succeeded+failed+skipped)}. "
             f"Success: {len(succeeded)}. Failed {len(failed)}. Skipped {len(skipped)}."
         )
-
+        # print(details)
         if stage == "setup":
             out = ["Finished setup:"]
             level = "info"
+            type = "Tasks" if details.get("test", False) is False else "Tests"
             if len(failed) > 0:
-                out.append(self.bad(f"Tasks failed: {self.blist(failed)}"))
+                out.append(self.bad(f"{type} failed: {self.blist(failed)}"))
                 level = "error"
             if len(skipped) > 0:
-                out.append(self.warn(f"Tasks to skip: {self.blist(skipped)}"))
+                out.append(self.warn(f"{type} to skip: {self.blist(skipped)}"))
                 level = "error"
             if len(succeeded) > 0:
-                out.append(self.good(f"Tasks to run: {self.blist(succeeded)}"))
+                out.append(self.good(f"{type} to run: {self.blist(succeeded)}"))
             return {"level": level, "message": out}
 
         elif stage in ("run", "compile", "test"):
