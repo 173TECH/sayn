@@ -1,6 +1,6 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional, Sequence
 
-from pydantic import ValidationError, Extra
+from pydantic import ValidationError
 from ruamel.yaml.error import MarkedYAMLError
 import sqlalchemy
 
@@ -8,10 +8,7 @@ import sqlalchemy
 class Error:
     kind: str
     code: str
-    details: Dict = dict()
-
-    class Config:
-        extra = Extra.forbid
+    details: Dict
 
     def __init__(self, kind, code, details):
         self.kind = kind
@@ -25,10 +22,7 @@ class Error:
 class Result:
     is_ok: bool = False
     value: Any = None
-    error: Error = None
-
-    class Config:
-        extra = Extra.forbid
+    error: Optional[Error] = None
 
     def __init__(self, value: Any = None, error: Error = None):
         if error is not None:
@@ -47,14 +41,6 @@ class Result:
     @property
     def is_err(self):
         return not self.is_ok
-
-    def mk_error_message(self, errors):
-        """Returns a list of error messages from a Error result
-
-        Args:
-          errors (List[Result]): a list of results
-        """
-        pass
 
 
 def Ok(value=None):
@@ -104,6 +90,9 @@ def Exc(exc, **kwargs):
             error=Error("exception", "unknown_not_implemented", {"exception": exc})
         )
 
+    elif isinstance(exc, SaynError):
+        return Err(**exc.payload())
+
     # TODO add other exceptions like:
     #   - DB errors
     #   - Jinja
@@ -122,7 +111,69 @@ def Exc(exc, **kwargs):
         )
 
 
-class DBError(Exception):
+class SaynError(Exception):
+    def payload(self):
+        return dict()
+
+
+class SaynCompileError(SaynError):
+    def __init__(self, value):
+        self.value = value
+
+    def payload(self):
+        return {"value": self.value}
+
+
+class SaynMissingFileError(SaynError):
+    def __init__(self, filename, is_folder=False):
+        self.file_name = filename
+        self.is_folder = is_folder
+
+    def payload(self):
+        return {
+            "kind": "missing_file",
+            "code": "missing_folder",
+            "error_message": f"Missing {'folder' if self.is_folder else 'file'} \"{self.file_name}\"",
+            "file_name": self.file_name,
+        }
+
+
+class SaynParsingError(SaynError):
+    errors: Sequence
+
+    def __init__(self, code, errors):
+        self.code = code
+        self.errors = errors
+
+    def payload(self):
+        # Sort by file_name to compress the message output
+        sorted_errors = sorted(self.errors, key=lambda x: x["file_name"])
+
+        file_name = sorted_errors[0]["file_name"]
+        message = f'In file "{file_name}"'
+        for error in sorted_errors:
+            if error["file_name"] != file_name:
+                # Add a new file_name line if it's different
+                message += f'\nIn file "{file_name}"'
+            message += (
+                f"\n  In \"{' > '.join([str(item) for item in error['loc']])}\""
+                f" (line {error['line']}): {error['message']}"
+            )
+
+        return {
+            "kind": "parsing_error",
+            "code": self.code,
+            "error_message": message,
+            "errors": self.errors,
+        }
+
+
+class DagCycleError(SaynError):
+    def __init__(self, cycle):
+        self.cycle = cycle
+
+
+class DBError(SaynError):
     db_name = None
     db_type = None
 

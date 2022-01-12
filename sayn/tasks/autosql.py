@@ -164,8 +164,8 @@ class AutoSqlTask(SqlTask):
         #     )
 
         # Template compilation
-        self.jinja_env.globals["src"] = lambda x: self.src(
-            x, connection=self._target_db
+        self.compiler.add_global(
+            "src", lambda x: self.src(x, connection=self._target_db)
         )
 
         result = self.get_template(self.config.file_name)

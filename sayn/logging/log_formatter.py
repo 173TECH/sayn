@@ -184,7 +184,10 @@ class LogFormatter:
         message = self.bad(error.__str__())
         duration = human(duration)
 
-        if error.kind == "exception":
+        if "error_message" in error.details:
+            message = self.bad(error.details["error_message"])
+
+        elif error.kind == "exception":
             exc = error.details["exception"]
             message = [self.bad(f"Failed ({duration}) {exc}")]
             message.extend(
@@ -330,19 +333,18 @@ class LogFormatter:
     # App context
 
     def app_start(self, details):
-        debug = "(debug)" if details["run_arguments"]["debug"] else ""
+        debug = "(debug)" if details["debug"] else ""
         yesterday = date.today() - timedelta(days=1)
-        if details["run_arguments"]["full_load"]:
+        if details["full_load"]:
             dt_range = "Full Load"
         elif (
-            details["run_arguments"]["start_dt"] == details["run_arguments"]["end_dt"]
-            and details["run_arguments"]["end_dt"] == yesterday
+            details["start_dt"] == details["end_dt"] and details["end_dt"] == yesterday
         ):
             dt_range = "Default"
-        elif details["run_arguments"]["start_dt"] == details["run_arguments"]["end_dt"]:
-            dt_range = f"{details['run_arguments']['start_dt']}"
+        elif details["start_dt"] == details["end_dt"]:
+            dt_range = f"{details['start_dt']}"
         else:
-            dt_range = f"{details['run_arguments']['start_dt']} to {details['run_arguments']['end_dt']}"
+            dt_range = f"{details['start_dt']} to {details['end_dt']}"
 
         out = list()
         out.append(f"Starting sayn {debug}")
@@ -352,9 +354,7 @@ class LogFormatter:
         if details["project_git_commit"] is not None:
             out.append(f"Git commit: {details['project_git_commit']}")
         out.append(f"Period: {dt_range}")
-        out.append(
-            f"{'Profile: ' + (details['run_arguments'].get('profile') or 'Default')}"
-        )
+        out.append(f"{'Profile: ' + (details.get('profile') or 'Default')}")
 
         return {"level": "info", "message": out}
 

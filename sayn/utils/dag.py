@@ -1,4 +1,4 @@
-from .misc import reverse_dict, reverse_dict_inclusive
+from .misc import reverse_dict_inclusive
 
 from ..core.errors import Err, Ok
 
@@ -38,7 +38,7 @@ def _is_cyclic_helper(dag, node, visited, stack, breadcrumbs):
 def _is_cyclic(dag):
     visited = {n: False for n in dag.keys()}
     stack = {n: False for n in dag.keys()}
-    for node, parents in dag.items():
+    for node in dag.keys():
         if not visited[node]:
             result = _is_cyclic_helper(dag, node, visited, stack, [node])
             if result.is_err:

@@ -156,7 +156,9 @@ class Database:
 
     _requested_objects = None
 
-    def __init__(self, name, name_in_settings, db_type, common_params):
+    def __init__(
+        self, name, name_in_settings, db_type, common_params, stringify, prod_stringify
+    ):
         self.name = name
         self.name_in_settings = name_in_settings
         self.db_type = db_type
@@ -172,6 +174,26 @@ class Database:
             undefined=StrictUndefined,
             keep_trailing_newline=True,
         )
+
+        def get_stringify(stringify):
+            stringify = {
+                key: "{{ " + key + " }}" for key in ("database", "schema", "table")
+            }
+
+            for obj_type in ("database", "schema", "table"):
+                if stringify.get(f"{obj_type}_stringify") is not None:
+                    stringify[obj_type] = stringify[f"{obj_type}_stringify"]
+                else:
+                    if stringify.get(f"{obj_type}_prefix") is not None:
+                        stringify[obj_type] = (
+                            stringify[f"{obj_type}_prefix"] + "_" + stringify[obj_type]
+                        )
+                    if stringify.get(f"{obj_type}_suffix") is not None:
+                        stringify[obj_type] = (
+                            stringify[obj_type] + "_" + stringify[f"{obj_type}_suffix"]
+                        )
+
+            # ADD BACK stringify = {k: compiler.from_string(v) for k, v in stringify.items()}
 
     def feature(self, feature):
         # Supported sql_features

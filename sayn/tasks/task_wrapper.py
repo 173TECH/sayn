@@ -1,6 +1,6 @@
 from copy import deepcopy
 import os
-from typing import List, Dict, Any, Set
+from typing import Dict, Any, Set
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
@@ -8,19 +8,12 @@ from ..core.errors import Err, Exc, Ok, Result
 from ..utils.misc import map_nested
 
 from .task import FailedTask, Task, TaskStatus
-from .dummy import DummyTask
-from .sql import SqlTask
-from .autosql import AutoSqlTask
-from .copy import CopyTask
-from .test import TestTask
 
-_creators = {
-    "dummy": DummyTask,
-    "sql": SqlTask,
-    "autosql": AutoSqlTask,
-    "copy": CopyTask,
-    "test": TestTask,
-}
+# from .dummy import DummyTask
+# from .sql import SqlTask
+# from .autosql import AutoSqlTask
+# from .copy import CopyTask
+# from .test import TestTask
 
 _excluded_properties = (
     "name",
@@ -59,14 +52,14 @@ class TaskWrapper:
 
     name: str
     group: str
-    tags: List[str] = None
-    parent_names: Set[str] = None
-    sources_yaml: List[Any] = None
-    outputs_yaml: List[Any] = None
-    project_parameters: Dict[str, Any] = None
-    task_parameters: Dict[str, Any] = None
+    tags: Set[str]
+    parent_names: Set[str]
+    sources_yaml: Set[Any]
+    outputs_yaml: Set[Any]
+    project_parameters: Dict[str, Any]
+    task_parameters: Dict[str, Any]
     in_query: bool = True
-    runner: Task = None
+    runner: Task
     status: TaskStatus = TaskStatus.UNKNOWN
 
     def __init__(
@@ -108,8 +101,6 @@ class TaskWrapper:
         if isinstance(task_class, FailedTask):
             self.status = TaskStatus.FAILED
 
-        self.runner = None
-
     def config(
         self,
         connections,
@@ -117,6 +108,7 @@ class TaskWrapper:
         project_parameters,
         db_obj_stringify,
         run_arguments,
+        compiler,
     ):
         self.default_db = default_db
         self.connections = connections
@@ -134,6 +126,7 @@ class TaskWrapper:
             db_obj_stringify,
             default_db,
             connections,
+            compiler,
         )
 
         if result.is_err:
@@ -217,6 +210,7 @@ class TaskWrapper:
         db_obj_stringify,
         default_db,
         connections,
+        compiler,
     ):
 
         runner = task_class()
@@ -225,79 +219,40 @@ class TaskWrapper:
         runner.group = self.group
         runner.tags = self.tags
         runner.run_arguments = run_arguments
-        env_arguments = {
-            "full_load": run_arguments["full_load"],
-            "start_dt": f"'{run_arguments['start_dt'].strftime('%Y-%m-%d')}'",
-            "end_dt": f"'{run_arguments['end_dt'].strftime('%Y-%m-%d')}'",
-        }
+        # env_arguments = {
+        #     "full_load": run_arguments["full_load"],
+        #     "start_dt": f"'{run_arguments['start_dt'].strftime('%Y-%m-%d')}'",
+        #     "end_dt": f"'{run_arguments['end_dt'].strftime('%Y-%m-%d')}'",
+        # }
 
         # Process parameters
         # The project parameters go as they come
         runner.project_parameters = deepcopy(project_parameters or dict())
 
-        # Create a jinja environment with the project parameters so that we
-        # can use that to compile parameters and other properties
-        jinja_env = Environment(
-            loader=FileSystemLoader(os.getcwd()),
-            undefined=StrictUndefined,
-            keep_trailing_newline=True,
-        )
-        jinja_env.globals.update(task=self)
-        jinja_env.globals.update(**env_arguments)
-        jinja_env.globals.update(**runner.project_parameters)
         # Compile nested dictionary of parameters
         try:
             runner.task_parameters = map_nested(
                 self.task_parameters,
-                lambda x: jinja_env.from_string(x).render()
-                if isinstance(x, str)
-                else x,
+                lambda x: compiler.from_string(x).render() if isinstance(x, str) else x,
             )
         except Exception as e:
             return Exc(e, where="compile_task_parameters")
 
         # Add the task paramters to the jinja environment
-        jinja_env.globals.update(**runner.task_parameters)
-        self.jinja_env = jinja_env
-        runner.jinja_env = jinja_env
+        compiler.globals.update(**runner.task_parameters)
+        self.compiler = compiler
+        runner.compiler = compiler
         runner.src = self.src
         runner.out = self.out
 
         # TODO change this
         runner._wrapper = self
 
-        self.stringify = {
-            key: "{{ " + key + " }}" for key in ("database", "schema", "table")
-        }
-
-        for obj_type in ("database", "schema", "table"):
-            if db_obj_stringify.get(f"{obj_type}_stringify") is not None:
-                self.stringify[obj_type] = db_obj_stringify[f"{obj_type}_stringify"]
-            else:
-                if db_obj_stringify.get(f"{obj_type}_prefix") is not None:
-                    self.stringify[obj_type] = (
-                        db_obj_stringify[f"{obj_type}_prefix"]
-                        + "_"
-                        + self.stringify[obj_type]
-                    )
-                if db_obj_stringify.get(f"{obj_type}_suffix") is not None:
-                    self.stringify[obj_type] = (
-                        self.stringify[obj_type]
-                        + "_"
-                        + db_obj_stringify[f"{obj_type}_suffix"]
-                    )
-
-        self.stringify = {
-            k: jinja_env.from_string(v) for k, v in self.stringify.items()
-        }
-
         # Now we can compile the other properties
         try:
             runner_config = map_nested(
                 runner_config,
-                lambda x: runner.jinja_env.from_string(x).render()
-                if isinstance(x, str)
-                else x,
+                lambda x: runner.compiler.compile(x) if isinstance(x, str) else x,
             )
         except Exception as e:
             return Exc(e, where="compile_task_properties")
@@ -386,13 +341,13 @@ class TaskWrapper:
             raise ValueError("Too many arguments")
 
         if database is not None:
-            database = self.jinja_env.from_string(database).render()
+            database = self.compiler.from_string(database).render()
 
         if schema is not None:
-            schema = self.jinja_env.from_string(schema).render()
+            schema = self.compiler.from_string(schema).render()
 
         if table is not None:
-            table = self.jinja_env.from_string(table).render()
+            table = self.compiler.from_string(table).render()
 
         if connection is None:
             connection = self.connections[self.default_db]

@@ -1,13 +1,25 @@
 from datetime import datetime, date, timedelta
+from enum import Enum
 from itertools import groupby
+from pathlib import Path
+import shutil
 from uuid import UUID, uuid4
+import sys
+from typing import List, Optional
 
 from ..tasks.task_wrapper import TaskWrapper
 from ..utils.dag import query as dag_query, topological_sort
-from .config import get_connections
-from .errors import Err, Ok
+from .settings import get_connections, get_settings
+from .errors import Err, Exc, Ok, Result, SaynError
 from ..logging import EventTracker
 from ..database import Database
+
+from ..core.project import read_project, read_groups, get_tasks_dict
+from ..core.settings import read_settings
+from ..logging import ConsoleLogger
+from ..utils.python_loader import PythonLoader
+from ..utils.task_query import get_query
+from ..utils.compiler import Compiler
 
 from ..tasks.task import FailedTask
 from ..tasks.dummy import DummyTask
@@ -22,62 +34,151 @@ _creators = {
     "copy": CopyTask,
 }
 
-_excluded_properties = (
-    "name",
-    "type",
-    "tags",
-    "group",
-    "parents",
-    "sources",
-    "outputs",
-    "parameters",
-    "class",
-    "preset",
-    "on_fail",
-)
-
 
 run_id = uuid4()
 
 
+class Command(Enum):
+    UNDEFINED = "undefined"
+    COMPILE = "compile"
+    RUN = "run"
+    TEST = "test"
+
+
+class RunArguments:
+    class Folders:
+        python: str = "python"
+        sql: str = "sql"
+        compile: str = "compile"
+        logs: str = "logs"
+        tests: str = "tests"
+
+    folders: Folders
+    full_load: bool = False
+    start_dt: date = date.today() - timedelta(days=1)
+    end_dt: date = date.today() - timedelta(days=1)
+    debug: bool = False
+    profile: Optional[str] = None
+    command: Command = Command.UNDEFINED
+
+    include: List
+    exclude: List
+
+    def __init__(self):
+        self.folders = self.Folders()
+        self.include = list()
+        self.exclude = list()
+
+
 class App:
-    run_id: UUID = run_id
-    app_start_ts = datetime.now()
-    tracker = None  # TODO create a default event tracker EventTracker(run_id)
+    def __init__(self):
+        self.project_root = Path(".")
 
-    run_arguments = {
-        "folders": {
-            "python": "python",
-            "sql": "sql",
-            "compile": "compile",
-            "logs": "logs",
-            "tests": "tests",
-        },
-        "full_load": False,
-        "start_dt": date.today() - timedelta(days=1),
-        "end_dt": date.today() - timedelta(days=1),
-        "debug": False,
-        "profile": None,
-    }
+        self.run_id: UUID = run_id
+        self.app_start_ts = datetime.now()
 
-    project_parameters = dict()
-    credentials = dict()
-    default_db = None
+        self.run_arguments = RunArguments()
 
-    tasks = dict()
-    dag = dict()
-    tests = dict()
+        self.tracker = EventTracker(self.run_id)
+        self.tracker.register_logger(ConsoleLogger(True))
 
-    task_query = list()
-    tasks_to_run = dict()
+        self.project_parameters = dict()
+        self.prod_project_parameters = dict()
+        self.credentials = dict()
+        self.default_db = None
 
-    connections = dict()
+        self.tasks = dict()
+        self.dag = dict()
+        self.tests = dict()
 
-    python_loader = None
+        self.task_query = list()
+        self.tasks_to_run = dict()
 
-    def set_project(self, project):
+        self.connections = dict()
+
+        self.python_loader = PythonLoader()
+
+    def start_app(self):
+        self.tracker.report_event(
+            context="app",
+            event="start_app",
+            debug=self.run_arguments.debug,
+            full_load=self.run_arguments.full_load,
+            start_dt=self.run_arguments.start_dt,
+            end_dt=self.run_arguments.end_dt,
+            profile=self.run_arguments.profile,
+        )
+        self.cleanup_compilation()
+
+        # SETUP THE APP: read project config and settings, interpret cli arguments and setup the dag
+        self.tracker.start_stage("config")
+
+        # Set python environment
+        if Path(self.run_arguments.folders.python).is_dir():
+            self.check_abort(
+                self.python_loader.register_module(
+                    "python_tasks", self.run_arguments.folders.python
+                )
+            )
+
+        # Read the project configuration
+        try:
+            project = read_project(self.project_root)
+        except SaynError as exc:
+            self.finish_app(error=Exc(exc))
+
+        try:
+            file_groups = read_groups(self.project_root)
+        except SaynError as exc:
+            self.finish_app(error=Exc(exc))
+
+        self.set_project(project, file_groups)
+
+        # We need the settings before we can process the tasks
+        settings = self.check_abort(read_settings())
+        self.check_abort(self.set_settings(settings))
+
+        # Create the jinja compiler
+        self.compiler = Compiler(self.project_parameters, self.prod_project_parameters)
+
+        # Set tasks and dag from it
+        tasks_dict = self.check_abort(
+            get_tasks_dict(
+                self.presets,
+                self.file_groups,
+                self.autogroups,
+                self.run_arguments.folders.sql,
+                self.compiler,
+            )
+        )
+
+        # Set the tasks for the project and call their config method
+        self.check_abort(self.set_tasks(tasks_dict))
+
+        print("stop here")
+        import IPython
+
+        IPython.embed()
+        # Apply the task query
+        self.task_query = self.check_abort(
+            get_query(
+                tasks_dict,
+                include=self.run_arguments.include,
+                exclude=self.run_arguments.exclude,
+            )
+        )
+
+        # TODO filter
+
+        self.tracker.finish_current_stage(
+            tasks={k: v.status for k, v in self.tasks.items()}
+        )
+
+    def set_project(self, project, file_groups):
+        self.prod_project_parameters.update(project.parameters or dict())
         self.project_parameters.update(project.parameters or dict())
-        self.stringify_production = {
+
+        self.prod_stringify = {
             "database_prefix": project.database_prefix,
             "database_suffix": project.database_suffix,
             "database_stringify": project.database_stringify,
@@ -88,7 +189,7 @@ class App:
             "table_suffix": project.table_suffix,
             "table_stringify": project.table_stringify,
         }
-        self.stringify_runtime = {
+        self.stringify = {
             "database_prefix": project.database_prefix,
             "database_suffix": project.database_suffix,
             "database_stringify": project.database_stringify,
@@ -102,8 +203,36 @@ class App:
         self.credentials = {k: None for k in project.required_credentials}
         self.default_db = project.default_db
 
+        self.presets = project.presets or dict()
+
+        # Validate groups
+        collision = set(file_groups.keys()).intersection(set(project.autogroups.keys()))
+        if len(collision) > 0:
+            if len(collision) == 1:
+                error_message = (
+                    f'The group "{", ".join(collision)}" is defined both in '
+                    '"project.yaml" and as a file in the "tasks" folder: '
+                )
+            else:
+                error_message = (
+                    f'Some groups ({", ".join(collision)}) are defined both in '
+                    '"project.yaml" and as files in the "tasks" folder: '
+                )
+            self.finish_app(
+                error=Err(
+                    "dag",
+                    "duplicate_groups",
+                    error_message=error_message,
+                    groups=list(collision),
+                )
+            )
+        self.autogroups = project.autogroups
+        self.file_groups = file_groups
+
     def set_settings(self, settings):
-        settings_dict = settings.get_settings(self.run_arguments["profile"])
+        settings_dict = get_settings(
+            settings["yaml"], settings["env"], self.run_arguments.profile
+        )
         if settings_dict.is_err:
             return settings_dict
         else:
@@ -162,7 +291,7 @@ class App:
 
         self.project_parameters.update(parameters)
 
-        self.stringify_runtime.update(stringify)
+        self.stringify.update(stringify)
 
         # Validate credentials
         error_items = set(credentials.keys()) - set(self.credentials.keys())
@@ -180,7 +309,7 @@ class App:
         self.credentials.update(credentials)
 
         # Create connections
-        result = get_connections(self.credentials)
+        result = get_connections(self.credentials, self.stringify, self.prod_stringify)
         if result.is_err:
             return result
         else:
@@ -201,9 +330,7 @@ class App:
                 group=config["group"],
             )
 
-    def set_tasks(self, tasks, task_query):
-        self.task_query = task_query
-
+    def set_tasks(self, tasks):
         # We first need to do the config of tasks
         task_objects = dict()
         for task_name, task in tasks.items():
@@ -236,8 +363,9 @@ class App:
                 self.connections,
                 self.default_db,
                 self.project_parameters,
-                self.stringify_runtime,
+                self.stringify,
                 self.run_arguments,
+                self.compiler.get_task_compiler(task_objects[task_name]),
             )
 
             task_tracker._report_event(
@@ -260,7 +388,8 @@ class App:
         for task_name, task in task_objects.items():
             task.set_parents(task_objects, output_to_task)
 
-        if self.run_arguments["command"] == "test":
+        if self.run_arguments.command == Command.TEST:
+            # TODO move this logic to the task config
             self.dag = {
                 task.name: []
                 for task in tasks.values()
@@ -327,35 +456,55 @@ class App:
 
     # Commands
 
+    def check_abort(self, result):
+        """Interpret the result of setup opreations returning the value if `result.is_ok`.
+
+        Setup errors from the cli result in execution abort.
+
+        Args:
+          result (sayn.errors.Result): The result of a setup operation
+        """
+        if result is None or not isinstance(result, Result):
+            self.finish_app(error=Err("app_setup", "unhandled_error", result=result))
+        elif result.is_err:
+            self.finish_app(result)
+        else:
+            return result.value
+
     def run(self):
-        self.execute_dag("run")
+        self.execute_dag()
 
     def compile(self):
-        self.execute_dag("compile")
+        self.execute_dag()
 
     def test(self):
-        self.execute_dag("test")
+        self.execute_dag()
 
-    def execute_dag(self, command):
-        self.run_arguments["command"] = command
-
+    def execute_dag(self):
         # Execution of relevant tasks
         tasks_in_query = {k: v for k, v in self.tasks.items() if v.in_query}
-        self.tracker.start_stage(command, tasks=list(tasks_in_query.keys()))
+        self.tracker.start_stage(
+            self.run_arguments.command.value, tasks=list(tasks_in_query.keys())
+        )
 
-        for task_name, task in self.tasks.items():
+        for task in self.tasks.values():
+            if not task.inquery:
+                continue
+
             # We force the run/compile so that the skipped status can be calculated,
             # but we only report if the task is in the query
-            if task.in_query:
-                task.tracker._report_event("start_stage")
-                start_ts = datetime.now()
+            # if task.in_query:
+            task.tracker._report_event("start_stage")
+            start_ts = datetime.now()
 
-            if command == "run":
+            if self.run_arguments.command == Command.RUN:
                 result = task.run()
-            elif command == "compile":
+            elif self.run_arguments.command == Command.COMPILE:
                 result = task.compile()
-            else:
+            elif self.run_arguments.command == Command.TEST:
                 result = task.test()
+            else:
+                self.finish_app(error=Err("cli", "wrong_command"))
 
             if task.in_query:
                 task.tracker._report_event(
@@ -368,12 +517,6 @@ class App:
 
         self.finish_app()
 
-    def start_app(self, loggers, **run_arguments):
-        run_arguments["start_dt"] = run_arguments["start_dt"].date()
-        run_arguments["end_dt"] = run_arguments["end_dt"].date()
-        self.tracker = EventTracker(self.run_id, loggers, run_arguments=run_arguments)
-        self.run_arguments.update(run_arguments)
-
     def finish_app(self, error=None):
         duration = datetime.now() - self.app_start_ts
         if error is None:
@@ -382,9 +525,22 @@ class App:
                 duration=duration,
                 tasks={k: v.status for k, v in self.tasks.items()},
             )
+            sys.exit(0)
         else:
             self.tracker.report_event(
                 event="finish_app",
                 duration=duration,
                 error=error,
             )
+            sys.exit(-1)
+
+    def cleanup_compilation(self):
+        folder = self.run_arguments.folders.compile
+        compile_path = Path(folder)
+        if compile_path.exists():
+            if compile_path.is_dir():
+                shutil.rmtree(compile_path.absolute())
+            else:
+                compile_path.unlink()
+
+        compile_path.mkdir()

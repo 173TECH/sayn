@@ -1,9 +1,12 @@
 from contextlib import contextmanager
 from enum import Enum
 from pathlib import Path
+from typing import Set, Dict, Any
 
 from jinja2 import Template
 from terminaltables import AsciiTable
+
+from sayn.logging.task_event_tracker import TaskEventTracker
 
 from ..core.errors import Err, Exc, Ok
 from ..database import Database
@@ -41,18 +44,18 @@ class Task:
         jinja_env (jinja2.Environment): Jinja environment for this task. The environment comes pre-populated with the parameter values relevant to the task.
     """
 
-    name = None
-    group = None
-    tags = list()
-    run_arguments = dict()
-    task_parameters = dict()
-    project_parameters = dict()
+    name: str
+    group: str
+    tags: Set[str]
+    run_arguments: Dict[str, Any]
+    task_parameters: Dict[str, Any]
+    project_parameters: Dict[str, Any]
 
-    _default_db = None
+    _default_db: str
     connections = dict()
-    tracker = None
+    _tracker: TaskEventTracker
 
-    jinja_env = None
+    compiler = None
 
     # Handy properties
     @property
@@ -66,20 +69,46 @@ class Task:
     # Making it backwards compatible
     @property
     def logger(self):
-        return self.tracker
+        return self._tracker
 
     # Task lifetime methods
 
-    # def setup(self):
-    #     raise NotImplementedError("SAYN task", self.__class__.__name__, "setup")
+    def config(self):
+        raise NotImplementedError("SAYN task", self.__class__.__name__, "setup")
 
-    # def run(self):
-    #     raise NotImplementedError("SAYN task", self.__class__.__name__, "run")
+    def setup(self):
+        raise NotImplementedError("SAYN task", self.__class__.__name__, "setup")
 
-    # def compile(self):
-    #     raise NotImplementedError("SAYN task", self.__class__.__name__, "compile")
+    def run(self):
+        raise NotImplementedError("SAYN task", self.__class__.__name__, "run")
+
+    def test(self):
+        raise NotImplementedError("SAYN task", self.__class__.__name__, "test")
+
+    def compile(self):
+        raise NotImplementedError("SAYN task", self.__class__.__name__, "compile")
 
     # Status methods
+
+    def __init__(
+        self,
+        name,
+        group,
+        tracker,
+        run_arguments,
+        task_parameters,
+        project_parameters,
+        default_db,
+        connections,
+    ):
+        self.name = name
+        self.group = group
+        self._tracker = tracker
+        self.run_arguments = run_arguments
+        self.task_parameters = task_parameters
+        self.project_parameters = project_parameters
+        self._default_db = default_db
+        self.connections = connections
 
     def ready(self):
         """(Deprecated: use `success` instead) Returned on successful execution."""
@@ -99,37 +128,37 @@ class Task:
 
     def set_run_steps(self, steps):
         """Sets the run steps for the task, allowing the CLI to indicate task execution progress."""
-        self.tracker.set_run_steps(steps)
+        self._tracker.set_run_steps(steps)
 
     def add_run_steps(self, steps):
         """Adds new steps to the list of run steps for the task, allowing the CLI to indicate task execution progress."""
-        self.tracker.add_run_steps(steps)
+        self._tracker.add_run_steps(steps)
 
     def start_step(self, step):
         """Specifies the start of a task step"""
-        self.tracker.start_step(step)
+        self._tracker.start_step(step)
 
     def finish_current_step(self, result=Ok()):
         """Specifies the end of the current step"""
-        self.tracker.finish_current_step(result)
+        self._tracker.finish_current_step(result)
 
     def debug(self, message, details=None):
         """Print a debug message when executing sayn in debug mode (`sayn run -d`)"""
         if details is None:
             details = dict()
-        self.tracker.debug(message, **details)
+        self._tracker.debug(message, **details)
 
     def info(self, message, details=None):
         """Prints an info message."""
         if details is None:
             details = dict()
-        self.tracker.info(message, **details)
+        self._tracker.info(message, **details)
 
     def warning(self, message, details=None):
         """Prints a warning message which will be persisted on the screen after the task concludes execution."""
         if details is None:
             details = dict()
-        self.tracker.warning(message, **details)
+        self._tracker.warning(message, **details)
 
     def error(self, message, details=None):
         """Prints an error message which will be persisted on the screen after the task concludes execution.
@@ -142,7 +171,7 @@ class Task:
         """
         if details is None:
             details = dict()
-        self.tracker.error(message, **details)
+        self._tracker.error(message, **details)
 
     @contextmanager
     def step(self, step):
@@ -157,9 +186,9 @@ class Task:
         Args:
           step (str): name of the step being executed.
         """
-        self.tracker.start_step(step)
+        self._tracker.start_step(step)
         yield
-        self.tracker.finish_current_step()
+        self._tracker.finish_current_step()
 
     def get_test_breakdown(self, breakdown):
         data = []
@@ -179,28 +208,6 @@ class Task:
 
     # Jinja methods
 
-    def get_template(self, obj):
-        """Returns a Jinja template object.
-
-        Args:
-          obj (str/Path): The object to transform into a template. If a `pathlib.Path` is specified, the template will be read from disk.
-
-        """
-        if isinstance(obj, Path):
-            try:
-                template = obj.read_text()
-            except Exception as e:
-                return Err("tasks", "get_template_error", file_path=obj, exception=e)
-        elif isinstance(obj, str):
-            template = obj
-        else:
-            return Err("tasks", "get_template_error", obj=obj)
-
-        try:
-            return Ok(self.jinja_env.from_string(template))
-        except Exception as e:
-            return Exc(e, template=template)
-
     def compile_obj(self, obj, **params):
         """Compiles the object into a string using the task jinja environment.
 
@@ -209,19 +216,7 @@ class Task:
           params (dict): An optional dictionary of additional values to use for compilation.
               Note: Project and task parameters values are already set in the environment, so there's no need to pass them on
         """
-        if isinstance(obj, Template):
-            template = obj
-        else:
-            result = self.get_template(obj)
-            if result.is_err:
-                return result
-            else:
-                template = result.value
-
-        try:
-            return Ok(template.render(**params))
-        except Exception as e:
-            return Exc(e, template=template, params=params)
+        return self.compiler.compile(obj, **params)
 
     def write_compilation_output(self, content, suffix=None):
         path = Path(
@@ -260,10 +255,6 @@ class Task:
             task_name=self.name,
             request_tmp=request_tmp,
         )
-
-    def setup(self):
-        self.debug("Nothing to be done")
-        return self.success()
 
 
 class FailedTask(Task):
