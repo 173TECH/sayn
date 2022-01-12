@@ -12,7 +12,6 @@ FROM (SELECT CAST(l.{{ name }} AS VARCHAR) AS val
  WHERE l.{{ name }} NOT IN ( {{ allowed_values }} )
 {%- endif %}
  GROUP BY l.{{ name }}
-HAVING COUNT(*) > {%- if type == 'unique' %} 1 {%- else %} 0 {%- endif %}
-LIMIT 5) AS t
+HAVING COUNT(*) > {%- if type == 'unique' %} 1 {%- else %} 0 {%- endif %}) AS t
 
 UNION ALL

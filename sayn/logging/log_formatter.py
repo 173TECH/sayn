@@ -395,7 +395,7 @@ class LogFormatter:
             f"Total {'tasks' if details.get('test', False) is False else 'tests'}: {len(succeeded+failed+skipped)}. "
             f"Success: {len(succeeded)}. Failed {len(failed)}. Skipped {len(skipped)}."
         )
-        # print(details)
+
         if stage == "setup":
             out = ["Finished setup:"]
             level = "info"

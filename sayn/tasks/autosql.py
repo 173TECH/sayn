@@ -241,6 +241,7 @@ class AutoSqlTask(SqlTask):
             "Write Test Query": self.test_query,
             "Execute Test Query": self.test_query,
         }
+        # print(self.test_breakdown)
 
         if self.test_query == "":
             self.info(self.get_test_breakdown(self.test_breakdown))
@@ -263,24 +264,37 @@ class AutoSqlTask(SqlTask):
                         if len(result) == 0:
                             return self.success()
                         else:
-                            errout = "Test failed, summary:\n\n"
-                            errout += f"Total number of offending records: {sum([item['cnt'] for item in result])} \n"
-                            data = []
-                            data.append(
-                                [
-                                    "Breach Count",
-                                    "Prob. Value",
-                                    "Test Type",
-                                    "Failed Fields",
-                                ]
-                            )
-
-                            for res in result:
+                            if self.run_arguments["debug"]:
+                                errout = "Test failed, summary:\n\n"
+                                errout += f"Total number of offending records: {sum([item['cnt'] for item in result])} \n"
+                                data = []
                                 data.append(
-                                    [res["cnt"], res["val"], res["type"], res["col"]]
+                                    [
+                                        "Breach Count",
+                                        "Prob. Value",
+                                        "Test Type",
+                                        "Failed Fields",
+                                    ]
                                 )
-                            table = AsciiTable(data)
 
-                            errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
+                                for res in result:
+                                    data.append(
+                                        [
+                                            res["cnt"],
+                                            res["val"],
+                                            res["type"],
+                                            res["col"],
+                                        ]
+                                    )
+                                table = AsciiTable(data)
 
-                            return self.fail(errout + table.table + "\n\n" + errinfo)
+                                errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
+
+                                return self.fail(
+                                    errout + table.table + "\n\n" + errinfo
+                                )
+                            else:
+                                errout = ", ".join(
+                                    list(set([res["type"] for res in result]))
+                                )
+                                return self.fail(f"Failed test types: {errout}")

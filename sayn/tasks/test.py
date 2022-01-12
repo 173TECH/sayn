@@ -73,16 +73,19 @@ class TestTask(Task):
                     if len(result) == 0:
                         return self.success()
                     else:
-                        errout = "Test failed, summary:\n"
-                        data = []
-                        # data.append(["Failed Fields", "Count", "Test Type"])
-                        for res in result:
-                            data.append(list(res.values()))
-                        table = AsciiTable(data)
+                        if self.run_arguments["debug"]:
+                            errout = "Test failed, summary:\n"
+                            data = []
+                            # data.append(["Failed Fields", "Count", "Test Type"])
+                            for res in result:
+                                data.append(list(res.values()))
+                            table = AsciiTable(data)
 
-                        errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
+                            errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
 
-                        return self.fail(errout + table.table + "\n\n" + errinfo)
+                            return self.fail(errout + table.table + "\n\n" + errinfo)
+                        else:
+                            return self.fail(f"Failed test types: custom")
 
         # with self.step("Write Test Query"):
         #     result = self.write_compilation_output(self.test_query, "test")
