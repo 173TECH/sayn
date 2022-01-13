@@ -60,7 +60,7 @@ class TaskWrapper:
     outputs_yaml: Set[Any]
     project_parameters: Dict[str, Any]
     task_parameters: Dict[str, Any]
-    in_query: bool = True
+    in_query: bool = False
     runner: Task
     status: TaskStatus = TaskStatus.UNKNOWN
 
@@ -200,6 +200,8 @@ class TaskWrapper:
                 for o in self.sources_yaml
             }
         )
+
+        self.status = TaskStatus.READY_FOR_SETUP
 
         return Ok()
 
@@ -369,7 +371,6 @@ class TaskWrapper:
             return connection_object._object_builder.from_components(**components)
 
     def src(self, obj, connection=None):
-        print("src", obj)
         obj = self.get_db_obj(obj, connection=connection)
         if self.status == TaskStatus.CONFIGURING:
             # During configuration we add to the list and use values based on settings
@@ -384,7 +385,6 @@ class TaskWrapper:
                 return obj.get_value()
 
     def out(self, obj, connection=None):
-        print("out", obj)
         obj = self.get_db_obj(obj, connection=connection)
         if self.status == TaskStatus.CONFIGURING:
             self.outputs.add(obj)

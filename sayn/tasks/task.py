@@ -15,6 +15,8 @@ class TaskStatus(Enum):
     NOT_IN_QUERY = "not_in_query"
 
     CONFIGURING = "config"
+    READY_FOR_SETUP = "ready_for_setup"
+
     SETTING_UP = "setting_up"
     READY = "ready"
     SETUP_FAILED = "setup_failed"

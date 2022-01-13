@@ -161,9 +161,14 @@ class App:
             )
         )
 
-        self.check_abort(self.setup_execution())
+        self.tracker.finish_current_stage(
+            tasks={k: v.status for k, v in self.tasks.items()}
+        )
 
+        # Setup stage
         self.tracker.start_stage("setup")
+
+        self.check_abort(self.setup_execution())
 
         self.tracker.finish_current_stage(
             tasks={k: v.status for k, v in self.tasks.items()}
@@ -407,10 +412,6 @@ class App:
 
         self.tasks = {task_name: task_objects[task_name] for task_name in topo_sort}
 
-        self.tracker.finish_current_stage(
-            tasks={k: v.status for k, v in self.tasks.items()}
-        )
-
         return Ok()
 
     def setup_execution(self):
@@ -422,10 +423,9 @@ class App:
 
         self.tracker.set_tasks(tasks_in_query)
 
-        for task_order, task_info in enumerate(self.tasks.items()):
-            task_name, task = task_info
-            task_tracker = task.tracker
-            task_tracker._task_order = task_order + 1
+        for task_order, task_name in enumerate(tasks_in_query):
+            task = self.tasks[task_name]
+            task.tracker._task_order = task_order + 1
             #  TODO - review from test
             # for task_name, task in self._tasks_dict.items():
             #     if self.run_arguments["command"] == "test":
@@ -434,17 +434,17 @@ class App:
             #         parents = [self.tasks[p] for p in task.get("parents", list())]
 
             #     task_tracker = self.tracker.get_task_tracker(task_name)
-            if task_name in tasks_in_query:
-                task_tracker._report_event("start_stage")
+
             start_ts = datetime.now()
 
-            # TODO add from_prod logic
-            result = self.tasks[task_name].setup(task_name in tasks_in_query, [])
+            task.tracker._report_event("start_stage")
 
-            if task_name in tasks_in_query:
-                task_tracker._report_event(
-                    "finish_stage", duration=datetime.now() - start_ts, result=result
-                )
+            # TODO add from_prod logic
+            result = task.setup(task_name in tasks_in_query, [])
+
+            task.tracker._report_event(
+                "finish_stage", duration=datetime.now() - start_ts, result=result
+            )
 
         for db in self.connections.values():
             if isinstance(db, Database):

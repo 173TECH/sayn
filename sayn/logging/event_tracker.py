@@ -1,7 +1,7 @@
 from pathlib import Path
 from datetime import datetime
 import subprocess
-from typing import Optional
+from typing import List, Optional
 
 from .task_event_tracker import TaskEventTracker
 
@@ -13,7 +13,8 @@ class EventTracker:
     run_id = None
     current_stage = None
     current_stage_start_ts: Optional[datetime]
-    tasks = list()
+    tasks: List
+    task_trackers: List[TaskEventTracker]
     current_task = None
     current_task_n = 0
     sayn_version = sayn_version
@@ -22,6 +23,7 @@ class EventTracker:
 
     def __init__(self, run_id):
         self.run_id = run_id
+        self.tasks = list()
         try:
             self.project_git_commit = (
                 subprocess.check_output(
@@ -31,6 +33,7 @@ class EventTracker:
                 .decode("utf-8")
             )
         except:
+            # If git is not available, we simply don't report the commit
             pass
 
     def register_logger(self, logger):

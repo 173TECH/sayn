@@ -389,8 +389,12 @@ class LogFormatter:
 
     def app_stage_finish(self, stage, details):
         tasks = group_list([(v.value, t) for t, v in details["tasks"].items()])
-        failed = tasks.get("failed", list())
-        succeeded = tasks.get("ready", list()) + tasks.get("succeeded", list())
+        failed = tasks.get("setup_failed", list()) + tasks.get("failed", list())
+        succeeded = (
+            tasks.get("ready", list())
+            + tasks.get("ready_for_setup", list())
+            + tasks.get("succeeded", list())
+        )
         skipped = tasks.get("skipped", list())
         duration = human(details["duration"])
         totals_msg = (
@@ -404,11 +408,11 @@ class LogFormatter:
             if len(failed) > 0:
                 out.append(self.bad(f"Tasks failed: {self.blist(failed)}"))
                 level = "error"
-            if len(skipped) > 0:
-                out.append(self.warn(f"Tasks to skip: {self.blist(skipped)}"))
-                level = "error"
+            # if len(skipped) > 0:
+            #     out.append(self.warn(f"Tasks to skip: {self.blist(skipped)}"))
+            #     level = "error"
             if len(succeeded) > 0:
-                out.append(self.good(f"Tasks to run: {self.blist(succeeded)}"))
+                out.append(self.good(f"Tasks ready: {self.blist(succeeded)}"))
             return {"level": level, "message": out}
 
         elif stage == "setup":
