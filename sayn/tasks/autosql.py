@@ -102,83 +102,56 @@ class AutoSqlTask(SqlTask):
             )
 
         try:
-            self.config = Config(
+            self.task_config = Config(
                 sql_folder=self.run_arguments["folders"]["sql"], **config
             )
         except Exception as e:
             return Exc(e)
 
         # Output calculation
-        if self.config.destination.db_schema is not None:
-            obj = self.out(
-                f"{self.config.destination.db_schema}.{self.config.destination.table}"
-            )
-            self.schema = obj.split(".")[0]
-            self.table = obj.split(".")[1]
-        else:
-            obj = self.out(self.config.destination.table, self.target_db)
-            self.schema = None
-            self.table = obj
+        db_schema = self.task_config.destination.db_schema
 
-        if self.config.destination.tmp_schema is not None:
-            obj = self.out(
-                f"{self.config.destination.tmp_schema}.sayn_tmp_{self.config.destination.table}"
-            )
-            self.tmp_schema = obj.split(".")[0]
-            self.tmp_table = obj.split(".")[1]
+        if self.task_config.destination.tmp_schema is not None:
+            tmp_db_schema = self.task_config.destination.tmp_schema
         else:
-            obj = self.out(f"sayn_tmp_{self.config.destination.table}", self.target_db)
-            self.tmp_schema = None
-            self.tmp_table = obj
+            tmp_db_schema = db_schema
+
+        base_table_name = self.task_config.destination.table
+
+        obj = self.out(f"{db_schema or ''}.{base_table_name}", self.target_db)
+        self.schema = obj.split(".")[0]
+        self.table = obj.split(".")[1]
+
+        obj = self.out(
+            f"{tmp_db_schema or ''}.sayn_tmp_{base_table_name}", self.target_db
+        )
+        self.tmp_schema = obj.split(".")[0]
+        self.tmp_table = obj.split(".")[1]
 
         # TODO - remove this
         self.use_db_object(self.table, schema=self.schema, tmp_schema=self.tmp_schema)
 
-        self.materialisation = self.config.materialisation
-        self.delete_key = self.config.delete_key
+        self.materialisation = self.task_config.materialisation
+        self.delete_key = self.task_config.delete_key
 
         # DDL validation
         result = self.target_db._validate_ddl(
-            self.config.columns, self.config.table_properties, self.config.post_hook
+            self.task_config.columns,
+            self.task_config.table_properties,
+            self.task_config.post_hook,
         )
         if result.is_err:
             return result
         else:
             self.columns = result.value
 
-        # If we have columns with no type, we can't issue a create table ddl
-        # and will issue a create table as select instead.
-        # However, if the db doesn't support alter idx then we can't have a
-        # primary key
-        # self.cols_no_type = [
-        #     c for c in self.ddl["columns"] if c["type"] is None]
-        # if (
-        #     len(self.ddl["primary_key"]) > 0 and
-        #     self.target_db.feature("CANNOT ALTER INDEXES") and
-        #     (len(self.ddl["columns"]) == 0 or len(self.cols_no_type) > 0)
-        # ):
-        #     return Err(
-        #         "task_definition",
-        #         "missing_column_types_pk",
-        #         columns=self.cols_no_type,
-        #     )
-
         # Template compilation
         self.compiler.add_global(
             "src", lambda x: self.src(x, connection=self._target_db)
         )
 
-        result = self.get_template(self.config.file_name)
-        if result.is_err:
-            return result
-        else:
-            self.template = result.value
-
-        result = self.compile_obj(self.template)
-        if result.is_err:
-            return result
-        else:
-            self.sql_query = result.value
+        self.prepared_sql_query = self.compiler.prepare(self.task_config.file_name)
+        self.sql_query = self.prepared_sql_query.compile()
 
         if self.run_arguments["command"] == "test":
             result = self.target_db._construct_tests(
@@ -192,10 +165,17 @@ class AutoSqlTask(SqlTask):
 
         return Ok()
 
+    def setup(self, needs_recompile):
+        if needs_recompile:
+            self.sql_query = self.prepared_sql_query.compile()
+
+        return Ok()
+
     def execute(self, execute, debug):
-        res = self.write_compilation_output(self.sql_query, "select")
-        if res.is_err:
-            return res
+        if self.run_arguments["debug"]:
+            self.write_compilation_output(self.sql_query, "select")
+        else:
+            self.write_compilation_output(self.sql_query)
 
         if self.materialisation == "view":
             # View

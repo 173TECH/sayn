@@ -18,12 +18,19 @@ class BaseCompiler(ABC):
 
 
 class Compiler(BaseCompiler):
-    def __init__(self, parameters, prod_parameters):
+    def __init__(self, run_arguments, parameters, prod_parameters):
+        env_arguments = {
+            "full_load": run_arguments.full_load,
+            "start_dt": f"'{run_arguments.start_dt.strftime('%Y-%m-%d')}'",
+            "end_dt": f"'{run_arguments.end_dt.strftime('%Y-%m-%d')}'",
+        }
+
         self.base_env = Environment(
             loader=FileSystemLoader(Path(".")),
             undefined=StrictUndefined,
             keep_trailing_newline=True,
         )
+        self.base_env.globals.update(**env_arguments)
 
         self.env = self.base_env.overlay()
         self.env.globals.update(**parameters)
@@ -64,6 +71,10 @@ class Compiler(BaseCompiler):
         self.env.globals[name] = obj
         self.prod_env.globals[name] = obj
 
+    def update_globals(self, **params):
+        self.env.globals.update(**params)
+        self.prod_env.globals.update(**params)
+
     def compile(self, obj: Union[Template, Path, str], **kwargs) -> str:
         template = self._get_template(obj, False)
         return self._compile_template(template, **kwargs)
@@ -72,12 +83,29 @@ class Compiler(BaseCompiler):
         template = self._get_template(obj, False)
         return self._compile_template(template, **kwargs)
 
+    def prepare(self, obj):
+        return Prepared(self, self._get_template(obj))
+
     # Factories
     def get_task_compiler(self, task) -> BaseCompiler:
         return TaskCompiler(self.env, self.prod_env, task)
 
     # def get_db_object_compiler(self) -> BaseCompiler:
     #     pass
+
+
+class Prepared:
+    """A prepared statement ready to be compiled"""
+
+    def __init__(self, compiler, template):
+        self.compiler = compiler
+        self.template = template
+
+    def compile(self, **kwargs):
+        return self.compiler.compile(self.template, **kwargs)
+
+    def compile_prod(self, **kwargs):
+        return self.compiler.compile_prod(self.template, **kwargs)
 
 
 class TaskCompiler(Compiler):

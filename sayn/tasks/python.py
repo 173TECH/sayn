@@ -4,11 +4,11 @@ from .task import Task
 
 
 class PythonTask(Task):
-    def config(self):
+    def config(self, **task_config):
         self.debug("Nothing to be done")
         return self.success()
 
-    def setup(self):
+    def setup(self, needs_recompile: bool):
         self.debug("Nothing to be done")
         return self.success()
 

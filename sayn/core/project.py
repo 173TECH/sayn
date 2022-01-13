@@ -4,6 +4,7 @@ from typing import Any, List, Mapping, Optional
 
 from pydantic import BaseModel, Field, validator, Extra
 
+from ..tasks.task import TaskJinjaEnv
 from ..utils.misc import merge_dicts, merge_dict_list
 from ..utils.dag import upstream, topological_sort
 from ..utils.yaml import read_yaml_file
@@ -240,11 +241,6 @@ def get_tasks_dict(global_presets, groups, autogroups, sql_folder, compiler):
                         groups=(group_name, tasks[test_name]["group"]),
                     )
 
-    # Helper class to allow calling {{ task.group }}
-    class TaskJinjaEnv:
-        def __init__(self, group):
-            self.group = group
-
     for group_name, group in autogroups.items():
         group_definition = dict()
         if "preset" in group:
@@ -273,11 +269,11 @@ def get_tasks_dict(global_presets, groups, autogroups, sql_folder, compiler):
                 )
 
             file_glob = compiler.compile(
-                group_definition["file_name"], task=TaskJinjaEnv(group_name)
+                group_definition["file_name"], task=TaskJinjaEnv(group=group_name)
             )
             for file in Path(sql_folder).glob(file_glob):
                 task_name = file.stem
-                task = group_definition
+                task = deepcopy(group_definition)
                 task["file_name"] = str(file.relative_to(sql_folder))
 
                 result = get_task_dict(task, task_name, group_name, presets)

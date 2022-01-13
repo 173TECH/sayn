@@ -202,9 +202,6 @@ def get_settings(yaml, environment, profile_name=None):
 
 
 def get_connections(credentials, stringify, prod_stringify):
-    import IPython
-
-    IPython.embed()
     try:
         return Ok(
             {

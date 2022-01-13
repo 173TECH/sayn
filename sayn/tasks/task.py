@@ -3,13 +3,12 @@ from enum import Enum
 from pathlib import Path
 from typing import Set, Dict, Any
 
-from jinja2 import Template
 from terminaltables import AsciiTable
 
-from sayn.logging.task_event_tracker import TaskEventTracker
-
-from ..core.errors import Err, Exc, Ok
+from ..core.errors import Err, Ok
 from ..database import Database
+from ..logging.task_event_tracker import TaskEventTracker
+from ..utils.compiler import Compiler
 
 
 class TaskStatus(Enum):
@@ -26,6 +25,16 @@ class TaskStatus(Enum):
     SKIPPED = "skipped"
 
     UNKNOWN = "unknown"
+
+
+class TaskJinjaEnv:
+    """This class is the `task` object when compiling task configurations"""
+
+    def __init__(self, name=None, group=None):
+        if group is not None:
+            self.group = group
+        if name is not None:
+            self.name = name
 
 
 class Task:
@@ -55,7 +64,7 @@ class Task:
     connections = dict()
     _tracker: TaskEventTracker
 
-    compiler = None
+    compiler: Compiler
 
     # Handy properties
     @property
@@ -73,11 +82,15 @@ class Task:
 
     # Task lifetime methods
 
-    def config(self):
-        raise NotImplementedError("SAYN task", self.__class__.__name__, "setup")
+    def config(self, **config):
+        raise NotImplementedError(
+            "SAYN task", self.__class__.__name__, "setup", str(config)
+        )
 
-    def setup(self):
-        raise NotImplementedError("SAYN task", self.__class__.__name__, "setup")
+    def setup(self, needs_recompile: bool):
+        raise NotImplementedError(
+            "SAYN task", self.__class__.__name__, "setup", needs_recompile
+        )
 
     def run(self):
         raise NotImplementedError("SAYN task", self.__class__.__name__, "run")
@@ -100,6 +113,9 @@ class Task:
         project_parameters,
         default_db,
         connections,
+        compiler,
+        src,
+        out,
     ):
         self.name = name
         self.group = group
@@ -109,6 +125,9 @@ class Task:
         self.project_parameters = project_parameters
         self._default_db = default_db
         self.connections = connections
+        self.compiler = compiler
+        self.src = src
+        self.out = out
 
     def ready(self):
         """(Deprecated: use `success` instead) Returned on successful execution."""
@@ -218,11 +237,16 @@ class Task:
         """
         return self.compiler.compile(obj, **params)
 
-    def write_compilation_output(self, content, suffix=None):
+    def write_compilation_output(self, content, suffix=None, extension="sql"):
+        """Writes text content into the compilation folder
+
+        The file will be stored in a folder with the name of the group the task
+        belongs to and the name of the file will be that of the task name.
+        """
         path = Path(
             self.run_arguments["folders"]["compile"],
             self.group,
-            Path(f"{self.name}{'_'+suffix if suffix is not None else ''}.sql"),
+            Path(f"{self.name}{'_'+suffix if suffix is not None else ''}.{extension}"),
         )
 
         # Ensure the path exists and it's empty
@@ -231,8 +255,6 @@ class Task:
             path.unlink()
 
         path.write_text(str(content))
-
-        return Ok()
 
     # Execution utilities
 

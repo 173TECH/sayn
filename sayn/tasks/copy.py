@@ -271,9 +271,7 @@ class CopyTask(SqlTask):
             return self.success()
         else:
             with self.step("Write Test Query"):
-                result = self.write_compilation_output(self.test_query, "test")
-                if result.is_err:
-                    return result
+                self.write_compilation_output(self.test_query, "test")
 
             with self.step("Execute Test Query"):
                 result = self.default_db.read_data(self.test_query)

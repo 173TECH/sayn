@@ -138,9 +138,6 @@ class App:
         settings = self.check_abort(read_settings())
         self.check_abort(self.set_settings(settings))
 
-        # Create the jinja compiler
-        self.compiler = Compiler(self.project_parameters, self.prod_project_parameters)
-
         # Set tasks and dag from it
         tasks_dict = self.check_abort(
             get_tasks_dict(
@@ -155,10 +152,10 @@ class App:
         # Set the tasks for the project and call their config method
         self.check_abort(self.set_tasks(tasks_dict))
 
-        print("stop here")
         import IPython
 
         IPython.embed()
+
         # Apply the task query
         self.task_query = self.check_abort(
             get_query(
@@ -167,6 +164,9 @@ class App:
                 exclude=self.run_arguments.exclude,
             )
         )
+        import IPython
+
+        IPython.embed()
 
         # TODO filter
 
@@ -178,7 +178,8 @@ class App:
         self.prod_project_parameters.update(project.parameters or dict())
         self.project_parameters.update(project.parameters or dict())
 
-        self.prod_stringify = {
+        # Temporarily store the raw stringify strings
+        self.input_prod_stringify = {
             "database_prefix": project.database_prefix,
             "database_suffix": project.database_suffix,
             "database_stringify": project.database_stringify,
@@ -189,7 +190,7 @@ class App:
             "table_suffix": project.table_suffix,
             "table_stringify": project.table_stringify,
         }
-        self.stringify = {
+        self.input_stringify = {
             "database_prefix": project.database_prefix,
             "database_suffix": project.database_suffix,
             "database_stringify": project.database_stringify,
@@ -242,44 +243,6 @@ class App:
         credentials = settings_dict["credentials"] or dict()
         stringify = settings_dict["stringify"] or dict()
 
-        # profile_name = self.run_arguments["profile"]
-
-        # Get parameters and credentials from yaml
-        # if settings.yaml is not None:
-        #     if profile_name is not None and profile_name not in settings.yaml.profiles:
-        #         return Err("app_command", "wrong_profile", profile=profile_name)
-
-        #     profile_name = profile_name or settings.yaml.default_profile
-
-        #     parameters = settings.yaml.profiles[profile_name].parameters or dict()
-
-        #     credentials = {
-        #         prof_name: settings.yaml.credentials[yaml_name]
-        #         for prof_name, yaml_name in settings.yaml.profiles[
-        #             profile_name
-        #         ].credentials.items()
-        #     }
-
-        #     stringify = {
-        #         k: v
-        #         for k, v in settings.yaml.profiles[profile_name].stringify.items()
-        #         if v is not None
-        #     }
-
-        #     self.run_arguments["profile"] = profile_name
-
-        # # Update parameters and credentials with environment
-        # if settings.environment is not None:
-        #     parameters.update(settings.environment.parameters or dict())
-        #     credentials.update(settings.environment.credentials or dict())
-        #     stringify.update(
-        #         {
-        #             k: v
-        #             for k, v in settings.environment.stringify.items()
-        #             if v is not None
-        #         }
-        #     )
-
         # Validate the given parameters
         error_items = set(parameters.keys()) - set(self.project_parameters.keys())
         if error_items:
@@ -291,7 +254,46 @@ class App:
 
         self.project_parameters.update(parameters)
 
-        self.stringify.update(stringify)
+        # With the parameters in place we can build our jinja compiler
+        self.compiler = Compiler(
+            self.run_arguments, self.project_parameters, self.prod_project_parameters
+        )
+
+        # Now we can set the final stringify objects
+        self.input_stringify.update(stringify)
+
+        def get_stringify(input_stringify):
+            """Builds the final stringify"""
+
+            # The default is a jinja template with the object name, meaning no modifications to the input
+            stringify = {
+                key: "{{ " + key + " }}" for key in ("database", "schema", "table")
+            }
+
+            for obj_type in ("database", "schema", "table"):
+                if input_stringify.get(f"{obj_type}_stringify") is not None:
+                    # if *_stringify is defined, use that
+                    stringify[obj_type] = input_stringify[f"{obj_type}_stringify"]
+                else:
+                    if input_stringify.get(f"{obj_type}_prefix") is not None:
+                        stringify[obj_type] = (
+                            input_stringify[f"{obj_type}_prefix"]
+                            + "_"
+                            + stringify[obj_type]
+                        )
+                    if input_stringify.get(f"{obj_type}_suffix") is not None:
+                        stringify[obj_type] = (
+                            stringify[obj_type]
+                            + "_"
+                            + input_stringify[f"{obj_type}_suffix"]
+                        )
+
+            stringify = {k: self.compiler.prepare(v) for k, v in stringify.items()}
+
+            return stringify
+
+        self.stringify = get_stringify(self.input_stringify)
+        self.prod_stringify = get_stringify(self.input_prod_stringify)
 
         # Validate credentials
         error_items = set(credentials.keys()) - set(self.credentials.keys())
@@ -340,7 +342,7 @@ class App:
 
             result = self.get_task_class(task["type"], task)
             if result.is_err:
-                task_class = FailedTask
+                task_class = None
             else:
                 task_class = result.value
 
@@ -348,24 +350,23 @@ class App:
                 task["group"],
                 task_name,
                 task["type"],
-                task.get("parameters"),
                 task.get("on_fail"),
                 task.get("parents"),
                 task.get("sources"),
                 task.get("outputs"),
                 task.get("tags"),
-                task,
                 task_tracker,
                 task_class,
+                self.connections,
+                self.default_db,
+                self.run_arguments,
+                self.compiler,
             )
 
             result = task_objects[task_name].config(
-                self.connections,
-                self.default_db,
+                task,
                 self.project_parameters,
-                self.stringify,
-                self.run_arguments,
-                self.compiler.get_task_compiler(task_objects[task_name]),
+                task.get("parameters"),
             )
 
             task_tracker._report_event(
@@ -441,7 +442,8 @@ class App:
                 task_tracker._report_event("start_stage")
             start_ts = datetime.now()
 
-            result = self.tasks[task_name].setup(task_name in tasks_in_query)
+            # TODO add from_prod logic
+            result = self.tasks[task_name].setup(task_name in tasks_in_query, [])
 
             if task_name in tasks_in_query:
                 task_tracker._report_event(
