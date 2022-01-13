@@ -105,6 +105,15 @@ def Exc(exc, **kwargs):
             )
         )
 
+    elif isinstance(exc, sqlalchemy.exc.ProgrammingError):
+        return Result(
+            error=Error(
+                "database",
+                "programming_error",
+                {"exception": exc, "message": " ".join(exc.args)},
+            )
+        )
+
     else:
         return Result(
             error=Error("exception", "unhandled_exception", {"exception": exc})
