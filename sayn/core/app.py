@@ -387,7 +387,9 @@ class App:
             for k, g in groupby(sorted(output_to_task), key=lambda x: x[0])
         }
         for task_name, task in task_objects.items():
-            task.set_parents(task_objects, output_to_task)
+            result = task.set_parents(task_objects, output_to_task)
+            if result.is_err:
+                return result
 
         if self.run_arguments.command == Command.TEST:
             # TODO move this logic to the task config
@@ -448,7 +450,10 @@ class App:
 
         for db in self.connections.values():
             if isinstance(db, Database):
-                db._introspect()
+                try:
+                    db._introspect()
+                except Exception as exc:
+                    return Exc(exc, where="introspection")
 
         return Ok()
 

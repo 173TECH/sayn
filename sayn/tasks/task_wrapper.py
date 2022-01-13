@@ -328,11 +328,26 @@ class TaskWrapper:
             self.parents.append(all_tasks[parent_name])
             self.parent_names.add(parent_name)
 
+        missing = set()
         for source in self.sources:
-            for task_name in output_to_task[source]:
-                if task_name not in self.parent_names:
-                    self.parents.append(all_tasks[task_name])
-                    self.parent_names.add(task_name)
+            if source not in output_to_task:
+                missing.add(source)
+            else:
+                for task_name in output_to_task[source]:
+                    if task_name not in self.parent_names:
+                        self.parents.append(all_tasks[task_name])
+                        self.parent_names.add(task_name)
+
+        if len(missing) > 0:
+            tables = ", ".join([f"{t.get_value()}" for t in missing])
+            self.status = TaskStatus.SETUP_FAILED
+            return Err(
+                "dag",
+                "missing_sources",
+                error_message=f'No task creates table(s) "{tables}" referenced by task "{self.name}"',
+            )
+
+        return Ok()
 
     def get_db_obj(self, obj: str, connection=None):
         obj = self.compiler.compile(obj)

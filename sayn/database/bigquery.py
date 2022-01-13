@@ -13,7 +13,7 @@ from sqlalchemy.sql import sqltypes
 
 from . import Database, Columns, Hook
 
-from ..core.errors import DBError, Exc, Ok
+from ..core.errors import Ok
 
 db_parameters = ["project", "credentials_path", "location", "dataset"]
 

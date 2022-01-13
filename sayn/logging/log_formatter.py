@@ -213,6 +213,10 @@ class LogFormatter:
                 for task, parents in error.details["missing"].items()
             ]
 
+        elif error.kind == "dag" and error.code == "missing_sources":
+            level = "error"
+            message = self.bad(error.details["error_message"])
+
         elif error.code == "wrong_credentials":
             level = "error"
             message = self.bad(
@@ -268,13 +272,13 @@ class LogFormatter:
             level = "error"
             message = self.bad(error.details["message"])
 
-        elif error.kind == "database" and error.code == "operational_error":
+        elif error.kind == "database" and error.code == "exception":
             level = "error"
             message = self.bad(error.details["message"])
 
-        elif error.kind == "database" and error.code == "programming_error":
+        elif error.kind == "database" and error.code == "sayn_error":
             level = "error"
-            message = self.bad(error.details["message"])
+            message = self.bad(error.details["error_message"])
 
         elif error.kind == "parsing" and "filename" in error.details:
             level = "error"

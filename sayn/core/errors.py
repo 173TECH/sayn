@@ -3,6 +3,7 @@ from typing import Any, Dict, Optional, Sequence
 from pydantic import ValidationError
 from ruamel.yaml.error import MarkedYAMLError
 import sqlalchemy
+from sqlalchemy.exc import SQLAlchemyError
 
 
 class Error:
@@ -96,24 +97,14 @@ def Exc(exc, **kwargs):
     # TODO add other exceptions like:
     #   - DB errors
     #   - Jinja
-    elif isinstance(exc, sqlalchemy.exc.OperationalError):
+    elif isinstance(exc, SQLAlchemyError):
         return Result(
             error=Error(
                 "database",
-                "operational_error",
+                "exception",
                 {"exception": exc, "message": " ".join(exc.args)},
             )
         )
-
-    elif isinstance(exc, sqlalchemy.exc.ProgrammingError):
-        return Result(
-            error=Error(
-                "database",
-                "programming_error",
-                {"exception": exc, "message": " ".join(exc.args)},
-            )
-        )
-
     else:
         return Result(
             error=Error("exception", "unhandled_exception", {"exception": exc})
@@ -186,8 +177,15 @@ class DBError(SaynError):
     db_name = None
     db_type = None
 
-    def __init__(self, db_name, db_type, *args, **kwargs):
+    def __init__(self, db_name, db_type, message, errors=None):
         self.db_name = db_name
         self.db_type = db_type
+        self.message = message
+        self.errors = errors
 
-        super(sqlalchemy.SQLAlchemyError, self).__init__(*args, **kwargs)
+    def payload(self):
+        return {
+            "kind": "database",
+            "code": "sayn_error",
+            "error_message": f"Error on connection {self.db_name}: {self.message}",
+        }
