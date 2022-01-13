@@ -279,25 +279,3 @@ class Task:
             task_name=self.name,
             request_tmp=request_tmp,
         )
-
-
-class FailedTask(Task):
-    def config(self):
-        self.debug("Nothing to be done")
-        return self.fail()
-
-    def setup(self):
-        self.debug("Nothing to be done")
-        return self.fail()
-
-    def run(self):
-        self.debug("Nothing to be done")
-        return self.fail()
-
-    def compile(self):
-        self.debug("Nothing to be done")
-        return self.fail()
-
-    def test(self):
-        self.debug("Nothing to be done")
-        return self.success()

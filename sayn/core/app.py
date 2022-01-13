@@ -21,7 +21,6 @@ from ..utils.python_loader import PythonLoader
 from ..utils.task_query import get_query
 from ..utils.compiler import Compiler
 
-from ..tasks.task import FailedTask
 from ..tasks.dummy import DummyTask
 from ..tasks.sql import SqlTask
 from ..tasks.autosql import AutoSqlTask
