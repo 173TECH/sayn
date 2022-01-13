@@ -111,6 +111,7 @@ class TaskWrapper:
             )
 
             self.run_arguments = {
+                "debug": run_arguments.debug,
                 "full_load": run_arguments.full_load,
                 "start_dt": run_arguments.start_dt,
                 "end_dt": run_arguments.end_dt,

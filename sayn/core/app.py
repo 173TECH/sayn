@@ -152,10 +152,6 @@ class App:
         # Set the tasks for the project and call their config method
         self.check_abort(self.set_tasks(tasks_dict))
 
-        import IPython
-
-        IPython.embed()
-
         # Apply the task query
         self.task_query = self.check_abort(
             get_query(
@@ -164,11 +160,10 @@ class App:
                 exclude=self.run_arguments.exclude,
             )
         )
-        import IPython
 
-        IPython.embed()
+        self.check_abort(self.setup_execution())
 
-        # TODO filter
+        self.tracker.start_stage("setup")
 
         self.tracker.finish_current_stage(
             tasks={k: v.status for k, v in self.tasks.items()}
@@ -416,8 +411,9 @@ class App:
             tasks={k: v.status for k, v in self.tasks.items()}
         )
 
-        self.tracker.start_stage("setup")
+        return Ok()
 
+    def setup_execution(self):
         result = dag_query(self.dag, self.task_query)
         if result.is_err:
             return result
@@ -490,7 +486,7 @@ class App:
         )
 
         for task in self.tasks.values():
-            if not task.inquery:
+            if not task.in_query:
                 continue
 
             # We force the run/compile so that the skipped status can be calculated,
