@@ -272,6 +272,10 @@ class LogFormatter:
             level = "error"
             message = self.bad(error.details["message"])
 
+        elif error.kind == "database" and error.code == "programming_error":
+            level = "error"
+            message = self.bad(error.details["message"])
+
         elif error.kind == "parsing" and "filename" in error.details:
             level = "error"
             if "error" in error.details:
