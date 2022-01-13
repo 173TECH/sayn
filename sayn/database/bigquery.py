@@ -359,18 +359,18 @@ class Bigquery(Database):
             cluster_column = None
 
         try:
-            des_clustered = ddl["cluster"]
+            des_clustered = ddl.get("cluster")
         except:
             des_clustered = ""
         try:
-            des_partitioned = ddl["partition"]
+            des_partitioned = ddl.get("partition")
         except:
             des_partitioned = ""
 
         if des_clustered == cluster_column and des_partitioned == partition_column:
             drop = ""
         else:
-            drop = f"DROP TABLE IF EXISTS { table };"
+            drop = f"DROP TABLE IF EXISTS {schema}.{table};"
 
         template = self._jinja_env.get_template("create_table.sql")
         query = template.render(
