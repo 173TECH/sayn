@@ -208,6 +208,14 @@ class TaskWrapper:
             }
         )
 
+        # To get parents for decorators
+        if "temp_parents" in runner.__dict__:
+            if isinstance(runner.temp_parents, str):
+                self.parent_names.add(runner.temp_parents)
+            elif isinstance(runner.temp_parents, list):
+                self.parent_names.update(runner.temp_parents)
+            del runner.temp_parents
+
         self.status = TaskStatus.READY_FOR_SETUP
 
         return Ok()
