@@ -1,8 +1,34 @@
 import json
 
-from sayn.core.settings import read_settings
+from sayn.core.settings import read_settings, get_settings
 
 from . import create_project
+
+
+def sort_obj(val):
+    if isinstance(val, dict):
+        out = dict()
+        for k in sorted(val.keys()):
+            out[k] = sort_obj(val[k])
+        return out
+    elif isinstance(val, list):
+        out = list()
+        for v in val:
+            out.append(v)
+        return out
+    else:
+        return val
+
+
+def get_settings_dict():
+    settings = read_settings().value
+    settings = get_settings(settings["yaml"], settings["env"], None).value
+
+    return settings
+
+
+def equal_objs(d1, d2):
+    return sort_obj(d1) == sort_obj(d2)
 
 
 def test_correct_01(tmpdir):
@@ -26,12 +52,15 @@ credentials:
 """
 
     with create_project(tmpdir, settings=settings_yaml):
-        settings = read_settings().value
-        assert settings.get_settings().value == {
-            "credentials": {"warehouse": {"type": "sqlite", "database": "dev.db"}},
-            "parameters": None,
-            "stringify": dict(),
-        }
+        settings = get_settings_dict()
+        assert equal_objs(
+            settings,
+            {
+                "credentials": {"warehouse": {"type": "sqlite", "database": "dev.db"}},
+                "parameters": None,
+                "stringify": dict(),  # {f"{o}_{k}": None for o in ('database', 'schema', 'table') for k in ('suffix', 'prefix', 'stringify')},
+            },
+        )
 
 
 def test_correct_02(tmpdir):
@@ -48,12 +77,15 @@ credentials:
 """
 
     with create_project(tmpdir, settings=settings_yaml):
-        settings = read_settings().value
-        assert settings.get_settings().value == {
-            "credentials": {"warehouse": {"type": "sqlite", "database": "dev.db"}},
-            "parameters": None,
-            "stringify": dict(),
-        }
+        settings = get_settings_dict()
+        assert equal_objs(
+            settings,
+            {
+                "credentials": {"warehouse": {"type": "sqlite", "database": "dev.db"}},
+                "parameters": None,
+                "stringify": dict(),
+            },
+        )
 
 
 def test_error_profile01(tmpdir):
@@ -152,12 +184,15 @@ def test_env_01(tmpdir):
     }
 
     with create_project(tmpdir, env=env):
-        settings = read_settings().value
-        assert settings.get_settings().value == {
-            "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
-            "parameters": {"param1": "value1"},
-            "stringify": dict(),
-        }
+        settings = get_settings_dict()
+        assert equal_objs(
+            settings,
+            {
+                "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
+                "parameters": {"param1": "value1"},
+                "stringify": dict(),
+            },
+        )
 
 
 def test_env_02(tmpdir):
@@ -167,12 +202,15 @@ def test_env_02(tmpdir):
     }
 
     with create_project(tmpdir, env=env):
-        settings = read_settings().value
-        assert settings.get_settings().value == {
-            "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
-            "parameters": {"param1": "value1"},
-            "stringify": dict(),
-        }
+        settings = get_settings_dict()
+        assert equal_objs(
+            settings,
+            {
+                "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
+                "parameters": {"param1": "value1"},
+                "stringify": dict(),
+            },
+        )
 
 
 def test_env_03(tmpdir):
@@ -182,12 +220,15 @@ def test_env_03(tmpdir):
     }
 
     with create_project(tmpdir, env=env):
-        settings = read_settings().value
-        assert settings.get_settings().value == {
-            "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
-            "parameters": {"param1": ["value1", "value2"]},
-            "stringify": dict(),
-        }
+        settings = get_settings_dict()
+        assert equal_objs(
+            settings,
+            {
+                "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
+                "parameters": {"param1": ["value1", "value2"]},
+                "stringify": dict(),
+            },
+        )
 
 
 def test_env_04(tmpdir):
@@ -197,12 +238,15 @@ def test_env_04(tmpdir):
     }
 
     with create_project(tmpdir, env=env):
-        settings = read_settings().value
-        assert settings.get_settings().value == {
-            "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
-            "parameters": {"param1": 1},
-            "stringify": dict(),
-        }
+        settings = get_settings_dict()
+        assert equal_objs(
+            settings,
+            {
+                "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
+                "parameters": {"param1": 1},
+                "stringify": dict(),
+            },
+        )
 
 
 def test_env_05(tmpdir):
@@ -212,15 +256,18 @@ def test_env_05(tmpdir):
     }
 
     with create_project(tmpdir, env=env):
-        settings = read_settings().value
-        assert settings.get_settings().value == {
-            "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
-            "parameters": {
-                "param1": {
-                    "key1": "value1",
-                    "key2": "value2",
-                    "key3": ["value3", "value4"],
-                }
+        settings = get_settings_dict()
+        assert equal_objs(
+            settings,
+            {
+                "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
+                "parameters": {
+                    "param1": {
+                        "key1": "value1",
+                        "key2": "value2",
+                        "key3": ["value3", "value4"],
+                    }
+                },
+                "stringify": dict(),
             },
-            "stringify": dict(),
-        }
+        )
