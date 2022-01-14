@@ -42,7 +42,7 @@ def test_project(tmp_path):
 
     with inside_dir(tmp_path):
         setup_project_and_tasks(project_yaml=project_yaml, base_yaml=base_yaml)
-        assert read_project().is_ok
+        read_project()
 
 
 def test_project_err_no_tasks(tmp_path):
@@ -56,4 +56,4 @@ def test_project_err_no_tasks(tmp_path):
 
     with inside_dir(tmp_path):
         setup_project_and_tasks(project_yaml=project_yaml)
-        assert read_project().is_err
+        read_project()

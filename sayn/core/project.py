@@ -113,16 +113,22 @@ def get_presets(global_presets, groups):
 
     # 1.2. Then we add the presets defined in the task groups
     for group_name, group in groups.items():
-        presets_info.update(
-            {
-                f"{group_name}:{k}": {kk: vv for kk, vv in v.items() if kk != "preset"}
-                for k, v in group.presets.items()
-            }
-        )
+        if group.presets is not None:
+            presets_info.update(
+                {
+                    f"{group_name}:{k}": {
+                        kk: vv for kk, vv in v.items() if kk != "preset"
+                    }
+                    for k, v in group.presets.items()
+                }
+            )
 
-        group_presets = {
-            name: preset.get("preset") for name, preset in group.presets.items()
-        }
+        if group.presets is None:
+            group_presets = dict()
+        else:
+            group_presets = {
+                name: preset.get("preset") for name, preset in group.presets.items()
+            }
 
         # Check if the preset referenced is defined in the task group, otherwise, point at the
         # global task group

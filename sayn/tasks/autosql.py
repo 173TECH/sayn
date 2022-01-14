@@ -184,15 +184,19 @@ class AutoSqlTask(SqlTask):
             self.schema = None
             self.table = self.out(base_table_name, self.target_db)
         else:
-            obj = self.out(f"{db_schema or ''}.{base_table_name}", self.target_db)
+            obj = self.out(f"{db_schema}.{base_table_name}", self.target_db)
             self.schema = obj.split(".")[0]
             self.table = obj.split(".")[1]
 
-        obj = self.out(
-            f"{tmp_db_schema or ''}.sayn_tmp_{base_table_name}", self.target_db
-        )
-        self.tmp_schema = obj.split(".")[0]
-        self.tmp_table = obj.split(".")[1]
+        if tmp_db_schema is None:
+            self.tmp_schema = None
+            self.tmp_table = self.out(f"sayn_tmp_{base_table_name}", self.target_db)
+        else:
+            obj = self.out(
+                f"{tmp_db_schema}.sayn_tmp_{base_table_name}", self.target_db
+            )
+            self.tmp_schema = obj.split(".")[0]
+            self.tmp_table = obj.split(".")[1]
 
         self.materialisation = self.task_config.materialisation
         self.delete_key = self.task_config.delete_key

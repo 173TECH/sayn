@@ -150,6 +150,12 @@ class DbObject:
         self.stringify = stringify
         self.prod_stringify = prod_stringify
 
+        self.database_value = None
+        self.database_prod_value = None
+        self.schema_value = None
+        self.schema_prod_value = None
+        self.object_value = None
+        self.object_prod_value = None
         self.value = ""
         self.prod_value = ""
         if self.database is not None:

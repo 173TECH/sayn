@@ -378,6 +378,9 @@ class TaskWrapper:
         obj = self.compiler.compile(obj)
         m = RE_OBJ.match(obj)
         if m is None:
+            import IPython
+
+            IPython.embed()
             raise ValueError(f'Incorrect format for database object "{obj}"')
         else:
             g = m.groupdict()
