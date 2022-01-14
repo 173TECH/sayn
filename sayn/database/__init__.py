@@ -9,6 +9,7 @@ from pydantic import BaseModel, validator, Extra, FilePath
 from sqlalchemy import MetaData, Table
 from sqlalchemy.engine import reflection
 from sqlalchemy.sql import sqltypes
+import sqlalchemy
 
 from ..core.errors import DBError, Exc, Ok
 
@@ -409,13 +410,21 @@ class Database:
                 self._requested_objects[schema][name]["tasks"].append(task_name)
 
     def _introspect(self):
-        insp = reflection.Inspector.from_engine(self.engine)
+        insp = sqlalchemy.inspect(self.engine)
 
         for schema in self._requested_objects.keys():
-            for obj_type, objs in [
-                ("table", insp.get_table_names(schema=schema)),
-                ("view", insp.get_view_names(schema=schema)),
-            ]:
+            if schema is None or schema == "":
+                objects = [
+                    ("table", insp.get_table_names()),
+                    ("view", insp.get_view_names()),
+                ]
+            else:
+                objects = [
+                    ("table", insp.get_table_names(schema)),
+                    ("view", insp.get_view_names(schema)),
+                ]
+
+            for obj_type, objs in objects:
                 for obj_name in objs:
                     if schema is not None and obj_name.startswith(schema + "."):
                         obj_name = obj_name[len(schema + ".") :]

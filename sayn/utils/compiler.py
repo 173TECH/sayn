@@ -8,6 +8,16 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined, Template
 from ..core.errors import SaynCompileError, SaynMissingFileError
 
 
+class TaskJinjaEnv:
+    """This class is the `task` object when compiling task configurations"""
+
+    def __init__(self, name=None, group=None):
+        if group is not None:
+            self.group = group
+        if name is not None:
+            self.name = name
+
+
 class BaseCompiler(ABC):
     @abstractmethod
     def compile(self, obj: Union[Template, Path, str], **kwargs) -> str:
@@ -90,8 +100,10 @@ class Compiler(BaseCompiler):
         return Prepared(self, self._get_template(obj))
 
     # Factories
-    def get_task_compiler(self, task) -> BaseCompiler:
-        return TaskCompiler(self.env, self.prod_env, task)
+    def get_task_compiler(self, group, name) -> BaseCompiler:
+        return TaskCompiler(
+            self.env, self.prod_env, TaskJinjaEnv(group=group, name=name)
+        )
 
     # def get_db_object_compiler(self) -> BaseCompiler:
     #     pass

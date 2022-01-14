@@ -4,7 +4,7 @@ from typing import Any, List, Mapping, Optional
 
 from pydantic import BaseModel, Field, validator, Extra
 
-from ..tasks.task import TaskJinjaEnv
+from ..utils.compiler import TaskJinjaEnv
 from ..utils.misc import merge_dicts, merge_dict_list
 from ..utils.dag import upstream, topological_sort
 from ..utils.yaml import read_yaml_file

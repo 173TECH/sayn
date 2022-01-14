@@ -7,7 +7,7 @@ from sayn.database import Database
 from ..core.errors import Err, Exc, Ok, Result
 from ..utils.misc import map_nested
 
-from .task import Task, TaskStatus, TaskJinjaEnv
+from .task import Task, TaskStatus
 
 # Properties from a task dictionary that won't be part of the task
 # configuration as they are standard SAYN task properties
@@ -106,9 +106,7 @@ class TaskWrapper:
         else:
             self.status = TaskStatus.CONFIGURING
 
-            self.compiler = compiler.get_task_compiler(
-                TaskJinjaEnv(group=self.group, name=self.name)
-            )
+            self.compiler = compiler.get_task_compiler(group=self.group, name=self.name)
 
             self.run_arguments = {
                 "debug": run_arguments.debug,
@@ -176,10 +174,14 @@ class TaskWrapper:
 
         self.runner = runner
 
-        result = self.runner.config(**runner_config)
-        if result is not None and result.is_err:
+        try:
+            result = self.runner.config(**runner_config)
+            if result is not None and result.is_err:
+                self.status = TaskStatus.FAILED
+                return result
+        except Exception as exc:
             self.status = TaskStatus.FAILED
-            return result
+            return Exc(exc, where="task_config")
 
         # TODO relying on the task object having a certain property is not a solid method. Need to change it
         if "_target_db" in runner.__dict__:
@@ -409,9 +411,6 @@ class TaskWrapper:
             return connection_object._object_builder.from_components(**components)
 
     def src(self, obj, connection=None):
-        if self.status != TaskStatus.CONFIGURING:
-            print(self.name)
-            # raise ValueError()
         obj = self.get_db_obj(obj, connection=connection)
 
         if self.status == TaskStatus.CONFIGURING:

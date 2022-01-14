@@ -180,9 +180,13 @@ class AutoSqlTask(SqlTask):
 
         base_table_name = self.task_config.destination.table
 
-        obj = self.out(f"{db_schema or ''}.{base_table_name}", self.target_db)
-        self.schema = obj.split(".")[0]
-        self.table = obj.split(".")[1]
+        if db_schema is None:
+            self.schema = None
+            self.table = self.out(base_table_name, self.target_db)
+        else:
+            obj = self.out(f"{db_schema or ''}.{base_table_name}", self.target_db)
+            self.schema = obj.split(".")[0]
+            self.table = obj.split(".")[1]
 
         obj = self.out(
             f"{tmp_db_schema or ''}.sayn_tmp_{base_table_name}", self.target_db
@@ -334,9 +338,7 @@ class AutoSqlTask(SqlTask):
             return self.success()
         else:
             with self.step("Write Test Query"):
-                result = self.write_compilation_output(self.test_query, "test")
-                if result.is_err:
-                    return result
+                self.write_compilation_output(self.test_query, "test")
 
             with self.step("Execute Test Query"):
                 result = self.default_db.read_data(self.test_query)

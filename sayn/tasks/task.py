@@ -29,16 +29,6 @@ class TaskStatus(Enum):
     UNKNOWN = "unknown"
 
 
-class TaskJinjaEnv:
-    """This class is the `task` object when compiling task configurations"""
-
-    def __init__(self, name=None, group=None):
-        if group is not None:
-            self.group = group
-        if name is not None:
-            self.name = name
-
-
 class Task:
     """
     Base class for tasks in SAYN.

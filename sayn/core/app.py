@@ -68,6 +68,21 @@ class RunArguments:
         self.include = list()
         self.exclude = list()
 
+    def update(self, **kwargs):
+        if "command" in kwargs:
+            if isinstance(kwargs["command"], str):
+                if kwargs["command"] == "compile":
+                    self.command = Command.COMPILE
+                elif kwargs["command"] == "run":
+                    self.command = Command.RUN
+                elif kwargs["command"] == "test":
+                    self.command = Command.TEST
+            else:
+                self.command = kwargs["command"]
+
+        if "debug" in kwargs:
+            self.debug = kwargs["debug"]
+
 
 class App:
     def __init__(self):

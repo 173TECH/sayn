@@ -3,11 +3,9 @@ import os
 from pathlib import Path
 import subprocess
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined
-from ruamel.yaml import YAML
 
+from sayn.core.app import RunArguments
 from sayn.database.creator import create as create_db
-from sayn.tasks.task_wrapper import TaskWrapper
 from sayn.utils.compiler import Compiler
 
 
@@ -87,9 +85,12 @@ def simulate_task(
     task_type,
     source_db=None,
     target_db=None,
-    run_arguments=dict(),
-    task_params=dict(),
+    run_arguments=None,
+    task_params=None,
 ):
+
+    run_arguments = run_arguments or dict()
+    task_params = task_params or dict()
 
     connections = dict()
     if target_db is not None:
@@ -108,32 +109,59 @@ def simulate_task(
             }
         )
 
+    obj_run_arguments = RunArguments()
+    obj_run_arguments.update(**run_arguments)
+
     run_arguments = {
-        "folders": {"sql": "sql", "compile": "compile", "tests": "tests"},
-        "command": "run",
-        "debug": False,
-        "full_load": False,
-        **run_arguments,
+        "debug": obj_run_arguments.debug,
+        "full_load": obj_run_arguments.full_load,
+        "start_dt": obj_run_arguments.start_dt,
+        "end_dt": obj_run_arguments.end_dt,
+        "command": obj_run_arguments.command.value,
+        "folders": {
+            "python": obj_run_arguments.folders.python,
+            "sql": obj_run_arguments.folders.sql,
+            "compile": obj_run_arguments.folders.compile,
+            "logs": obj_run_arguments.folders.logs,
+            "tests": obj_run_arguments.folders.tests,
+        },
     }
 
-    wrapper = TaskWrapper(
-        "test_group",
+    base_compiler = Compiler(obj_run_arguments, dict(), task_params)
+
+    def src_out(obj, connection=None):
+        if "." in obj:
+            schema = obj.split(".")[0]
+            table = obj.split(".")[1]
+        else:
+            schema = None
+            table = obj
+
+        if isinstance(connection, str):
+            connections[connection]._request_object(table, schema=schema)
+        else:
+            connection._request_object(table, schema=schema)
+
+        return obj
+
+    task_compiler = base_compiler.get_task_compiler("test_group", "test_task")
+    task_compiler.update_globals(**task_params)
+
+    task = task_class(
         "test_task",
-        task_type,
-        None,  # on_fail
-        set(),  # parents
-        set(),  # sources
-        set(),  # outputs
-        set(),  # tags
+        "test_group",
         vd,
-        task_class,
-        connections,
-        "target_db",
         run_arguments,
-        Compiler(run_arguments, dict(), task_params),
+        task_params,
+        dict(),
+        "target_db",
+        connections,
+        task_compiler,
+        src_out,
+        src_out,
     )
 
-    return wrapper.runner
+    return task
 
 
 def validate_table(db, table_name, expected_data, variable_columns=None):
