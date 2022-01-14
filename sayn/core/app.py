@@ -431,14 +431,27 @@ class App:
         else:
             tasks_in_query = result.value
 
+        # Create the list of tables to be modified in this execution
+        outputs_this_execution = set()
+        for task_name in tasks_in_query:
+            for output in self.tasks[task_name].outputs:
+                outputs_this_execution.add(output)
+
         # Introspection
+        sources_from_prod = set()
         connections_used = set()
         for task in tasks_in_query:
             for source in self.tasks[task].sources:
                 connections_used.add(source.connection_name)
-                self.connections[source.connection_name]._request_object(
-                    source.object_value, schema=source.schema_value
-                )
+                if source in outputs_this_execution:
+                    self.connections[source.connection_name]._request_object(
+                        source.object_value, schema=source.schema_value
+                    )
+                else:
+                    sources_from_prod.add(source)
+                    self.connections[source.connection_name]._request_object(
+                        source.object_prod_value, schema=source.schema_prod_value
+                    )
 
             for output in self.tasks[task].outputs:
                 connections_used.add(output.connection_name)
@@ -475,7 +488,7 @@ class App:
             task.tracker._report_event("start_stage")
 
             # TODO add from_prod logic
-            result = task.setup(task_name in tasks_in_query, [])
+            result = task.setup(task_name in tasks_in_query, sources_from_prod)
 
             task.tracker._report_event(
                 "finish_stage", duration=datetime.now() - start_ts, result=result

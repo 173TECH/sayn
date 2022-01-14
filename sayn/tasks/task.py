@@ -116,8 +116,7 @@ class Task:
         default_db,
         connections,
         compiler,
-        src,
-        out,
+        wrapper,
     ):
         self.name = name
         self.group = group
@@ -128,8 +127,7 @@ class Task:
         self._default_db = default_db
         self.connections = connections
         self.compiler = compiler
-        self.src = src
-        self.out = out
+        self._wrapper = wrapper
 
     def ready(self):
         """(Deprecated: use `success` instead) Returned on successful execution."""
@@ -257,3 +255,9 @@ class Task:
             path.unlink()
 
         path.write_text(str(content))
+
+    def src(self, obj, connection=None):
+        return self._wrapper.src(obj, connection)
+
+    def out(self, obj, connection=None):
+        return self._wrapper.out(obj, connection)

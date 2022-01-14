@@ -168,33 +168,41 @@ class CopyTask(SqlTask):
         self.source_db = self.connections[self.task_config.source.db]
         self.source_schema = self.task_config.source.db_schema
         self.source_table = self.task_config.source.table
-        if self.source_schema is None:
-            self.src(self.source_table, connection=self.source_db)
-        else:
-            self.src(
-                f"{self.source_schema}.{self.source_table}", connection=self.source_db
-            )
+
+        # Given copy's use case, we should take the table and schema as it comes
+        # TODO add some specification for using `src` so that it works for reverse ETL
+        # if self.source_schema is None:
+        #     self.src(self.source_table, connection=self.source_db)
+        # else:
+        #     self.src(
+        #         f"{self.source_schema}.{self.source_table}", connection=self.source_db
+        #     )
 
         # Setup outputs
-        tmp_schema = (
+        self.config_tmp_schema = (
             self.task_config.destination.tmp_schema
             or self.task_config.destination.db_schema
         )
-        schema = self.task_config.destination.db_schema
-        table = self.task_config.destination.table
-        tmp_table = f"sayn_tmp_{table}"
+        self.config_schema = self.task_config.destination.db_schema
+        self.config_table = self.task_config.destination.table
+        self.config_tmp_table = f"sayn_tmp_{self.config_table}"
 
-        if schema is None:
-            self.table = self.out(table, connection=self.target_db)
+        if self.config_schema is None:
+            self.table = self.out(self.config_table, connection=self.target_db)
         else:
-            obj = self.out(f"{schema}.{table}", connection=self.target_db)
+            obj = self.out(
+                f"{self.config_schema}.{self.config_table}", connection=self.target_db
+            )
             self.schema = obj.split(".")[0]
             self.table = obj.split(".")[1]
 
-        if tmp_schema is None:
-            self.tmp_table = self.out(tmp_table, connection=self.target_db)
+        if self.config_tmp_schema is None:
+            self.tmp_table = self.out(self.config_tmp_table, connection=self.target_db)
         else:
-            obj = self.out(f"{schema}.{tmp_table}", connection=self.target_db)
+            obj = self.out(
+                f"{self.config_schema}.{self.config_tmp_table}",
+                connection=self.target_db,
+            )
             self.tmp_schema = obj.split(".")[0]
             self.tmp_table = obj.split(".")[1]
 
@@ -245,6 +253,30 @@ class CopyTask(SqlTask):
                 self.test_breakdown = result.value[1]
 
         return Ok()
+
+    def setup(self, needs_recompile):
+        if needs_recompile:
+            if self.config_schema is None:
+                self.table = self.out(self.config_table, connection=self.target_db)
+            else:
+                obj = self.out(
+                    f"{self.config_schema}.{self.config_table}",
+                    connection=self.target_db,
+                )
+                self.schema = obj.split(".")[0]
+                self.table = obj.split(".")[1]
+
+            if self.config_tmp_schema is None:
+                self.tmp_table = self.out(
+                    self.config_tmp_table, connection=self.target_db
+                )
+            else:
+                obj = self.out(
+                    f"{self.config_schema}.{self.config_tmp_table}",
+                    connection=self.target_db,
+                )
+                self.tmp_schema = obj.split(".")[0]
+                self.tmp_table = obj.split(".")[1]
 
     def compile(self):
         result = self.get_columns()

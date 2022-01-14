@@ -88,7 +88,7 @@ class TaskWrapper:
         self.sources = set()
         self.outputs_yaml = set(outputs or set())
         self.outputs = set()
-        self.from_prod_src = set()
+        self.sources_from_prod = set()
         self.tracker = tracker
 
         self.name = name
@@ -153,8 +153,7 @@ class TaskWrapper:
                 self.default_db,
                 self.connections,
                 self.compiler,
-                self.src,
-                self.out,
+                self,
             )
         except Exception as exc:
             self.status = TaskStatus.FAILED
@@ -259,7 +258,7 @@ class TaskWrapper:
         else:
             return Ok(self.status)
 
-    def setup(self, in_query, from_prod_src):
+    def setup(self, in_query, sources_from_prod):
         # Check the parents are in a good state
         result = self.check_skip()
         if result.is_err or result.value == TaskStatus.SKIPPED:
@@ -274,8 +273,10 @@ class TaskWrapper:
         else:
             needs_recompile = False
             for s in self.sources:
-                if s in from_prod_src:
+                if s in sources_from_prod:
                     needs_recompile = True
+
+            self.sources_from_prod = sources_from_prod
 
             # Run the setup stage for the runner and return the results
             try:
@@ -407,7 +408,11 @@ class TaskWrapper:
             return connection_object._object_builder.from_components(**components)
 
     def src(self, obj, connection=None):
+        if self.status != TaskStatus.CONFIGURING:
+            print(self.name)
+            # raise ValueError()
         obj = self.get_db_obj(obj, connection=connection)
+
         if self.status == TaskStatus.CONFIGURING:
             # During configuration we add to the list and use values based on settings
             self.sources.add(obj)
@@ -415,7 +420,7 @@ class TaskWrapper:
         else:
             # In any other stage, we check to see is the object is in the list
             # of objects to use from production
-            if obj in self.from_prod_src:
+            if obj in self.sources_from_prod:
                 return obj.get_prod_value()
             else:
                 return obj.get_value()

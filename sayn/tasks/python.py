@@ -68,8 +68,7 @@ class DecoratorTask(Task):
         default_db,
         connections,
         compiler,
-        src,
-        out,
+        wrapper,
     ):
         self.name = name
         self.group = group
@@ -80,8 +79,7 @@ class DecoratorTask(Task):
         self._default_db = default_db
         self.connections = connections
         self.compiler = compiler
-        self.src = src
-        self.out = out
+        self._wrapper = wrapper
 
         return self
 
@@ -122,8 +120,14 @@ class DecoratorTask(Task):
     def setup(self, needs_update):
         pass
 
+    def compile(self):
+        pass
+
     def run(self):
         return self.func(*self.wrapper_params)
+
+    def test(self):
+        pass
 
 
 def task_type(func=None, sources=None, outputs=None, parents=None):
