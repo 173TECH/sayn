@@ -25,12 +25,14 @@ from ..tasks.dummy import DummyTask
 from ..tasks.sql import SqlTask
 from ..tasks.autosql import AutoSqlTask
 from ..tasks.copy import CopyTask
+from ..tasks.test import TestTask
 
 _creators = {
     "dummy": DummyTask,
     "sql": SqlTask,
     "autosql": AutoSqlTask,
     "copy": CopyTask,
+    "test": TestTask,
 }
 
 
@@ -50,7 +52,7 @@ class RunArguments:
         sql: str = "sql"
         compile: str = "compile"
         logs: str = "logs"
-        tests: str = "tests"
+        tests: str = "sql/tests"
 
     folders: Folders
     full_load: bool = False
@@ -164,6 +166,10 @@ class App:
         )
 
         # Set the tasks for the project and call their config method
+
+        if self.run_arguments.command != Command.TEST:
+            tasks_dict = {k: v for k, v in tasks_dict.items() if v["type"] != "test"}
+
         self.check_abort(self.set_tasks(tasks_dict))
 
         # Apply the task query
@@ -417,16 +423,12 @@ class App:
         if self.run_arguments.command == Command.TEST:
             # TODO move this logic to the task config
             self.dag = {
-                task.name: []
-                for task in tasks.values()
-                if "columns" in task.keys() or "test" in task["type"]
+                task.name: [] for task in task_objects.values() if task.has_tests()
             }
         else:
             self.dag = {
                 task.name: [p.name for p in task.parents]
                 for task in task_objects.values()
-                # TODO - fix for tests
-                # if "test" not in task["type"]
             }
 
         topo_sort = topological_sort(self.dag)

@@ -120,6 +120,9 @@ class CompileConfig(BaseModel):
 
 class AutoSqlTask(SqlTask):
     def config(self, **config):
+        if "columns" in config:
+            self._has_tests = True
+
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]

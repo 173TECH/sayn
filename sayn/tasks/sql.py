@@ -29,6 +29,9 @@ class SqlTask(Task):
         return self.connections[self._target_db]
 
     def config(self, **config):
+        if "columns" in config:
+            self._has_tests = True
+
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]

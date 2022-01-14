@@ -90,6 +90,7 @@ class TaskWrapper:
         self.outputs = set()
         self.sources_from_prod = set()
         self.tracker = tracker
+        self.runner = None
 
         self.name = name
         self.group = group
@@ -337,7 +338,7 @@ class TaskWrapper:
 
                 if result is None:
                     self.status = TaskStatus.SUCCEEDED
-                if result.is_ok:
+                elif result.is_ok:
                     self.status = TaskStatus.SUCCEEDED
                 else:
                     self.status = TaskStatus.FAILED
@@ -433,3 +434,9 @@ class TaskWrapper:
         if self.status == TaskStatus.CONFIGURING:
             self.outputs.add(obj)
         return obj.get_value()
+
+    def has_tests(self):
+        if self.runner is not None and self.runner._has_tests:
+            return True
+
+        return False

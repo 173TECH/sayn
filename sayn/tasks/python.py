@@ -86,6 +86,8 @@ class DecoratorTask(Task):
         return self
 
     def config(self):
+        self._has_tests = False
+
         if isinstance(self.temp_outputs, str):
             self.out(self.temp_outputs)
         elif isinstance(self.temp_outputs, list):

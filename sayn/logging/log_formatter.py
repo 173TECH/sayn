@@ -491,7 +491,7 @@ class LogFormatter:
     def task_stage_finish(self, stage, task, task_order, total_tasks, details):
         duration = human(details["duration"])
 
-        if details["result"].is_ok:
+        if details.get("result") is None or details["result"].is_ok:
             return {
                 "level": "info",
                 "message": self.good(f"Took ({duration})"),

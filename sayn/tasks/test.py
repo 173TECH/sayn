@@ -40,6 +40,8 @@ class Config(BaseModel):
 
 class TestTask(Task):
     def config(self, **config):
+        self._has_tests = True
+
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]
@@ -90,5 +92,3 @@ class TestTask(Task):
                 errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
 
                 return self.fail(errout + table.table + "\n\n" + errinfo)
-
-        return Ok()

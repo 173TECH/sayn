@@ -58,6 +58,8 @@ class Task:
 
     compiler: Compiler
 
+    _has_tests = False
+
     # Handy properties
     @property
     def parameters(self):
