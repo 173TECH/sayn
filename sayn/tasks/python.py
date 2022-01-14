@@ -35,9 +35,9 @@ class DecoratorTask(Task):
         # self.parents = set()
 
         # Need to store these temporarily
-        # self.temp_parents = parents
         self.temp_sources = sources
         self.temp_outputs = outputs
+        self.temp_parents = parents
 
     def __call__(self, app, name, jinja_env, **kwargs):
         self.app = app
