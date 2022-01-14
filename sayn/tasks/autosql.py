@@ -128,9 +128,6 @@ class AutoSqlTask(SqlTask):
         self.tmp_schema = obj.split(".")[0]
         self.tmp_table = obj.split(".")[1]
 
-        # TODO - remove this
-        self.use_db_object(self.table, schema=self.schema, tmp_schema=self.tmp_schema)
-
         self.materialisation = self.task_config.materialisation
         self.delete_key = self.task_config.delete_key
 

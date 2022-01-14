@@ -167,12 +167,6 @@ class CopyTask(SqlTask):
         self.source_db = self.connections[self.config.source.db]
         self.source_schema = self.config.source.db_schema
         self.source_table = self.config.source.table
-        self.use_db_object(
-            self.source_table,
-            schema=self.source_schema,
-            db=self.source_db,
-            request_tmp=False,
-        )
 
         self.tmp_schema = (
             self.config.destination.tmp_schema or self.config.destination.db_schema
@@ -180,14 +174,6 @@ class CopyTask(SqlTask):
         self.schema = self.config.destination.db_schema
         self.table = self.config.destination.table
         self.tmp_table = f"sayn_tmp_{self.table}"
-
-        self.use_db_object(
-            self.table,
-            schema=self.schema,
-            tmp_schema=self.tmp_schema,
-            db=self.target_db,
-            request_tmp=True,
-        )
 
         self.delete_key = self.config.delete_key
         self.src_incremental_key = self.config.incremental_key

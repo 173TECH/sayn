@@ -28,26 +28,6 @@ class SqlTask(Task):
     def target_db(self):
         return self.connections[self._target_db]
 
-    def use_db_object(
-        self, name, schema=None, tmp_schema=None, db=None, request_tmp=True
-    ):
-        if db is None:
-            target_db = self.target_db
-        elif isinstance(db, str):
-            target_db = self.connections[db]
-        elif isinstance(db, Database):
-            target_db = db
-        else:
-            return Err("use_db_object", "wrong_connection_type")
-
-        target_db._request_object(
-            name,
-            schema=schema,
-            tmp_schema=tmp_schema,
-            task_name=self.name,
-            request_tmp=request_tmp,
-        )
-
     def config(self, **config):
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)

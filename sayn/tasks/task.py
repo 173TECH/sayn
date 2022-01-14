@@ -257,25 +257,3 @@ class Task:
             path.unlink()
 
         path.write_text(str(content))
-
-    # Execution utilities
-
-    def use_db_object(
-        self, object_name, schema=None, tmp_schema=None, db=None, request_tmp=True
-    ):
-        if db is None:
-            target_db = self.default_db
-        elif isinstance(db, str):
-            target_db = self.connections[db]
-        elif isinstance(db, Database):
-            target_db = db
-        else:
-            return Err("use_db_object", "wrong_db_type")
-
-        target_db._request_object(
-            object_name,
-            schema=schema,
-            tmp_schema=tmp_schema,
-            task_name=self.name,
-            request_tmp=request_tmp,
-        )

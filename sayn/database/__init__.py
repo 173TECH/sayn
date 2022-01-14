@@ -277,9 +277,6 @@ class Database:
         self.engine = engine
         self.metadata = MetaData(self.engine)
 
-        # Force a query to test the connection
-        engine.execute("select 1")
-
     def _construct_tests(self, columns, table, schema=None):
         query = """
                    SELECT val

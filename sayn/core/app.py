@@ -422,6 +422,31 @@ class App:
         else:
             tasks_in_query = result.value
 
+        # Introspection
+        connections_used = set()
+        for task in tasks_in_query:
+            for source in self.tasks[task].sources:
+                connections_used.add(source.connection_name)
+                self.connections[source.connection_name]._request_object(
+                    source.object, schema=source.schema
+                )
+
+            for output in self.tasks[task].outputs:
+                connections_used.add(output.connection_name)
+                self.connections[output.connection_name]._request_object(
+                    output.object, schema=output.schema
+                )
+
+        for connection_name in connections_used:
+            db = self.connections[connection_name]
+            # Force a query to test the connection
+            db.execute("select 1")
+            if isinstance(db, Database):
+                try:
+                    db._introspect()
+                except Exception as exc:
+                    return Exc(exc, where="introspection")
+
         self.tracker.set_tasks(tasks_in_query)
 
         for task_order, task_name in enumerate(tasks_in_query):
@@ -446,13 +471,6 @@ class App:
             task.tracker._report_event(
                 "finish_stage", duration=datetime.now() - start_ts, result=result
             )
-
-        for db in self.connections.values():
-            if isinstance(db, Database):
-                try:
-                    db._introspect()
-                except Exception as exc:
-                    return Exc(exc, where="introspection")
 
         return Ok()
 
