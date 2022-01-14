@@ -358,14 +358,15 @@ class TaskWrapper:
                         self.parents.append(all_tasks[task_name])
                         self.parent_names.add(task_name)
 
-        if len(missing) > 0:
-            tables = ", ".join([f"{t.get_value()}" for t in missing])
-            self.status = TaskStatus.SETUP_FAILED
-            return Err(
-                "dag",
-                "missing_sources",
-                error_message=f'No task creates table(s) "{tables}" referenced by task "{self.name}"',
-            )
+        # TODO send some message when a table is source
+        # if len(missing) > 0:
+        #     tables = ", ".join([f"{t.get_value()}" for t in missing])
+        #     self.status = TaskStatus.SETUP_FAILED
+        #     return Err(
+        #         "dag",
+        #         "missing_sources",
+        #         error_message=f'No task creates table(s) "{tables}" referenced by task "{self.name}"',
+        #     )
 
         return Ok()
 

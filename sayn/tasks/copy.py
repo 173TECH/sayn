@@ -108,7 +108,7 @@ class Config(BaseModel):
 
 
 class CopyTask(SqlTask):
-    def setup(self, **config):  # noqa: C901
+    def config(self, **config):  # noqa: C901
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]
@@ -164,10 +164,18 @@ class CopyTask(SqlTask):
         except Exception as e:
             return Exc(e)
 
+        # Setup sources
         self.source_db = self.connections[self.task_config.source.db]
         self.source_schema = self.task_config.source.db_schema
         self.source_table = self.task_config.source.table
+        if self.source_schema is None:
+            self.src(self.source_table, connection=self.source_db)
+        else:
+            self.src(
+                f"{self.source_schema}.{self.source_table}", connection=self.source_db
+            )
 
+        # Setup outputs
         self.tmp_schema = (
             self.task_config.destination.tmp_schema
             or self.task_config.destination.db_schema
@@ -175,6 +183,17 @@ class CopyTask(SqlTask):
         self.schema = self.task_config.destination.db_schema
         self.table = self.task_config.destination.table
         self.tmp_table = f"sayn_tmp_{self.table}"
+
+        if self.schema is None:
+            self.table = self.out(self.table, connection=self.target_db)
+            self.tmp_table = self.out(self.tmp_table, connection=self.target_db)
+        else:
+            obj = self.out(f"{self.schema}.{self.table}", connection=self.target_db)
+            self.schema = obj.split(".")[0]
+            self.table = obj.split(".")[1]
+            obj = self.out(f"{self.schema}.{self.tmp_table}", connection=self.target_db)
+            self.tmp_schema = obj.split(".")[0]
+            self.tmp_table = obj.split(".")[1]
 
         self.delete_key = self.task_config.delete_key
         self.src_incremental_key = self.task_config.incremental_key

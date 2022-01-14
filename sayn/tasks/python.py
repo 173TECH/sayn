@@ -73,7 +73,7 @@ class DecoratorTask(Task):
     ):
         self.name = name
         self.group = group
-        self.tracker = tracker
+        self._tracker = tracker
         self.run_arguments = run_arguments
         self.task_parameters = task_parameters
         self.project_parameters = project_parameters

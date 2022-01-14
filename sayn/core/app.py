@@ -319,8 +319,6 @@ class App:
         return Ok()
 
     def get_task_class(self, task_type, config):
-        # if task_type not in ('sql', 'autosql'):
-        #     import IPython;IPython.embed()
         if task_type == "python":
             return self.python_loader.get_class("python_tasks", config.get("class"))
         elif task_type in _creators:

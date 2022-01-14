@@ -420,7 +420,7 @@ class LogFormatter:
             #     out.append(self.warn(f"Tasks to skip: {self.blist(skipped)}"))
             #     level = "error"
             if len(succeeded) > 0:
-                out.append(self.good(f"Tasks ready: {self.blist(succeeded)}"))
+                out.append(self.good(f"Tasks found: {self.blist(succeeded)}"))
             return {"level": level, "message": out}
 
         elif stage == "setup":
