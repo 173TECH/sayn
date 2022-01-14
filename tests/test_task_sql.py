@@ -11,7 +11,7 @@ from . import inside_dir, simulate_task, validate_table, tables_with_data, clear
 def sql_task(tmp_path, target_db, sql, data=None, drop_tables=list(), **kwargs):
     fs = {"sql/test.sql": sql} if sql is not None else dict()
     with inside_dir(tmp_path, fs):
-        task = simulate_task(SqlTask, "sql", target_db=target_db, **kwargs)
+        task = simulate_task(SqlTask, target_db=target_db, **kwargs)
         if data is not None:
             with tables_with_data(task.connections["target_db"], data):
                 yield task

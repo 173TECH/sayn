@@ -188,6 +188,7 @@ class CopyTask(SqlTask):
         self.config_tmp_table = f"sayn_tmp_{self.config_table}"
 
         if self.config_schema is None:
+            self.schema = None
             self.table = self.out(self.config_table, connection=self.target_db)
         else:
             obj = self.out(
@@ -197,6 +198,7 @@ class CopyTask(SqlTask):
             self.table = obj.split(".")[1]
 
         if self.config_tmp_schema is None:
+            self.tmp_schema = None
             self.tmp_table = self.out(self.config_tmp_table, connection=self.target_db)
         else:
             obj = self.out(
@@ -277,6 +279,8 @@ class CopyTask(SqlTask):
                 )
                 self.tmp_schema = obj.split(".")[0]
                 self.tmp_table = obj.split(".")[1]
+
+        return Ok()
 
     def compile(self):
         result = self.get_columns()

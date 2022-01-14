@@ -11,7 +11,7 @@ def autosql_task(tmp_path, target_db, sql, data=None, **kwargs):
     """Creates an autosql task and drops the tables/views created after it's done"""
     fs = {"sql/test.sql": sql} if sql is not None else dict()
     with inside_dir(tmp_path, fs):
-        task = simulate_task(AutoSqlTask, "autosql", target_db=target_db, **kwargs)
+        task = simulate_task(AutoSqlTask, target_db=target_db, **kwargs)
         if data is not None:
             with tables_with_data(task.connections["target_db"], data):
                 yield task

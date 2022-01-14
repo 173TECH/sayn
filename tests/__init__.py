@@ -82,7 +82,6 @@ vd = VoidTracker()
 
 def simulate_task(
     task_class,
-    task_type,
     source_db=None,
     target_db=None,
     run_arguments=None,
