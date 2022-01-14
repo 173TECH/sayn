@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from pathlib import Path
 from typing import Union
 
@@ -25,18 +26,20 @@ class Compiler(BaseCompiler):
             "end_dt": f"'{run_arguments.end_dt.strftime('%Y-%m-%d')}'",
         }
 
-        self.base_env = Environment(
+        self.env = self._create_environment()
+        self.env.globals.update(**env_arguments)
+        self.env.globals.update(**parameters)
+
+        self.prod_env = self._create_environment()
+        self.prod_env.globals.update(**env_arguments)
+        self.prod_env.globals.update(**prod_parameters)
+
+    def _create_environment(self):
+        return Environment(
             loader=FileSystemLoader(Path(".")),
             undefined=StrictUndefined,
             keep_trailing_newline=True,
         )
-        self.base_env.globals.update(**env_arguments)
-
-        self.env = self.base_env.overlay()
-        self.env.globals.update(**parameters)
-
-        self.prod_env = self.base_env.overlay()
-        self.prod_env.globals.update(**prod_parameters)
 
     def _get_template(
         self, obj: Union[Template, Path, str], use_prod: bool = False
@@ -110,8 +113,10 @@ class Prepared:
 
 class TaskCompiler(Compiler):
     def __init__(self, base_env, base_prod_env, task) -> None:
-        self.env = base_env.overlay()
+        self.env = self._create_environment()
+        self.env.globals.update(**deepcopy(base_env.globals))
         self.env.globals["task"] = task
 
-        self.prod_env = base_prod_env.overlay()
+        self.prod_env = self._create_environment()
+        self.prod_env.globals.update(**deepcopy(base_prod_env.globals))
         self.prod_env.globals["task"] = task

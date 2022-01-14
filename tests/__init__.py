@@ -7,6 +7,8 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from ruamel.yaml import YAML
 
 from sayn.database.creator import create as create_db
+from sayn.tasks.task_wrapper import TaskWrapper
+from sayn.utils.compiler import Compiler
 
 
 @contextmanager
@@ -81,11 +83,32 @@ vd = VoidTracker()
 
 
 def simulate_task(
-    task, source_db=None, target_db=None, run_arguments=dict(), task_params=dict()
+    task_class,
+    task_type,
+    source_db=None,
+    target_db=None,
+    run_arguments=dict(),
+    task_params=dict(),
 ):
-    task.name = "test_task"  # set for compilation output during run
-    task.group = "test_group"  # set for compilation output during run
-    task.run_arguments = {
+
+    connections = dict()
+    if target_db is not None:
+        connections = {
+            "target_db": create_db(
+                "target_db", "target_db", target_db.copy(), dict(), dict()
+            )
+        }
+
+    if source_db is not None:
+        connections.update(
+            {
+                "source_db": create_db(
+                    "source_db", "source_db", source_db.copy(), dict(), dict()
+                )
+            }
+        )
+
+    run_arguments = {
         "folders": {"sql": "sql", "compile": "compile", "tests": "tests"},
         "command": "run",
         "debug": False,
@@ -93,25 +116,24 @@ def simulate_task(
         **run_arguments,
     }
 
-    if target_db is not None:
-        task.connections = {
-            "target_db": create_db("target_db", "target_db", target_db.copy())
-        }
-
-    if source_db is not None:
-        task.connections.update(
-            {"source_db": create_db("source_db", "source_db", source_db.copy())}
-        )
-
-    task._default_db = "target_db"
-    task.tracker = vd
-
-    task.jinja_env = Environment(
-        loader=FileSystemLoader(os.getcwd()),
-        undefined=StrictUndefined,
-        keep_trailing_newline=True,
+    wrapper = TaskWrapper(
+        "test_group",
+        "test_task",
+        task_type,
+        None,  # on_fail
+        set(),  # parents
+        set(),  # sources
+        set(),  # outputs
+        set(),  # tags
+        vd,
+        task_class,
+        connections,
+        "target_db",
+        run_arguments,
+        Compiler(run_arguments, dict(), task_params),
     )
-    task.jinja_env.globals.update(**task_params)
+
+    return wrapper.runner
 
 
 def validate_table(db, table_name, expected_data, variable_columns=None):

@@ -2,7 +2,13 @@ from sayn.database.creator import create as create_db
 
 
 def validate_ddl(ddl):
-    db = create_db("test", "test", {"type": "sqlite", "database": ":memory:"})
+    db = create_db(
+        "test",
+        "test",
+        {"type": "sqlite", "database": ":memory:"},
+        stringify=dict(),
+        prod_stringify=dict(),
+    )
 
     res = db._validate_ddl(ddl["columns"], ddl["table_properties"], ddl["post_hook"])
 

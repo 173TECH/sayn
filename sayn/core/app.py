@@ -487,7 +487,6 @@ class App:
 
             task.tracker._report_event("start_stage")
 
-            # TODO add from_prod logic
             result = task.setup(task_name in tasks_in_query, sources_from_prod)
 
             task.tracker._report_event(

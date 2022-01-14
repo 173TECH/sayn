@@ -153,7 +153,8 @@ class TaskWrapper:
                 self.default_db,
                 self.connections,
                 self.compiler,
-                self,
+                self.src,
+                self.out,
             )
         except Exception as exc:
             self.status = TaskStatus.FAILED
