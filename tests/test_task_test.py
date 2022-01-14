@@ -10,7 +10,7 @@ from . import inside_dir, simulate_task, tables_with_data, validate_table, clear
 def task_tset(tmp_path, target_db, sql, data=None, **kwargs):
     """Creates an test task and drops the tables/views created after it's done"""
 
-    fs = {"tests/test.sql": sql} if sql is not None else dict()
+    fs = {"sql/tests/test.sql": sql} if sql is not None else dict()
     with inside_dir(tmp_path, fs):
         task = simulate_task(Task, target_db=target_db, **kwargs)
         task.run_arguments["command"] = "test"
