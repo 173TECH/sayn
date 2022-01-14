@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from pathlib import Path
 import sys
 
 import click
@@ -7,6 +8,7 @@ from .utils.graphviz import plot_dag
 from .logging import ConsoleLogger, FancyLogger, FileLogger
 from .scaffolding.init_project import sayn_init
 from .core.app import App, Command
+from .core.errors import Err, Exc, Ok, Result, SaynError
 from .core.project import read_project, read_groups, get_tasks_dict
 from .tasks.task import TaskStatus
 
@@ -225,30 +227,11 @@ def test(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 def dag_image(debug, tasks, exclude):
     def handle_error():
         print("Errors detected in project. Run `sayn compile` to see the errors")
-        sys.exit()
+        sys.exit(-1)
 
-    result = read_project()
-    if result.is_err:
-        handle_error()
-    else:
-        project = result.value
+    app = App()
+    app.start_app()
 
-    result = read_groups(project.groups)
-    if result.is_err:
-        handle_error()
-    else:
-        groups = result.value
-
-    result = get_tasks_dict(project.presets, groups)
-    if result.is_err:
-        handle_error()
-    else:
-        tasks_dict = result.value
-    dag = {
-        task["name"]: [p for p in task.get("parents", list())]
-        for task in tasks_dict.values()
-    }
-
-    plot_dag(dag, "images", "dag")
+    plot_dag(app.dag, "images", "dag")
 
     print("Dag image created in `images/dag.png`")
