@@ -39,7 +39,7 @@ class Config(BaseModel):
 
 
 class TestTask(Task):
-    def setup(self, **config):
+    def config(self, **config):
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]
@@ -59,15 +59,14 @@ class TestTask(Task):
         except Exception as e:
             return Exc(e)
 
-        result = self.compile_obj(self.task_config.file_name)
-        if result.is_err:
-            return result
-        else:
-            self.test_query = result.value
+        self.test_query = self.compiler.compile(self.task_config.file_name)
 
         if self.run_arguments["command"] == "test":
             self.set_run_steps(["Write Query", "Execute Query"])
 
+        return Ok()
+
+    def setup(self, needs_recompile):
         return Ok()
 
     def test(self):
@@ -88,3 +87,5 @@ class TestTask(Task):
                 table = AsciiTable(data)
 
                 return self.fail(errout + table.table)
+
+        return Ok()
