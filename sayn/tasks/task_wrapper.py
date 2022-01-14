@@ -131,9 +131,15 @@ class TaskWrapper:
         project_parameters: Dict[str, Any],
         task_parameters: Dict[str, Any],
     ):
+        # Check the parents are in a good state
+        result = self.check_skip()
+        if result.is_err or result.value == TaskStatus.SKIPPED:
+            return result
+
         try:
             self.set_parameters(project_parameters, task_parameters)
         except Exception as exc:
+            self.status = TaskStatus.FAILED
             return Exc(exc, where="set_task_parameters")
 
         try:
@@ -151,6 +157,7 @@ class TaskWrapper:
                 self.out,
             )
         except Exception as exc:
+            self.status = TaskStatus.FAILED
             return Exc(exc, where="create_task_runner")
 
         # convert sources and outputs from strings in yaml
@@ -170,7 +177,7 @@ class TaskWrapper:
         self.runner = runner
 
         result = self.runner.config(**runner_config)
-        if result.is_err:
+        if result is not None and result.is_err:
             self.status = TaskStatus.FAILED
             return result
 
@@ -239,17 +246,19 @@ class TaskWrapper:
             else:
                 return Ok(self.status)
 
+        elif "fail" in self.status.value:
+            return Err("task", "task_error", status=self.status)
         else:
             return Ok(self.status)
 
     def setup(self, in_query, from_prod_src):
-        self.in_query = in_query
-        self.status = TaskStatus.SETTING_UP
-
         # Check the parents are in a good state
         result = self.check_skip()
         if result.is_err or result.value == TaskStatus.SKIPPED:
             return result
+
+        self.in_query = in_query
+        self.status = TaskStatus.SETTING_UP
 
         if not in_query:
             self.status = TaskStatus.NOT_IN_QUERY
@@ -267,7 +276,10 @@ class TaskWrapper:
                 result = Exc(exc)
 
             finally:
-                if not isinstance(result, Result):
+                if result is None:
+                    self.status = TaskStatus.READY
+                    return Ok()
+                elif not isinstance(result, Result):
                     self.status = TaskStatus.FAILED
                     self.tracker.current_step = None
                     return Err("task_result", "missing_result_error", result=result)
@@ -310,9 +322,9 @@ class TaskWrapper:
                     result = self.runner.compile()
                 else:
                     result = self.runner.test()
+
                 if result is None:
-                    self.status = TaskStatus.FAILED
-                    result = Err("execution", "none_return_value")
+                    self.status = TaskStatus.SUCCEEDED
                 if result.is_ok:
                     self.status = TaskStatus.SUCCEEDED
                 else:
@@ -373,7 +385,7 @@ class TaskWrapper:
                 ),
             )
 
-            if connection_name is not None and connection is not None:
+            if connection is not None:
                 if isinstance(connection, str):
                     connection_object = self.connections[connection]
                 elif isinstance(connection, Database):

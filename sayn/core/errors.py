@@ -82,7 +82,7 @@ def Exc(exc, **kwargs):
             error=Error(
                 "exception",
                 "not_implemented",
-                {"class": exc.args[1], "method": exc.args[2]},
+                {"class": exc.args[1], "method": exc.args[2], "exception": exc},
             )
         )
     elif isinstance(exc, NotImplementedError):

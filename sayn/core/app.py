@@ -170,7 +170,7 @@ class App:
         self.check_abort(self.setup_execution())
 
         self.tracker.finish_current_stage(
-            tasks={k: v.status for k, v in self.tasks.items()}
+            tasks={k: v.status for k, v in self.tasks.items() if v.in_query}
         )
 
     def set_project(self, project, file_groups):
@@ -319,6 +319,8 @@ class App:
         return Ok()
 
     def get_task_class(self, task_type, config):
+        # if task_type not in ('sql', 'autosql'):
+        #     import IPython;IPython.embed()
         if task_type == "python":
             return self.python_loader.get_class("python_tasks", config.get("class"))
         elif task_type in _creators:
@@ -342,8 +344,10 @@ class App:
             result = self.get_task_class(task["type"], task)
             if result.is_err:
                 task_class = None
+                result_error = result
             else:
                 task_class = result.value
+                result_error = None
 
             task_objects[task_name] = TaskWrapper(
                 task["group"],
@@ -361,6 +365,13 @@ class App:
                 self.run_arguments,
                 self.compiler,
             )
+
+            if task_class is None:
+                task_tracker._report_event(
+                    "finish_stage",
+                    duration=datetime.now() - start_ts,
+                    result=result_error,
+                )
 
             result = task_objects[task_name].config(
                 task,

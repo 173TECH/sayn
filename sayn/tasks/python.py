@@ -1,4 +1,5 @@
 import inspect
+from typing import Optional, List, Union
 
 from .task import Task
 
@@ -26,7 +27,13 @@ class PythonTask(Task):
 
 
 class DecoratorTask(Task):
-    def __init__(self, func, sources=None, outputs=None, parents=None):
+    def __init__(
+        self,
+        func,
+        sources: Optional[Union[List[str], str]] = None,
+        outputs: Optional[Union[List[str], str]] = None,
+        parents: Optional[Union[List[str], str]] = None,
+    ):
         """The init method collects the information provided by the decorator itself"""
 
         self.func = func
@@ -35,21 +42,46 @@ class DecoratorTask(Task):
         # self.parents = set()
 
         # Need to store these temporarily
-        self.temp_sources = sources
-        self.temp_outputs = outputs
-        self.temp_parents = parents
+        if sources is None:
+            self.temp_sources = list()
+        else:
+            self.temp_sources = sources
 
-    def __call__(self, app, name, jinja_env, **kwargs):
-        self.app = app
+        if outputs is None:
+            self.temp_outputs = list()
+        else:
+            self.temp_outputs = outputs
+
+        if parents is None:
+            self.temp_parents = list()
+        else:
+            self.temp_parents = parents
+
+    def __call__(
+        self,
+        name,
+        group,
+        tracker,
+        run_arguments,
+        task_parameters,
+        project_parameters,
+        default_db,
+        connections,
+        compiler,
+        src,
+        out,
+    ):
         self.name = name
-
-        self.jinja_env = jinja_env.overlay()
-        self.jinja_env.globals.update(
-            src=self.src_macro,
-            config=self.config_macro,
-        )
-
-        self.kwargs = kwargs
+        self.group = group
+        self.tracker = tracker
+        self.run_arguments = run_arguments
+        self.task_parameters = task_parameters
+        self.project_parameters = project_parameters
+        self._default_db = default_db
+        self.connections = connections
+        self.compiler = compiler
+        self.src = src
+        self.out = out
 
         return self
 
@@ -58,14 +90,14 @@ class DecoratorTask(Task):
             self.out(self.temp_outputs)
         elif isinstance(self.temp_outputs, list):
             for output in self.temp_outputs:
-                self.out(self.temp_output)
+                self.out(output)
         del self.temp_outputs
 
         if isinstance(self.temp_sources, str):
             self.out(self.temp_sources)
         elif isinstance(self.temp_sources, list):
             for source in self.temp_sources:
-                self.src(self.temp_source)
+                self.src(source)
         del self.temp_sources
 
         # Get the names of the arguments to the function
@@ -80,12 +112,15 @@ class DecoratorTask(Task):
                 # is linked to the connection object itself
                 self.wrapper_params.append(self.connections[param])
             else:
+                if param not in self.task_parameters:
+                    value = None
+                else:
+                    value = self.task_parameters[param]
                 # The rest are interpreted as task parameters
-                self.wrapper_params.append(
-                    self.jinja_env.from_string(self.kwargs["parameters"][param]).render(
-                        task=self
-                    )
-                )
+                self.wrapper_params.append(value)
+
+    def setup(self, needs_update):
+        pass
 
     def run(self):
         return self.func(*self.wrapper_params)
