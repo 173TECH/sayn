@@ -11,6 +11,7 @@
  WHERE l.{{ name }} NOT IN ( {{ values }} )
 {%- endif %}
  GROUP BY l.{{ name }}
-HAVING COUNT(*) > {%- if type == 'unique' %} 1 {%- else %} 0 {%- endif %})
+HAVING COUNT(*) > {%- if type == 'unique' %} 1 {%- else %} 0 {%- endif %}
+LIMIT 5)
 
 UNION ALL

@@ -57,7 +57,7 @@ INSERT INTO {{ full_name }}
 {% else %}
 AS
 {% endif %}
-  {%- if columns is defined and columns|length > 0 %}
+  {%- if columns is defined and columns|length > 0 and all_columns_have_type %}
 SELECT {{ columns|join('\n     , ', attribute='name') }}
   FROM ({{ select }}) t
   {%- else %}
