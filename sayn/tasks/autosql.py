@@ -162,8 +162,13 @@ class AutoSqlTask(SqlTask):
             config=self.config_macro,
         )
 
+        self.allow_config = True
+
         self.prepared_sql_query = self.compiler.prepare(self.task_config.file_name)
         self.sql_query = self.prepared_sql_query.compile()
+
+        # After the first compilation, config shouldn't be executed again
+        self.allow_config = False
 
         # Output calculation
         db_schema = self.task_config.destination.db_schema
@@ -212,37 +217,40 @@ class AutoSqlTask(SqlTask):
         return Ok()
 
     def config_macro(self, **config):
-        config.update(
-            {
-                "supports_schemas": not self.target_db.feature("NO SCHEMA SUPPORT"),
-                "db_type": self.target_db.db_type,
-            }
-        )
-        task_config_overload = CompileConfig(**config)
-        self.task_config.materialisation = (
-            task_config_overload.materialisation or self.task_config.materialisation
-        )
-        self.task_config.destination.db_schema = (
-            task_config_overload.db_schema or self.task_config.destination.db_schema
-        )
-        self.task_config.destination.tmp_schema = (
-            task_config_overload.tmp_schema or self.task_config.destination.tmp_schema
-        )
-        self.task_config.destination.table = (
-            task_config_overload.table or self.task_config.destination.table
-        )
-        self.task_config.columns = (
-            task_config_overload.columns or self.task_config.columns
-        )
-        self.task_config.table_properties = (
-            task_config_overload.table_properties or self.task_config.table_properties
-        )
-        self.task_config.post_hook = (
-            task_config_overload.post_hook or self.task_config.post_hook
-        )
-        self.task_config.delete_key = (
-            task_config_overload.delete_key or self.task_config.delete_key
-        )
+        if self.allow_config:
+            config.update(
+                {
+                    "supports_schemas": not self.target_db.feature("NO SCHEMA SUPPORT"),
+                    "db_type": self.target_db.db_type,
+                }
+            )
+            task_config_overload = CompileConfig(**config)
+            self.task_config.materialisation = (
+                task_config_overload.materialisation or self.task_config.materialisation
+            )
+            self.task_config.destination.db_schema = (
+                task_config_overload.db_schema or self.task_config.destination.db_schema
+            )
+            self.task_config.destination.tmp_schema = (
+                task_config_overload.tmp_schema
+                or self.task_config.destination.tmp_schema
+            )
+            self.task_config.destination.table = (
+                task_config_overload.table or self.task_config.destination.table
+            )
+            self.task_config.columns = (
+                task_config_overload.columns or self.task_config.columns
+            )
+            self.task_config.table_properties = (
+                task_config_overload.table_properties
+                or self.task_config.table_properties
+            )
+            self.task_config.post_hook = (
+                task_config_overload.post_hook or self.task_config.post_hook
+            )
+            self.task_config.delete_key = (
+                task_config_overload.delete_key or self.task_config.delete_key
+            )
 
         # Returns an empty string to avoid productin incorrect sql
         return ""

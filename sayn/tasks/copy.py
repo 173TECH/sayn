@@ -160,28 +160,29 @@ class CopyTask(SqlTask):
             )
 
         try:
-            self.config = Config(**config)
+            self.task_config = Config(**config)
         except Exception as e:
             return Exc(e)
 
-        self.source_db = self.connections[self.config.source.db]
-        self.source_schema = self.config.source.db_schema
-        self.source_table = self.config.source.table
+        self.source_db = self.connections[self.task_config.source.db]
+        self.source_schema = self.task_config.source.db_schema
+        self.source_table = self.task_config.source.table
 
         self.tmp_schema = (
-            self.config.destination.tmp_schema or self.config.destination.db_schema
+            self.task_config.destination.tmp_schema
+            or self.task_config.destination.db_schema
         )
-        self.schema = self.config.destination.db_schema
-        self.table = self.config.destination.table
+        self.schema = self.task_config.destination.db_schema
+        self.table = self.task_config.destination.table
         self.tmp_table = f"sayn_tmp_{self.table}"
 
-        self.delete_key = self.config.delete_key
-        self.src_incremental_key = self.config.incremental_key
-        self.dst_incremental_key = self.config.incremental_key
-        self.max_merge_rows = self.config.max_merge_rows
-        self.max_batch_rows = self.config.max_batch_rows
+        self.delete_key = self.task_config.delete_key
+        self.src_incremental_key = self.task_config.incremental_key
+        self.dst_incremental_key = self.task_config.incremental_key
+        self.max_merge_rows = self.task_config.max_merge_rows
+        self.max_batch_rows = self.task_config.max_batch_rows
 
-        if self.config.append:
+        if self.task_config.append:
             self.mode = "append"
         elif self.dst_incremental_key is None:
             self.mode = "full"
@@ -191,7 +192,9 @@ class CopyTask(SqlTask):
         self.is_full_load = self.run_arguments["full_load"] or self.mode == "full"
 
         result = self.target_db._validate_ddl(
-            self.config.columns, self.config.table_properties, self.config.post_hook
+            self.task_config.columns,
+            self.task_config.table_properties,
+            self.task_config.post_hook,
         )
         if result.is_ok:
             self.columns = result.value

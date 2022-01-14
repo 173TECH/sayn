@@ -53,13 +53,13 @@ class TestTask(Task):
             self._target_db = self._default_db
 
         try:
-            self.config = Config(
+            self.task_config = Config(
                 test_folder=self.run_arguments["folders"]["tests"], **config
             )
         except Exception as e:
             return Exc(e)
 
-        result = self.compile_obj(self.config.file_name)
+        result = self.compile_obj(self.task_config.file_name)
         if result.is_err:
             return result
         else:

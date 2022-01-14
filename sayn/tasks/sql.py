@@ -42,17 +42,19 @@ class SqlTask(Task):
             self._target_db = self._default_db
 
         try:
-            self.config = Config(
+            self.task_config = Config(
                 sql_folder=self.run_arguments["folders"]["sql"], **config
             )
         except Exception as e:
             return Exc(e)
 
-        result = self.compile_obj(self.config.file_name)
-        if result.is_err:
-            return result
-        else:
-            self.sql_query = result.value
+        self.compiler.update_globals(
+            src=lambda x: self.src(x, connection=self._target_db),
+            out=lambda x: self.out(x, connection=self._target_db),
+        )
+
+        self.prepared_sql_query = self.compiler.prepare(self.task_config.file_name)
+        self.sql_query = self.prepared_sql_query.compile()
 
         if self.run_arguments["command"] == "run":
             self.set_run_steps(["Write Query", "Execute Query"])
@@ -116,6 +118,12 @@ class SqlTask(Task):
         #
         return Ok()
 
+    def setup(self, needs_recompile):
+        if needs_recompile:
+            self.sql_query = self.prepare_sql_query.compile()
+
+        return Ok()
+
     def compile(self):
         with self.step("Write Query"):
             result = self.write_compilation_output(self.sql_query)
@@ -126,9 +134,7 @@ class SqlTask(Task):
 
     def run(self):
         with self.step("Write Query"):
-            result = self.write_compilation_output(self.sql_query)
-            if result.is_err:
-                return result
+            self.write_compilation_output(self.sql_query)
 
         with self.step("Execute Query"):
             try:
