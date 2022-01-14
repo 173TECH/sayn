@@ -252,14 +252,7 @@ def get_tasks_dict(global_presets, groups, autogroups, sql_folder, compiler):
 
         group_definition.update(group)
 
-        if group_definition.get("type") not in ("sql", "autosql"):
-            return Err(
-                "dag",
-                "wrong_autogroup_type",
-                group=group_name,
-                type=group_definition.get("type"),
-            )
-        else:
+        if group_definition.get("type") in ("sql", "autosql"):
             if "file_name" not in group_definition:
                 return Err(
                     "dag",
@@ -273,6 +266,14 @@ def get_tasks_dict(global_presets, groups, autogroups, sql_folder, compiler):
             )
             for file in Path(sql_folder).glob(file_glob):
                 task_name = file.stem
+                if task_name in tasks:
+                    return Err(
+                        "dag",
+                        "duplicate_task",
+                        task_name=task_name,
+                        groups=(group_name, tasks[task_name]["group"]),
+                    )
+
                 task = deepcopy(group_definition)
                 task["file_name"] = str(file.relative_to(sql_folder))
 
@@ -283,6 +284,53 @@ def get_tasks_dict(global_presets, groups, autogroups, sql_folder, compiler):
                     errors[task_name] = result.error
 
                 tasks[task_name] = task
+        elif group_definition.get("type") == "python":
+            group_definition["group"] = group_name
+            group_tasks = group_definition.pop("tasks", dict())
+            if not isinstance(group_tasks, dict):
+                return Err(
+                    "dag",
+                    "wrong_yaml_type",
+                    group=group_name,
+                    type=type(group_definition.get("tasks")),
+                )
+
+            for task_name, task_def in group_tasks.items():
+                if task_name in tasks:
+                    return Err(
+                        "dag",
+                        "duplicate_task",
+                        task_name=task_name,
+                        groups=(group_name, tasks[task_name]["group"]),
+                    )
+
+                if task_def is not None:
+                    if not isinstance(task_def, dict):
+                        return Err(
+                            "dag",
+                            "wrong_yaml_type",
+                            group=group_name,
+                            type=type(task_def),
+                        )
+
+                    task = deepcopy(group_definition)
+                    task = merge_dicts(task, task_def)
+                else:
+                    task = deepcopy(group_definition)
+
+                result = get_task_dict(task, task_name, group_name, presets)
+                if result.is_ok:
+                    tasks[task_name] = result.value
+                else:
+                    errors[task_name] = result.error
+
+        else:
+            return Err(
+                "dag",
+                "wrong_autogroup_type",
+                group=group_name,
+                type=group_definition.get("type"),
+            )
 
     for t in tests:
         if t in tasks.keys():

@@ -150,15 +150,21 @@ class SaynParsingError(SaynError):
         sorted_errors = sorted(self.errors, key=lambda x: x["file_name"])
 
         file_name = sorted_errors[0]["file_name"]
-        message = f'In file "{file_name}"'
+        message = f'Error in file "{file_name}"'
         for error in sorted_errors:
             if error["file_name"] != file_name:
                 # Add a new file_name line if it's different
                 message += f'\nIn file "{file_name}"'
-            message += (
-                f"\n  In \"{' > '.join([str(item) for item in error['loc']])}\""
-                f" (line {error['line']}): {error['message']}"
-            )
+
+            if "snippet" in error:
+                message += "\n" + error["snippet"]
+            elif "loc" in error:
+                message += (
+                    f"\n  In \"{' > '.join([str(item) for item in error['loc']])}\""
+                    f" (line {error['line']}): {error['message']}"
+                )
+            else:
+                message += "\n" + error["message"]
 
         return {
             "kind": "parsing_error",
