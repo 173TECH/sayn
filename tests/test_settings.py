@@ -1,6 +1,6 @@
 import json
 
-from sayn.core.config import read_settings
+from sayn.core.settings import read_settings
 
 from . import create_project
 

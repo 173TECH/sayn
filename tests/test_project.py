@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from sayn.core.config import read_project
+from sayn.core.project import read_project
 from . import inside_dir
 
 # utils
