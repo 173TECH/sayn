@@ -16,7 +16,7 @@ def cli():
 
 @cli.command()
 @tcli.click_run_options
-def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
+def run(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_dt):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
@@ -38,7 +38,7 @@ def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 
 @cli.command()
 @tcli.click_run_options
-def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
+def compile(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_dt):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
@@ -62,7 +62,6 @@ def get_output(command):
     runner = CliRunner()
     result = runner.invoke(cli, command.split(" "), standalone_mode=False)
     output = result.return_value
-    # return output
     return output
 
 
