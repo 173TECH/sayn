@@ -238,7 +238,9 @@ def get_tasks_dict(global_presets, groups, autogroups, sql_folder, compiler):
                         "Tests have no types",
                         task=test_name,
                     )
+
                 test["type"] = "test"
+
                 if test_name in tests:
                     return Err(
                         "dag",
@@ -246,6 +248,12 @@ def get_tasks_dict(global_presets, groups, autogroups, sql_folder, compiler):
                         task=test_name,
                         groups=(group_name, tasks[test_name]["group"]),
                     )
+
+                result = get_task_dict(test, test_name, group_name, presets)
+                if result.is_ok:
+                    tests[test_name] = result.value
+                else:
+                    errors[test_name] = result.error
 
     for group_name, group in autogroups.items():
         group_definition = dict()
