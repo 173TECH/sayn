@@ -152,22 +152,32 @@ class DbObject:
         self.value = ""
         self.prod_value = ""
         if self.database is not None:
-            self.value += (
-                self.stringify["database"].compile(database=self.database) + "."
+            self.database_value = self.stringify["database"].compile(
+                database=self.database
             )
-            self.prod_value += (
-                self.prod_stringify["database"].compile_prod(database=self.database)
-                + "."
+            self.value += self.database_value + "."
+
+            self.database_prod_value = self.prod_stringify["database"].compile_prod(
+                database=self.database
             )
+            self.prod_value += self.database_prod_value + "."
 
         if self.schema is not None:
-            self.value += self.stringify["schema"].compile(schema=self.schema) + "."
-            self.prod_value += (
-                self.prod_stringify["schema"].compile_prod(schema=self.schema) + "."
-            )
+            self.schema_value = self.stringify["schema"].compile(schema=self.schema)
+            self.value += self.schema_value + "."
 
-        self.value += self.stringify["table"].compile(table=self.object)
-        self.prod_value += self.prod_stringify["table"].compile_prod(table=self.object)
+            self.schema_prod_value = self.prod_stringify["schema"].compile_prod(
+                schema=self.schema
+            )
+            self.prod_value += self.schema_prod_value + "."
+
+        self.object_value = self.stringify["table"].compile(table=self.object)
+        self.value += self.object_value
+
+        self.object_prod_value = self.prod_stringify["table"].compile_prod(
+            table=self.object
+        )
+        self.prod_value += self.object_prod_value
 
     def __hash__(self):
         return hash(self.get_key())

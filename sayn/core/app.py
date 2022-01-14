@@ -437,13 +437,13 @@ class App:
             for source in self.tasks[task].sources:
                 connections_used.add(source.connection_name)
                 self.connections[source.connection_name]._request_object(
-                    source.object, schema=source.schema
+                    source.object_value, schema=source.schema_value
                 )
 
             for output in self.tasks[task].outputs:
                 connections_used.add(output.connection_name)
                 self.connections[output.connection_name]._request_object(
-                    output.object, schema=output.schema
+                    output.object_value, schema=output.schema_value
                 )
 
         for connection_name in connections_used:

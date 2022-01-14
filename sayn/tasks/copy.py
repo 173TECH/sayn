@@ -176,22 +176,25 @@ class CopyTask(SqlTask):
             )
 
         # Setup outputs
-        self.tmp_schema = (
+        tmp_schema = (
             self.task_config.destination.tmp_schema
             or self.task_config.destination.db_schema
         )
-        self.schema = self.task_config.destination.db_schema
-        self.table = self.task_config.destination.table
-        self.tmp_table = f"sayn_tmp_{self.table}"
+        schema = self.task_config.destination.db_schema
+        table = self.task_config.destination.table
+        tmp_table = f"sayn_tmp_{table}"
 
-        if self.schema is None:
-            self.table = self.out(self.table, connection=self.target_db)
-            self.tmp_table = self.out(self.tmp_table, connection=self.target_db)
+        if schema is None:
+            self.table = self.out(table, connection=self.target_db)
         else:
-            obj = self.out(f"{self.schema}.{self.table}", connection=self.target_db)
+            obj = self.out(f"{schema}.{table}", connection=self.target_db)
             self.schema = obj.split(".")[0]
             self.table = obj.split(".")[1]
-            obj = self.out(f"{self.schema}.{self.tmp_table}", connection=self.target_db)
+
+        if tmp_schema is None:
+            self.tmp_table = self.out(tmp_table, connection=self.target_db)
+        else:
+            obj = self.out(f"{schema}.{tmp_table}", connection=self.target_db)
             self.tmp_schema = obj.split(".")[0]
             self.tmp_table = obj.split(".")[1]
 

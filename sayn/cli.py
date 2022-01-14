@@ -124,6 +124,13 @@ def click_filter(func):
         help="Task query to EXCLUDE in the execution: [+]task_name[+], group:group_name, tag:tag_name",
         default=list(),
     )(func)
+    func = click.option(
+        "--upstream-prod",
+        "-u",
+        is_flag=True,
+        default=False,
+        help="For database objects produced by tasks not being executed, use the production object",
+    )(func)
     return func
 
 
@@ -172,7 +179,7 @@ def init(sayn_project_name):
 
 @cli.command(help="Compile sql tasks.")
 @click_run_options
-def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
+def compile(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_dt):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
@@ -189,7 +196,7 @@ def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 
 @cli.command(help="Run SAYN tasks.")
 @click_run_options
-def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
+def run(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_dt):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
@@ -206,7 +213,7 @@ def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 
 @cli.command(help="Test SAYN tasks.")
 @click_run_options
-def test(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
+def test(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_dt):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
@@ -224,7 +231,7 @@ def test(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 @cli.command(help="Generate DAG image.")
 @click_debug
 @click_filter
-def dag_image(debug, tasks, exclude):
+def dag_image(debug, tasks, exclude, upstream_prod):
     def handle_error():
         print("Errors detected in project. Run `sayn compile` to see the errors")
         sys.exit(-1)
