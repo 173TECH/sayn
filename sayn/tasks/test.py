@@ -59,8 +59,8 @@ class TestTask(Task):
         except Exception as e:
             return Exc(e)
 
-            self.test_query = self.compiler.compile(self.task_config.file_name)
-            self.test_query += " LIMIT 5\n"
+        self.test_query = self.compiler.compile(self.task_config.file_name)
+        self.test_query += " LIMIT 5\n"
 
         if self.run_arguments["command"] == "test":
             self.set_run_steps(["Write Query", "Execute Query"])
