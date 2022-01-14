@@ -126,9 +126,7 @@ class SqlTask(Task):
 
     def compile(self):
         with self.step("Write Query"):
-            result = self.write_compilation_output(self.sql_query)
-            if result.is_err:
-                return result
+            self.write_compilation_output(self.sql_query)
 
         return Ok()
 
