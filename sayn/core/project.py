@@ -69,15 +69,15 @@ class TaskGroupFile(BaseModel):
 
 def read_groups(project_root=Path(".")):
     task_folder = project_root / "tasks"
-    if not (task_folder.exists() and task_folder.is_dir()):
-        raise SaynMissingFileError(str(task_folder), True)
+    if task_folder.exists() and task_folder.is_dir():
+        out = dict()
+        for file in task_folder.glob("*.yaml"):
+            name = str(file.relative_to(task_folder))[:-5]
+            out[name] = read_yaml_file(file, TaskGroupFile)
 
-    out = dict()
-    for file in task_folder.glob("*.yaml"):
-        name = str(file.relative_to(task_folder))[:-5]
-        out[name] = read_yaml_file(file, TaskGroupFile)
-
-    return out
+        return out
+    else:
+        return dict()
 
 
 ###############################

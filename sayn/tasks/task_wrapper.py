@@ -212,12 +212,12 @@ class TaskWrapper:
         )
 
         # To get parents for decorators
-        if "temp_parents" in runner.__dict__:
-            if isinstance(runner.temp_parents, str):
-                self.parent_names.add(runner.temp_parents)
-            elif isinstance(runner.temp_parents, list):
-                self.parent_names.update(runner.temp_parents)
-            del runner.temp_parents
+        if "_temp_parents" in runner.__dict__:
+            if isinstance(runner._temp_parents, str):
+                self.parent_names.add(runner._temp_parents)
+            elif isinstance(runner._temp_parents, list):
+                self.parent_names.update(runner._temp_parents)
+            # del runner._temp_parents
 
         self.status = TaskStatus.READY_FOR_SETUP
 
@@ -337,6 +337,7 @@ class TaskWrapper:
                     result = self.runner.test()
 
                 if result is None:
+                    result = Ok()
                     self.status = TaskStatus.SUCCEEDED
                 elif result.is_ok:
                     self.status = TaskStatus.SUCCEEDED
@@ -364,14 +365,11 @@ class TaskWrapper:
                         self.parent_names.add(task_name)
 
         # TODO send some message when a table is source
-        # if len(missing) > 0:
-        #     tables = ", ".join([f"{t.get_value()}" for t in missing])
-        #     self.status = TaskStatus.SETUP_FAILED
-        #     return Err(
-        #         "dag",
-        #         "missing_sources",
-        #         error_message=f'No task creates table(s) "{tables}" referenced by task "{self.name}"',
-        #     )
+        if len(missing) > 0:
+            tables = ", ".join([f"{t.get_value()}" for t in missing])
+            self.tracker.warning(
+                f'No task creates table(s) "{tables}" referenced by task "{self.name}"'
+            )
 
         return Ok()
 
@@ -379,9 +377,6 @@ class TaskWrapper:
         obj = self.compiler.compile(obj)
         m = RE_OBJ.match(obj)
         if m is None:
-            import IPython
-
-            IPython.embed()
             raise ValueError(f'Incorrect format for database object "{obj}"')
         else:
             g = m.groupdict()

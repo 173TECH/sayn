@@ -122,8 +122,9 @@ class SqlTask(Task):
         return Ok()
 
     def setup(self, needs_recompile):
+        print(needs_recompile)
         if needs_recompile:
-            self.sql_query = self.prepare_sql_query.compile()
+            self.sql_query = self.prepared_sql_query.compile()
 
         return Ok()
 

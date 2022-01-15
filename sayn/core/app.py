@@ -21,6 +21,7 @@ from ..utils.python_loader import PythonLoader
 from ..utils.task_query import get_query
 from ..utils.compiler import Compiler
 
+from ..tasks.task import TaskStatus
 from ..tasks.dummy import DummyTask
 from ..tasks.sql import SqlTask
 from ..tasks.autosql import AutoSqlTask
@@ -48,11 +49,11 @@ class Command(Enum):
 
 class RunArguments:
     class Folders:
-        python: str = "python"
-        sql: str = "sql"
-        compile: str = "compile"
-        logs: str = "logs"
-        tests: str = "sql/tests"
+        python: str = str(Path("python"))
+        sql: str = str(Path("sql"))
+        compile: str = str(Path("compile"))
+        logs: str = str(Path("logs"))
+        tests: str = str(Path("sql") / Path("tests"))
 
     folders: Folders
     full_load: bool = False
@@ -391,16 +392,17 @@ class App:
                     duration=datetime.now() - start_ts,
                     result=result_error,
                 )
+            else:
 
-            result = task_objects[task_name].config(
-                task,
-                self.project_parameters,
-                task.get("parameters"),
-            )
+                result = task_objects[task_name].config(
+                    task,
+                    self.project_parameters,
+                    task.get("parameters"),
+                )
 
-            task_tracker._report_event(
-                "finish_stage", duration=datetime.now() - start_ts, result=result
-            )
+                task_tracker._report_event(
+                    "finish_stage", duration=datetime.now() - start_ts, result=result
+                )
 
         # Now that all tasks are configured, we set the relationships so that we
         # can calculate the dag
@@ -491,6 +493,8 @@ class App:
         for task_order, task_name in enumerate(tasks_in_query):
             task = self.tasks[task_name]
             task.tracker._task_order = task_order + 1
+            if task.status != TaskStatus.READY_FOR_SETUP:
+                continue
             #  TODO - review from test
             # for task_name, task in self._tasks_dict.items():
             #     if self.run_arguments["command"] == "test":

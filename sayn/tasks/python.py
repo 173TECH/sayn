@@ -26,84 +26,26 @@ class PythonTask(Task):
         return self.success()
 
 
-class DecoratorTask(Task):
-    def __init__(
-        self,
-        func,
-        sources: Optional[Union[List[str], str]] = None,
-        outputs: Optional[Union[List[str], str]] = None,
-        parents: Optional[Union[List[str], str]] = None,
-    ):
-        """The init method collects the information provided by the decorator itself"""
+class DecoratorTask(PythonTask):
+    _temp_sources = set()
+    _temp_outputs = set()
+    _temp_parents = set()
 
-        self.func = func
-
-        # TODO accept the parents
-        # self.parents = set()
-
-        # Need to store these temporarily
-        if sources is None:
-            self.temp_sources = list()
-        else:
-            self.temp_sources = sources
-
-        if outputs is None:
-            self.temp_outputs = list()
-        else:
-            self.temp_outputs = outputs
-
-        if parents is None:
-            self.temp_parents = list()
-        else:
-            self.temp_parents = parents
-
-    def __call__(
-        self,
-        name,
-        group,
-        tracker,
-        run_arguments,
-        task_parameters,
-        project_parameters,
-        default_db,
-        connections,
-        compiler,
-        src,
-        out,
-    ):
-        self.name = name
-        self.group = group
-        self._tracker = tracker
-        self.run_arguments = run_arguments
-        self.task_parameters = task_parameters
-        self.project_parameters = project_parameters
-        self._default_db = default_db
-        self.connections = connections
-        self.compiler = compiler
-        self.src = src
-        self.out = out
-
-        return self
+    _func = None
 
     def config(self):
         self._has_tests = False
 
-        if isinstance(self.temp_outputs, str):
-            self.out(self.temp_outputs)
-        elif isinstance(self.temp_outputs, list):
-            for output in self.temp_outputs:
-                self.out(output)
-        del self.temp_outputs
+        for output in self._temp_outputs:
+            self.out(output)
+        # del self._temp_outputs
 
-        if isinstance(self.temp_sources, str):
-            self.out(self.temp_sources)
-        elif isinstance(self.temp_sources, list):
-            for source in self.temp_sources:
-                self.src(source)
-        del self.temp_sources
+        for source in self._temp_sources:
+            self.src(source)
+        # del self._temp_sources
 
         # Get the names of the arguments to the function
-        sig = inspect.signature(self.func)
+        sig = inspect.signature(self._func)
         self.wrapper_params = []
         for param in sig.parameters:
             if param == "context":
@@ -128,19 +70,101 @@ class DecoratorTask(Task):
         pass
 
     def run(self):
-        return self.func(*self.wrapper_params)
+        return self._func(*self.wrapper_params)
 
     def test(self):
         pass
 
 
+class DecoratorTaskWrapper(Task):
+    def __init__(
+        self,
+        func,
+        sources: Optional[Union[List[str], str]] = None,
+        outputs: Optional[Union[List[str], str]] = None,
+        parents: Optional[Union[List[str], str]] = None,
+    ):
+        """The init method collects the information provided by the decorator itself"""
+
+        self.func = func
+
+        # TODO accept the parents
+        # self.parents = set()
+
+        # Need to store these temporarily
+        if sources is None:
+            self.temp_sources = set()
+        elif isinstance(sources, str):
+            self.temp_sources = set()
+            self.temp_sources.add(sources)
+        else:
+            self.temp_sources = sources
+
+        if outputs is None:
+            self.temp_outputs = set()
+        elif isinstance(outputs, str):
+            self.temp_outputs = set()
+            self.temp_outputs.add(outputs)
+        else:
+            self.temp_outputs = outputs
+
+        if parents is None:
+            self.temp_parents = set()
+        elif isinstance(parents, str):
+            self.temp_parents = set()
+            self.temp_parents.add(parents)
+        else:
+            self.temp_parents = parents
+
+    def __call__(
+        self,
+        name,
+        group,
+        tracker,
+        run_arguments,
+        task_parameters,
+        project_parameters,
+        default_db,
+        connections,
+        compiler,
+        src,
+        out,
+    ):
+        task = DecoratorTask(
+            name,
+            group,
+            tracker,
+            run_arguments,
+            task_parameters,
+            project_parameters,
+            default_db,
+            connections,
+            compiler,
+            src,
+            out,
+        )
+
+        for o in self.temp_sources:
+            task._temp_sources.add(o)
+
+        for o in self.temp_outputs:
+            task._temp_outputs.add(o)
+
+        for o in self.temp_parents:
+            task._temp_parents.add(o)
+
+        task._func = self.func
+
+        return task
+
+
 def task_type(func=None, sources=None, outputs=None, parents=None):
     if func:
-        return DecoratorTask(func)
+        return DecoratorTaskWrapper(func)
     else:
 
         def wrapper(func):
-            return DecoratorTask(
+            return DecoratorTaskWrapper(
                 func, sources=sources, outputs=outputs, parents=parents
             )
 
@@ -149,11 +173,11 @@ def task_type(func=None, sources=None, outputs=None, parents=None):
 
 def task(func=None, sources=None, outputs=None, parents=None):
     if func:
-        return DecoratorTask(func)
+        return DecoratorTaskWrapper(func)
     else:
 
         def wrapper(func):
-            return DecoratorTask(
+            return DecoratorTaskWrapper(
                 func, sources=sources, outputs=outputs, parents=parents
             )
 
