@@ -65,7 +65,7 @@ class Compiler(BaseCompiler):
             if not obj.is_file():
                 raise SaynMissingFileError(str(obj))
             else:
-                return env.get_template(str(obj))
+                return env.from_string(obj.read_text())
 
         elif isinstance(obj, str):
             return env.from_string(obj)
