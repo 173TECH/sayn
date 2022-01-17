@@ -18,15 +18,15 @@ class Project(BaseModel):
     presets: Optional[Mapping[str, Mapping[str, Any]]]
     autogroups: Mapping[str, Any] = Field(dict(), alias="groups")
 
-    database_prefix: Optional[str]
-    database_suffix: Optional[str]
-    database_stringify: Optional[str]
+    # database_prefix: Optional[str]
+    # database_suffix: Optional[str]
+    # database_override: Optional[str]
     schema_prefix: Optional[str]
     schema_suffix: Optional[str]
-    schema_stringify: Optional[str]
+    schema_override: Optional[str]
     table_prefix: Optional[str]
     table_suffix: Optional[str]
-    table_stringify: Optional[str]
+    table_override: Optional[str]
 
     class Config:
         extra = Extra.forbid

@@ -123,6 +123,15 @@ class Task:
         self.src = src
         self.out = out
 
+        # This is a dictionary of configuration that can be passed from the runner to the wrapper
+        self._config_input = {
+            "sources": set(),
+            "outputs": set(),
+            "parents": set(),
+            "tags": set(),
+            "on_fail": None,
+        }
+
     def ready(self):
         """(Deprecated: use `success` instead) Returned on successful execution."""
         return Ok()

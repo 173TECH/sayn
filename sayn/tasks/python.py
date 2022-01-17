@@ -27,22 +27,45 @@ class PythonTask(Task):
 
 
 class DecoratorTask(PythonTask):
-    _temp_sources = set()
-    _temp_outputs = set()
-    _temp_parents = set()
+    def __init__(
+        self,
+        name,
+        group,
+        tracker,
+        run_arguments,
+        task_parameters,
+        project_parameters,
+        default_db,
+        connections,
+        compiler,
+        src,
+        out,
+        sources,
+        outputs,
+        parents,
+        func,
+    ):
+        super().__init__(
+            name,
+            group,
+            tracker,
+            run_arguments,
+            task_parameters,
+            project_parameters,
+            default_db,
+            connections,
+            compiler,
+            src,
+            out,
+        )
 
-    _func = None
+        self._config_input["sources"].update(sources)
+        self._config_input["outputs"].update(outputs)
+        self._config_input["parents"].update(parents)
+        self._func = func
 
     def config(self):
         self._has_tests = False
-
-        for output in self._temp_outputs:
-            self.out(output)
-        # del self._temp_outputs
-
-        for source in self._temp_sources:
-            self.src(source)
-        # del self._temp_sources
 
         # Get the names of the arguments to the function
         sig = inspect.signature(self._func)
@@ -62,6 +85,12 @@ class DecoratorTask(PythonTask):
                     value = self.task_parameters[param]
                 # The rest are interpreted as task parameters
                 self.wrapper_params.append(value)
+
+        while len(self._config_input["sources"]) > 0:
+            self.src(self._config_input["sources"].pop())
+
+        while len(self._config_input["outputs"]) > 0:
+            self.out(self._config_input["outputs"].pop())
 
     def setup(self, needs_update):
         pass
@@ -88,33 +117,30 @@ class DecoratorTaskWrapper(Task):
 
         self.func = func
 
-        # TODO accept the parents
-        # self.parents = set()
-
         # Need to store these temporarily
         if sources is None:
-            self.temp_sources = set()
+            self.sources = set()
         elif isinstance(sources, str):
-            self.temp_sources = set()
-            self.temp_sources.add(sources)
+            self.sources = set()
+            self.sources.add(sources)
         else:
-            self.temp_sources = sources
+            self.sources = sources
 
         if outputs is None:
-            self.temp_outputs = set()
+            self.outputs = set()
         elif isinstance(outputs, str):
-            self.temp_outputs = set()
-            self.temp_outputs.add(outputs)
+            self.outputs = set()
+            self.outputs.add(outputs)
         else:
-            self.temp_outputs = outputs
+            self.outputs = outputs
 
         if parents is None:
-            self.temp_parents = set()
+            self.parents = set()
         elif isinstance(parents, str):
-            self.temp_parents = set()
-            self.temp_parents.add(parents)
+            self.parents = set()
+            self.parents.add(parents)
         else:
-            self.temp_parents = parents
+            self.parents = parents
 
     def __call__(
         self,
@@ -142,18 +168,11 @@ class DecoratorTaskWrapper(Task):
             compiler,
             src,
             out,
+            self.sources,
+            self.outputs,
+            self.parents,
+            self.func,
         )
-
-        for o in self.temp_sources:
-            task._temp_sources.add(o)
-
-        for o in self.temp_outputs:
-            task._temp_outputs.add(o)
-
-        for o in self.temp_parents:
-            task._temp_parents.add(o)
-
-        task._func = self.func
 
         return task
 

@@ -12,22 +12,22 @@ from ..database.creator import create as create_db
 from .errors import Err, Exc, Ok
 
 RE_ENV_VAR_NAME = re.compile(
-    r"SAYN_((?P<stringify>(DATABASE|SCHEMA|TABLE)_(PREFIX|SUFFIX|STRINGIFY))"
+    r"SAYN_((?P<stringify>(SCHEMA|TABLE)_(PREFIX|SUFFIX|STRINGIFY))"
     r"|(?P<type>PARAMETER|CREDENTIAL)_(?P<name>.+))$"
 )
 
 
 class Environment(BaseModel):
     class Stringify(BaseModel):
-        database_prefix: Optional[str]
-        database_suffix: Optional[str]
-        database_stringify: Optional[str]
+        # database_prefix: Optional[str]
+        # database_suffix: Optional[str]
+        # database_stringify: Optional[str]
         schema_prefix: Optional[str]
         schema_suffix: Optional[str]
-        schema_stringify: Optional[str]
+        schema_override: Optional[str]
         table_prefix: Optional[str]
         table_suffix: Optional[str]
-        table_stringify: Optional[str]
+        table_override: Optional[str]
 
     parameters: Optional[Mapping[str, Any]]
     credentials: Optional[Mapping[str, Mapping[str, Any]]]
@@ -43,15 +43,15 @@ class SettingsYaml(BaseModel):
         parameters: Optional[Mapping[str, Any]]
         credentials: Mapping[str, str]
 
-        database_prefix: Optional[str]
-        database_suffix: Optional[str]
-        database_stringify: Optional[str]
+        # database_prefix: Optional[str]
+        # database_suffix: Optional[str]
+        # database_stringify: Optional[str]
         schema_prefix: Optional[str]
         schema_suffix: Optional[str]
-        schema_stringify: Optional[str]
+        schema_override: Optional[str]
         table_prefix: Optional[str]
         table_suffix: Optional[str]
-        table_stringify: Optional[str]
+        table_override: Optional[str]
 
         class Config:
             extra = Extra.forbid
@@ -126,8 +126,8 @@ class SettingsYaml(BaseModel):
                     f"{obj_type}_{str_type}": profile_info.dict()[
                         f"{obj_type}_{str_type}"
                     ]
-                    for obj_type in ("database", "schema", "table")
-                    for str_type in ("prefix", "suffix", "stringify")
+                    for obj_type in ("schema", "table")
+                    for str_type in ("prefix", "suffix", "override")
                 }.items()
                 if v is not None
             },

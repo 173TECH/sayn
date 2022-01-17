@@ -22,6 +22,7 @@ class CliApp(App):
         debug=False,
         include=None,
         exclude=None,
+        upstream_prod=False,
         profile=None,
         full_load=False,
         start_dt=yesterday,
@@ -56,6 +57,9 @@ class CliApp(App):
 
         if exclude is not None:
             self.run_arguments.exclude = exclude
+
+        if upstream_prod is not None:
+            self.run_arguments.upstream_prod = upstream_prod
 
         self.start_app()
 
@@ -184,7 +188,15 @@ def compile(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
     app = CliApp(
-        Command.COMPILE, debug, tasks, exclude, profile, full_load, start_dt, end_dt
+        Command.COMPILE,
+        debug,
+        tasks,
+        exclude,
+        upstream_prod,
+        profile,
+        full_load,
+        start_dt,
+        end_dt,
     )
 
     app.compile()
@@ -201,7 +213,15 @@ def run(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
     app = CliApp(
-        Command.RUN, debug, tasks, exclude, profile, full_load, start_dt, end_dt
+        Command.RUN,
+        debug,
+        tasks,
+        exclude,
+        upstream_prod,
+        profile,
+        full_load,
+        start_dt,
+        end_dt,
     )
 
     app.run()
@@ -218,7 +238,15 @@ def test(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
     app = CliApp(
-        Command.TEST, debug, tasks, exclude, profile, full_load, start_dt, end_dt
+        Command.TEST,
+        debug,
+        tasks,
+        exclude,
+        upstream_prod,
+        profile,
+        full_load,
+        start_dt,
+        end_dt,
     )
 
     app.test()

@@ -158,31 +158,36 @@ class DbObject:
         self.object_prod_value = None
         self.value = ""
         self.prod_value = ""
+
         if self.database is not None:
             self.database_value = self.stringify["database"].compile(
-                database=self.database
+                database=self.database, connection=connection_name
             )
             self.value += self.database_value + "."
 
             self.database_prod_value = self.prod_stringify["database"].compile_prod(
-                database=self.database
+                database=self.database, connection=connection_name
             )
             self.prod_value += self.database_prod_value + "."
 
         if self.schema is not None:
-            self.schema_value = self.stringify["schema"].compile(schema=self.schema)
+            self.schema_value = self.stringify["schema"].compile(
+                schema=self.schema, connection=connection_name
+            )
             self.value += self.schema_value + "."
 
             self.schema_prod_value = self.prod_stringify["schema"].compile_prod(
-                schema=self.schema
+                schema=self.schema, connection=connection_name
             )
             self.prod_value += self.schema_prod_value + "."
 
-        self.object_value = self.stringify["table"].compile(table=self.object)
+        self.object_value = self.stringify["table"].compile(
+            table=self.object, connection=connection_name
+        )
         self.value += self.object_value
 
         self.object_prod_value = self.prod_stringify["table"].compile_prod(
-            table=self.object
+            table=self.object, connection=connection_name
         )
         self.prod_value += self.object_prod_value
 
@@ -398,27 +403,10 @@ class Database:
         """
         self.metadata.reflect(only=only, schema=schema, extend_existing=True)
 
-    def _request_object(
-        self, name, schema=None, tmp_schema=None, task_name=None, request_tmp=True
-    ):
-
-        to_request = [(name, schema)]
-        if request_tmp:
-            to_request.append((tmp_name(name), tmp_schema or schema))
-
-        for name, schema in to_request:
-            if schema not in self._requested_objects:
-                self._requested_objects[schema] = {name: {"tasks": list()}}
-            else:
-                self._requested_objects[schema][name] = {"tasks": list()}
-
-            if task_name is not None:
-                self._requested_objects[schema][name]["tasks"].append(task_name)
-
-    def _introspect(self):
+    def _introspect(self, to_introspect):
         insp = sqlalchemy.inspect(self.engine)
 
-        for schema in self._requested_objects.keys():
+        for schema in to_introspect.keys():
             if schema is None or schema == "":
                 objects = [
                     ("table", insp.get_table_names()),
@@ -429,6 +417,9 @@ class Database:
                     ("table", insp.get_table_names(schema)),
                     ("view", insp.get_view_names(schema)),
                 ]
+
+            if schema not in self._requested_objects:
+                self._requested_objects[schema] = dict()
 
             for obj_type, objs in objects:
                 for obj_name in objs:

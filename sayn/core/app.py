@@ -62,6 +62,7 @@ class RunArguments:
     debug: bool = False
     profile: Optional[str] = None
     command: Command = Command.UNDEFINED
+    upstream_prod: bool = False
 
     include: List
     exclude: List
@@ -201,26 +202,26 @@ class App:
 
         # Temporarily store the raw stringify strings
         self.input_prod_stringify = {
-            "database_prefix": project.database_prefix,
-            "database_suffix": project.database_suffix,
-            "database_stringify": project.database_stringify,
+            "database_prefix": None,  # project.database_prefix,
+            "database_suffix": None,  # project.database_suffix,
+            "database_override": None,  # project.database_override,
             "schema_prefix": project.schema_prefix,
             "schema_suffix": project.schema_suffix,
-            "schema_stringify": project.schema_stringify,
+            "schema_override": project.schema_override,
             "table_prefix": project.table_prefix,
             "table_suffix": project.table_suffix,
-            "table_stringify": project.table_stringify,
+            "table_override": project.table_override,
         }
         self.input_stringify = {
-            "database_prefix": project.database_prefix,
-            "database_suffix": project.database_suffix,
-            "database_stringify": project.database_stringify,
+            "database_prefix": None,  # project.database_prefix,
+            "database_suffix": None,  # project.database_suffix,
+            "database_override": None,  # project.database_override,
             "schema_prefix": project.schema_prefix,
             "schema_suffix": project.schema_suffix,
-            "schema_stringify": project.schema_stringify,
+            "schema_override": project.schema_override,
             "table_prefix": project.table_prefix,
             "table_suffix": project.table_suffix,
-            "table_stringify": project.table_stringify,
+            "table_override": project.table_override,
         }
         self.credentials = {k: None for k in project.required_credentials}
         self.default_db = project.default_db
@@ -287,14 +288,12 @@ class App:
             """Builds the final stringify"""
 
             # The default is a jinja template with the object name, meaning no modifications to the input
-            stringify = {
-                key: "{{ " + key + " }}" for key in ("database", "schema", "table")
-            }
+            stringify = {key: "{{ " + key + " }}" for key in ("schema", "table")}
 
-            for obj_type in ("database", "schema", "table"):
-                if input_stringify.get(f"{obj_type}_stringify") is not None:
-                    # if *_stringify is defined, use that
-                    stringify[obj_type] = input_stringify[f"{obj_type}_stringify"]
+            for obj_type in ("schema", "table"):
+                if input_stringify.get(f"{obj_type}_override") is not None:
+                    # if *_override is defined, use that
+                    stringify[obj_type] = input_stringify[f"{obj_type}_override"]
                 else:
                     if input_stringify.get(f"{obj_type}_prefix") is not None:
                         stringify[obj_type] = (
@@ -302,6 +301,7 @@ class App:
                             + "_"
                             + stringify[obj_type]
                         )
+
                     if input_stringify.get(f"{obj_type}_suffix") is not None:
                         stringify[obj_type] = (
                             stringify[obj_type]
@@ -450,42 +450,76 @@ class App:
         else:
             tasks_in_query = result.value
 
-        # Create the list of tables to be modified in this execution
-        outputs_this_execution = set()
+        # Introspection
+        #########
+
+        # Create the list of objects to be used in this execution
+        exec_outputs = set()
+        exec_sources = set()
         for task_name in tasks_in_query:
             for output in self.tasks[task_name].outputs:
-                outputs_this_execution.add(output)
+                exec_outputs.add(output)
+                # if output.connection not in objects_used:
+                #     objects_used[output.connection] = set()
+                # objects_used[output.connection].add(output)
 
-        # Introspection
-        sources_from_prod = set()
-        connections_used = set()
-        for task in tasks_in_query:
-            for source in self.tasks[task].sources:
-                connections_used.add(source.connection_name)
-                if source in outputs_this_execution:
-                    self.connections[source.connection_name]._request_object(
-                        source.object_value, schema=source.schema_value
-                    )
-                else:
-                    sources_from_prod.add(source)
-                    self.connections[source.connection_name]._request_object(
-                        source.object_prod_value, schema=source.schema_prod_value
-                    )
+            for source in self.tasks[task_name].sources:
+                exec_sources.add(source)
+                # if source.connection not in objects_used:
+                #     objects_used[source.connection] = set()
+                # objects_used[source.connection].add(source)
 
-            for output in self.tasks[task].outputs:
-                connections_used.add(output.connection_name)
-                self.connections[output.connection_name]._request_object(
-                    output.object_value, schema=output.schema_value
-                )
+        # We need to introspect the connections used
+        exec_connections = set()
+        exec_connections.update([o.connection_name for o in exec_outputs])
+        exec_connections.update([o.connection_name for o in exec_sources])
 
-        for connection_name in connections_used:
+        # We recalculate the tables to introspect based on whether the upstream_prod
+        # flag is set as well and whether this execution creates the object
+        if self.run_arguments.upstream_prod:
+            # Now we calculate the objects that will come from prod
+            from_prod = set([o for o in exec_sources if o not in exec_outputs])
+            to_introspect = set(
+                [
+                    (o.connection_name, o.schema_prod_value, o.object_prod_value)
+                    if o not in from_prod
+                    else (o.connection_name, o.schema_value, o.object_value)
+                    for o in exec_sources
+                ]
+            )
+        else:
+            from_prod = set()
+            to_introspect = set(
+                [
+                    (o.connection_name, o.schema_value, o.object_value)
+                    for o in exec_sources
+                ]
+            )
+
+        to_introspect.update(
+            [(o.connection_name, o.schema_value, o.object_value) for o in exec_outputs]
+        )
+
+        # Reshape the list into dictionaries of connection > schema > set of objects
+        to_introspect = {
+            conn: {
+                schema: set([v[2] for v in gg])
+                for schema, gg in groupby(g, key=lambda x: x[1])
+            }
+            for conn, g in groupby(sorted(to_introspect), key=lambda x: x[0])
+        }
+
+        for connection_name in exec_connections:
             db = self.connections[connection_name]
             # Force a query to test the connection
             db.execute("select 1")
             if isinstance(db, Database):
                 try:
-                    db._introspect()
+                    db._introspect(to_introspect[connection_name])
                 except Exception as exc:
+                    import IPython
+
+                    IPython.embed()
                     return Exc(exc, where="introspection")
 
         self.tracker.set_tasks(tasks_in_query)
@@ -508,7 +542,7 @@ class App:
 
             task.tracker._report_event("start_stage")
 
-            result = task.setup(task_name in tasks_in_query, sources_from_prod)
+            result = task.setup(task_name in tasks_in_query, from_prod)
 
             task.tracker._report_event(
                 "finish_stage", duration=datetime.now() - start_ts, result=result

@@ -1,6 +1,6 @@
 from copy import deepcopy
 import re
-from typing import Dict, Any, Set
+from typing import Any, Dict, Optional, Set
 
 from sayn.database import Database
 
@@ -27,9 +27,7 @@ _excluded_properties = (
 
 
 # Regular expressions to parse a db object specification
-RE_OBJ = re.compile(
-    r"((?P<connection>[^.]+):)?((?P<c1>[^.]+)\.)?((?P<c2>[^.]+)\.)?(?P<c3>[^.]+)"
-)
+RE_OBJ = re.compile(r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?(?P<c2>[^.]+)")
 
 
 class TaskWrapper:
@@ -61,7 +59,7 @@ class TaskWrapper:
     project_parameters: Dict[str, Any]
     task_parameters: Dict[str, Any]
     in_query: bool = False
-    runner: Task
+    runner: Optional[Task]
     status: TaskStatus = TaskStatus.UNKNOWN
 
     def __init__(
@@ -184,6 +182,26 @@ class TaskWrapper:
             self.status = TaskStatus.FAILED
             return Exc(exc, where="task_config")
 
+        # The config stage can produce changes to: tags, parents, sources, outputs and on_fail
+        if hasattr(runner, "_config_input"):
+            for source in runner._config_input["sources"]:
+                self.src(source)
+
+            for output in runner._config_input["outputs"]:
+                self.out(output)
+
+            for parent in runner._config_input["parents"]:
+                self.parent_names.add(parent)
+
+            for tag in runner._config_input["tags"]:
+                self.tags.add(tag)
+
+            if runner._config_input.get("on_fail") is not None:
+                self.on_fail = runner._config_input["on_fail"]
+
+            # A bit of cleaning on the user
+            del runner._config_input
+
         # TODO relying on the task object having a certain property is not a solid method. Need to change it
         if "_target_db" in runner.__dict__:
             target_connection = self.connections[runner._target_db]
@@ -210,14 +228,6 @@ class TaskWrapper:
                 for o in self.sources_yaml
             }
         )
-
-        # To get parents for decorators
-        if "_temp_parents" in runner.__dict__:
-            if isinstance(runner._temp_parents, str):
-                self.parent_names.add(runner._temp_parents)
-            elif isinstance(runner._temp_parents, list):
-                self.parent_names.update(runner._temp_parents)
-            # del runner._temp_parents
 
         self.status = TaskStatus.READY_FOR_SETUP
 
@@ -385,7 +395,7 @@ class TaskWrapper:
                 {"object": None, "schema": None, "database": None},
                 **dict(
                     zip(
-                        ("object", "schema", "database"),
+                        ("object", "schema"),
                         reversed(
                             [
                                 v

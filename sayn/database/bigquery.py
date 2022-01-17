@@ -208,9 +208,9 @@ class Bigquery(Database):
 
         return Ok(properties)
 
-    def _introspect(self):
-        for schema in self._requested_objects.keys():
-            obj = [obj_name for obj_name in self._requested_objects[schema]]
+    def _introspect(self, to_introspect):
+        for schema in to_introspect.keys():
+            obj = [obj_name for obj_name in to_introspect[schema]]
             if schema is None:
                 name = self.dataset
             else:
@@ -226,6 +226,9 @@ class Bigquery(Database):
                           GROUP BY 1,2
                     """
             res = self.read_data(query)
+
+            if schema not in self._requested_objects:
+                self._requested_objects[schema] = dict()
 
             for obj in res:
                 obj_name = obj["table_name"]
