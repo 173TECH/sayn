@@ -361,6 +361,8 @@ class TaskWrapper:
 
     def set_parents(self, all_tasks, output_to_task):
         for parent_name in self.parent_names:
+            if parent_name not in all_tasks:
+                return Err("dag", "missing_parents", missing={self.name: [parent_name]})
             self.parents.append(all_tasks[parent_name])
             self.parent_names.add(parent_name)
 

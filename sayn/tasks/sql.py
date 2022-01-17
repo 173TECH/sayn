@@ -2,6 +2,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, FilePath, validator, Extra
 from typing import Optional, List
+from enum import Enum
 
 from ..core.errors import Ok, Err, Exc
 from ..database import Database
@@ -21,6 +22,22 @@ class Config(BaseModel):
     @validator("file_name", pre=True)
     def file_name_plus_folder(cls, v, values):
         return Path(values["sql_folder"], v)
+
+
+class OnFailValue(str, Enum):
+    skip = "skip"
+    no_skip = "no_skip"
+
+
+class CompileConfig(BaseModel):
+    tags: Optional[List[str]]
+    sources: Optional[List[str]]
+    outputs: Optional[List[str]]
+    parents: Optional[List[str]]
+    on_fail: Optional[OnFailValue]
+
+    class Config:
+        extra = Extra.forbid
 
 
 class SqlTask(Task):
@@ -54,10 +71,15 @@ class SqlTask(Task):
         self.compiler.update_globals(
             src=lambda x: self.src(x, connection=self._target_db),
             out=lambda x: self.out(x, connection=self._target_db),
+            config=self.config_macro,
         )
+
+        self.allow_config = True
 
         self.prepared_sql_query = self.compiler.prepare(self.task_config.file_name)
         self.sql_query = self.prepared_sql_query.compile()
+
+        self.allow_config = False
 
         if self.run_arguments["command"] == "run":
             self.set_run_steps(["Write Query", "Execute Query"])
@@ -120,6 +142,28 @@ class SqlTask(Task):
         #     self.test_query = query
         #
         return Ok()
+
+    def config_macro(self, **config):
+        if self.allow_config:
+            task_config_override = CompileConfig(**config)
+            # Sent to the wrapper
+            if task_config_override.on_fail is not None:
+                self._config_input["on_fail"] = task_config_override.on_fail
+
+            if task_config_override.tags is not None:
+                self._config_input["tags"] = task_config_override.tags
+
+            if task_config_override.sources is not None:
+                self._config_input["sources"] = task_config_override.sources
+
+            if task_config_override.outputs is not None:
+                self._config_input["outputs"] = task_config_override.outputs
+
+            if task_config_override.parents is not None:
+                self._config_input["parents"] = task_config_override.parents
+
+        # Returns an empty string to avoid productin incorrect sql
+        return ""
 
     def setup(self, needs_recompile):
         print(needs_recompile)

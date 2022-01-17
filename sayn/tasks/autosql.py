@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Dict, Any, Optional, List
+from enum import Enum
 
 from pydantic import BaseModel, Field, FilePath, validator, Extra
 from terminaltables import AsciiTable
@@ -71,6 +72,11 @@ class Config(BaseModel):
             return v
 
 
+class OnFailValue(str, Enum):
+    skip = "skip"
+    no_skip = "no_skip"
+
+
 class CompileConfig(BaseModel):
     supports_schemas: bool
     db_type: str
@@ -84,6 +90,9 @@ class CompileConfig(BaseModel):
     columns: Optional[List[Dict[str, Any]]] = list()
     table_properties: Optional[List[Dict[str, Any]]] = list()
     post_hook: Optional[List[Dict[str, Any]]] = list()
+    tags: Optional[List[str]]
+    parents: Optional[List[str]]
+    on_fail: Optional[OnFailValue]
 
     class Config:
         extra = Extra.forbid
@@ -235,33 +244,43 @@ class AutoSqlTask(SqlTask):
                     "db_type": self.target_db.db_type,
                 }
             )
-            task_config_overload = CompileConfig(**config)
+            task_config_override = CompileConfig(**config)
             self.task_config.materialisation = (
-                task_config_overload.materialisation or self.task_config.materialisation
+                task_config_override.materialisation or self.task_config.materialisation
             )
             self.task_config.destination.db_schema = (
-                task_config_overload.db_schema or self.task_config.destination.db_schema
+                task_config_override.db_schema or self.task_config.destination.db_schema
             )
             self.task_config.destination.tmp_schema = (
-                task_config_overload.tmp_schema
+                task_config_override.tmp_schema
                 or self.task_config.destination.tmp_schema
             )
             self.task_config.destination.table = (
-                task_config_overload.table or self.task_config.destination.table
+                task_config_override.table or self.task_config.destination.table
             )
             self.task_config.columns = (
-                task_config_overload.columns or self.task_config.columns
+                task_config_override.columns or self.task_config.columns
             )
             self.task_config.table_properties = (
-                task_config_overload.table_properties
+                task_config_override.table_properties
                 or self.task_config.table_properties
             )
             self.task_config.post_hook = (
-                task_config_overload.post_hook or self.task_config.post_hook
+                task_config_override.post_hook or self.task_config.post_hook
             )
             self.task_config.delete_key = (
-                task_config_overload.delete_key or self.task_config.delete_key
+                task_config_override.delete_key or self.task_config.delete_key
             )
+
+            # Sent to the wrapper
+            if task_config_override.on_fail is not None:
+                self._config_input["on_fail"] = task_config_override.on_fail
+
+            if task_config_override.tags is not None:
+                self._config_input["tags"] = task_config_override.tags
+
+            if task_config_override.parents is not None:
+                self._config_input["parents"] = task_config_override.parents
 
         # Returns an empty string to avoid productin incorrect sql
         return ""

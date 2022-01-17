@@ -517,9 +517,6 @@ class App:
                 try:
                     db._introspect(to_introspect[connection_name])
                 except Exception as exc:
-                    import IPython
-
-                    IPython.embed()
                     return Exc(exc, where="introspection")
 
         self.tracker.set_tasks(tasks_in_query)
