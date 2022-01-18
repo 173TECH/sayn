@@ -82,6 +82,7 @@ vd = VoidTracker()
 
 def simulate_task(
     task_class,
+    used_objects,
     source_db=None,
     target_db=None,
     run_arguments=None,
@@ -128,23 +129,37 @@ def simulate_task(
 
     base_compiler = Compiler(obj_run_arguments, dict(), task_params)
 
-    def src_out(obj, connection=None):
-        if "." in obj:
-            schema = obj.split(".")[0]
-            table = obj.split(".")[1]
-        else:
-            schema = None
-            table = obj
+    class DBObjectUtil:
+        def __init__(self, used_objects):
+            self.to_introspect = used_objects
 
-        if isinstance(connection, str):
-            connections[connection]._request_object(table, schema=schema)
-        else:
-            connection._request_object(table, schema=schema)
+        def src_out(self, obj, connection=None):
+            if "." in obj:
+                schema = obj.split(".")[0]
+                table = obj.split(".")[1]
+            else:
+                schema = ""
+                table = obj
 
-        return obj
+            if isinstance(connection, str):
+                connection_name = connection
+            else:
+                connection_name = connection.name
+
+            if connection_name not in self.to_introspect:
+                self.to_introspect[connection_name] = dict()
+
+            if schema not in self.to_introspect[connection_name]:
+                self.to_introspect[connection_name][schema] = set()
+
+            self.to_introspect[connection_name][schema].add(table)
+
+            return obj
 
     task_compiler = base_compiler.get_task_compiler("test_group", "test_task")
     task_compiler.update_globals(**task_params)
+
+    obj_util = DBObjectUtil(used_objects)
 
     task = task_class(
         "test_task",
@@ -156,8 +171,8 @@ def simulate_task(
         "target_db",
         connections,
         task_compiler,
-        src_out,
-        src_out,
+        obj_util.src_out,
+        obj_util.src_out,
     )
 
     return task

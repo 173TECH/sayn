@@ -7,8 +7,12 @@ from . import simulate_task, validate_table, tables_with_data, clear_tables
 
 
 @contextmanager
-def copy_task(source_db, target_db, source_data=None, target_data=None, **kwargs):
-    task = simulate_task(CopyTask, source_db=source_db, target_db=target_db, **kwargs)
+def copy_task(
+    used_objects, source_db, target_db, source_data=None, target_data=None, **kwargs
+):
+    task = simulate_task(
+        CopyTask, used_objects, source_db=source_db, target_db=target_db, **kwargs
+    )
     if source_data is not None:
         with tables_with_data(task.connections["source_db"], source_data):
             if target_data is not None:
@@ -31,7 +35,9 @@ def copy_task(source_db, target_db, source_data=None, target_data=None, **kwargs
 
 def test_copy_task(source_db, target_db):
     """Testing copy task with no error"""
+    used_objects = dict()
     with copy_task(
+        used_objects,
         source_db,
         target_db,
         source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
@@ -40,10 +46,9 @@ def test_copy_task(source_db, target_db):
             source={"db": "source_db", "table": "source_table"},
             destination={"table": "dst_table"},
         ).is_ok
-        assert task.setup(False).is_ok
 
-        task.source_db._introspect()
-        task.target_db._introspect()
+        task.connections["target_db"]._introspect(used_objects["target_db"])
+        assert task.setup(False).is_ok
 
         assert task.run().is_ok
 
@@ -57,7 +62,9 @@ def test_copy_task(source_db, target_db):
 @pytest.mark.target_dbs(["sqlite", "postgresql", "mysql", "redshift", "snowflake"])
 def test_copy_task_ddl(source_db, target_db):
     """Testing copy task with no error"""
+    used_objects = dict()
     with copy_task(
+        used_objects,
         source_db,
         target_db,
         source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
@@ -67,6 +74,8 @@ def test_copy_task_ddl(source_db, target_db):
             destination={"table": "dst_table"},
             columns=[{"name": "x", "type": "int"}],
         ).is_ok
+
+        task.connections["target_db"]._introspect(used_objects["target_db"])
         assert task.setup(False).is_ok
 
         assert task.run().is_ok
@@ -81,7 +90,9 @@ def test_copy_task_ddl(source_db, target_db):
 @pytest.mark.target_dbs(["bigquery"])
 def test_copy_task_ddl_bq(source_db, target_db):
     """Testing copy task with no error"""
+    used_objects = dict()
     with copy_task(
+        used_objects,
         source_db,
         target_db,
         source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
@@ -91,6 +102,8 @@ def test_copy_task_ddl_bq(source_db, target_db):
             destination={"table": "dst_table"},
             ddl={"columns": [{"name": "x", "type": "int64"}]},
         ).is_ok
+
+        task.connections["target_db"]._introspect(used_objects["target_db"])
         assert task.setup(False).is_ok
 
         assert task.run().is_ok
@@ -104,7 +117,9 @@ def test_copy_task_ddl_bq(source_db, target_db):
 
 def test_copy_task_ddl_rename(source_db, target_db):
     """Testing copy task with no error"""
+    used_objects = dict()
     with copy_task(
+        used_objects,
         source_db,
         target_db,
         source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
@@ -114,6 +129,8 @@ def test_copy_task_ddl_rename(source_db, target_db):
             destination={"table": "dst_table"},
             columns=[{"name": "x", "dst_name": "y"}],
         ).is_ok
+
+        task.connections["target_db"]._introspect(used_objects["target_db"])
         assert task.setup(False).is_ok
 
         assert task.run().is_ok
@@ -127,7 +144,9 @@ def test_copy_task_ddl_rename(source_db, target_db):
 
 def test_copy_task_error(source_db, target_db):
     """Testing copy task with config error src and dst instead of source and destination"""
+    used_objects = dict()
     with copy_task(
+        used_objects,
         source_db,
         target_db,
         source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
@@ -140,7 +159,9 @@ def test_copy_task_error(source_db, target_db):
 
 def test_copy_task_incremental(source_db, target_db):
     """Testing copy task with no error"""
+    used_objects = dict()
     with copy_task(
+        used_objects,
         source_db,
         target_db,
         source_data={
@@ -158,10 +179,9 @@ def test_copy_task_incremental(source_db, target_db):
             incremental_key="id",
             delete_key="id",
         ).is_ok
-        assert task.setup(False).is_ok
 
-        task.source_db._introspect()
-        task.target_db._introspect()
+        task.connections["target_db"]._introspect(used_objects["target_db"])
+        assert task.setup(False).is_ok
 
         assert task.run().is_ok
 
@@ -178,7 +198,9 @@ def test_copy_task_incremental(source_db, target_db):
 
 def test_copy_task_incremental2(source_db, target_db):
     """Testing copy task with no error"""
+    used_objects = dict()
     with copy_task(
+        used_objects,
         source_db,
         target_db,
         source_data={
@@ -195,10 +217,9 @@ def test_copy_task_incremental2(source_db, target_db):
             incremental_key="updated_at",
             delete_key="id",
         ).is_ok
-        assert task.setup(False).is_ok
 
-        task.source_db._introspect()
-        task.target_db._introspect()
+        task.connections["target_db"]._introspect(used_objects["target_db"])
+        assert task.setup(False).is_ok
 
         assert task.run().is_ok
 
@@ -217,7 +238,9 @@ def test_copy_task_incremental2(source_db, target_db):
 
 def test_copy_task_dst_db(source_db, target_db):
     """Testing copy task with set db destination"""
+    used_objects = dict()
     with copy_task(
+        used_objects,
         source_db,
         target_db,
         source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
@@ -227,10 +250,9 @@ def test_copy_task_dst_db(source_db, target_db):
             source={"db": "source_db", "table": "source_table"},
             destination={"db": "target_db", "table": "dst_table"},
         ).is_ok
-        assert task.setup(False).is_ok
 
-        task.source_db._introspect()
-        task.target_db._introspect()
+        task.connections["target_db"]._introspect(used_objects["target_db"])
+        assert task.setup(False).is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -240,7 +262,9 @@ def test_copy_task_dst_db(source_db, target_db):
 
 def test_copy_task_wrong_dst_db(source_db, target_db):
     """Testing copy task with wrong set db destination"""
+    used_objects = dict()
     with copy_task(
+        used_objects,
         source_db,
         target_db,
         source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
@@ -258,7 +282,9 @@ def test_copy_task_wrong_dst_db(source_db, target_db):
 @pytest.mark.source_dbs(["bigquery", "mysql", "postgresql", "redshift", "snowflake"])
 @pytest.mark.target_dbs(["bigquery", "mysql", "postgresql", "redshift", "snowflake"])
 def test_copy_schemas01(source_db, target_db):
+    used_objects = dict()
     with copy_task(
+        used_objects,
         source_db,
         target_db,
         source_data={("test", "source_table"): [{"x": 1}, {"x": 2}, {"x": 3}]},
@@ -267,10 +293,9 @@ def test_copy_schemas01(source_db, target_db):
             source={"db": "source_db", "schema": "test", "table": "source_table"},
             destination={"table": "dst_table", "schema": "test2"},
         ).is_ok
-        assert task.setup(False).is_ok
 
-        task.source_db._introspect()
-        task.target_db._introspect()
+        task.connections["target_db"]._introspect(used_objects["target_db"])
+        assert task.setup(False).is_ok
 
         assert task.run().is_ok
 
@@ -283,7 +308,9 @@ def test_copy_schemas01(source_db, target_db):
 
 @pytest.mark.source_dbs(["sqlite"])
 def test_copy_schemas_error01(source_db, target_db):
+    used_objects = dict()
     with copy_task(
+        used_objects,
         source_db,
         target_db,
     ) as task:
@@ -296,7 +323,9 @@ def test_copy_schemas_error01(source_db, target_db):
 @pytest.mark.source_dbs(["bigquery", "mysql", "postgresql", "redshift", "snowflake"])
 @pytest.mark.target_dbs(["bigquery", "mysql", "postgresql", "redshift", "snowflake"])
 def test_copy_schemas02(source_db, target_db):
+    used_objects = dict()
     with copy_task(
+        used_objects,
         source_db,
         target_db,
         source_data={("test", "source_table"): [{"x": 1}, {"x": 2}, {"x": 3}]},
@@ -305,10 +334,9 @@ def test_copy_schemas02(source_db, target_db):
             source={"db": "source_db", "schema": "test", "table": "source_table"},
             destination={"table": "dst_table", "schema": "test2", "tmp_schema": "test"},
         ).is_ok
-        assert task.setup(False).is_ok
 
-        task.source_db._introspect()
-        task.target_db._introspect()
+        task.connections["target_db"]._introspect(used_objects["target_db"])
+        assert task.setup(False).is_ok
 
         assert task.run().is_ok
 
@@ -321,7 +349,9 @@ def test_copy_schemas02(source_db, target_db):
 
 @pytest.mark.target_dbs(["sqlite"])
 def test_copy_schemas_error02(source_db, target_db):
+    used_objects = dict()
     with copy_task(
+        used_objects,
         source_db,
         target_db,
     ) as task:
@@ -332,7 +362,9 @@ def test_copy_schemas_error02(source_db, target_db):
 
 
 def test_copy_append01(source_db, target_db):
+    used_objects = dict()
     with copy_task(
+        used_objects,
         source_db,
         target_db,
         source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
@@ -343,10 +375,9 @@ def test_copy_append01(source_db, target_db):
             incremental_key="x",
             append=True,
         ).is_ok
-        assert task.setup(False).is_ok
 
-        task.source_db._introspect()
-        task.target_db._introspect()
+        task.connections["target_db"]._introspect(used_objects["target_db"])
+        assert task.setup(False).is_ok
 
         assert task.run().is_ok
 
@@ -363,7 +394,9 @@ def test_copy_append01(source_db, target_db):
 
 
 def test_copy_append02(source_db, target_db):
+    used_objects = dict()
     with copy_task(
+        used_objects,
         source_db,
         target_db,
         source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
@@ -378,7 +411,9 @@ def test_copy_append02(source_db, target_db):
 
 
 def test_copy_append03(source_db, target_db):
+    used_objects = dict()
     with copy_task(
+        used_objects,
         source_db,
         target_db,
         source_data={"source_table": [{"x": 1}, {"x": 2}, {"x": 3}]},
@@ -388,10 +423,9 @@ def test_copy_append03(source_db, target_db):
             destination={"table": "dst_table"},
             append=True,
         ).is_ok
-        assert task.setup(False).is_ok
 
-        task.source_db._introspect()
-        task.target_db._introspect()
+        task.connections["target_db"]._introspect(used_objects["target_db"])
+        assert task.setup(False).is_ok
 
         assert task.run().is_ok
 

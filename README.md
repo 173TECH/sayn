@@ -37,7 +37,7 @@ SAYN aims to empower data engineers and analysts through its  three core design 
 
 ## Quick Start
 
-SAYN supports Python 3.6 to 3.10.
+SAYN supports Python 3.7 to 3.10.
 
 ```bash
 $ pip install sayn

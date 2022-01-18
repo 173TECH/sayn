@@ -12,7 +12,7 @@ def task_tset(tmp_path, target_db, sql, data=None, **kwargs):
 
     fs = {"sql/tests/test.sql": sql} if sql is not None else dict()
     with inside_dir(tmp_path, fs):
-        task = simulate_task(Task, target_db=target_db, **kwargs)
+        task = simulate_task(Task, dict(), target_db=target_db, **kwargs)
         task.run_arguments["command"] = "test"
         if data is not None:
             with tables_with_data(task.connections["target_db"], data):

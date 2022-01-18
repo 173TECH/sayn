@@ -251,8 +251,6 @@ class Database:
     DDL = DDL
     DBObjectFactory = DBObjectFactory
 
-    _requested_objects = None
-
     def __init__(
         self, name, name_in_settings, db_type, common_params, stringify, prod_stringify
     ):
@@ -386,6 +384,7 @@ class Database:
                 columns.append(entry)
 
             properties["columns"] = columns
+
         if properties["properties"]:
             for pro in properties["properties"]:
                 for p in pro:
@@ -405,28 +404,36 @@ class Database:
 
     def _introspect(self, to_introspect):
         insp = sqlalchemy.inspect(self.engine)
+        out = dict()
 
-        for schema in to_introspect.keys():
-            if schema is None or schema == "":
-                objects = [
+        for schema, req_objs in to_introspect.items():
+            if schema == "":
+                schema = None
+            if schema is None:
+                db_objects = [
                     ("table", insp.get_table_names()),
                     ("view", insp.get_view_names()),
                 ]
             else:
-                objects = [
+                db_objects = [
                     ("table", insp.get_table_names(schema)),
                     ("view", insp.get_view_names(schema)),
                 ]
 
+            # flatten the results
+            db_objects = {o: t for t, obs in db_objects for o in obs}
+
             if schema not in self._requested_objects:
                 self._requested_objects[schema] = dict()
 
-            for obj_type, objs in objects:
-                for obj_name in objs:
-                    if schema is not None and obj_name.startswith(schema + "."):
-                        obj_name = obj_name[len(schema + ".") :]
-                    if obj_name in self._requested_objects[schema]:
-                        self._requested_objects[schema][obj_name]["type"] = obj_type
+            out[schema] = dict()
+            for obj_name in req_objs:
+                if obj_name in db_objects:
+                    out[schema][obj_name] = {"type": db_objects[obj_name]}
+                else:
+                    out[schema][obj_name] = {"type": None}
+
+        self._requested_objects = out
 
     def _py2sqa(self, from_type):
         python_types = {
