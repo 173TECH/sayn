@@ -130,6 +130,7 @@ class Task:
             "parents": set(),
             "tags": set(),
             "on_fail": None,
+            "task_name": None,
         }
 
     def ready(self):

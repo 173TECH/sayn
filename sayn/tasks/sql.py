@@ -46,6 +46,9 @@ class SqlTask(Task):
         return self.connections[self._target_db]
 
     def config(self, **config):
+        if "task_name" in self._config_input:
+            del self._config_input["task_name"]
+
         if "columns" in config:
             self._has_tests = True
 

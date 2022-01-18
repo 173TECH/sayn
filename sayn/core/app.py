@@ -164,6 +164,7 @@ class App:
                 self.autogroups,
                 self.run_arguments.folders.sql,
                 self.compiler,
+                self.python_loader,
             )
         )
 
@@ -341,7 +342,9 @@ class App:
         return Ok()
 
     def get_task_class(self, task_type, config):
-        if task_type == "python":
+        if task_type == "python_module":
+            return Ok(config.pop("task_class"))
+        elif task_type == "python":
             return self.python_loader.get_class("python_tasks", config.get("class"))
         elif task_type in _creators:
             return Ok(_creators[task_type])

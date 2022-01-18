@@ -109,6 +109,9 @@ class Config(BaseModel):
 
 class CopyTask(SqlTask):
     def config(self, **config):  # noqa: C901
+        if "task_name" in self._config_input:
+            del self._config_input["task_name"]
+
         if "columns" in config:
             self._has_tests = True
 

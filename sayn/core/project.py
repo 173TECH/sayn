@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any, List, Mapping, Optional
 
 from pydantic import BaseModel, Field, validator, Extra
+from sayn.tasks.python import DecoratorTaskWrapper
 
 from ..utils.compiler import TaskJinjaEnv
 from ..utils.misc import merge_dicts, merge_dict_list
@@ -192,7 +193,9 @@ def get_task_dict(task, task_name, group_name, presets):
     return Ok(dict(task, name=task_name, group=group_name))
 
 
-def get_tasks_dict(global_presets, groups, autogroups, sql_folder, compiler):
+def get_tasks_dict(
+    global_presets, groups, autogroups, sql_folder, compiler, python_loader
+):
     """Returns a dictionary with the task definition with the preset information merged
     Args:
       global_presets (dict): a dictionary with the presets as defined in project.yaml
@@ -300,43 +303,67 @@ def get_tasks_dict(global_presets, groups, autogroups, sql_folder, compiler):
                 tasks[task_name] = task
         elif group_definition.get("type") == "python":
             group_definition["group"] = group_name
-            group_tasks = group_definition.pop("tasks", dict())
-            if not isinstance(group_tasks, dict):
-                return Err(
-                    "dag",
-                    "wrong_yaml_type",
-                    group=group_name,
-                    type=type(group_definition.get("tasks")),
-                )
+            group_definition["type"] = "python_module"
+            module_path = group_definition.pop("module", None)
+            result = python_loader.get_objects(
+                "python_tasks", module_path, DecoratorTaskWrapper
+            )
+            if result.is_err:
+                return result
+            else:
+                objects = result.value
 
-            for task_name, task_def in group_tasks.items():
-                if task_name in tasks:
-                    return Err(
-                        "dag",
-                        "duplicate_task",
-                        task_name=task_name,
-                        groups=(group_name, tasks[task_name]["group"]),
-                    )
-
-                if task_def is not None:
-                    if not isinstance(task_def, dict):
-                        return Err(
-                            "dag",
-                            "wrong_yaml_type",
-                            group=group_name,
-                            type=type(task_def),
-                        )
-
-                    task = deepcopy(group_definition)
-                    task = merge_dicts(task, task_def)
-                else:
-                    task = deepcopy(group_definition)
+            for task_obj in objects:
+                task_name = task_obj.func.__name__
+                task = deepcopy(group_definition)
+                task["name"] = task_name
+                task["task_class"] = task_obj
 
                 result = get_task_dict(task, task_name, group_name, presets)
                 if result.is_ok:
                     tasks[task_name] = result.value
                 else:
                     errors[task_name] = result.error
+
+        # elif group_definition.get("type") == "python":
+        #     group_definition["group"] = group_name
+        #     group_tasks = group_definition.pop("tasks", dict())
+        #     if not isinstance(group_tasks, dict):
+        #         return Err(
+        #             "dag",
+        #             "wrong_yaml_type",
+        #             group=group_name,
+        #             type=type(group_definition.get("tasks")),
+        #         )
+
+        #     for task_name, task_def in group_tasks.items():
+        #         if task_name in tasks:
+        #             return Err(
+        #                 "dag",
+        #                 "duplicate_task",
+        #                 task_name=task_name,
+        #                 groups=(group_name, tasks[task_name]["group"]),
+        #             )
+
+        #         if task_def is not None:
+        #             if not isinstance(task_def, dict):
+        #                 return Err(
+        #                     "dag",
+        #                     "wrong_yaml_type",
+        #                     group=group_name,
+        #                     type=type(task_def),
+        #                 )
+
+        #             task = deepcopy(group_definition)
+        #             task = merge_dicts(task, task_def)
+        #         else:
+        #             task = deepcopy(group_definition)
+
+        #         result = get_task_dict(task, task_name, group_name, presets)
+        #         if result.is_ok:
+        #             tasks[task_name] = result.value
+        #         else:
+        #             errors[task_name] = result.error
 
         else:
             return Err(

@@ -2,12 +2,12 @@
 
 ## About
 
-Tasks are the backbone of your SAYN project. They are used by SAYN to create a DAG (Directed Acyclic Graph).
+A SAYN project is split into units of execution called tasks. The order of execution of these tasks is given based on the dependencies between them, forming a DAG (Direct Acyclic Graph).
 
 !!! info
     A Directed Acyclic Graph is a concept which enables to conveniently model tasks and dependencies. It uses the following key principles
 
-    * `graph`: a specific data structure which consists of `nodes` connected by `edges`.
+    * `graph`: a data structure which consists of `nodes` connected by `edges`.
     * `directed`: dependencies have a direction. If there is an `edge` (i.e. a dependency) between two tasks, one will run before the other.
     * `acyclic`: there are no circular dependencies. If you process the whole graph, you will never encounter the same task twice.
 

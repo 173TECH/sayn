@@ -129,6 +129,9 @@ class CompileConfig(BaseModel):
 
 class AutoSqlTask(SqlTask):
     def config(self, **config):
+        if "task_name" in self._config_input:
+            del self._config_input["task_name"]
+
         if "columns" in config:
             self._has_tests = True
 
