@@ -172,22 +172,22 @@ class DbObject:
 
         if self.schema is not None:
             self.schema_value = self.stringify["schema"].compile(
-                schema=self.schema, connection=connection_name
+                table=self.object, schema=self.schema, connection=connection_name
             )
             self.value += self.schema_value + "."
 
             self.schema_prod_value = self.prod_stringify["schema"].compile_prod(
-                schema=self.schema, connection=connection_name
+                table=self.object, schema=self.schema, connection=connection_name
             )
             self.prod_value += self.schema_prod_value + "."
 
         self.object_value = self.stringify["table"].compile(
-            table=self.object, connection=connection_name
+            table=self.object, schema=self.schema, connection=connection_name
         )
         self.value += self.object_value
 
         self.object_prod_value = self.prod_stringify["table"].compile_prod(
-            table=self.object, connection=connection_name
+            table=self.object, schema=self.schema, connection=connection_name
         )
         self.prod_value += self.object_prod_value
 

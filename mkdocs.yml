@@ -62,6 +62,7 @@ nav:
     - Tasks: tasks/overview.md
     - Presets: presets.md
     - Parameters: parameters.md
+    - Database objects: database_objects.md
   - Tasks:
     - Overview: tasks/overview.md
     - AutoSQL: tasks/autosql.md

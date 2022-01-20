@@ -9,6 +9,8 @@ The `project.yaml` defines the core components of the SAYN project. It is **shar
 
     default_db: warehouse
 
+    schema_prefix: analytics
+
     parameters:
       user_prefix: ''
       schema_logs: analytics_logs
@@ -19,6 +21,11 @@ The `project.yaml` defines the core components of the SAYN project. It is **shar
       preset1:
         type: sql
         file_name: '{{ task.name }}.sql'
+
+    groups:
+      group1:
+        type: sql
+        file_name: "group1/*.sql"
     ```
 
 | Property | Description | Default |
@@ -27,3 +34,5 @@ The `project.yaml` defines the core components of the SAYN project. It is **shar
 | default_db | The credential used by default by sql and autosql tasks. | Entry in `required_credentials` if only 1 defined |
 | parameters | Project parameters used to make the tasks dynamic. They are overwritten by `profile` `parameters` in `settings.yaml`. See the [Parameters](../parameters.md) section for more details. | |
 | presets | Defines preset task structures so task can inherit attributes from those `presets` directly. See the [Presets](../presets.md) section for more details. | |
+| groups | Defines groups that automatically generate tasks based on a list of files or a python module. See [the task overview](tasks/overview.md) and [python tasks](tasks/python.md) for more details. | |
+| prefix/suffix/override | Settings to modify [database object](database_objects.md) references | |
