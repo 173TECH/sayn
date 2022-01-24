@@ -210,46 +210,53 @@ class Bigquery(Database):
 
     def _introspect(self, to_introspect):
         for schema in to_introspect.keys():
-            obj = [obj_name for obj_name in to_introspect[schema]]
+            db_object = [obj_name for obj_name in to_introspect[schema]]
             if schema is None:
                 name = self.dataset
             else:
                 name = schema
-            query = f"""SELECT t.table_name
-                              , t.table_type
+            query = f"""SELECT t.table_name AS name
+                              , t.table_type AS type
                               , array_agg(STRUCT(c.column_name, c.is_partitioning_column = 'YES' AS is_partition, c.clustering_ordinal_position)
                                           ORDER BY clustering_ordinal_position) AS columns
                            FROM {name}.INFORMATION_SCHEMA.TABLES t
                            JOIN {name}.INFORMATION_SCHEMA.COLUMNS c
                              ON c.table_name = t.table_name
-                          WHERE t.table_name IN ({', '.join(f"'{ts}'" for ts in obj)})
+                          WHERE t.table_name IN ({', '.join(f"'{ts}'" for ts in db_object)})
                           GROUP BY 1,2
                     """
-            res = self.read_data(query)
+            db_objects = {
+                o["name"]: {"type": o["type"], "columns": o["columns"]}
+                for o in self.read_data(query)
+            }
 
             if schema not in self._requested_objects:
                 self._requested_objects[schema] = dict()
 
-            for obj in res:
-                obj_name = obj["table_name"]
-                if obj["table_type"] == "BASE TABLE":
-                    obj_type = "table"
-                elif obj["table_type"] == "VIEW":
-                    obj_type = "view"
-                if schema is not None and obj_name.startswith(schema + "."):
-                    obj_name = obj_name[len(schema + ".") :]
-                if obj_name in self._requested_objects[schema]:
-                    self._requested_objects[schema][obj_name]["type"] = obj_type
-                    cols = []
-                    for c in obj["columns"]:
+            for obj_name in to_introspect[schema]:
+                # Always insert into the requested_objects dict
+                self._requested_objects[schema][obj_name] = {"type": None}
+
+                # Get the current config on the db
+                if obj_name in db_objects:
+                    db_object = db_objects[obj_name]
+                    if db_object["type"] == "BASE TABLE":
+                        self._requested_objects[schema][obj_name]["type"] = "table"
+                    elif db_object["type"] == "VIEW":
+                        self._requested_objects[schema][obj_name]["type"] = "view"
+
+                    cluster_cols = []
+                    for c in db_object["columns"]:
                         if c["is_partition"] is True:
                             self._requested_objects[schema][obj_name]["partition"] = c[
                                 "column_name"
                             ]
                         if c["clustering_ordinal_position"] is not None:
-                            cols.append(c["column_name"])
-                    if cols:
-                        self._requested_objects[schema][obj_name]["cluster"] = cols
+                            cluster_cols.append(c["column_name"])
+                    if cluster_cols:
+                        self._requested_objects[schema][obj_name][
+                            "cluster"
+                        ] = cluster_cols
 
     def _py2sqa(self, from_type):
         python_types = {
