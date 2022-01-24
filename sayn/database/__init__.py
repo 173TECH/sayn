@@ -5,9 +5,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
-from pydantic import BaseModel, validator, Extra, FilePath
+from pydantic import BaseModel, validator, Extra
 from sqlalchemy import MetaData, Table
-from sqlalchemy.engine import reflection
 from sqlalchemy.sql import sqltypes
 import sqlalchemy
 
