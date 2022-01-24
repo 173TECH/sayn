@@ -8,9 +8,9 @@ pip install "sayn[bigquery]"
 ```
 
 !!! warning
-    Currently the latest version of [pybigquery](https://github.com/mxmzdlv/pybigquery){target="\_blank"}
-    will not install on Python 3.10. `pip install pybigquery` can be used to install an earlier version
-    although some problems might arise, so we recommend using Python 3.9 instead.
+    SAYN 0.6 switched from [pybigquery](https://github.com/mxmzdlv/pybigquery){target="\_blank"} to
+    [sqlalchemy-bigquery](https://github.com/googleapis/python-bigquery-sqlalchemy). When upgrading, pybigquery
+    should be uninstalled with `pip uninstall pybigquery`.
 
 
 The [Bigquery](https://cloud.google.com/bigquery){target="\_blank"} connector looks for the following parameters:

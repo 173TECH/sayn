@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sayn"
-version = "0.5.13"
+version = "0.6.0"
 description = "Data-modelling and processing framework for automating Python and SQL tasks"
 authors = ["Robin Watteaux <robin@173tech.com>", "Adrian Macias <adrian@173tech.com>"]
 license = "Apache-2.0"
@@ -39,7 +39,7 @@ graphviz = ["graphviz"]
 postgresql = ["psycopg2"]
 snowflake = ["snowflake-connector-python", "snowflake-sqlalchemy"]
 mysql = ["pymysql"]
-bigquery = ["pybigquery", "google-cloud-bigquery-storage", "pyarrow"]
+bigquery = ["sqlalchemy-bigquery", "google-cloud-bigquery-storage", "pyarrow"]
 
 [tool.poetry.scripts]
 sayn = "sayn.cli:cli"
