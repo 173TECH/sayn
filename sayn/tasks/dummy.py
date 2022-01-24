@@ -1,7 +1,10 @@
-from . import Task
+from .task import Task
 
 
 class DummyTask(Task):
+    def config(self):
+        return self.success()
+
     def setup(self):
         return self.success()
 

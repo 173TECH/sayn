@@ -17,14 +17,7 @@ drivers = {
 db_params = ("max_batch_rows", "type")
 
 
-def create_all(credentials):
-    return {
-        n: create(n, c["name_in_settings"], c["settings"])
-        for n, c in credentials.items()
-    }
-
-
-def create(name, name_in_settings, settings):
+def create(name, name_in_settings, settings, stringify, prod_stringify):
     db_type = settings.pop("type")
     if db_type not in drivers:
         raise ValueError(f"No driver for {db_type} found")
@@ -33,7 +26,9 @@ def create(name, name_in_settings, settings):
         common_params = {k: v for k, v in settings.items() if k in db_params}
         settings = {k: v for k, v in settings.items() if k not in db_params}
 
-        db_obj = drivers[db_type](name, name_in_settings, db_type, common_params)
+        db_obj = drivers[db_type](
+            name, name_in_settings, db_type, common_params, stringify, prod_stringify
+        )
         db_obj._set_engine(db_obj.create_engine(settings))
 
         return db_obj

@@ -1,7 +1,5 @@
 from datetime import datetime
-from pathlib import Path
 from typing import Any, Dict, Optional, List
-import json
 
 from pydantic import BaseModel, Field, validator, Extra
 from sqlalchemy import or_, select, column
@@ -110,7 +108,13 @@ class Config(BaseModel):
 
 
 class CopyTask(SqlTask):
-    def setup(self, **config):  # noqa: C901
+    def config(self, **config):  # noqa: C901
+        if "task_name" in self._config_input:
+            del self._config_input["task_name"]
+
+        if "columns" in config:
+            self._has_tests = True
+
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]
@@ -162,42 +166,61 @@ class CopyTask(SqlTask):
             )
 
         try:
-            self.config = Config(**config)
+            self.task_config = Config(**config)
         except Exception as e:
             return Exc(e)
 
-        self.source_db = self.connections[self.config.source.db]
-        self.source_schema = self.config.source.db_schema
-        self.source_table = self.config.source.table
-        self.use_db_object(
-            self.source_table,
-            schema=self.source_schema,
-            db=self.source_db,
-            request_tmp=False,
+        # Setup sources
+        self.source_db = self.connections[self.task_config.source.db]
+        self.source_schema = self.task_config.source.db_schema
+        self.source_table = self.task_config.source.table
+
+        # Given copy's use case, we should take the table and schema as it comes
+        # TODO add some specification for using `src` so that it works for reverse ETL
+        # if self.source_schema is None:
+        #     self.src(self.source_table, connection=self.source_db)
+        # else:
+        #     self.src(
+        #         f"{self.source_schema}.{self.source_table}", connection=self.source_db
+        #     )
+
+        # Setup outputs
+        self.config_tmp_schema = (
+            self.task_config.destination.tmp_schema
+            or self.task_config.destination.db_schema
         )
+        self.config_schema = self.task_config.destination.db_schema
+        self.config_table = self.task_config.destination.table
+        self.config_tmp_table = f"sayn_tmp_{self.config_table}"
 
-        self.tmp_schema = (
-            self.config.destination.tmp_schema or self.config.destination.db_schema
-        )
-        self.schema = self.config.destination.db_schema
-        self.table = self.config.destination.table
-        self.tmp_table = f"sayn_tmp_{self.table}"
+        if self.config_schema is None:
+            self.schema = None
+            self.table = self.out(self.config_table, connection=self.target_db)
+        else:
+            obj = self.out(
+                f"{self.config_schema}.{self.config_table}", connection=self.target_db
+            )
+            self.schema = obj.split(".")[0]
+            self.table = obj.split(".")[1]
 
-        self.use_db_object(
-            self.table,
-            schema=self.schema,
-            tmp_schema=self.tmp_schema,
-            db=self.target_db,
-            request_tmp=True,
-        )
+        if self.config_tmp_schema is None:
+            self.tmp_schema = None
+            self.tmp_table = self.out(self.config_tmp_table, connection=self.target_db)
+        else:
+            obj = self.out(
+                f"{self.config_schema}.{self.config_tmp_table}",
+                connection=self.target_db,
+            )
+            self.tmp_schema = obj.split(".")[0]
+            self.tmp_table = obj.split(".")[1]
 
-        self.delete_key = self.config.delete_key
-        self.src_incremental_key = self.config.incremental_key
-        self.dst_incremental_key = self.config.incremental_key
-        self.max_merge_rows = self.config.max_merge_rows
-        self.max_batch_rows = self.config.max_batch_rows
+        self.delete_key = self.task_config.delete_key
+        self.src_incremental_key = self.task_config.incremental_key
+        self.dst_incremental_key = self.task_config.incremental_key
+        self.max_merge_rows = self.task_config.max_merge_rows
+        self.max_batch_rows = self.task_config.max_batch_rows
 
-        if self.config.append:
+        if self.task_config.append:
             self.mode = "append"
         elif self.dst_incremental_key is None:
             self.mode = "full"
@@ -207,7 +230,9 @@ class CopyTask(SqlTask):
         self.is_full_load = self.run_arguments["full_load"] or self.mode == "full"
 
         result = self.target_db._validate_ddl(
-            self.config.columns, self.config.table_properties, self.config.post_hook
+            self.task_config.columns,
+            self.task_config.table_properties,
+            self.task_config.post_hook,
         )
         if result.is_ok:
             self.columns = result.value
@@ -234,6 +259,32 @@ class CopyTask(SqlTask):
             else:
                 self.test_query = result.value[0]
                 self.test_breakdown = result.value[1]
+
+        return Ok()
+
+    def setup(self, needs_recompile):
+        if needs_recompile:
+            if self.config_schema is None:
+                self.table = self.out(self.config_table, connection=self.target_db)
+            else:
+                obj = self.out(
+                    f"{self.config_schema}.{self.config_table}",
+                    connection=self.target_db,
+                )
+                self.schema = obj.split(".")[0]
+                self.table = obj.split(".")[1]
+
+            if self.config_tmp_schema is None:
+                self.tmp_table = self.out(
+                    self.config_tmp_table, connection=self.target_db
+                )
+            else:
+                obj = self.out(
+                    f"{self.config_schema}.{self.config_tmp_table}",
+                    connection=self.target_db,
+                )
+                self.tmp_schema = obj.split(".")[0]
+                self.tmp_table = obj.split(".")[1]
 
         return Ok()
 
@@ -273,9 +324,7 @@ class CopyTask(SqlTask):
             return self.success()
         else:
             with self.step("Write Test Query"):
-                result = self.write_compilation_output(self.test_query, "test")
-                if result.is_err:
-                    return result
+                self.write_compilation_output(self.test_query, "test")
 
             with self.step("Execute Test Query"):
                 result = self.default_db.read_data(self.test_query)

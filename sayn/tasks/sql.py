@@ -1,13 +1,12 @@
 from pathlib import Path
-import json
 
 from pydantic import BaseModel, FilePath, validator, Extra
 from typing import Optional, List
-from terminaltables import AsciiTable
+from enum import Enum
 
 from ..core.errors import Ok, Err, Exc
 from ..database import Database
-from . import Task
+from .task import Task
 from .test import Columns
 
 
@@ -25,32 +24,34 @@ class Config(BaseModel):
         return Path(values["sql_folder"], v)
 
 
+class OnFailValue(str, Enum):
+    skip = "skip"
+    no_skip = "no_skip"
+
+
+class CompileConfig(BaseModel):
+    tags: Optional[List[str]]
+    sources: Optional[List[str]]
+    outputs: Optional[List[str]]
+    parents: Optional[List[str]]
+    on_fail: Optional[OnFailValue]
+
+    class Config:
+        extra = Extra.forbid
+
+
 class SqlTask(Task):
     @property
     def target_db(self):
         return self.connections[self._target_db]
 
-    def use_db_object(
-        self, name, schema=None, tmp_schema=None, db=None, request_tmp=True
-    ):
-        if db is None:
-            target_db = self.target_db
-        elif isinstance(db, str):
-            target_db = self.connections[db]
-        elif isinstance(db, Database):
-            target_db = db
-        else:
-            return Err("use_db_object", "wrong_connection_type")
+    def config(self, **config):
+        if "task_name" in self._config_input:
+            del self._config_input["task_name"]
 
-        target_db._request_object(
-            name,
-            schema=schema,
-            tmp_schema=tmp_schema,
-            task_name=self.name,
-            request_tmp=request_tmp,
-        )
+        if "columns" in config:
+            self._has_tests = True
 
-    def setup(self, **config):
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]
@@ -64,17 +65,24 @@ class SqlTask(Task):
             self._target_db = self._default_db
 
         try:
-            self.config = Config(
+            self.task_config = Config(
                 sql_folder=self.run_arguments["folders"]["sql"], **config
             )
         except Exception as e:
             return Exc(e)
 
-        result = self.compile_obj(self.config.file_name)
-        if result.is_err:
-            return result
-        else:
-            self.sql_query = result.value
+        self.compiler.update_globals(
+            src=lambda x: self.src(x, connection=self._target_db),
+            out=lambda x: self.out(x, connection=self._target_db),
+            config=self.config_macro,
+        )
+
+        self.allow_config = True
+
+        self.prepared_sql_query = self.compiler.prepare(self.task_config.file_name)
+        self.sql_query = self.prepared_sql_query.compile()
+
+        self.allow_config = False
 
         if self.run_arguments["command"] == "run":
             self.set_run_steps(["Write Query", "Execute Query"])
@@ -138,19 +146,43 @@ class SqlTask(Task):
         #
         return Ok()
 
+    def config_macro(self, **config):
+        if self.allow_config:
+            task_config_override = CompileConfig(**config)
+            # Sent to the wrapper
+            if task_config_override.on_fail is not None:
+                self._config_input["on_fail"] = task_config_override.on_fail
+
+            if task_config_override.tags is not None:
+                self._config_input["tags"] = task_config_override.tags
+
+            if task_config_override.sources is not None:
+                self._config_input["sources"] = task_config_override.sources
+
+            if task_config_override.outputs is not None:
+                self._config_input["outputs"] = task_config_override.outputs
+
+            if task_config_override.parents is not None:
+                self._config_input["parents"] = task_config_override.parents
+
+        # Returns an empty string to avoid productin incorrect sql
+        return ""
+
+    def setup(self, needs_recompile):
+        if needs_recompile:
+            self.sql_query = self.prepared_sql_query.compile()
+
+        return Ok()
+
     def compile(self):
         with self.step("Write Query"):
-            result = self.write_compilation_output(self.sql_query)
-            if result.is_err:
-                return result
+            self.write_compilation_output(self.sql_query)
 
         return Ok()
 
     def run(self):
         with self.step("Write Query"):
-            result = self.write_compilation_output(self.sql_query)
-            if result.is_err:
-                return result
+            self.write_compilation_output(self.sql_query)
 
         with self.step("Execute Query"):
             try:

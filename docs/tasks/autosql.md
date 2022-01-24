@@ -3,6 +3,7 @@
 ## About
 
 The `autosql` task lets you write a `SELECT` statement and SAYN then automates the data processing (i.e. table or view creation, incremental load, etc.) for you.
+The `SELECT` statment can use the `src` macro to implicitly create task dependencies as decribed in [database objects](../database_objects.md).
 
 ## Defining `autosql` Tasks
 
@@ -26,17 +27,17 @@ An `autosql` task is defined as follows:
 An `autosql` task is defined by the following attributes:
 
 * `type`: `autosql`.
-* `file_name`: the name of the file **within the sql folder of the project's root**.
+* `file_name`: the path to a file **within the sql folder of the project's root**. When defining `autosql` groups in `project.yaml` this property needs to be  a glob expression, for example `group/*.sql`.
 * `materialisation`: this should be either `table`, `view` or `incremental`. `table` will create a table, `view` will create a view. `incremental` will create a table and will load the data incrementally based on a delete key (see more detail on `incremental` below).
 * `destination`: this sets the details of the data processing.
-    * `tmp_schema`: the (optional) schema which will be used to store any necessary temporary object created in the process.
-    * `schema`: the (optional) destination schema where the object will be created.
-    * `table`: is the name of the object that will be created.
+    * `tmp_schema`: the (optional) schema which will be used to store any necessary temporary object created in the process. The final compiled value is affected by `schema_prefix`, `schema_suffix` and `schema_override` as specified in [database objects](../database_objects.md).
+    * `schema`: the (optional) destination schema where the object will be created. The final compiled value is affected by `schema_prefix`, `schema_suffix` and `schema_override` as specified in [database objects](../database_objects.md).
+    * `table`: is the name of the object that will be created. The final compiled value is affected by `table_prefix`, `table_suffix` and `table_override` as specified in [database objects](../database_objects.md).
     * `db`: the (optional) destination database.
 * `delete_key`: specifies the incremental process delete key. This is for `incremental` `materialisation` only.
 
 !!! info
-    You do not need to specify `db` unless you want the destination database to be different than the `default_db` you define in `project.yaml` (which is the default database used by SAYN). If you define the `db` attribute, it needs to:
+    By default the task is executed in the database defined by `default_db` in `project.yaml`. `db` can be specified to change this, in which case the connection specified needs to:
 
       * Be a credential from the `required_credentials` list in `project.yaml`.
       * Be defined in your `settings.yaml`.
@@ -91,46 +92,12 @@ In order to make the `SELECT` statement incremental, SAYN provides the following
      GROUP BY 1,2
     ```
 
-## Defining DDLs
+## Defining columns
 
-Autosql tasks support the definition of optional DDL. Each DDL entry is independent to others (you can define only DDLs which are relevant to you).
+Autosql tasks accept a `columns` field in the task definition that affects the table creation by enforcing types and column order.
 
 !!! attention
       Each supported database might have specific DDL related to it. Below are the DDLs that SAYN supports across all databases. For DDLs related to specific databases see the database-specific pages.
-
-### ALTER TABLE DDLs
-
-The following DDLs will be issued by SAYN with `ALTER TABLE` statements:
-
-* indexes: the indexes to add on the table.
-* primary_key: this should be added in the indexes section using the `primary_key` name for the index.
-* permissions: the permissions you want to give to each role. You should map each role to the rights you want to grant separated by commas (e.g. SELECT, DELETE).
-
-!!! example "autosql with DDL"
-    ```yaml
-    ...
-
-    task_autosql:
-      type: autosql
-      file_name: task_autosql.sql
-      materialisation: table
-      destination:
-        tmp_schema: analytics_staging
-        schema: analytics_models
-        table: task_autosql
-      ddl:
-        indexes:
-          primary_key:
-            columns:
-              - column1
-              - column2
-          idx1:
-            columns:
-              - column1
-        permissions:
-          role_name: SELECT
-    ...
-    ```
 
 ### CREATE TABLE DDLs
 
@@ -149,7 +116,7 @@ SAYN also lets you control the CREATE TABLE statement if you need more specifica
 !!! Attention
     If the a primary key is defined in both the `columns` and `indexes` DDL entries, the primary key will be set as part of the `CREATE TABLE` statement only.
 
-!!! example "autosql with columns DDL"
+!!! example "autosql with columns"
     ```yaml
     ...
 
@@ -173,3 +140,18 @@ SAYN also lets you control the CREATE TABLE statement if you need more specifica
           role_name: SELECT
     ...
     ```
+
+## Config macro
+
+Within the sql file of an `autosql` task we can overload the values specified in the YAML. This is useful when we define
+groups in `project.yaml` and for a specific task we need to make a configuration change like the materialisation. To use
+this we simply call `config` from a Jinja tag within the sql file:
+
+!!! example "autosql with config"
+    ```
+    {{ config(materialisation='view') }}
+    SELECT ...
+    ```
+
+The above code will override the value of `materialisation` setting defined in YAML to make this model a view. All other parameters
+described in this page are also available to overload with `config` except `db`, `file_name` and `name`.

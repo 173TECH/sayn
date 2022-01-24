@@ -184,7 +184,10 @@ class LogFormatter:
         message = self.bad(error.__str__())
         duration = human(duration)
 
-        if error.kind == "exception":
+        if "error_message" in error.details:
+            message = self.bad(error.details["error_message"])
+
+        elif error.kind == "exception":
             exc = error.details["exception"]
             message = [self.bad(f"Failed ({duration}) {exc}")]
             message.extend(
@@ -209,6 +212,10 @@ class LogFormatter:
                 self.red(f"In task {self.bright(task)}: {', '.join(parents)}")
                 for task, parents in error.details["missing"].items()
             ]
+
+        elif error.kind == "dag" and error.code == "missing_sources":
+            level = "error"
+            message = self.bad(error.details["error_message"])
 
         elif error.code == "wrong_credentials":
             level = "error"
@@ -265,9 +272,13 @@ class LogFormatter:
             level = "error"
             message = self.bad(error.details["message"])
 
-        elif error.kind == "database" and error.code == "operational_error":
+        elif error.kind == "database" and error.code == "exception":
             level = "error"
             message = self.bad(error.details["message"])
+
+        elif error.kind == "database" and error.code == "sayn_error":
+            level = "error"
+            message = self.bad(error.details["error_message"])
 
         elif error.kind == "parsing" and "filename" in error.details:
             level = "error"
@@ -330,19 +341,18 @@ class LogFormatter:
     # App context
 
     def app_start(self, details):
-        debug = "(debug)" if details["run_arguments"]["debug"] else ""
+        debug = "(debug)" if details["debug"] else ""
         yesterday = date.today() - timedelta(days=1)
-        if details["run_arguments"]["full_load"]:
+        if details["full_load"]:
             dt_range = "Full Load"
         elif (
-            details["run_arguments"]["start_dt"] == details["run_arguments"]["end_dt"]
-            and details["run_arguments"]["end_dt"] == yesterday
+            details["start_dt"] == details["end_dt"] and details["end_dt"] == yesterday
         ):
             dt_range = "Default"
-        elif details["run_arguments"]["start_dt"] == details["run_arguments"]["end_dt"]:
-            dt_range = f"{details['run_arguments']['start_dt']}"
+        elif details["start_dt"] == details["end_dt"]:
+            dt_range = f"{details['start_dt']}"
         else:
-            dt_range = f"{details['run_arguments']['start_dt']} to {details['run_arguments']['end_dt']}"
+            dt_range = f"{details['start_dt']} to {details['end_dt']}"
 
         out = list()
         out.append(f"Starting sayn {debug}")
@@ -352,9 +362,7 @@ class LogFormatter:
         if details["project_git_commit"] is not None:
             out.append(f"Git commit: {details['project_git_commit']}")
         out.append(f"Period: {dt_range}")
-        out.append(
-            f"{'Profile: ' + (details['run_arguments'].get('profile') or 'Default')}"
-        )
+        out.append(f"{'Profile: ' + (details.get('profile') or 'Default')}")
 
         return {"level": "info", "message": out}
 
@@ -373,7 +381,9 @@ class LogFormatter:
                 return {"level": "info", "message": self.good(msg)}
 
     def app_stage_start(self, stage, details):
-        if stage == "setup":
+        if stage == "config":
+            return {"level": "info", "message": "Configuring Project..."}
+        elif stage == "setup":
             return {"level": "info", "message": "Setting up..."}
         elif stage in ("run", "compile", "test"):
             return {
@@ -387,8 +397,12 @@ class LogFormatter:
 
     def app_stage_finish(self, stage, details):
         tasks = group_list([(v.value, t) for t, v in details["tasks"].items()])
-        failed = tasks.get("failed", list())
-        succeeded = tasks.get("ready", list()) + tasks.get("succeeded", list())
+        failed = tasks.get("setup_failed", list()) + tasks.get("failed", list())
+        succeeded = (
+            tasks.get("ready", list())
+            + tasks.get("ready_for_setup", list())
+            + tasks.get("succeeded", list())
+        )
         skipped = tasks.get("skipped", list())
         duration = human(details["duration"])
         totals_msg = (
@@ -396,7 +410,20 @@ class LogFormatter:
             f"Success: {len(succeeded)}. Failed {len(failed)}. Skipped {len(skipped)}."
         )
 
-        if stage == "setup":
+        if stage == "config":
+            out = ["Finished project config:"]
+            level = "info"
+            if len(failed) > 0:
+                out.append(self.bad(f"Tasks failed: {self.blist(failed)}"))
+                level = "error"
+            # if len(skipped) > 0:
+            #     out.append(self.warn(f"Tasks to skip: {self.blist(skipped)}"))
+            #     level = "error"
+            if len(succeeded) > 0:
+                out.append(self.good(f"Tasks found: {self.blist(succeeded)}"))
+            return {"level": level, "message": out}
+
+        elif stage == "setup":
             out = ["Finished setup:"]
             level = "info"
             if len(failed) > 0:
@@ -449,7 +476,9 @@ class LogFormatter:
         task_progress = f"[{task_order}/{total_tasks}]"
         ts = human(details["ts"])
 
-        if stage == "setup":
+        if stage == "config":
+            return {"level": "info", "message": f"{self.bright(task)}"}
+        elif stage == "setup":
             return {"level": "info", "message": f"{task_progress} {self.bright(task)}"}
         elif stage in ("run", "compile", "test"):
             return {
@@ -462,7 +491,7 @@ class LogFormatter:
     def task_stage_finish(self, stage, task, task_order, total_tasks, details):
         duration = human(details["duration"])
 
-        if details["result"].is_ok:
+        if details.get("result") is None or details["result"].is_ok:
             return {
                 "level": "info",
                 "message": self.good(f"Took ({duration})"),

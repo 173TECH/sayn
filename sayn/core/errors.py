@@ -1,17 +1,15 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional, Sequence
 
-from pydantic import ValidationError, Extra
+from pydantic import ValidationError
 from ruamel.yaml.error import MarkedYAMLError
 import sqlalchemy
+from sqlalchemy.exc import SQLAlchemyError
 
 
 class Error:
     kind: str
     code: str
-    details: Dict = dict()
-
-    class Config:
-        extra = Extra.forbid
+    details: Dict
 
     def __init__(self, kind, code, details):
         self.kind = kind
@@ -25,10 +23,7 @@ class Error:
 class Result:
     is_ok: bool = False
     value: Any = None
-    error: Error = None
-
-    class Config:
-        extra = Extra.forbid
+    error: Optional[Error] = None
 
     def __init__(self, value: Any = None, error: Error = None):
         if error is not None:
@@ -47,14 +42,6 @@ class Result:
     @property
     def is_err(self):
         return not self.is_ok
-
-    def mk_error_message(self, errors):
-        """Returns a list of error messages from a Error result
-
-        Args:
-          errors (List[Result]): a list of results
-        """
-        pass
 
 
 def Ok(value=None):
@@ -95,7 +82,7 @@ def Exc(exc, **kwargs):
             error=Error(
                 "exception",
                 "not_implemented",
-                {"class": exc.args[1], "method": exc.args[2]},
+                {"class": exc.args[1], "method": exc.args[2], "exception": exc},
             )
         )
     elif isinstance(exc, NotImplementedError):
@@ -104,30 +91,107 @@ def Exc(exc, **kwargs):
             error=Error("exception", "unknown_not_implemented", {"exception": exc})
         )
 
+    elif isinstance(exc, SaynError):
+        return Err(**exc.payload())
+
     # TODO add other exceptions like:
     #   - DB errors
     #   - Jinja
-    elif isinstance(exc, sqlalchemy.exc.OperationalError):
+    elif isinstance(exc, SQLAlchemyError):
         return Result(
             error=Error(
                 "database",
-                "operational_error",
+                "exception",
                 {"exception": exc, "message": " ".join(exc.args)},
             )
         )
-
     else:
         return Result(
             error=Error("exception", "unhandled_exception", {"exception": exc})
         )
 
 
-class DBError(Exception):
+class SaynError(Exception):
+    def payload(self):
+        return dict()
+
+
+class SaynCompileError(SaynError):
+    def __init__(self, value):
+        self.value = value
+
+    def payload(self):
+        return {"value": self.value}
+
+
+class SaynMissingFileError(SaynError):
+    def __init__(self, filename, is_folder=False):
+        self.file_name = filename
+        self.is_folder = is_folder
+
+    def payload(self):
+        return {
+            "kind": "missing_file",
+            "code": "missing_folder",
+            "error_message": f"Missing {'folder' if self.is_folder else 'file'} \"{self.file_name}\"",
+            "file_name": self.file_name,
+        }
+
+
+class SaynParsingError(SaynError):
+    errors: Sequence
+
+    def __init__(self, code, errors):
+        self.code = code
+        self.errors = errors
+
+    def payload(self):
+        # Sort by file_name to compress the message output
+        sorted_errors = sorted(self.errors, key=lambda x: x["file_name"])
+
+        file_name = sorted_errors[0]["file_name"]
+        message = f'Error in file "{file_name}"'
+        for error in sorted_errors:
+            if error["file_name"] != file_name:
+                # Add a new file_name line if it's different
+                message += f'\nIn file "{file_name}"'
+
+            if "snippet" in error:
+                message += "\n" + error["snippet"]
+            elif "loc" in error:
+                message += (
+                    f"\n  In \"{' > '.join([str(item) for item in error['loc']])}\""
+                    f" (line {error['line']}): {error['message']}"
+                )
+            else:
+                message += "\n" + error["message"]
+
+        return {
+            "kind": "parsing_error",
+            "code": self.code,
+            "error_message": message,
+            "errors": self.errors,
+        }
+
+
+class DagCycleError(SaynError):
+    def __init__(self, cycle):
+        self.cycle = cycle
+
+
+class DBError(SaynError):
     db_name = None
     db_type = None
 
-    def __init__(self, db_name, db_type, *args, **kwargs):
+    def __init__(self, db_name, db_type, message, errors=None):
         self.db_name = db_name
         self.db_type = db_type
+        self.message = message
+        self.errors = errors
 
-        super(sqlalchemy.SQLAlchemyError, self).__init__(*args, **kwargs)
+    def payload(self):
+        return {
+            "kind": "database",
+            "code": "sayn_error",
+            "error_message": f"Error on connection {self.db_name}: {self.message}",
+        }

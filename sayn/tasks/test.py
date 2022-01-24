@@ -1,13 +1,12 @@
 from pathlib import Path
-import json
 
-from pydantic import BaseModel, Field, FilePath, validator, Extra
+from pydantic import BaseModel, FilePath, validator, Extra
 from typing import List, Optional, Union
 from terminaltables import AsciiTable
 
 from ..core.errors import Ok, Err, Exc
 from ..database import Database
-from . import Task
+from .task import Task
 
 
 class Tests(BaseModel):
@@ -40,7 +39,9 @@ class Config(BaseModel):
 
 
 class TestTask(Task):
-    def setup(self, **config):
+    def config(self, **config):
+        self._has_tests = True
+
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]
@@ -54,29 +55,26 @@ class TestTask(Task):
             self._target_db = self._default_db
 
         try:
-            self.config = Config(
+            self.task_config = Config(
                 test_folder=self.run_arguments["folders"]["tests"], **config
             )
         except Exception as e:
             return Exc(e)
 
-        result = self.compile_obj(self.config.file_name)
-        if result.is_err:
-            return result
-        else:
-            self.test_query = result.value
-            self.test_query += " LIMIT 5\n"
+        self.test_query = self.compiler.compile(self.task_config.file_name)
+        self.test_query += " LIMIT 5\n"
 
         if self.run_arguments["command"] == "test":
             self.set_run_steps(["Write Query", "Execute Query"])
 
         return Ok()
 
+    def setup(self, needs_recompile):
+        return Ok()
+
     def test(self):
         with self.step("Write Test Query"):
-            result = self.write_compilation_output(self.test_query, "test")
-            if result.is_err:
-                return result
+            self.write_compilation_output(self.test_query, "test")
 
         with self.step("Execute Test Query"):
             result = self.default_db.read_data(self.test_query)

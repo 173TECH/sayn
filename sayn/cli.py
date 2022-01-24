@@ -1,24 +1,16 @@
-from pathlib import Path
 from datetime import date, timedelta
+from pathlib import Path
 import sys
 
 import click
 
-from .utils.python_loader import PythonLoader
-from .utils.task_query import get_query
 from .utils.graphviz import plot_dag
 from .logging import ConsoleLogger, FancyLogger, FileLogger
 from .scaffolding.init_project import sayn_init
-from .core.app import App
-from .core.config import (
-    cleanup_compilation,
-    read_project,
-    read_groups,
-    read_settings,
-    get_tasks_dict,
-)
-from .core.errors import Err, Result
-from .tasks import TaskStatus
+from .core.app import App, Command
+from .core.errors import Err, Exc, Ok, Result, SaynError
+from .core.project import read_project, read_groups, get_tasks_dict
+from .tasks.task import TaskStatus
 
 yesterday = date.today() - timedelta(days=1)
 
@@ -28,82 +20,48 @@ class CliApp(App):
         self,
         command,
         debug=False,
-        include=list(),
-        exclude=list(),
+        include=None,
+        exclude=None,
+        upstream_prod=False,
         profile=None,
         full_load=False,
         start_dt=yesterday,
         end_dt=yesterday,
     ):
+        super().__init__()
+
         # STARTING APP: register loggers and set cli arguments in the App object
-        self.run_arguments["command"] = command
+        self.run_arguments.command = command
 
-        loggers = [
-            ConsoleLogger(True) if debug else FancyLogger(),
-            FileLogger(
-                self.run_arguments["folders"]["logs"],
-                format=f"{self.run_id}|" + "%(asctime)s|%(levelname)s|%(message)s",
-            ),
-        ]
-
-        self.start_app(
-            loggers,
-            debug=debug,
-            full_load=full_load,
-            start_dt=start_dt,
-            end_dt=end_dt,
-            profile=profile,
-        )
-
-        cleanup_compilation(self.run_arguments["folders"]["compile"])
-
-        # SETUP THE APP: read project config and settings, interpret cli arguments and setup the dag
-        self.tracker.start_stage("setup")
-
-        # Read the project configuration
-        project = self.check_abort(read_project())
-        groups = self.check_abort(read_groups(project.groups))
-        self.set_project(project)
-        settings = self.check_abort(read_settings())
-        self.check_abort(self.set_settings(settings))
-
-        # Set python environment
-        self.python_loader = PythonLoader()
-        if Path(self.run_arguments["folders"]["python"]).is_dir():
-            self.check_abort(
-                self.python_loader.register_module(
-                    "python_tasks", self.run_arguments["folders"]["python"]
-                )
-            )
-
-        # Set tasks and dag from it
-        tasks_dict = self.check_abort(get_tasks_dict(project.presets, groups))
-        task_query = self.check_abort(
-            get_query(tasks_dict, include=include, exclude=exclude)
-        )
-
-        self.check_abort(self.set_tasks(tasks_dict, task_query))
-
-        self.tracker.finish_current_stage(
-            tasks={k: v.status for k, v in self.tasks.items()}
-        )
-
-    def check_abort(self, result):
-        """Interpret the result of setup opreations returning the value if `result.is_ok`.
-
-        Setup errors from the cli result in execution abort.
-
-        Args:
-          result (sayn.errors.Result): The result of a setup operation
-        """
-        if result is None or not isinstance(result, Result):
-            self.finish_app(error=Err("app_setup", "unhandled_error", result=result))
-            sys.exit(-1)
-        elif result.is_err:
-            self.finish_app(result)
-            sys.exit(-1)
+        if debug:
+            self.run_arguments.debug = debug
         else:
-            return result.value
+            self.tracker.remove_logger(ConsoleLogger)
+            self.tracker.register_logger(FancyLogger())
+
+        self.tracker.register_logger(
+            FileLogger(
+                self.run_arguments.folders.logs,
+                format=f"{self.run_id}|" + "%(asctime)s|%(levelname)s|%(message)s",
+            )
+        )
+
+        self.run_arguments.start_dt = start_dt.date()
+        self.run_arguments.end_dt = end_dt.date()
+
+        self.run_arguments.profile = profile
+        self.run_arguments.full_load = full_load
+
+        if include is not None:
+            self.run_arguments.include = include
+
+        if exclude is not None:
+            self.run_arguments.exclude = exclude
+
+        if upstream_prod is not None:
+            self.run_arguments.upstream_prod = upstream_prod
+
+        self.start_app()
 
 
 class ChainOption(click.Option):
@@ -170,6 +128,13 @@ def click_filter(func):
         help="Task query to EXCLUDE in the execution: [+]task_name[+], group:group_name, tag:tag_name",
         default=list(),
     )(func)
+    func = click.option(
+        "--upstream-prod",
+        "-u",
+        is_flag=True,
+        default=False,
+        help="For database objects produced by tasks not being executed, use the production object",
+    )(func)
     return func
 
 
@@ -218,11 +183,21 @@ def init(sayn_project_name):
 
 @cli.command(help="Compile sql tasks.")
 @click_run_options
-def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
+def compile(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_dt):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
-    app = CliApp("compile", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
+    app = CliApp(
+        Command.COMPILE,
+        debug,
+        tasks,
+        exclude,
+        upstream_prod,
+        profile,
+        full_load,
+        start_dt,
+        end_dt,
+    )
 
     app.compile()
     if any([t.status == TaskStatus.FAILED for _, t in app.tasks.items()]):
@@ -233,11 +208,21 @@ def compile(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 
 @cli.command(help="Run SAYN tasks.")
 @click_run_options
-def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
+def run(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_dt):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
-    app = CliApp("run", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
+    app = CliApp(
+        Command.RUN,
+        debug,
+        tasks,
+        exclude,
+        upstream_prod,
+        profile,
+        full_load,
+        start_dt,
+        end_dt,
+    )
 
     app.run()
     if any([t.status == TaskStatus.FAILED for _, t in app.tasks.items()]):
@@ -248,11 +233,21 @@ def run(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 
 @cli.command(help="Test SAYN tasks.")
 @click_run_options
-def test(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
+def test(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_dt):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
-    app = CliApp("test", debug, tasks, exclude, profile, full_load, start_dt, end_dt)
+    app = CliApp(
+        Command.TEST,
+        debug,
+        tasks,
+        exclude,
+        upstream_prod,
+        profile,
+        full_load,
+        start_dt,
+        end_dt,
+    )
 
     app.test()
     if any([t.status == TaskStatus.FAILED for _, t in app.tasks.items()]):
@@ -264,33 +259,14 @@ def test(debug, tasks, exclude, profile, full_load, start_dt, end_dt):
 @cli.command(help="Generate DAG image.")
 @click_debug
 @click_filter
-def dag_image(debug, tasks, exclude):
+def dag_image(debug, tasks, exclude, upstream_prod):
     def handle_error():
         print("Errors detected in project. Run `sayn compile` to see the errors")
-        sys.exit()
+        sys.exit(-1)
 
-    result = read_project()
-    if result.is_err:
-        handle_error()
-    else:
-        project = result.value
+    app = App()
+    app.start_app()
 
-    result = read_groups(project.groups)
-    if result.is_err:
-        handle_error()
-    else:
-        groups = result.value
-
-    result = get_tasks_dict(project.presets, groups)
-    if result.is_err:
-        handle_error()
-    else:
-        tasks_dict = result.value
-    dag = {
-        task["name"]: [p for p in task.get("parents", list())]
-        for task in tasks_dict.values()
-    }
-
-    plot_dag(dag, "images", "dag")
+    plot_dag(app.dag, "images", "dag")
 
     print("Dag image created in `images/dag.png`")

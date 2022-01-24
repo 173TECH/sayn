@@ -34,7 +34,9 @@ def _get_query_component(tasks, query):
 
         if match_components.get("tag") is not None:
             tag = match_components["tag"]
-            relevant_tasks = {k: v for k, v in tasks.items() if tag in v.get("tags")}
+            relevant_tasks = {
+                k: v for k, v in tasks.items() if tag in v.get("tags", list())
+            }
             if len(relevant_tasks) == 0:
                 return Err(
                     "task_query",
@@ -44,7 +46,7 @@ def _get_query_component(tasks, query):
             return Ok(
                 [
                     {"task": task, "upstream": False, "downstream": False}
-                    for task, value in relevant_tasks.items()
+                    for task in relevant_tasks.keys()
                 ]
             )
 
@@ -56,7 +58,7 @@ def _get_query_component(tasks, query):
             return Ok(
                 [
                     {"task": task, "upstream": False, "downstream": False}
-                    for task, value in relevant_tasks.items()
+                    for task in relevant_tasks.keys()
                 ]
             )
 
@@ -77,6 +79,8 @@ def _get_query_component(tasks, query):
                     }
                 ]
             )
+
+        return Err("task_query", "wrong_query")
 
 
 def get_query(tasks, include=list(), exclude=list()):

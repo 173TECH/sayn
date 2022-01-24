@@ -4,18 +4,20 @@ from ..core.errors import Ok
 
 
 class TaskEventTracker:
-    _logger = None
-    _task_name = None
-    _task_order = None
-    _steps = None
-    _current_step = None
-    _current_step_start_ts = None
+    # _logger = None
+    # _task_name = None
+    # _task_order = None
+    # _steps = None
+    # _current_step = None
+    # _current_step_start_ts = None
 
     def __init__(self, logger, task_name, task_order):
         self._logger = logger
         self._task_name = task_name
         self._task_order = task_order
         self._steps = list()
+        self._current_step = None
+        self._current_step_start_ts = None
 
     def _report_event(self, event, **details):
         details["event"] = event
@@ -57,7 +59,10 @@ class TaskEventTracker:
 
     def finish_current_step(self, result=Ok()):
         if self._current_step is not None:
-            duration = datetime.now() - self._current_step_start_ts
+            if self._current_step_start_ts is not None:
+                duration = datetime.now() - self._current_step_start_ts
+            else:
+                duration = None
 
             self._report_event(
                 "finish_step",

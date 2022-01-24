@@ -1,5 +1,6 @@
 from pathlib import Path
 import importlib
+import inspect
 import sys
 
 from ..core.errors import Err, Ok
@@ -72,3 +73,24 @@ class PythonLoader:
             )
 
         return Ok(klass)
+
+    def get_objects(self, module_key, module_str, type_filter=None):
+        if f"sayn_{module_key}" not in self.modules:
+            return Err("python_loader", "module_not_registered", module_key=module_key)
+
+        try:
+            task_module = importlib.import_module(f"sayn_{module_key}.{module_str}")
+        except Exception as e:
+            return Err("python_loader", "load_class_exception", exception=e)
+
+        if type_filter is None:
+            return Ok([func for name, func in inspect.getmembers(task_module)])
+        else:
+            return Ok(
+                [
+                    func
+                    for _, func in inspect.getmembers(
+                        task_module, lambda x: isinstance(x, type_filter)
+                    )
+                ]
+            )

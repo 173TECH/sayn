@@ -4,6 +4,7 @@
 
 The `copy` task copies tables from one database to another. It can be used to automatically
 ingest data from operational databases (e.g. PostgreSQL) to your analytics warehouse.
+Copy tasks can only be defined in YAML groups in the tasks folder, not directly in `project.yaml`.
 
 ## Defining `copy` Tasks
 
@@ -37,11 +38,13 @@ A `copy` task is defined as follows:
     * `db`: the (optional) destination database.
 
 !!! info
-    You do not need to specify `db` unless you want the destination database to be different than the `default_db` you define in `project.yaml` (which is the default database used by SAYN). If you define the `db` attribute, it needs to:
+    By default the destination is the database defined by `default_db` in `project.yaml`. `db` can be specified to change this, in which case the connection specified needs to:
 
       * Be a credential from the `required_credentials` list in `project.yaml`.
       * Be defined in your `settings.yaml`.
       * Be one of the supported [databases](../databases/overview.md).
+
+The table specified in `destination` will be affected by prefixes, suffixes and overrides as described in [database objects](../database_objects.md). The source table however will be interpreted literally.
 
 By default, tables will be copied in full every time SAYN runs replacing the table with the newly
 pulled data. This behaviour can be altered with the following:
@@ -115,9 +118,9 @@ destination database, which defaults to 50000. However this behaviour can be cha
     process will also stop after a maximum of 100 iteration. To avoid issues, it should be set to a very
     large value (larger than `max_batch_rows`).
 
-## Data types and DDL
+## Data types and columns
 
-`copy` tasks accept a `ddl` field in the task definition in the same way that `autosql` does. With this
+`copy` tasks accept a `columns` field in the task definition in the same way that `autosql` does. With this
 specification, we can override the default behaviour of copy when it comes to column types by enforcing
 specific column types in the final table:
 
@@ -135,11 +138,10 @@ specific column types in the final table:
         table: table_name
       incremental_key: updated_at
       delete_key: id
-      ddl:
-        columns:
-          - id
-          - name: updated_at
-            type: timestamp
+      columns:
+        - id
+        - name: updated_at
+          type: timestamp
     ```
 
 In this example we define 2 columns for `task_copy`: `id` and `updated_at`. This will make SAYN:
@@ -165,11 +167,10 @@ and `incremental_key` need to reference this new name.
         table: table_name
       incremental_key: updated_ts
       delete_key: id
-      ddl:
-        columns:
-          - id
-          - name: updated_at
-            dst_name: updated_ts
+      columns:
+        - id
+        - name: updated_at
+          dst_name: updated_ts
     ```
 
 In this example, the `updated_at` column at source will be called `updated_ts` on the target.
