@@ -9,8 +9,6 @@ from ..core.errors import Exc, Ok, Err
 from ..database import Database
 from .sql import SqlTask
 
-# from .test import Columns
-
 
 class Destination(BaseModel):
     supports_schemas: bool
@@ -223,11 +221,11 @@ class AutoSqlTask(SqlTask):
         if result.is_err:
             return result
         else:
-            self.columns = result.value
+            self.ddl = result.value
 
         if self.run_arguments["command"] == "test":
             result = self.target_db._construct_tests(
-                self.columns["columns"], self.table, self.schema
+                self.ddl["columns"], self.table, self.schema
             )
             if result.is_err:
                 return result
@@ -304,7 +302,7 @@ class AutoSqlTask(SqlTask):
                 self.table,
                 self.sql_query,
                 schema=self.schema,
-                **self.columns,
+                **self.ddl,
             )
 
         elif (
@@ -325,7 +323,7 @@ class AutoSqlTask(SqlTask):
                 self.sql_query,
                 schema=self.schema,
                 tmp_schema=tmp_schema,
-                **self.columns,
+                **self.ddl,
             )
 
         else:
@@ -336,7 +334,7 @@ class AutoSqlTask(SqlTask):
                 self.delete_key,
                 schema=self.schema,
                 tmp_schema=self.tmp_schema,
-                **self.columns,
+                **self.ddl,
             )
 
         self.set_run_steps(list(step_queries.keys()))

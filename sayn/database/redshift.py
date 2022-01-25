@@ -82,9 +82,8 @@ class DDL(BaseModel):
             return v
 
     def get_ddl(self):
-        cols = self.columns
-        self.columns = []
-        for c in cols:
+        columns = list()
+        for c in self.columns:
             tests = []
             for t in c.tests:
                 if isinstance(t, str):
@@ -97,7 +96,7 @@ class DDL(BaseModel):
                             "execute": t.execute,
                         }
                     )
-            self.columns.append(
+            columns.append(
                 {
                     "name": c.name,
                     "description": c.description,
@@ -107,21 +106,21 @@ class DDL(BaseModel):
                 }
             )
 
-        props = self.properties
-        self.properties = []
-        for p in props:
-            self.properties.append(p.dict())
-
-        hook = self.post_hook
-        self.post_hook = []
-        for h in hook:
-            self.post_hook.append(h.dict())
-
         res = {
             "columns": self.columns,
-            "properties": self.properties,
-            "post_hook": self.post_hook,
+            "properties": list(),
+            "post_hook": [h.dict() for h in self.post_hook],
         }
+
+        properties = list()
+        if self.properties is not None:
+            if self.properties.distribution is not None:
+                properties.append({"distribution": self.properties.distribution})
+                res["distribution"] = self.properties.distribution
+
+            if self.properties.sorting is not None:
+                properties.append({"sorting": self.properties.sorting})
+                res["sorting"] = self.properties.sorting
 
         return res
 

@@ -88,7 +88,7 @@ class DDL(BaseModel):
 
         return {
             "columns": columns,
-            "properties": dict(),
+            "properties": list(),
             "post_hook": [h.dict() for h in self.post_hook],
         }
 
@@ -301,23 +301,28 @@ class Database:
 
         return Ok([query, breakdown])
 
-    def _validate_ddl(self, columns=[], table_properties=[], post_hook=[]):
+    def _validate_ddl(self, columns, table_properties, post_hook):
         if len(columns) == 0 and len(table_properties) == 0 and len(post_hook) == 0:
-            return self._format_properties(self.DDL().get_ddl())
+            properties = self.DDL().get_ddl()
         else:
             try:
-                return self._format_properties(
-                    self.DDL(
+                if table_properties is None or len(table_properties) == 0:
+                    properties = self.DDL(
+                        columns=columns,
+                        post_hook=post_hook,
+                    ).get_ddl()
+                else:
+                    properties = self.DDL(
                         columns=columns,
                         properties=table_properties,
                         post_hook=post_hook,
                     ).get_ddl()
-                )
             except Exception as e:
                 return Exc(e, db=self.name, type=self.db_type)
 
-    def _format_properties(self, properties):
+        return self._format_properties(properties)
 
+    def _format_properties(self, properties):
         if properties["columns"]:
             columns = []
             for col in properties["columns"]:
@@ -337,12 +342,6 @@ class Database:
                 columns.append(entry)
 
             properties["columns"] = columns
-
-        if properties["properties"]:
-            for pro in properties["properties"]:
-                for p in pro:
-                    if pro[p] is not None:
-                        properties[p] = pro[p]
 
         return Ok(properties)
 
@@ -508,7 +507,11 @@ class Database:
         batch_size = batch_size or self.max_batch_rows
         buffer = list()
 
-        result = self._validate_ddl(ddl)
+        result = self._validate_ddl(
+            ddl.get("columns", list()),
+            ddl.get("table_properties", dict()),
+            ddl.get("post_hook", list()),
+        )
 
         if result.is_err:
             raise DBError(

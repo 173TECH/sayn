@@ -85,19 +85,21 @@ class DDL(BaseModel):
                 }
             )
 
+        res = {
+            "columns": self.columns,
+            "properties": list(),
+            "post_hook": [h.dict() for h in self.post_hook],
+        }
+
         properties = list()
         if self.properties is not None:
             if self.properties.cluster is not None:
                 properties.append({"cluster": self.properties.cluster})
+                res["cluster"] = self.properties.cluster
 
             if self.properties.partition is not None:
                 properties.append({"partition": self.properties.partition})
-
-        res = {
-            "columns": self.columns,
-            "properties": properties,
-            "post_hook": [h.dict() for h in self.post_hook],
-        }
+                res["partition"] = self.properties.cluster
 
         return res
 
@@ -175,7 +177,6 @@ class Bigquery(Database):
         return Ok([query, breakdown])
 
     def _format_properties(self, properties):
-
         if properties["columns"]:
             columns = []
             for col in properties["columns"]:
@@ -199,11 +200,6 @@ class Bigquery(Database):
                 columns.append(entry)
 
             properties["columns"] = columns
-        if properties["properties"]:
-            for pro in properties["properties"]:
-                for p in pro:
-                    if pro[p] is not None:
-                        properties[p] = pro[p]
 
         return Ok(properties)
 
