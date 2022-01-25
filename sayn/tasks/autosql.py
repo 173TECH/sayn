@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Any, List, Mapping, Optional
 from enum import Enum
 
 from pydantic import BaseModel, Field, FilePath, validator, Extra
@@ -48,10 +48,9 @@ class Config(BaseModel):
     delete_key: Optional[str]
     materialisation: str
     destination: Destination
-    # ddl: Optional[Dict[str, Any]]
-    columns: Optional[List[Dict[str, Any]]] = list()
-    table_properties: Optional[List[Dict[str, Any]]] = list()
-    post_hook: Optional[List[Dict[str, Any]]] = list()
+    columns: List[Mapping[str, Any]] = list()
+    table_properties: Mapping[str, Any] = dict()
+    post_hook: List[Mapping[str, Any]] = list()
 
     class Config:
         extra = Extra.forbid
@@ -86,10 +85,9 @@ class CompileConfig(BaseModel):
     tmp_schema: Optional[str]
     db_schema: Optional[str] = Field(None, alias="schema")
     table: Optional[str]
-    # ddl: Optional[Dict[str, Any]]
-    columns: Optional[List[Dict[str, Any]]] = list()
-    table_properties: Optional[List[Dict[str, Any]]] = list()
-    post_hook: Optional[List[Dict[str, Any]]] = list()
+    columns: List[Mapping[str, Any]] = list()
+    table_properties: Mapping[str, Any] = dict()
+    post_hook: List[Mapping[str, Any]] = list()
     tags: Optional[List[str]]
     parents: Optional[List[str]]
     on_fail: Optional[OnFailValue]
