@@ -290,11 +290,13 @@ class TaskWrapper:
                 if s in sources_from_prod:
                     needs_recompile = True
 
+            self.runner._needs_recompile = needs_recompile
+
             self.sources_from_prod = sources_from_prod
 
             # Run the setup stage for the runner and return the results
             try:
-                result = self.runner.setup(needs_recompile)
+                result = self.runner.setup()
             except Exception as exc:
                 result = Exc(exc)
 

@@ -262,8 +262,8 @@ class CopyTask(SqlTask):
 
         return Ok()
 
-    def setup(self, needs_recompile):
-        if needs_recompile:
+    def setup(self):
+        if self.needs_recompile:
             if self.config_schema is None:
                 self.table = self.out(self.config_table, connection=self.target_db)
             else:

@@ -168,8 +168,8 @@ class SqlTask(Task):
         # Returns an empty string to avoid productin incorrect sql
         return ""
 
-    def setup(self, needs_recompile):
-        if needs_recompile:
+    def setup(self):
+        if self.needs_recompile:
             self.sql_query = self.prepared_sql_query.compile()
 
         return Ok()

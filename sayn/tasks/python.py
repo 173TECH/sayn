@@ -6,23 +6,18 @@ from .task import Task
 
 class PythonTask(Task):
     def config(self, **task_config):
-        self.debug("Nothing to be done")
         return self.success()
 
-    def setup(self, needs_recompile: bool):
-        self.debug("Nothing to be done")
+    def setup(self):
         return self.success()
 
     def run(self):
-        self.debug("Nothing to be done")
         return self.success()
 
     def compile(self):
-        self.debug("Nothing to be done")
         return self.success()
 
     def test(self):
-        self.debug("Nothing to be done")
         return self.success()
 
 
@@ -92,7 +87,7 @@ class DecoratorTask(PythonTask):
         while len(self._config_input["outputs"]) > 0:
             self.out(self._config_input["outputs"].pop())
 
-    def setup(self, needs_update):
+    def setup(self):
         pass
 
     def compile(self):
