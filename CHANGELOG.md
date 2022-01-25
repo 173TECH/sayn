@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.6.0] - 2022-01-25
+
+### Fixed
+
+- Fixes to bigquery introspection
+
 ## [0.6.0] - 2022-01-24
 
 ### New
