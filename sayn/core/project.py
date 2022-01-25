@@ -259,13 +259,12 @@ def get_tasks_dict(
                     errors[test_name] = result.error
 
     for group_name, group in autogroups.items():
-        group_definition = dict()
+        group_definition = {"group": group_name}
         if "preset" in group:
             preset_name = f"sayn_global:{group['preset']}"
             if preset_name not in presets:
                 return Err("dag", "missing_preset", preset_name=preset_name)
             group_definition.update(deepcopy(presets[preset_name]))
-            group_definition["group"] = group_name
 
         group_definition.update(group)
 

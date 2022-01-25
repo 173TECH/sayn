@@ -5,7 +5,7 @@ import datetime
 import decimal
 import io
 import json
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from pydantic import validator, Extra, BaseModel
 from sqlalchemy import create_engine
@@ -18,39 +18,39 @@ from ..core.errors import Ok
 db_parameters = ["project", "credentials_path", "location", "dataset"]
 
 
-class Bigquery(Database):
-    class DDL(BaseModel):
-        class Properties(BaseModel):
-            partition: Optional[str]
-            cluster: Optional[List[str]]
-
-            class Config:
-                extra = Extra.forbid
-
-        columns: Optional[List[Columns]] = list()
-        properties: Optional[List[Properties]] = list()
-        post_hook: Optional[List[Hook]] = list()
+class DDL(BaseModel):
+    class Properties(BaseModel):
+        partition: Optional[str]
+        cluster: Optional[List[str]]
 
         class Config:
             extra = Extra.forbid
 
-        @validator("columns", pre=True)
-        def transform_str_cols(cls, v, values):
-            if v is not None and isinstance(v, List):
-                return [{"name": c} if isinstance(c, str) else c for c in v]
-            else:
-                return v
+    columns: List[Columns] = list()
+    properties: Optional[Properties]
+    post_hook: List[Hook] = list()
 
-        @validator("columns")
-        def columns_unique(cls, v, values):
-            dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
-            if len(dupes) > 0:
-                raise ValueError(f"Duplicate columns: {','.join(dupes)}")
-            else:
-                return v
+    class Config:
+        extra = Extra.forbid
 
-        @validator("properties")
-        def validate_cluster(cls, v, values):
+    @validator("columns", pre=True)
+    def transform_str_cols(cls, v):
+        if v is not None and isinstance(v, List):
+            return [{"name": c} if isinstance(c, str) else c for c in v]
+        else:
+            return v
+
+    @validator("columns")
+    def columns_unique(cls, v):
+        dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
+        if len(dupes) > 0:
+            raise ValueError(f"Duplicate columns: {','.join(dupes)}")
+        else:
+            return v
+
+    @validator("properties")
+    def validate_properties(cls, v, values):
+        if v is not None and v.cluster is not None:
             if len(values.get("columns")) > 0:
                 missing_columns = set(v) - set([c.name for c in values.get("columns")])
                 if len(missing_columns) > 0:
@@ -58,53 +58,54 @@ class Bigquery(Database):
                         f'Cluster contains columns not specified in the ddl: "{missing_columns}"'
                     )
 
-            return v
+        return v
 
-        def get_ddl(self):
-            cols = self.columns
-            self.columns = []
-            for c in cols:
-                tests = []
-                for t in c.tests:
-                    if isinstance(t, str):
-                        tests.append({"type": t, "values": [], "execute": True})
-                    else:
-                        tests.append(
-                            {
-                                "type": t.name if t.name is not None else "values",
-                                "values": t.values if t.values is not None else [],
-                                "execute": t.execute,
-                            }
-                        )
-                self.columns.append(
-                    {
-                        "name": c.name,
-                        "description": c.description,
-                        "dst_name": c.dst_name,
-                        "type": c.type,
-                        "tests": tests,
-                    }
-                )
+    def get_ddl(self):
+        columns = list()
+        for c in self.columns:
+            tests = []
+            for t in c.tests:
+                if isinstance(t, str):
+                    tests.append({"type": t, "values": [], "execute": True})
+                else:
+                    tests.append(
+                        {
+                            "type": t.name if t.name is not None else "values",
+                            "values": t.values if t.values is not None else [],
+                            "execute": t.execute,
+                        }
+                    )
+            columns.append(
+                {
+                    "name": c.name,
+                    "description": c.description,
+                    "dst_name": c.dst_name,
+                    "type": c.type,
+                    "tests": tests,
+                }
+            )
 
-            props = self.properties
-            self.properties = []
-            for p in props:
-                self.properties.append(p.dict())
+        res = {
+            "columns": self.columns,
+            "properties": list(),
+            "post_hook": [h.dict() for h in self.post_hook],
+        }
 
-            hook = self.post_hook
-            self.post_hook = []
-            for h in hook:
-                self.post_hook.append(h.dict())
+        properties = list()
+        if self.properties is not None:
+            if self.properties.cluster is not None:
+                properties.append({"cluster": self.properties.cluster})
+                res["cluster"] = self.properties.cluster
 
-            res = {
-                "columns": self.columns,
-                "properties": self.properties,
-                "post_hook": self.post_hook,
-            }
+            if self.properties.partition is not None:
+                properties.append({"partition": self.properties.partition})
+                res["partition"] = self.properties.partition
 
-            return res
+        return res
 
-    # ddl_validation_class = DDL
+
+class Bigquery(Database):
+    DDL = DDL
 
     project = None
     dataset = None
@@ -176,7 +177,6 @@ class Bigquery(Database):
         return Ok([query, breakdown])
 
     def _format_properties(self, properties):
-
         if properties["columns"]:
             columns = []
             for col in properties["columns"]:
@@ -200,11 +200,6 @@ class Bigquery(Database):
                 columns.append(entry)
 
             properties["columns"] = columns
-        if properties["properties"]:
-            for pro in properties["properties"]:
-                for p in pro:
-                    if pro[p] is not None:
-                        properties[p] = pro[p]
 
         return Ok(properties)
 
@@ -345,42 +340,33 @@ class Bigquery(Database):
         replace=False,
         **ddl,
     ):
-
         full_name = fully_qualify(table, schema)
         if (
             schema in self._requested_objects
             and table in self._requested_objects[schema]
         ):
-            object_type = self._requested_objects[schema][table].get("type")
+            db_info = self._requested_objects[schema][table]
+            object_type = db_info.get("type")
             table_exists = bool(object_type == "table")
             view_exists = bool(object_type == "view")
-            if "partition" in self._requested_objects[schema][table].keys():
-                partition_column = self._requested_objects[schema][table]["partition"]
-            else:
-                partition_column = None
-            if "cluster" in self._requested_objects[schema][table].keys():
-                cluster_column = self._requested_objects[schema][table]["cluster"]
-            else:
-                cluster_column = None
+            partition_column = db_info.get("partition", "")
+            cluster_column = set(db_info.get("cluster", set()))
         else:
+            db_info = dict()
             table_exists = True
             view_exists = True
-            partition_column = None
-            cluster_column = None
+            partition_column = ""
+            cluster_column = set()
 
-        try:
-            des_clustered = ddl.get("cluster")
-        except:
-            des_clustered = ""
-        try:
-            des_partitioned = ddl.get("partition")
-        except:
-            des_partitioned = ""
+        des_partitioned = ddl.get("partition") or ""
+        des_clustered = set(ddl.get("cluster") or set())
 
         if des_clustered == cluster_column and des_partitioned == partition_column:
             drop = ""
+        elif db_info.get("type") == "table":
+            drop = f"DROP TABLE IF EXISTS {full_name};\n"
         else:
-            drop = f"DROP TABLE IF EXISTS {schema}.{table};"
+            drop = f"DROP VIEW IF EXISTS {full_name};\n"
 
         template = self._jinja_env.get_template("create_table.sql")
         query = template.render(
