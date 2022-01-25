@@ -2,7 +2,7 @@ from collections import Counter
 import datetime
 import decimal
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from pydantic import BaseModel, validator, Extra
@@ -12,8 +12,6 @@ import sqlalchemy
 
 from ..core.errors import DBError, Exc, Ok
 
-from ..utils.misc import group_list
-
 
 class Hook(BaseModel):
     sql: str
@@ -21,8 +19,8 @@ class Hook(BaseModel):
 
 class Columns(BaseModel):
     name: str
-    type: Optional[str] = None
-    dst_name: Optional[str] = None
+    type: Optional[str]
+    dst_name: Optional[str]
     description: Optional[str]
 
     class Tests(BaseModel):
@@ -33,60 +31,28 @@ class Columns(BaseModel):
         class Config:
             extra = Extra.forbid
 
-    tests: Optional[List[Union[str, Tests]]] = list()
+    tests: List[Union[str, Tests]] = list()
 
     class Config:
         extra = Extra.forbid
 
 
 class DDL(BaseModel):
-    class Properties(BaseModel):
-        class Indexes(BaseModel):
-            columns: Optional[List[Union[str, Dict]]]
-
-        indexes: Optional[Dict[str, Indexes]]
-
-        class Config:
-            extra = Extra.forbid
-
-        @validator("indexes")
-        def index_columns_exists(cls, v, values):
-            cols = [c.name for c in values.get("columns", list())]
-            if len(cols) > 0:
-                missing_cols = group_list(
-                    [
-                        (index_name, index_column)
-                        for index_name, index in v.items()
-                        for index_column in index.columns
-                        if index_column not in cols
-                    ]
-                )
-                if len(missing_cols) > 0:
-                    cols_msg = ";".join(
-                        [f"On {i}: {','.join(c)}" for i, c in missing_cols.items()]
-                    )
-                    raise ValueError(
-                        f"Some indexes refer to missing columns: {cols_msg}"
-                    )
-
-            return v
-
-    columns: Optional[List[Columns]] = list()
-    properties: Optional[List[Properties]] = list()
-    post_hook: Optional[List[Hook]] = list()
+    columns: List[Columns] = list()
+    post_hook: List[Hook] = list()
 
     class Config:
         extra = Extra.forbid
 
     @validator("columns", pre=True)
-    def transform_str_cols(cls, v, values):
+    def transform_str_cols(cls, v):
         if v is not None and isinstance(v, List):
             return [{"name": c} if isinstance(c, str) else c for c in v]
         else:
             return v
 
     @validator("columns")
-    def columns_unique(cls, v, values):
+    def columns_unique(cls, v):
         dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
         if len(dupes) > 0:
             raise ValueError(f"Duplicate columns: {','.join(dupes)}")
@@ -95,9 +61,10 @@ class DDL(BaseModel):
 
     def get_ddl(self):
         cols = self.columns
-        self.columns = []
+
+        columns = list()
         for c in cols:
-            tests = []
+            tests = list()
             for t in c.tests:
                 if isinstance(t, str):
                     tests.append({"type": t, "values": [], "execute": True})
@@ -109,7 +76,7 @@ class DDL(BaseModel):
                             "execute": t.execute,
                         }
                     )
-            self.columns.append(
+            columns.append(
                 {
                     "name": c.name,
                     "description": c.description,
@@ -119,23 +86,11 @@ class DDL(BaseModel):
                 }
             )
 
-        props = self.properties
-        self.properties = []
-        for p in props:
-            self.properties.append(p.dict())
-
-        hook = self.post_hook
-        self.post_hook = []
-        for h in hook:
-            self.post_hook.append(h.dict())
-
-        res = {
-            "columns": self.columns,
-            "properties": self.properties,
-            "post_hook": self.post_hook,
+        return {
+            "columns": columns,
+            "properties": list(),
+            "post_hook": [h.dict() for h in self.post_hook],
         }
-
-        return res
 
 
 class DbObject:
@@ -346,24 +301,28 @@ class Database:
 
         return Ok([query, breakdown])
 
-    def _validate_ddl(self, columns=[], table_properties=[], post_hook=[]):
+    def _validate_ddl(self, columns, table_properties, post_hook):
         if len(columns) == 0 and len(table_properties) == 0 and len(post_hook) == 0:
-            return self._format_properties(self.DDL().get_ddl())
+            properties = self.DDL().get_ddl()
         else:
             try:
-                return self._format_properties(
-                    self.DDL(
+                if table_properties is None or len(table_properties) == 0:
+                    properties = self.DDL(
+                        columns=columns,
+                        post_hook=post_hook,
+                    ).get_ddl()
+                else:
+                    properties = self.DDL(
                         columns=columns,
                         properties=table_properties,
                         post_hook=post_hook,
                     ).get_ddl()
-                )
             except Exception as e:
-
                 return Exc(e, db=self.name, type=self.db_type)
 
-    def _format_properties(self, properties):
+        return self._format_properties(properties)
 
+    def _format_properties(self, properties):
         if properties["columns"]:
             columns = []
             for col in properties["columns"]:
@@ -383,12 +342,6 @@ class Database:
                 columns.append(entry)
 
             properties["columns"] = columns
-
-        if properties["properties"]:
-            for pro in properties["properties"]:
-                for p in pro:
-                    if pro[p] is not None:
-                        properties[p] = pro[p]
 
         return Ok(properties)
 
@@ -554,7 +507,11 @@ class Database:
         batch_size = batch_size or self.max_batch_rows
         buffer = list()
 
-        result = self._validate_ddl(ddl)
+        result = self._validate_ddl(
+            ddl.get("columns", list()),
+            ddl.get("table_properties", dict()),
+            ddl.get("post_hook", list()),
+        )
 
         if result.is_err:
             raise DBError(

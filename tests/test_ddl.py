@@ -19,7 +19,7 @@ def validate_ddl(ddl):
 
 
 def test_ddl_empty():
-    result = validate_ddl({"columns": [], "table_properties": [], "post_hook": []})
+    result = validate_ddl({"columns": [], "table_properties": {}, "post_hook": []})
     assert result.is_ok and result.value == {
         "columns": [],
         "properties": [],
@@ -31,7 +31,7 @@ def test_ddl_cols01():
     result = validate_ddl(
         {
             "columns": [{"name": "col1", "tests": []}],
-            "table_properties": [],
+            "table_properties": {},
             "post_hook": [],
         }
     )
@@ -57,7 +57,7 @@ def test_ddl_cols02():
     result = validate_ddl(
         {
             "columns": [{"name": "col1", "tests": []}, {"name": "col2", "tests": []}],
-            "table_properties": [],
+            "table_properties": {},
             "post_hook": [],
         }
     )
@@ -96,7 +96,7 @@ def test_ddl_cols03():
                 {"name": "col1", "tests": []},
                 {"name": "col2", "type": "BIGINT", "tests": []},
             ],
-            "table_properties": [],
+            "table_properties": {},
             "post_hook": [],
         }
     )
@@ -135,7 +135,7 @@ def test_ddl_cols04():
                 {"name": "col1", "tests": []},
                 {"name": "col2", "type": "BIGINT", "tests": ["unique"]},
             ],
-            "table_properties": [],
+            "table_properties": {},
             "post_hook": [],
         }
     )
@@ -174,7 +174,7 @@ def test_ddl_cols05():
                 {"name": "col1", "tests": ["not_null"]},
                 {"name": "col2", "type": "BIGINT", "tests": ["unique"]},
             ],
-            "table_properties": [],
+            "table_properties": {},
             "post_hook": [],
         }
     )
@@ -213,7 +213,7 @@ def test_ddl_cols06():
                 {"name": "col1", "tests": ["not_null", "unique"]},
                 {"name": "col2", "type": "BIGINT", "tests": [{"name": "not_null"}]},
             ],
-            "table_properties": [],
+            "table_properties": {},
             "post_hook": [],
         }
     )
@@ -250,7 +250,7 @@ def test_ddl_cols06():
 
 def test_ddl_cols07():
     result = validate_ddl(
-        {"columns": ["dupe_col", "dupe_col"], "table_properties": [], "post_hook": []}
+        {"columns": ["dupe_col", "dupe_col"], "table_properties": {}, "post_hook": []}
     )
     assert result.is_err
 
@@ -259,7 +259,7 @@ def test_ddl_cols08():
     result = validate_ddl(
         {
             "columns": ["dupe_col", {"name": "dupe_col"}],
-            "table_properties": [],
+            "table_properties": {},
             "post_hook": [],
         }
     )

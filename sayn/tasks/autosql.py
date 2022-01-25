@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Any, List, Mapping, Optional
 from enum import Enum
 
 from pydantic import BaseModel, Field, FilePath, validator, Extra
@@ -8,8 +8,6 @@ from terminaltables import AsciiTable
 from ..core.errors import Exc, Ok, Err
 from ..database import Database
 from .sql import SqlTask
-
-# from .test import Columns
 
 
 class Destination(BaseModel):
@@ -48,10 +46,9 @@ class Config(BaseModel):
     delete_key: Optional[str]
     materialisation: str
     destination: Destination
-    # ddl: Optional[Dict[str, Any]]
-    columns: Optional[List[Dict[str, Any]]] = list()
-    table_properties: Optional[List[Dict[str, Any]]] = list()
-    post_hook: Optional[List[Dict[str, Any]]] = list()
+    columns: List[Mapping[str, Any]] = list()
+    table_properties: Mapping[str, Any] = dict()
+    post_hook: List[Mapping[str, Any]] = list()
 
     class Config:
         extra = Extra.forbid
@@ -86,10 +83,9 @@ class CompileConfig(BaseModel):
     tmp_schema: Optional[str]
     db_schema: Optional[str] = Field(None, alias="schema")
     table: Optional[str]
-    # ddl: Optional[Dict[str, Any]]
-    columns: Optional[List[Dict[str, Any]]] = list()
-    table_properties: Optional[List[Dict[str, Any]]] = list()
-    post_hook: Optional[List[Dict[str, Any]]] = list()
+    columns: List[Mapping[str, Any]] = list()
+    table_properties: Mapping[str, Any] = dict()
+    post_hook: List[Mapping[str, Any]] = list()
     tags: Optional[List[str]]
     parents: Optional[List[str]]
     on_fail: Optional[OnFailValue]
@@ -225,11 +221,11 @@ class AutoSqlTask(SqlTask):
         if result.is_err:
             return result
         else:
-            self.columns = result.value
+            self.ddl = result.value
 
         if self.run_arguments["command"] == "test":
             result = self.target_db._construct_tests(
-                self.columns["columns"], self.table, self.schema
+                self.ddl["columns"], self.table, self.schema
             )
             if result.is_err:
                 return result
@@ -306,7 +302,7 @@ class AutoSqlTask(SqlTask):
                 self.table,
                 self.sql_query,
                 schema=self.schema,
-                **self.columns,
+                **self.ddl,
             )
 
         elif (
@@ -327,7 +323,7 @@ class AutoSqlTask(SqlTask):
                 self.sql_query,
                 schema=self.schema,
                 tmp_schema=tmp_schema,
-                **self.columns,
+                **self.ddl,
             )
 
         else:
@@ -338,7 +334,7 @@ class AutoSqlTask(SqlTask):
                 self.delete_key,
                 schema=self.schema,
                 tmp_schema=self.tmp_schema,
-                **self.columns,
+                **self.ddl,
             )
 
         self.set_run_steps(list(step_queries.keys()))
