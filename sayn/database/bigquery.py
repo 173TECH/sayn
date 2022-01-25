@@ -99,7 +99,7 @@ class DDL(BaseModel):
 
             if self.properties.partition is not None:
                 properties.append({"partition": self.properties.partition})
-                res["partition"] = self.properties.cluster
+                res["partition"] = self.properties.partition
 
         return res
 
@@ -340,42 +340,33 @@ class Bigquery(Database):
         replace=False,
         **ddl,
     ):
-
         full_name = fully_qualify(table, schema)
         if (
             schema in self._requested_objects
             and table in self._requested_objects[schema]
         ):
-            object_type = self._requested_objects[schema][table].get("type")
+            db_info = self._requested_objects[schema][table]
+            object_type = db_info.get("type")
             table_exists = bool(object_type == "table")
             view_exists = bool(object_type == "view")
-            if "partition" in self._requested_objects[schema][table].keys():
-                partition_column = self._requested_objects[schema][table]["partition"]
-            else:
-                partition_column = None
-            if "cluster" in self._requested_objects[schema][table].keys():
-                cluster_column = self._requested_objects[schema][table]["cluster"]
-            else:
-                cluster_column = None
+            partition_column = db_info.get("partition", "")
+            cluster_column = set(db_info.get("cluster", set()))
         else:
+            db_info = dict()
             table_exists = True
             view_exists = True
-            partition_column = None
-            cluster_column = None
+            partition_column = ""
+            cluster_column = set()
 
-        try:
-            des_clustered = ddl.get("cluster")
-        except:
-            des_clustered = ""
-        try:
-            des_partitioned = ddl.get("partition")
-        except:
-            des_partitioned = ""
+        des_partitioned = ddl.get("partition") or ""
+        des_clustered = set(ddl.get("cluster") or set())
 
         if des_clustered == cluster_column and des_partitioned == partition_column:
             drop = ""
+        elif db_info.get("type") == "table":
+            drop = f"DROP TABLE IF EXISTS {full_name};\n"
         else:
-            drop = f"DROP TABLE IF EXISTS {schema}.{table};"
+            drop = f"DROP VIEW IF EXISTS {full_name};\n"
 
         template = self._jinja_env.get_template("create_table.sql")
         query = template.render(
