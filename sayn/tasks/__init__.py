@@ -162,19 +162,13 @@ class Task:
 
     def get_test_breakdown(self, breakdown):
         data = []
-        data.append(["Status", "Test Type", "Fields Tested"])
         for brk in breakdown:
-            if "print" in brk:
-                data.append([" ", " ", " "])
-            elif not brk["execute"]:
+            if not brk["execute"]:
                 data.append(["SKIPPED", brk["type"], brk["column"]])
-            elif brk["status"] and brk["execute"]:
-                data.append(["RESOLVED", brk["type"], brk["column"]])
             else:
                 data.append(["EXECUTED", brk["type"], brk["column"]])
 
-        table = AsciiTable(data)
-        return "\n" + table.table
+        return data
 
     # Jinja methods
 

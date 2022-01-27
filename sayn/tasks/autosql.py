@@ -4,6 +4,7 @@ import json
 
 from pydantic import BaseModel, Field, FilePath, validator, Extra
 from terminaltables import AsciiTable
+from colorama import init, Fore, Style
 
 from ..core.errors import Exc, Ok, Err
 from ..database import Database
@@ -241,10 +242,10 @@ class AutoSqlTask(SqlTask):
             "Write Test Query": self.test_query,
             "Execute Test Query": self.test_query,
         }
-        # print(self.test_breakdown)
+        breakdown = self.get_test_breakdown(self.test_breakdown)
 
         if self.test_query == "":
-            self.info(self.get_test_breakdown(self.test_breakdown))
+            self.info("Nothing to be done")
             return self.success()
         else:
             self.set_run_steps(list(step_queries.keys()))
@@ -259,42 +260,72 @@ class AutoSqlTask(SqlTask):
                         except Exception as e:
                             return Exc(e)
 
-                        self.info(self.get_test_breakdown(self.test_breakdown))
+            if len(result) == 0:
+                skipped = [brk for brk in breakdown if brk[0] == "SKIPPED"]
+                executed = [brk for brk in breakdown if brk[0] == "EXECUTED"]
 
-                        if len(result) == 0:
-                            return self.success()
-                        else:
-                            if self.run_arguments["debug"]:
-                                errout = "Test failed, summary:\n\n"
-                                errout += f"Total number of offending records: {sum([item['cnt'] for item in result])} \n"
-                                data = []
-                                data.append(
-                                    [
-                                        "Breach Count",
-                                        "Prob. Value",
-                                        "Test Type",
-                                        "Failed Fields",
-                                    ]
-                                )
+                if skipped:
+                    self.info(
+                        f"{Fore.GREEN}{len(skipped)} test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
+                    )
+                self.info(
+                    f"{Fore.GREEN}{len(executed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}"
+                )
 
-                                for res in result:
-                                    data.append(
-                                        [
-                                            res["cnt"],
-                                            res["val"],
-                                            res["type"],
-                                            res["col"],
-                                        ]
-                                    )
-                                table = AsciiTable(data)
+                return self.success()
+            else:
+                skipped = []
+                executed = []
+                failed = []
+                for brk in breakdown:
+                    if any(brk[1] != res["type"] for res in result) or any(
+                        brk[2] != res["col"] for res in result
+                    ):
+                        if brk[0] == "SKIPPED":
+                            skipped.append(brk)
+                        if brk[0] == "EXECUTED":
+                            executed.append(brk)
+                    else:
+                        failed.append(brk)
+                if self.run_arguments["debug"]:
 
-                                errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
+                    fl_info = [f"{Fore.RED}FAILED: "]
+                    for info in failed:
+                        count = sum(
+                            [
+                                item["cnt"]
+                                for item in result
+                                if (item["type"] == brk[1] and item["col"] == brk[2])
+                            ]
+                        )
+                        values = [
+                            item["val"]
+                            for item in result
+                            if (item["type"] == brk[1] and item["col"] == brk[2])
+                        ]
+                        values = ", ".join(values[:5])
+                        fl_info.append(
+                            f"{Fore.RED}{Style.BRIGHT}{brk[1]} test{Style.NORMAL} on {Style.BRIGHT}{brk[2]} FAILED{Style.NORMAL}. {count} offending records. \n\t    Please see some values for which the test failed: {Style.BRIGHT}{values}{Style.NORMAL}"
+                        )
+                    if skipped:
+                        self.info(
+                            f"{Fore.GREEN}{len(skipped)} test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
+                        )
+                    self.info(
+                        f"{Fore.GREEN}{len(executed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}"
+                    )
+                    for err in fl_info:
+                        self.info(err)
 
-                                return self.fail(
-                                    errout + table.table + "\n\n" + errinfo
-                                )
-                            else:
-                                errout = ", ".join(
-                                    list(set([res["type"] for res in result]))
-                                )
-                                return self.fail(f"Failed test types: {errout}")
+                    errinfo = f"Test Failed. You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
+                    return self.fail(errinfo)
+                else:
+                    summary = (
+                        f"{len(executed)} tests were ran, {len(executed)} succeeded, "
+                    )
+                    if skipped:
+                        summary += f", {len(skipped)} were skipped, "
+                    summary += f"{len(failed)} failed."
+                    self.warning(summary)
+                    errout = ", ".join(list(set([res["type"] for res in result])))
+                    return self.fail(f"Failed test types: {errout}")

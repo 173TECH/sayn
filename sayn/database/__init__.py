@@ -219,14 +219,15 @@ class Database:
             for t in tests:
                 breakdown.append(
                     {
-                        "column": col["name"],
+                        "column": col["name"]
+                        if not col["dst_name"]
+                        else col["dst_name"],
                         "type": t["type"],
-                        "status": col[t["type"]],
                         "execute": t["execute"],
                     }
                 )
 
-                if col[t["type"]] is False and t["execute"]:
+                if t["execute"]:
                     count_tests += 1
                     query += template.render(
                         **{
@@ -241,15 +242,13 @@ class Database:
                             ),
                         },
                     )
-            # breakdown.append({"print": True})
-        breakdown = breakdown[:-1]
+
         parts = query.splitlines()[:-2]
         query = ""
         for q in parts:
             query += q.strip() + "\n"
         query += ") AS t;"
 
-        # print(breakdown)
         if count_tests == 0:
             return Ok(["", breakdown])
 
@@ -285,9 +284,6 @@ class Database:
                 }
                 if "tests" in col:
                     entry.update({"tests": col["tests"]})
-                    for t in col["tests"]:
-                        if t["type"] != "allowed_values" and col["type"]:
-                            entry.update({t["type"]: True})
                 columns.append(entry)
 
             properties["columns"] = columns
