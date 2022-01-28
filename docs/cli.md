@@ -41,6 +41,11 @@ Examples:
 * `sayn run -x task_name`: run all tasks except `task_name`.
 * `sayn run -t group:marketing -x +task_name`: run all tasks in the `marketing` task group except `task_name` and its ancestors.
 
+Quite often we want to make some changes to a small set of tasks, explore the new results, make some more changes and repeat.
+When doing this we might not want to have an up to date copy of all upstream objects and instead we might want to use production
+as the source of your models. For this we can use the flag `-u` (`--upstream-prod`) which selects from production for tables
+not produced by the currently filtered tasks. Head over to [database objects](database_objects.md#upstream_prod) for more details
+
 #### Incremental Tasks Options
 
 SAYN uses 3 arguments to manage incremental executions: `full_load`, `start_dt` and `end_dt`; which can

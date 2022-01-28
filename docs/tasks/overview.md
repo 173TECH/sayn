@@ -2,12 +2,12 @@
 
 ## About
 
-Tasks are the backbone of your SAYN project. They are used by SAYN to create a DAG (Directed Acyclic Graph).
+A SAYN project is split into units of execution called tasks. The order of execution of these tasks is given based on the dependencies between them, forming a DAG (Direct Acyclic Graph).
 
 !!! info
-    A Directed Acyclic Graph is a concept which enables to conveniently model tasks and dependencies. It uses the following key principles
+    A Directed Acyclic Graph is a data structure which enables the conveniently modelling of tasks and dependencies:
 
-    * `graph`: a specific data structure which consists of `nodes` connected by `edges`.
+    * `graph`: a data structure which consists of `nodes` connected by `edges`.
     * `directed`: dependencies have a direction. If there is an `edge` (i.e. a dependency) between two tasks, one will run before the other.
     * `acyclic`: there are no circular dependencies. If you process the whole graph, you will never encounter the same task twice.
 
@@ -29,7 +29,42 @@ Please see below the available SAYN task types:
 
 ## Defining Tasks
 
-Tasks are defined in YAML files located under the `tasks` folder at the root level of your SAYN project. Each file in the `tasks` folder represents a [task group](#task_groups) and can be executed independently. By default, SAYN includes any file in the `tasks` folder ending with a `.yaml` extension when creating the DAG.
+Tasks in SAYN are defined into groups which we describe in the `project.yaml` file in your project. For example we can define a group formed of `autosql` tasks called `core` like this:
+
+!!! example "project.yaml"
+    ```
+    groups:
+      core:
+        type: autosql
+        file_name: "core/*.sql"
+        materialisation: table
+        destination:
+          table: "{{ task.name }}"
+    ```
+
+The properties defined in the group tell SAYN how to generate tasks:
+
+  * `type`: this tells SAYN to create tasks of type [autosql](autosql.md)
+  * `file_name`: this property tells SAYN what files to use to generate tasks. The files for autosql tasks are stored under the `sql` folder, so this expression is telling us
+                 to create a task per file with the extension `sql` found in the `sql/core` folder
+  * `materialisation`: describes what database object to create in the database
+  * `destination`: defines where to create the database object, in this case we're just using the name, which will simply be the name of the task
+
+You would always want the `file_name` property used in group definitions to be a [glob expression](https://en.wikipedia.org/wiki/Glob_(programming))
+so that it points at a list of files. Any other property defined in groups will be interpreted as described in the page for the task type in this documentation.
+
+When SAYN interprets this group, for every file found matching the glob expression in `file_name` a task will be generated and the name of that task will
+match the name of the file without the extension. For example if the `sql/core` folder in our project contains 2 files called `table1.sql` and `table2.sql`
+2 tasks will be created called `table1` and `table2`. To allow those 2 tasks to create different tables in the database we use Jinja expressions, in this
+case we just call the result table exactly the name of the task using `"{{ task.name }}"`.
+
+The construct defined here is available for `autosql`, `sql` and `python` tasks and you can read more by heading to the corresponding pages.
+
+## YAML based definition of tasks
+
+The model described above makes creating a SAYN project very easy, but there are situations where a more advanced model is required. For that we can
+define tasks in YAML files under the `tasks` folder at the root level of your SAYN project. Each file in the `tasks` folder represents a [task group](#task_groups)
+and can be executed independently. By default, SAYN includes any file in the `tasks` folder ending with a `.yaml` extension when creating the DAG.
 
 Within each YAML file, tasks are defined in the `tasks` entry.
 
@@ -52,6 +87,8 @@ All tasks share a number of common properties available:
 | type | The task type. | Required one of: `autosql`, `sql`, `python`, `copy`, `dummy` |
 | preset | A preset to inherit task properties from. See [the presets section](../presets.md) for more info. | Optional name of preset |
 | parents | A list of tasks this one depends on. All tasks in this list is ensured to run before the child task. | Optional list |
+| sources | A list of dabase tables of views this task uses. | Optional list |
+| outputs | A list of dabase tables of views this task produces | Optional list |
 | tags | A list of tags used in `sayn run -t tag:tag_name`. This allows for advanced task filtering when we don't want to run all tasks in the project. | Optional list |
 | on_fail | Defines the behaviour when the [task fails](#task_failure_behaviour). | Optional one of: `skip` or `no_skip` |
 

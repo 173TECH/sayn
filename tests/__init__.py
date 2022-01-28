@@ -3,10 +3,10 @@ import os
 from pathlib import Path
 import subprocess
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined
-from ruamel.yaml import YAML
 
+from sayn.core.app import RunArguments
 from sayn.database.creator import create as create_db
+from sayn.utils.compiler import Compiler
 
 
 @contextmanager
@@ -81,37 +81,101 @@ vd = VoidTracker()
 
 
 def simulate_task(
-    task, source_db=None, target_db=None, run_arguments=dict(), task_params=dict()
+    task_class,
+    used_objects,
+    source_db=None,
+    target_db=None,
+    run_arguments=None,
+    task_params=None,
 ):
-    task.name = "test_task"  # set for compilation output during run
-    task.group = "test_group"  # set for compilation output during run
-    task.run_arguments = {
-        "folders": {"sql": "sql", "compile": "compile", "tests": "tests"},
-        "command": "run",
-        "debug": False,
-        "full_load": False,
-        **run_arguments,
-    }
 
+    run_arguments = run_arguments or dict()
+    task_params = task_params or dict()
+
+    connections = dict()
     if target_db is not None:
-        task.connections = {
-            "target_db": create_db("target_db", "target_db", target_db.copy())
+        connections = {
+            "target_db": create_db(
+                "target_db", "target_db", target_db.copy(), dict(), dict()
+            )
         }
 
     if source_db is not None:
-        task.connections.update(
-            {"source_db": create_db("source_db", "source_db", source_db.copy())}
+        connections.update(
+            {
+                "source_db": create_db(
+                    "source_db", "source_db", source_db.copy(), dict(), dict()
+                )
+            }
         )
 
-    task._default_db = "target_db"
-    task.tracker = vd
+    obj_run_arguments = RunArguments()
+    obj_run_arguments.update(**run_arguments)
 
-    task.jinja_env = Environment(
-        loader=FileSystemLoader(os.getcwd()),
-        undefined=StrictUndefined,
-        keep_trailing_newline=True,
+    run_arguments = {
+        "debug": obj_run_arguments.debug,
+        "full_load": obj_run_arguments.full_load,
+        "start_dt": obj_run_arguments.start_dt,
+        "end_dt": obj_run_arguments.end_dt,
+        "command": obj_run_arguments.command.value,
+        "folders": {
+            "python": obj_run_arguments.folders.python,
+            "sql": obj_run_arguments.folders.sql,
+            "compile": obj_run_arguments.folders.compile,
+            "logs": obj_run_arguments.folders.logs,
+            "tests": obj_run_arguments.folders.tests,
+        },
+    }
+
+    base_compiler = Compiler(obj_run_arguments, dict(), task_params)
+
+    class DBObjectUtil:
+        def __init__(self, used_objects):
+            self.to_introspect = used_objects
+
+        def src_out(self, obj, connection=None):
+            if "." in obj:
+                schema = obj.split(".")[0]
+                table = obj.split(".")[1]
+            else:
+                schema = ""
+                table = obj
+
+            if isinstance(connection, str):
+                connection_name = connection
+            else:
+                connection_name = connection.name
+
+            if connection_name not in self.to_introspect:
+                self.to_introspect[connection_name] = dict()
+
+            if schema not in self.to_introspect[connection_name]:
+                self.to_introspect[connection_name][schema] = set()
+
+            self.to_introspect[connection_name][schema].add(table)
+
+            return obj
+
+    task_compiler = base_compiler.get_task_compiler("test_group", "test_task")
+    task_compiler.update_globals(**task_params)
+
+    obj_util = DBObjectUtil(used_objects)
+
+    task = task_class(
+        "test_task",
+        "test_group",
+        vd,
+        run_arguments,
+        task_params,
+        dict(),
+        "target_db",
+        connections,
+        task_compiler,
+        obj_util.src_out,
+        obj_util.src_out,
     )
-    task.jinja_env.globals.update(**task_params)
+
+    return task
 
 
 def validate_table(db, table_name, expected_data, variable_columns=None):

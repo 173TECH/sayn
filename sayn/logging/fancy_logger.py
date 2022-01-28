@@ -31,12 +31,13 @@ class FancyLogger(Logger):
         self.spinner.text = txt
 
     def task_stage_finish(self, stage, duration, result):
-        self.spinner.text = (
-            f"[{self.task_order}/{self.total_tasks}] {self.task} ({human(duration)})"
-        )
+        if stage != "config":
+            self.spinner.text = f"[{self.task_order}/{self.total_tasks}] {self.task} ({human(duration)})"
+        else:
+            self.spinner.text = f" {self.task} ({human(duration)})"
 
         if result.is_ok:
-            if stage == "setup":
+            if stage in ("config", "setup"):
                 self.spinner.clear()
                 self.spinner.text_color = None
             else:

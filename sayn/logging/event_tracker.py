@@ -1,6 +1,7 @@
 from pathlib import Path
 from datetime import datetime
 import subprocess
+from typing import List, Optional
 
 from .task_event_tracker import TaskEventTracker
 
@@ -11,17 +12,18 @@ class EventTracker:
     loggers = list()
     run_id = None
     current_stage = None
-    current_stage_start_ts = None
-    tasks = list()
+    current_stage_start_ts: Optional[datetime]
+    tasks: List
+    task_trackers: List[TaskEventTracker]
     current_task = None
     current_task_n = 0
     sayn_version = sayn_version
     project_git_commit = None
     project_name = Path(".").absolute().name
 
-    def __init__(self, run_id, loggers, run_arguments):
+    def __init__(self, run_id):
         self.run_id = run_id
-        self.loggers = loggers
+        self.tasks = list()
         try:
             self.project_git_commit = (
                 subprocess.check_output(
@@ -31,12 +33,14 @@ class EventTracker:
                 .decode("utf-8")
             )
         except:
+            # If git is not available, we simply don't report the commit
             pass
-
-        self.report_event(context="app", event="start_app", run_arguments=run_arguments)
 
     def register_logger(self, logger):
         self.loggers.append(logger)
+
+    def remove_logger(self, logger_type):
+        self.loggers = [l for l in self.loggers if not isinstance(l, logger_type)]
 
     def start_stage(self, stage, **details):
         self.current_stage = stage
@@ -44,6 +48,9 @@ class EventTracker:
         self.report_event(context="app", event="start_stage", stage=stage, **details)
 
     def finish_current_stage(self, **details):
+        if self.current_stage_start_ts is None:
+            self.current_stage_start_ts = datetime.now()
+
         duration = datetime.now() - self.current_stage_start_ts
         self.report_event(
             context="app",

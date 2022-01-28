@@ -1,6 +1,6 @@
 # Installation
 
-SAYN is available for installation using `pip` and is regularly tested in Python 3.6+ on both
+SAYN is available for installation using `pip` and is regularly tested in Python 3.7+ on both
 MacOS and Linux environments.
 
 ```bash

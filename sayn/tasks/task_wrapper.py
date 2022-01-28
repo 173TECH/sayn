@@ -1,38 +1,33 @@
 from copy import deepcopy
-import os
-from typing import List, Dict, Any
+import re
+from typing import Any, Dict, Optional, Set
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined
+from sayn.database import Database
 
 from ..core.errors import Err, Exc, Ok, Result
 from ..utils.misc import map_nested
 
-from . import Task, TaskStatus
-from .dummy import DummyTask
-from .sql import SqlTask
-from .autosql import AutoSqlTask
-from .copy import CopyTask
-from .test import TestTask
+from .task import Task, TaskStatus
 
-_creators = {
-    "dummy": DummyTask,
-    "sql": SqlTask,
-    "autosql": AutoSqlTask,
-    "copy": CopyTask,
-    "test": TestTask,
-}
-
+# Properties from a task dictionary that won't be part of the task
+# configuration as they are standard SAYN task properties
 _excluded_properties = (
     "name",
     "type",
     "tags",
     "group",
     "parents",
+    "sources",
+    "outputs",
     "parameters",
     "class",
     "preset",
     "on_fail",
 )
+
+
+# Regular expressions to parse a db object specification
+RE_OBJ = re.compile(r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?(?P<c2>[^.]+)")
 
 
 class TaskWrapper:
@@ -55,15 +50,206 @@ class TaskWrapper:
 
     """
 
-    name: str = None
-    group: str = None
-    tags: List[str] = list()
-    parents: List[Any] = list()
-    project_parameters: Dict[str, Any] = dict()
-    task_parameters: Dict[str, Any] = dict()
-    in_query: bool = True
-    runner: Task = None
+    name: str
+    group: str
+    tags: Set[str]
+    parent_names: Set[str]
+    sources_yaml: Set[Any]
+    outputs_yaml: Set[Any]
+    project_parameters: Dict[str, Any]
+    task_parameters: Dict[str, Any]
+    in_query: bool = False
+    runner: Optional[Task]
     status: TaskStatus = TaskStatus.UNKNOWN
+
+    def __init__(
+        self,
+        group: str,
+        name: str,
+        task_type: str,
+        on_fail: str,
+        parent_names: Set[str],
+        sources: Set[str],
+        outputs: Set[str],
+        tags: Set[str],
+        tracker,
+        task_class,
+        connections,
+        default_db,
+        run_arguments,
+        compiler,
+    ):
+        self.tags = set(tags or set())
+        self.parent_names = set(parent_names or set())
+        self.parents = list()
+        self.sources_yaml = set(sources or set())
+        self.sources = set()
+        self.outputs_yaml = set(outputs or set())
+        self.outputs = set()
+        self.sources_from_prod = set()
+        self.tracker = tracker
+        self.runner = None
+
+        self.name = name
+        self.group = group
+        self.task_type = task_type
+        self.on_fail = on_fail or "skip"
+
+        self.default_db = default_db
+        self.connections = dict(connections)
+
+        self.task_class = task_class
+
+        if self.task_class is None:
+            self.status = TaskStatus.FAILED
+        else:
+            self.status = TaskStatus.CONFIGURING
+
+            self.compiler = compiler.get_task_compiler(group=self.group, name=self.name)
+
+            self.run_arguments = {
+                "debug": run_arguments.debug,
+                "full_load": run_arguments.full_load,
+                "start_dt": run_arguments.start_dt,
+                "end_dt": run_arguments.end_dt,
+                "command": run_arguments.command.value,
+                "folders": {
+                    "python": run_arguments.folders.python,
+                    "sql": run_arguments.folders.sql,
+                    "compile": run_arguments.folders.compile,
+                    "logs": run_arguments.folders.logs,
+                    "tests": run_arguments.folders.tests,
+                },
+            }
+
+    def config(
+        self,
+        task_config: Dict[str, Any],
+        project_parameters: Dict[str, Any],
+        task_parameters: Dict[str, Any],
+    ):
+        # Check the parents are in a good state
+        result = self.check_skip()
+        if result.is_err or result.value == TaskStatus.SKIPPED:
+            return result
+
+        try:
+            self.set_parameters(project_parameters, task_parameters)
+        except Exception as exc:
+            self.status = TaskStatus.FAILED
+            return Exc(exc, where="set_task_parameters")
+
+        try:
+            runner = self.task_class(
+                self.name,
+                self.group,
+                self.tracker,
+                self.run_arguments,
+                self.task_parameters,
+                self.project_parameters,
+                self.default_db,
+                self.connections,
+                self.compiler,
+                self.src,
+                self.out,
+            )
+        except Exception as exc:
+            self.status = TaskStatus.FAILED
+            return Exc(exc, where="create_task_runner")
+
+        # convert sources and outputs from strings in yaml
+        # Now we can compile the other properties
+        runner_config = {
+            k: v for k, v in task_config.items() if k not in _excluded_properties
+        }
+
+        try:
+            runner_config = map_nested(
+                runner_config,
+                lambda x: self.compiler.compile(x) if isinstance(x, str) else x,
+            )
+        except Exception as exc:
+            return Exc(exc, where="compile_task_properties")
+
+        self.runner = runner
+
+        try:
+            result = self.runner.config(**runner_config)
+            if result is not None and result.is_err:
+                self.status = TaskStatus.FAILED
+                return result
+        except Exception as exc:
+            self.status = TaskStatus.FAILED
+            return Exc(exc, where="task_config")
+
+        # The config stage can produce changes to: tags, parents, sources, outputs and on_fail
+        if hasattr(runner, "_config_input"):
+            for source in runner._config_input["sources"]:
+                self.src(source)
+
+            for output in runner._config_input["outputs"]:
+                self.out(output)
+
+            for parent in runner._config_input["parents"]:
+                self.parent_names.add(parent)
+
+            for tag in runner._config_input["tags"]:
+                self.tags.add(tag)
+
+            if runner._config_input.get("on_fail") is not None:
+                self.on_fail = runner._config_input["on_fail"]
+
+            # A bit of cleaning on the user
+            del runner._config_input
+
+        # TODO relying on the task object having a certain property is not a solid method. Need to change it
+        if "_target_db" in runner.__dict__:
+            target_connection = self.connections[runner._target_db]
+        else:
+            target_connection = self.connections[self.default_db]
+
+        self.outputs.update(
+            {
+                self.get_db_obj(o, connection=target_connection)
+                for o in self.outputs_yaml
+            }
+        )
+
+        if "_source_db" in runner.__dict__:
+            source_connection = self.connections[runner._source_db]
+        elif "_target_db" in runner.__dict__:
+            source_connection = self.connections[runner._target_db]
+        else:
+            source_connection = self.connections[self.default_db]
+
+        self.sources.update(
+            {
+                self.get_db_obj(o, connection=source_connection)
+                for o in self.sources_yaml
+            }
+        )
+
+        self.status = TaskStatus.READY_FOR_SETUP
+
+        return Ok()
+
+    def set_parameters(
+        self, project_parameters: Dict[str, Any], task_parameters: Dict[str, Any]
+    ):
+        # Process parameters
+        # The project parameters go as they come
+        self.project_parameters = deepcopy(project_parameters or dict())
+
+        # Compile nested dictionary of parameters
+        task_parameters = task_parameters or dict()
+        task_parameters = map_nested(
+            task_parameters,
+            lambda x: self.compiler.compile(x) if isinstance(x, str) else x,
+        )
+        self.task_parameters = task_parameters
+
+        # Add the task paramters to the jinja environment
+        self.compiler.update_globals(**task_parameters)
 
     def check_skip(self):
         failed_parents = {
@@ -81,183 +267,52 @@ class TaskWrapper:
             else:
                 return Ok(self.status)
 
+        elif "fail" in self.status.value:
+            return Err("task", "task_error", status=self.status)
         else:
             return Ok(self.status)
 
-    def setup(
-        self,
-        task_info,
-        parents,
-        in_query,
-        tracker,
-        connections,
-        default_db,
-        project_parameters,
-        run_arguments,
-        python_loader,
-    ):
-        def failed(result):
-            self.status = TaskStatus.FAILED
-            self.tracker.current_step = None
-            return result
-
-        def setup_runner(runner, runner_config):
-            try:
-                result = runner.setup(**runner_config)
-            except Exception as exc:
-                result = Exc(exc)
-
-            finally:
-                if not isinstance(result, Result):
-                    return failed(
-                        Err("task_result", "missing_result_error", result=result)
-                    )
-                elif result.is_err:
-                    return failed(result)
-                else:
-                    self.runner = runner
-                    self.status = TaskStatus.READY
-                    return Ok()
-
-        self.tracker = tracker
-
-        self.in_query = in_query
-        self.status = TaskStatus.SETTING_UP
-        self._info = task_info
-
-        self.name = task_info["name"]
-        self.group = task_info["group"]
-
-        self._type = task_info.get("type")
-        self.tags = task_info.get("tags", list())
-        self.parents = parents
-        self.on_fail = task_info.get("on_fail", "skip")
-        if self.on_fail not in ("skip", "no_skip"):
-            return failed(
-                Err("task_config", "invalid_on_fail_value", value=self.on_fail)
-            )
-
-        self.task_parameters = task_info.get("parameters", dict())
-
+    def setup(self, in_query, sources_from_prod):
         # Check the parents are in a good state
         result = self.check_skip()
         if result.is_err or result.value == TaskStatus.SKIPPED:
             return result
 
+        self.in_query = in_query
+        self.status = TaskStatus.SETTING_UP
+
         if not in_query:
             self.status = TaskStatus.NOT_IN_QUERY
             return Ok()
         else:
+            needs_recompile = False
+            for s in self.sources:
+                if s in sources_from_prod:
+                    needs_recompile = True
 
-            # Instantiate the Task runner object
-
-            # First get the class to use
-            if self._type == "python":
-                result = python_loader.get_class("python_tasks", task_info.get("class"))
-                if result.is_err:
-                    # TODO should probably add the context here
-                    return failed(result)
-                else:
-                    task_class = result.value
-
-            elif self._type in _creators:
-                task_class = _creators[self._type]
-
-            else:
-                return failed(
-                    Err(
-                        "task_type",
-                        "invalid_task_type_error",
-                        type=self._type,
-                        group=self.group,
-                    )
-                )
-
-            # Call the object creation method
-            result = self.create_runner(
-                task_class,
-                {k: v for k, v in task_info.items() if k not in _excluded_properties},
-                run_arguments,
-                project_parameters,
-                default_db,
-                connections,
-            )
-            if result.is_ok:
-                runner, runner_config = result.value
-            else:
-                return failed(result)
+            self.sources_from_prod = sources_from_prod
 
             # Run the setup stage for the runner and return the results
-            return setup_runner(runner, runner_config)
+            try:
+                result = self.runner.setup(needs_recompile)
+            except Exception as exc:
+                result = Exc(exc)
 
-    def create_runner(
-        self,
-        task_class,
-        runner_config,
-        run_arguments,
-        project_parameters,
-        default_db,
-        connections,
-    ):
-
-        runner = task_class()
-        # Add the basic properties
-        runner.name = self.name
-        runner.group = self.group
-        runner.tags = self.tags
-        runner.run_arguments = run_arguments
-        env_arguments = {
-            "full_load": run_arguments["full_load"],
-            "start_dt": f"'{run_arguments['start_dt'].strftime('%Y-%m-%d')}'",
-            "end_dt": f"'{run_arguments['end_dt'].strftime('%Y-%m-%d')}'",
-        }
-
-        # Process parameters
-        # The project parameters go as they come
-        runner.project_parameters = deepcopy(project_parameters or dict())
-
-        # Create a jinja environment with the project parameters so that we
-        # can use that to compile parameters and other properties
-        jinja_env = Environment(
-            loader=FileSystemLoader(os.getcwd()),
-            undefined=StrictUndefined,
-            keep_trailing_newline=True,
-        )
-        jinja_env.globals.update(task=self)
-        jinja_env.globals.update(**env_arguments)
-        jinja_env.globals.update(**runner.project_parameters)
-        # Compile nested dictionary of parameters
-        try:
-            runner.task_parameters = map_nested(
-                self.task_parameters,
-                lambda x: jinja_env.from_string(x).render()
-                if isinstance(x, str)
-                else x,
-            )
-        except Exception as e:
-            return Exc(e, where="compile_task_parameters")
-
-        # Add the task paramters to the jinja environment
-        jinja_env.globals.update(**runner.task_parameters)
-        runner.jinja_env = jinja_env
-
-        # Now we can compile the other properties
-        try:
-            runner_config = map_nested(
-                runner_config,
-                lambda x: runner.jinja_env.from_string(x).render()
-                if isinstance(x, str)
-                else x,
-            )
-        except Exception as e:
-            return Exc(e, where="compile_task_properties")
-
-        # Connections and logging
-        runner._default_db = default_db
-        runner.connections = connections
-        runner.tracker = self.tracker
-
-        return Ok((runner, runner_config))
+            finally:
+                if result is None:
+                    self.status = TaskStatus.READY
+                    return Ok()
+                elif not isinstance(result, Result):
+                    self.status = TaskStatus.FAILED
+                    self.tracker.current_step = None
+                    return Err("task_result", "missing_result_error", result=result)
+                elif result.is_err:
+                    self.status = TaskStatus.FAILED
+                    self.tracker.current_step = None
+                    return result
+                else:
+                    self.status = TaskStatus.READY
+                    return Ok()
 
     def should_run(self):
         return self.status == TaskStatus.NOT_IN_QUERY
@@ -290,10 +345,11 @@ class TaskWrapper:
                     result = self.runner.compile()
                 else:
                     result = self.runner.test()
+
                 if result is None:
-                    self.status = TaskStatus.FAILED
-                    result = Err("execution", "none_return_value")
-                if result.is_ok:
+                    result = Ok()
+                    self.status = TaskStatus.SUCCEEDED
+                elif result.is_ok:
                     self.status = TaskStatus.SUCCEEDED
                 else:
                     self.status = TaskStatus.FAILED
@@ -302,3 +358,92 @@ class TaskWrapper:
                 result = Exc(e)
 
             return result
+
+    def set_parents(self, all_tasks, output_to_task):
+        for parent_name in self.parent_names:
+            if parent_name not in all_tasks:
+                return Err("dag", "missing_parents", missing={self.name: [parent_name]})
+            self.parents.append(all_tasks[parent_name])
+            self.parent_names.add(parent_name)
+
+        missing = set()
+        for source in self.sources:
+            if source not in output_to_task:
+                missing.add(source)
+            else:
+                for task_name in output_to_task[source]:
+                    if task_name not in self.parent_names:
+                        self.parents.append(all_tasks[task_name])
+                        self.parent_names.add(task_name)
+
+        # TODO send some message when a table is source
+        if len(missing) > 0:
+            tables = ", ".join([f"{t.get_value()}" for t in missing])
+            self.tracker.warning(
+                f'No task creates table(s) "{tables}" referenced by task "{self.name}"'
+            )
+
+        return Ok()
+
+    def get_db_obj(self, obj: str, connection=None):
+        obj = self.compiler.compile(obj)
+        m = RE_OBJ.match(obj)
+        if m is None:
+            raise ValueError(f'Incorrect format for database object "{obj}"')
+        else:
+            g = m.groupdict()
+            connection_name = g["connection"]
+            components = dict(
+                {"object": None, "schema": None, "database": None},
+                **dict(
+                    zip(
+                        ("object", "schema"),
+                        reversed(
+                            [
+                                v
+                                for k, v in g.items()
+                                if k != "connection" and v is not None
+                            ]
+                        ),
+                    )
+                ),
+            )
+
+            if connection is not None:
+                if isinstance(connection, str):
+                    connection_object = self.connections[connection]
+                elif isinstance(connection, Database):
+                    connection_object = connection
+                else:
+                    raise ValueError(f"Wrong type {type(connection)}")
+            else:
+                connection_object = self.connections[connection_name or self.default_db]
+
+            return connection_object._object_builder.from_components(**components)
+
+    def src(self, obj, connection=None):
+        obj = self.get_db_obj(obj, connection=connection)
+
+        if self.status == TaskStatus.CONFIGURING:
+            # During configuration we add to the list and use values based on settings
+            self.sources.add(obj)
+            return obj.get_value()
+        else:
+            # In any other stage, we check to see is the object is in the list
+            # of objects to use from production
+            if obj in self.sources_from_prod:
+                return obj.get_prod_value()
+            else:
+                return obj.get_value()
+
+    def out(self, obj, connection=None):
+        obj = self.get_db_obj(obj, connection=connection)
+        if self.status == TaskStatus.CONFIGURING:
+            self.outputs.add(obj)
+        return obj.get_value()
+
+    def has_tests(self):
+        if self.runner is not None and self.runner._has_tests:
+            return True
+
+        return False

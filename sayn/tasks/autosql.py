@@ -1,6 +1,6 @@
 from pathlib import Path
-from typing import Dict, Any, Optional, List
-import json
+from typing import Any, List, Mapping, Optional
+from enum import Enum
 
 from pydantic import BaseModel, Field, FilePath, validator, Extra
 from terminaltables import AsciiTable
@@ -9,8 +9,6 @@ from colorama import init, Fore, Style
 from ..core.errors import Exc, Ok, Err
 from ..database import Database
 from .sql import SqlTask
-
-# from .test import Columns
 
 
 class Destination(BaseModel):
@@ -49,10 +47,9 @@ class Config(BaseModel):
     delete_key: Optional[str]
     materialisation: str
     destination: Destination
-    # ddl: Optional[Dict[str, Any]]
-    columns: Optional[List[Dict[str, Any]]] = list()
-    table_properties: Optional[List[Dict[str, Any]]] = list()
-    post_hook: Optional[List[Dict[str, Any]]] = list()
+    columns: List[Mapping[str, Any]] = list()
+    table_properties: Mapping[str, Any] = dict()
+    post_hook: List[Mapping[str, Any]] = list()
 
     class Config:
         extra = Extra.forbid
@@ -73,8 +70,68 @@ class Config(BaseModel):
             return v
 
 
+class OnFailValue(str, Enum):
+    skip = "skip"
+    no_skip = "no_skip"
+
+
+class CompileConfig(BaseModel):
+    supports_schemas: bool
+    db_type: str
+
+    delete_key: Optional[str]
+    materialisation: Optional[str]
+    tmp_schema: Optional[str]
+    db_schema: Optional[str] = Field(None, alias="schema")
+    table: Optional[str]
+    columns: List[Mapping[str, Any]] = list()
+    table_properties: Mapping[str, Any] = dict()
+    post_hook: List[Mapping[str, Any]] = list()
+    tags: Optional[List[str]]
+    parents: Optional[List[str]]
+    on_fail: Optional[OnFailValue]
+
+    class Config:
+        extra = Extra.forbid
+
+    @validator("materialisation")
+    def incremental_has_delete_key(cls, v, values):
+        if v not in ("table", "view", "incremental"):
+            raise ValueError(f'"{v}". Valid materialisations: table, view, incremental')
+        elif v != "incremental" and values.get("delete_key") is not None:
+            raise ValueError('"delete_key" is invalid in non-incremental loads')
+        elif v == "incremental" and values.get("delete_key") is None:
+            raise ValueError('"delete_key" is required for incremental loads')
+        else:
+            return v
+
+    @validator("tmp_schema")
+    def can_use_tmp_schema(cls, v, values):
+        if v is not None and not values["supports_schemas"]:
+            raise ValueError(
+                f'tmp_schema not supported for database of type {values["db_type"]}'
+            )
+
+        return v
+
+    @validator("db_schema")
+    def can_use_schema(cls, v, values):
+        if v is not None and not values["supports_schemas"]:
+            raise ValueError(
+                f'schema not supported for database of type {values["db_type"]}'
+            )
+
+        return v
+
+
 class AutoSqlTask(SqlTask):
-    def setup(self, **config):
+    def config(self, **config):
+        if "task_name" in self._config_input:
+            del self._config_input["task_name"]
+
+        if "columns" in config:
+            self._has_tests = True
+
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]
@@ -104,64 +161,72 @@ class AutoSqlTask(SqlTask):
             )
 
         try:
-            self.config = Config(
+            self.task_config = Config(
                 sql_folder=self.run_arguments["folders"]["sql"], **config
             )
         except Exception as e:
             return Exc(e)
 
-        self.tmp_schema = (
-            self.config.destination.tmp_schema or self.config.destination.db_schema
+        # We compile first to allow changes to the config
+        # Template compilation
+        self.compiler.update_globals(
+            src=lambda x: self.src(x, connection=self._target_db),
+            config=self.config_macro,
         )
-        self.schema = self.config.destination.db_schema
-        self.table = self.config.destination.table
-        self.use_db_object(self.table, schema=self.schema, tmp_schema=self.tmp_schema)
 
-        self.materialisation = self.config.materialisation
-        self.delete_key = self.config.delete_key
+        self.allow_config = True
+
+        self.prepared_sql_query = self.compiler.prepare(self.task_config.file_name)
+        self.sql_query = self.prepared_sql_query.compile()
+
+        # After the first compilation, config shouldn't be executed again
+        self.allow_config = False
+
+        # Output calculation
+        db_schema = self.task_config.destination.db_schema
+
+        if self.task_config.destination.tmp_schema is not None:
+            tmp_db_schema = self.task_config.destination.tmp_schema
+        else:
+            tmp_db_schema = db_schema
+
+        base_table_name = self.task_config.destination.table
+
+        if db_schema is None:
+            self.schema = None
+            self.table = self.out(base_table_name, self.target_db)
+        else:
+            obj = self.out(f"{db_schema}.{base_table_name}", self.target_db)
+            self.schema = obj.split(".")[0]
+            self.table = obj.split(".")[1]
+
+        if tmp_db_schema is None:
+            self.tmp_schema = None
+            self.tmp_table = self.out(f"sayn_tmp_{base_table_name}", self.target_db)
+        else:
+            obj = self.out(
+                f"{tmp_db_schema}.sayn_tmp_{base_table_name}", self.target_db
+            )
+            self.tmp_schema = obj.split(".")[0]
+            self.tmp_table = obj.split(".")[1]
+
+        self.materialisation = self.task_config.materialisation
+        self.delete_key = self.task_config.delete_key
 
         # DDL validation
         result = self.target_db._validate_ddl(
-            self.config.columns, self.config.table_properties, self.config.post_hook
+            self.task_config.columns,
+            self.task_config.table_properties,
+            self.task_config.post_hook,
         )
         if result.is_err:
             return result
         else:
-            self.columns = result.value
-
-        # If we have columns with no type, we can't issue a create table ddl
-        # and will issue a create table as select instead.
-        # However, if the db doesn't support alter idx then we can't have a
-        # primary key
-        # self.cols_no_type = [
-        #     c for c in self.ddl["columns"] if c["type"] is None]
-        # if (
-        #     len(self.ddl["primary_key"]) > 0 and
-        #     self.target_db.feature("CANNOT ALTER INDEXES") and
-        #     (len(self.ddl["columns"]) == 0 or len(self.cols_no_type) > 0)
-        # ):
-        #     return Err(
-        #         "task_definition",
-        #         "missing_column_types_pk",
-        #         columns=self.cols_no_type,
-        #     )
-
-        # Template compilation
-        result = self.get_template(self.config.file_name)
-        if result.is_err:
-            return result
-        else:
-            self.template = result.value
-
-        result = self.compile_obj(self.template)
-        if result.is_err:
-            return result
-        else:
-            self.sql_query = result.value
+            self.ddl = result.value
 
         if self.run_arguments["command"] == "test":
             result = self.target_db._construct_tests(
-                self.columns["columns"], self.table, self.schema
+                self.ddl["columns"], self.table, self.schema
             )
             if result.is_err:
                 return result
@@ -171,10 +236,66 @@ class AutoSqlTask(SqlTask):
 
         return Ok()
 
+    def config_macro(self, **config):
+        if self.allow_config:
+            config.update(
+                {
+                    "supports_schemas": not self.target_db.feature("NO SCHEMA SUPPORT"),
+                    "db_type": self.target_db.db_type,
+                }
+            )
+            task_config_override = CompileConfig(**config)
+            self.task_config.materialisation = (
+                task_config_override.materialisation or self.task_config.materialisation
+            )
+            self.task_config.destination.db_schema = (
+                task_config_override.db_schema or self.task_config.destination.db_schema
+            )
+            self.task_config.destination.tmp_schema = (
+                task_config_override.tmp_schema
+                or self.task_config.destination.tmp_schema
+            )
+            self.task_config.destination.table = (
+                task_config_override.table or self.task_config.destination.table
+            )
+            self.task_config.columns = (
+                task_config_override.columns or self.task_config.columns
+            )
+            self.task_config.table_properties = (
+                task_config_override.table_properties
+                or self.task_config.table_properties
+            )
+            self.task_config.post_hook = (
+                task_config_override.post_hook or self.task_config.post_hook
+            )
+            self.task_config.delete_key = (
+                task_config_override.delete_key or self.task_config.delete_key
+            )
+
+            # Sent to the wrapper
+            if task_config_override.on_fail is not None:
+                self._config_input["on_fail"] = task_config_override.on_fail
+
+            if task_config_override.tags is not None:
+                self._config_input["tags"] = task_config_override.tags
+
+            if task_config_override.parents is not None:
+                self._config_input["parents"] = task_config_override.parents
+
+        # Returns an empty string to avoid productin incorrect sql
+        return ""
+
+    def setup(self, needs_recompile):
+        if needs_recompile:
+            self.sql_query = self.prepared_sql_query.compile()
+
+        return Ok()
+
     def execute(self, execute, debug):
-        res = self.write_compilation_output(self.sql_query, "select")
-        if res.is_err:
-            return res
+        if self.run_arguments["debug"]:
+            self.write_compilation_output(self.sql_query, "select")
+        else:
+            self.write_compilation_output(self.sql_query)
 
         if self.materialisation == "view":
             # View
@@ -182,7 +303,7 @@ class AutoSqlTask(SqlTask):
                 self.table,
                 self.sql_query,
                 schema=self.schema,
-                **self.columns,
+                **self.ddl,
             )
 
         elif (
@@ -203,7 +324,7 @@ class AutoSqlTask(SqlTask):
                 self.sql_query,
                 schema=self.schema,
                 tmp_schema=tmp_schema,
-                **self.columns,
+                **self.ddl,
             )
 
         else:
@@ -214,7 +335,7 @@ class AutoSqlTask(SqlTask):
                 self.delete_key,
                 schema=self.schema,
                 tmp_schema=self.tmp_schema,
-                **self.columns,
+                **self.ddl,
             )
 
         self.set_run_steps(list(step_queries.keys()))

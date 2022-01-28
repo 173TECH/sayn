@@ -2,17 +2,15 @@ from collections import Counter
 import datetime
 import decimal
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
-from pydantic import BaseModel, validator, conlist, Extra, FilePath, constr
+from pydantic import BaseModel, validator, Extra
 from sqlalchemy import MetaData, Table
-from sqlalchemy.engine import reflection
 from sqlalchemy.sql import sqltypes
+import sqlalchemy
 
 from ..core.errors import DBError, Exc, Ok
-
-from ..utils.misc import group_list
 
 
 class Hook(BaseModel):
@@ -21,8 +19,8 @@ class Hook(BaseModel):
 
 class Columns(BaseModel):
     name: str
-    type: str = None
-    dst_name: str = None
+    type: Optional[str]
+    dst_name: Optional[str]
     description: Optional[str]
 
     class Tests(BaseModel):
@@ -33,10 +31,162 @@ class Columns(BaseModel):
         class Config:
             extra = Extra.forbid
 
-    tests: Optional[List[Union[str, Tests]]] = list()
+    tests: List[Union[str, Tests]] = list()
 
     class Config:
         extra = Extra.forbid
+
+
+class DDL(BaseModel):
+    columns: List[Columns] = list()
+    post_hook: List[Hook] = list()
+
+    class Config:
+        extra = Extra.forbid
+
+    @validator("columns", pre=True)
+    def transform_str_cols(cls, v):
+        if v is not None and isinstance(v, List):
+            return [{"name": c} if isinstance(c, str) else c for c in v]
+        else:
+            return v
+
+    @validator("columns")
+    def columns_unique(cls, v):
+        dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
+        if len(dupes) > 0:
+            raise ValueError(f"Duplicate columns: {','.join(dupes)}")
+        else:
+            return v
+
+    def get_ddl(self):
+        cols = self.columns
+
+        columns = list()
+        for c in cols:
+            tests = list()
+            for t in c.tests:
+                if isinstance(t, str):
+                    tests.append({"type": t, "allowed_values": [], "execute": True})
+                else:
+                    tests.append(
+                        {
+                            "type": t.name if t.name is not None else "allowed_values",
+                            "allowed_values": t.allowed_values
+                            if t.allowed_values is not None
+                            else [],
+                            "execute": t.execute,
+                        }
+                    )
+            columns.append(
+                {
+                    "name": c.name,
+                    "description": c.description,
+                    "dst_name": c.dst_name,
+                    "type": c.type,
+                    "tests": tests,
+                }
+            )
+
+        return {
+            "columns": columns,
+            "properties": list(),
+            "post_hook": [h.dict() for h in self.post_hook],
+        }
+
+
+class DbObject:
+    def __init__(
+        self, connection_name, database, schema, object, stringify, prod_stringify
+    ):
+        self.connection_name = connection_name
+        self.database = database
+        self.schema = schema
+        self.object = object
+        self.stringify = stringify
+        self.prod_stringify = prod_stringify
+
+        self.database_value = None
+        self.database_prod_value = None
+        self.schema_value = None
+        self.schema_prod_value = None
+        self.object_value = None
+        self.object_prod_value = None
+        self.value = ""
+        self.prod_value = ""
+
+        if self.database is not None:
+            self.database_value = self.stringify["database"].compile(
+                database=self.database, connection=connection_name
+            )
+            self.value += self.database_value + "."
+
+            self.database_prod_value = self.prod_stringify["database"].compile_prod(
+                database=self.database, connection=connection_name
+            )
+            self.prod_value += self.database_prod_value + "."
+
+        if self.schema is not None:
+            self.schema_value = self.stringify["schema"].compile(
+                table=self.object, schema=self.schema, connection=connection_name
+            )
+            self.value += self.schema_value + "."
+
+            self.schema_prod_value = self.prod_stringify["schema"].compile_prod(
+                table=self.object, schema=self.schema, connection=connection_name
+            )
+            self.prod_value += self.schema_prod_value + "."
+
+        self.object_value = self.stringify["table"].compile(
+            table=self.object, schema=self.schema, connection=connection_name
+        )
+        self.value += self.object_value
+
+        self.object_prod_value = self.prod_stringify["table"].compile_prod(
+            table=self.object, schema=self.schema, connection=connection_name
+        )
+        self.prod_value += self.object_prod_value
+
+    def __hash__(self):
+        return hash(self.get_key())
+
+    def __eq__(self, obj):
+        return self.get_key() == obj.get_key()
+
+    def __lt__(self, obj):
+        return self.get_key() > obj.get_key()
+
+    def __repr__(self):
+        return self.get_key()
+
+    def get_key(self):
+        return f"{self.connection_name}:{self.database or ''}.{self.schema or ''}.{self.object}"
+
+    def get_value(self):
+        return self.value
+
+    def get_prod_value(self):
+        return self.prod_value
+
+
+class DBObjectFactory:
+    def __init__(self, connection_name, stringify, prod_stringify):
+        self.connection_name = connection_name
+        self.stringify = stringify
+        self.prod_stringify = prod_stringify
+
+    def from_components(self, database, schema, object):
+        return DbObject(
+            self.connection_name,
+            database,
+            schema,
+            object,
+            self.stringify,
+            self.prod_stringify,
+        )
+
+    # def from_string(self, obj):
+    #     return DbObject(connection_name, database, schema, obj, self.stringify, self.prod_stringify)
 
 
 class Database:
@@ -54,118 +204,18 @@ class Database:
         metadata (sqlalchemy.MetaData): A metadata object associated with the engine.
     """
 
-    class DDL(BaseModel):
-        class Properties(BaseModel):
-            class Indexes(BaseModel):
-                columns: Optional[List[Union[str, Dict]]]
+    DDL = DDL
+    DBObjectFactory = DBObjectFactory
 
-            indexes: Optional[Dict[str, Indexes]]
-
-            class Config:
-                extra = Extra.forbid
-
-            @validator("indexes")
-            def index_columns_exists(cls, v, values):
-                cols = [c.name for c in values.get("columns", list())]
-                if len(cols) > 0:
-                    missing_cols = group_list(
-                        [
-                            (index_name, index_column)
-                            for index_name, index in v.items()
-                            for index_column in index.columns
-                            if index_column not in cols
-                        ]
-                    )
-                    if len(missing_cols) > 0:
-                        cols_msg = ";".join(
-                            [f"On {i}: {','.join(c)}" for i, c in missing_cols.items()]
-                        )
-                        raise ValueError(
-                            f"Some indexes refer to missing columns: {cols_msg}"
-                        )
-
-                return v
-
-        columns: Optional[List[Columns]] = list()
-        properties: Optional[List[Properties]] = list()
-        post_hook: Optional[List[Hook]] = list()
-
-        class Config:
-            extra = Extra.forbid
-
-        @validator("columns", pre=True)
-        def transform_str_cols(cls, v, values):
-            if v is not None and isinstance(v, List):
-                return [{"name": c} if isinstance(c, str) else c for c in v]
-            else:
-                return v
-
-        @validator("columns")
-        def columns_unique(cls, v, values):
-            dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
-            if len(dupes) > 0:
-                raise ValueError(f"Duplicate columns: {','.join(dupes)}")
-            else:
-                return v
-
-        def get_ddl(self):
-            cols = self.columns
-            self.columns = []
-            for c in cols:
-                tests = []
-                for t in c.tests:
-                    if isinstance(t, str):
-                        tests.append({"type": t, "allowed_values": [], "execute": True})
-                    else:
-                        tests.append(
-                            {
-                                "type": t.name
-                                if t.name is not None
-                                else "allowed_values",
-                                "allowed_values": t.allowed_values
-                                if t.allowed_values is not None
-                                else [],
-                                "execute": t.execute,
-                            }
-                        )
-                self.columns.append(
-                    {
-                        "name": c.name,
-                        "description": c.description,
-                        "dst_name": c.dst_name,
-                        "type": c.type,
-                        "tests": tests,
-                    }
-                )
-
-            props = self.properties
-            self.properties = []
-            for p in props:
-                self.properties.append(p.dict())
-
-            hook = self.post_hook
-            self.post_hook = []
-            for h in hook:
-                self.post_hook.append(h.dict())
-
-            res = {
-                "columns": self.columns,
-                "properties": self.properties,
-                "post_hook": self.post_hook,
-            }
-
-            return res
-
-    # ddl_validation_class = DDL
-
-    _requested_objects = None
-
-    def __init__(self, name, name_in_settings, db_type, common_params):
+    def __init__(
+        self, name, name_in_settings, db_type, common_params, stringify, prod_stringify
+    ):
         self.name = name
         self.name_in_settings = name_in_settings
         self.db_type = db_type
         self.max_batch_rows = common_params.get("max_batch_rows", 50000)
         self._requested_objects = dict()
+
         self._jinja_env = Environment(
             loader=FileSystemLoader(Path(__file__).parent / "templates"),
             undefined=StrictUndefined,
@@ -175,6 +225,10 @@ class Database:
             loader=FileSystemLoader(Path(__file__).parent.parent / "tasks/tests"),
             undefined=StrictUndefined,
             keep_trailing_newline=True,
+        )
+
+        self._object_builder = self.DBObjectFactory(
+            self.name, stringify, prod_stringify
         )
 
     def feature(self, feature):
@@ -198,9 +252,6 @@ class Database:
     def _set_engine(self, engine):
         self.engine = engine
         self.metadata = MetaData(self.engine)
-
-        # Force a query to test the connection
-        engine.execute("select 1")
 
     def _construct_tests(self, columns, table, schema=None):
         query = """
@@ -254,21 +305,26 @@ class Database:
 
         return Ok([query, breakdown])
 
-    def _validate_ddl(self, columns=[], table_properties=[], post_hook=[]):
+    def _validate_ddl(self, columns, table_properties, post_hook):
         if len(columns) == 0 and len(table_properties) == 0 and len(post_hook) == 0:
-            return self._format_properties(self.DDL().get_ddl())
+            properties = self.DDL().get_ddl()
         else:
             try:
-                return self._format_properties(
-                    self.DDL(
+                if table_properties is None or len(table_properties) == 0:
+                    properties = self.DDL(
+                        columns=columns,
+                        post_hook=post_hook,
+                    ).get_ddl()
+                else:
+                    properties = self.DDL(
                         columns=columns,
                         properties=table_properties,
                         post_hook=post_hook,
                     ).get_ddl()
-                )
             except Exception as e:
-
                 return Exc(e, db=self.name, type=self.db_type)
+
+        return self._format_properties(properties)
 
     def _format_properties(self, properties):
         if properties["columns"]:
@@ -287,11 +343,6 @@ class Database:
                 columns.append(entry)
 
             properties["columns"] = columns
-        if properties["properties"]:
-            for pro in properties["properties"]:
-                for p in pro:
-                    if pro[p] is not None:
-                        properties[p] = pro[p]
 
         return Ok(properties)
 
@@ -304,36 +355,38 @@ class Database:
         """
         self.metadata.reflect(only=only, schema=schema, extend_existing=True)
 
-    def _request_object(
-        self, name, schema=None, tmp_schema=None, task_name=None, request_tmp=True
-    ):
+    def _introspect(self, to_introspect):
+        insp = sqlalchemy.inspect(self.engine)
+        out = dict()
 
-        to_request = [(name, schema)]
-        if request_tmp:
-            to_request.append((tmp_name(name), tmp_schema or schema))
-
-        for name, schema in to_request:
-            if schema not in self._requested_objects:
-                self._requested_objects[schema] = {name: {"tasks": list()}}
+        for schema, req_objs in to_introspect.items():
+            if schema == "":
+                schema = None
+            if schema is None:
+                db_objects = [
+                    ("table", insp.get_table_names()),
+                    ("view", insp.get_view_names()),
+                ]
             else:
-                self._requested_objects[schema][name] = {"tasks": list()}
+                db_objects = [
+                    ("table", insp.get_table_names(schema)),
+                    ("view", insp.get_view_names(schema)),
+                ]
 
-            if task_name is not None:
-                self._requested_objects[schema][name]["tasks"].append(task_name)
+            # flatten the results
+            db_objects = {o: t for t, obs in db_objects for o in obs}
 
-    def _introspect(self):
-        insp = reflection.Inspector.from_engine(self.engine)
+            if schema not in self._requested_objects:
+                self._requested_objects[schema] = dict()
 
-        for schema in self._requested_objects.keys():
-            for obj_type, objs in [
-                ("table", insp.get_table_names(schema=schema)),
-                ("view", insp.get_view_names(schema=schema)),
-            ]:
-                for obj_name in objs:
-                    if schema is not None and obj_name.startswith(schema + "."):
-                        obj_name = obj_name[len(schema + ".") :]
-                    if obj_name in self._requested_objects[schema]:
-                        self._requested_objects[schema][obj_name]["type"] = obj_type
+            out[schema] = dict()
+            for obj_name in req_objs:
+                if obj_name in db_objects:
+                    out[schema][obj_name] = {"type": db_objects[obj_name]}
+                else:
+                    out[schema][obj_name] = {"type": None}
+
+        self._requested_objects = out
 
     def _py2sqa(self, from_type):
         python_types = {
@@ -455,7 +508,11 @@ class Database:
         batch_size = batch_size or self.max_batch_rows
         buffer = list()
 
-        result = self._validate_ddl(ddl)
+        result = self._validate_ddl(
+            ddl.get("columns", list()),
+            ddl.get("table_properties", dict()),
+            ddl.get("post_hook", list()),
+        )
 
         if result.is_err:
             raise DBError(
@@ -695,6 +752,9 @@ class Database:
         )
 
         return {"Create Table": create_or_replace, "Merge Tables": merge}
+
+    def get_db_object(self, database, schema, object):
+        return self._object_builder.from_components(database, schema, object)
 
 
 def fully_qualify(name, schema=None):

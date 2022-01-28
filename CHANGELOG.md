@@ -1,5 +1,28 @@
 # Change Log
 
+## [0.6.0] - 2022-01-25
+
+### Fixed
+
+- Fixes to bigquery introspection
+
+## [0.6.0] - 2022-01-24
+
+### New
+
+- Task groups can be generated from automatically from a path specification
+- Task dependencies can be set in code using src and out macros without YAML
+- Simpler pattern for creating python tasks based on decorators
+
+### Changed
+
+- BigQuery driver upgraded to sqlalchemy-bigquery 1.3.0, deprecating pybigquery
+
+### Fixed
+
+- Fixes to incremental autosql tasks in BigQuery
+- Fixes to credentials_path property for BigQuery credentials
+
 ## [0.5.13] - 2021-12-13
 
 ### Changed
