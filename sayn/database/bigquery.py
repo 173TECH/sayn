@@ -145,7 +145,9 @@ class Bigquery(Database):
             for t in tests:
                 breakdown.append(
                     {
-                        "column": col["name"],
+                        "column": col["name"]
+                        if not col["dst_name"]
+                        else col["dst_name"],
                         "type": t["type"],
                         "execute": t["execute"],
                     }
