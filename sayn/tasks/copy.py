@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, Optional, List, Union
 
 from pydantic import BaseModel, Field, validator, Extra
 from sqlalchemy import or_, select, column
@@ -73,7 +73,7 @@ class Config(BaseModel):
     incremental_key: Optional[str]
     max_merge_rows: Optional[int]
     max_batch_rows: Optional[int]
-    columns: Optional[List[Dict[str, Any]]] = list()
+    columns: Optional[List[Union[str, Dict[str, Any]]]] = list()
     table_properties: Optional[List[Dict[str, Any]]] = list()
     post_hook: Optional[List[Dict[str, Any]]] = list()
 

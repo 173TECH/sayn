@@ -1,9 +1,8 @@
 from pathlib import Path
-from typing import Any, List, Mapping, Optional
+from typing import Any, List, Mapping, Optional, Union
 from enum import Enum
 
 from pydantic import BaseModel, Field, FilePath, validator, Extra
-from terminaltables import AsciiTable
 from colorama import init, Fore, Style
 
 from ..core.errors import Exc, Ok, Err
@@ -47,7 +46,7 @@ class Config(BaseModel):
     delete_key: Optional[str]
     materialisation: str
     destination: Destination
-    columns: List[Mapping[str, Any]] = list()
+    columns: Optional[List[Union[str, Mapping[str, Any]]]] = list()
     table_properties: Mapping[str, Any] = dict()
     post_hook: List[Mapping[str, Any]] = list()
 

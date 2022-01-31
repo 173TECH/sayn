@@ -38,7 +38,7 @@ class Columns(BaseModel):
 
 
 class DDL(BaseModel):
-    columns: List[Columns] = list()
+    columns: List[Union[str, Columns]] = list()
     post_hook: List[Hook] = list()
 
     class Config:

@@ -36,7 +36,7 @@ class DDL(BaseModel):
         class Config:
             extra = Extra.forbid
 
-    columns: List[Columns] = list()
+    columns: List[Union[str, Columns]] = list()
     properties: Optional[Properties]
     post_hook: List[Hook] = list()
 

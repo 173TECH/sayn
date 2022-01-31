@@ -5,7 +5,7 @@ import datetime
 import decimal
 import io
 import json
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from pydantic import validator, Extra, BaseModel
 from sqlalchemy import create_engine
@@ -26,7 +26,7 @@ class DDL(BaseModel):
         class Config:
             extra = Extra.forbid
 
-    columns: List[Columns] = list()
+    columns: List[Union[str, Columns]] = list()
     properties: Optional[Properties]
     post_hook: List[Hook] = list()
 
