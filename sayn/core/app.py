@@ -608,7 +608,8 @@ class App:
                 )
 
         self.tracker.finish_current_stage(
-            tasks={k: v.status for k, v in tasks_in_query.items()}
+            tasks={k: v.status for k, v in tasks_in_query.items()},
+            test=True if self.run_arguments.command == Command.TEST else False,
         )
 
         self.finish_app()
@@ -631,15 +632,6 @@ class App:
             sys.exit(-1)
 
     def cleanup_compilation(self):
-        folder = self.run_arguments.folders.compile
-        compile_path = Path(folder)
-        if compile_path.exists():
-            if compile_path.is_dir():
-                shutil.rmtree(compile_path.absolute())
-            else:
-                compile_path.unlink()
-
-        compile_path.mkdir()
         folder = self.run_arguments.folders.compile
         compile_path = Path(folder)
         if compile_path.exists():
