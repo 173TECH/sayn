@@ -4,7 +4,7 @@ import sys
 
 import click
 
-from .utils.graphviz import plot_dag
+from .utils.mermaid import plot_dag
 from .logging import ConsoleLogger, FancyLogger, FileLogger
 from .scaffolding.init_project import sayn_init
 from .core.app import App, Command

@@ -8,7 +8,10 @@ def plot_dag(tasks, folder=None, file_name=None):
     """
 
     task_list = list(tasks.keys())
+
+    print(task_list)
     tasks = reverse_dict(tasks)
+    print(tasks)
 
     from graphviz import Digraph
 
