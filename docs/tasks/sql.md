@@ -4,8 +4,6 @@
 
 The `sql` task lets you execute a SQL script with one or many statements. This is useful for
 executing `UPDATE` statements for example, that wouldn't be covered by `autosql`.
-The sql code can use the `src` and `out` macros to implicitly create task dependencies as decribed in [database objects](../database_objects.md).
-
 
 ## Defining `sql` Tasks
 
@@ -20,7 +18,7 @@ A `sql` task is defined as follows:
 
 A `sql` task is defined by the following attributes:
 
-* `file_name`: the path to a file **within the sql folder of the project's root**. When defining `sql` groups in `project.yaml` this property needs to be  a glob expression, for example `group/*.sql`.
+* `file_name`: the path to a file **within the sql folder of the project's root**. When defining `sql` `groups` in `project.yaml` this property needs to be a glob expression, for example `group/*.sql`.
 * `db`: the (optional) destination database.
 
 !!! info
@@ -30,15 +28,18 @@ A `sql` task is defined by the following attributes:
       * Be defined in your `settings.yaml`.
       * Be one of the supported [databases](../databases/overview.md).
 
+!!! tip
+    The sql code can use the `src` and `out` macros to implicitly create task dependencies as decribed in [database objects](../database_objects.md).
+
 ## Config macro
 
 Like `autosql` tasks, we can overload some values specified in the YAML. This is useful when we define
-groups in `project.yaml` and for a specific task we need to make a configuration change like the `tags`. To use
-this we simply call `config` from a Jinja tag within the sql file:
+groups in `project.yaml` and for a specific task we need to make a configuration change like the `tags`. To use this we simply call `config` from a Jinja tag within the sql file:
 
 !!! example "autosql with config"
     ```
     {{ config(tags=['creation_tasks']) }}
+    
     CREATE TABLE ...
     ```
 

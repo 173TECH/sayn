@@ -3,31 +3,30 @@
 ## About
 
 The `autosql` task lets you write a `SELECT` statement and SAYN then automates the data processing (i.e. table or view creation, incremental load, etc.) for you.
-The `SELECT` statment can use the `src` macro to implicitly create task dependencies as decribed in [database objects](../database_objects.md).
 
 ## Defining `autosql` Tasks
 
-An `autosql` task is defined as follows:
+An `autosql` task group is defined as follows:
 
-!!! example "autosql task definition"
-    ```yaml
+!!! example "project.yaml"
+    ```
     ...
 
-    task_autosql:
-      type: autosql
-      file_name: task_autosql.sql
-      materialisation: table
-      destination:
-        tmp_schema: analytics_staging
-        schema: analytics_models
-        table: task_autosql
+    groups:
+      core:
+        type: autosql
+        file_name: "core/*.sql"
+        materialisation: table
+        destination:
+          table: "{{ task.name }}"
+
     ...
     ```
 
 An `autosql` task is defined by the following attributes:
 
 * `type`: `autosql`.
-* `file_name`: the path to a file **within the sql folder of the project's root**. When defining `autosql` groups in `project.yaml` this property needs to be  a glob expression, for example `group/*.sql`.
+* `file_name`: the path to a file **within the sql folder of the project's root**. When defining `autosql` groups in `project.yaml` this property needs to be a glob expression, for example `group/*.sql`.
 * `materialisation`: this should be either `table`, `view` or `incremental`. `table` will create a table, `view` will create a view. `incremental` will create a table and will load the data incrementally based on a delete key (see more detail on `incremental` below).
 * `destination`: this sets the details of the data processing.
     * `tmp_schema`: the (optional) schema which will be used to store any necessary temporary object created in the process. The final compiled value is affected by `schema_prefix`, `schema_suffix` and `schema_override` as specified in [database objects](../database_objects.md).
@@ -42,6 +41,36 @@ An `autosql` task is defined by the following attributes:
       * Be a credential from the `required_credentials` list in `project.yaml`.
       * Be defined in your `settings.yaml`.
       * Be one of the supported [databases](../databases/overview.md).
+
+## Setting Dependencies With `autosql`
+
+With `autosql` tasks, you should use the `src` macro in your `SELECT` statements to implicitly create task dependencies.
+
+!!! example `autosql` query
+  ```
+  SELECT field1
+       , field2
+    FROM {{ src('my_table') }} l
+  ```
+
+By using the `{{ src('my_table') }}` in your `FROM` clause, you are effectively telling SAYN that your task depends on the `my_table` table (or view). As a result, SAYN will look for the task that produces `my_table` and set it as a parent of this `autosql` task automatically.
+
+!!! tip
+    When using the `src` macro, you can pass a structure formatted as `schema.table` such as `{{ src('my_schema.my_table') }}`. In this case, SAYN interprets the first element as the schema, the second element as the table or view. If you use `schema_prefix` and / or `table_prefix` in your project settings, SAYN will then prepend the `schema_prefix` to the `schema` value and `table_prefix` to the `table` value. For example, if your `schema_prefix` is set to `analytics` and `table_prefix` to `up` then `{{ src('my_schema.my_table') }}` will compile `analytics_my_schema.up_my_table`.
+
+## Advanced Configuration
+
+If you need to amend the configuration (e.g. materialisation) of a specific `autosql` task within a `group`, you can overload the values specified in the YAML group definition. To do this, we simply call `config` from a Jinja tag within the sql file of the task:
+
+!!! example "autosql with config"
+    ```
+    {{ config(materialisation='view') }}
+
+    SELECT ...
+    ```
+
+The above code will override the value of `materialisation` setting defined in YAML to make this model a view. All other parameters
+described above in this page are also available to overload with `config` except `db`, `file_name` and `name`.
 
 ## Using `autosql` In `incremental` Mode
 
@@ -140,18 +169,3 @@ SAYN also lets you control the CREATE TABLE statement if you need more specifica
           role_name: SELECT
     ...
     ```
-
-## Config macro
-
-Within the sql file of an `autosql` task we can overload the values specified in the YAML. This is useful when we define
-groups in `project.yaml` and for a specific task we need to make a configuration change like the materialisation. To use
-this we simply call `config` from a Jinja tag within the sql file:
-
-!!! example "autosql with config"
-    ```
-    {{ config(materialisation='view') }}
-    SELECT ...
-    ```
-
-The above code will override the value of `materialisation` setting defined in YAML to make this model a view. All other parameters
-described in this page are also available to overload with `config` except `db`, `file_name` and `name`.
