@@ -75,7 +75,7 @@ def load_data(context, warehouse):
         "battles": battles,
     }
 ​
-    # Load logs
+    # Final logs load
     for log_type, log_data in data_to_load.items():
         with context.step(f"Load {log_type}"):
             warehouse.load_data(f"logs_{log_type}", log_data, replace=True)
