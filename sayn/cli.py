@@ -266,7 +266,16 @@ def dag_image(debug, tasks, exclude, upstream_prod):
 
     app = App()
     app.start_app()
-
-    plot_dag(app.dag, "images", "dag")
+    # print(dir(app))
+    # print()
+    # print(app.autogroups)
+    # print()
+    # print(app.file_groups)
+    # print()
+    # print(app.tasks)
+    # print()
+    # print(app.presets)
+    # print(app.dag)
+    plot_dag(app.dag, app.tasks, "images", "dag")
 
     print("Dag image created in `images/dag.png`")

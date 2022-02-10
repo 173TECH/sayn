@@ -1,23 +1,28 @@
 from .misc import reverse_dict
 
 
-def plot_dag(tasks, folder=None, file_name=None):
+def plot_dag(dag, tasks, folder=None, file_name=None):
     """Uses mermaid to plot the dag"""
-    alphab = "ABCDEFGHIJK"
-    task_list = list(tasks.keys())
-    task_dict = {}
-    for i, task in enumerate(task_list):
-        task_dict[task] = alphab[i]
 
-    tasks = reverse_dict(tasks)
+    task_group = [[key, value.group] for key, value in tasks.items()]
+    groups = list(set(val.group for val in tasks.values()))
+    task_list = list(dag.keys())
+    tasks_dag = reverse_dict(dag)
 
     text = """<div class="mermaid">\ngraph TB\n"""
 
-    for a, l in tasks.items():
+    for a, l in tasks_dag.items():
         if a in task_list:
             for b in l:
                 if b in task_list:
-                    text += f"{task_dict[a]}[{a}] --> {task_dict[b]}[{b}]\n"
+                    text += f"{a} --> {b}\n"
+
+    for g in groups:
+        text += f"subgraph {g}\n"
+        for t in task_group:
+            if t[1] == g:
+                text += f"{t[0]}\n"
+        text += "end\n"
 
     text += """</div>\n<script>mermaid.initialize({startOnLoad:true});</script>\n<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>"""
 
