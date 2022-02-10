@@ -3,16 +3,13 @@ from uuid import uuid4
 
 from sayn import task
 
+
 @task()
 def say_hello(context):
-    context.info('Hello!')
+    context.info("Hello!")
 
-@task(outputs=[
-        'logs_arenas',
-        'logs_tournaments',
-        'logs_battles',
-        'logs_fighters']
-     )
+
+@task(outputs=["logs_arenas", "logs_tournaments", "logs_battles", "logs_fighters"])
 def load_data(context, warehouse):
     fighters = ["Son Goku", "John", "Lucy", "Dr. x", "Carlos", "Dr. y?"]
     arenas = ["Earth Canyon", "World Edge", "Namek", "Volcanic Crater", "Underwater"]
@@ -62,9 +59,7 @@ def load_data(context, warehouse):
                 arena_id = random.choice(arenas)["arena_id"]
 
                 # Pick a winner
-                winner_id = (
-                    fighter1_id if random.uniform(0, 1) <= 0.5 else fighter2_id
-                )
+                winner_id = fighter1_id if random.uniform(0, 1) <= 0.5 else fighter2_id
 
                 battles.append(
                     {
