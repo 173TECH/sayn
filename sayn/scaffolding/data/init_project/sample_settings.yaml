@@ -23,6 +23,6 @@ credentials:
   dev_db:
     type: sqlite
     database: dev.db
-  dev_db:
+  prod_db:
     type: sqlite
     database: prod.db
