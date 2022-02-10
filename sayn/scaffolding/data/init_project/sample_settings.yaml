@@ -11,11 +11,8 @@ profiles:
       # to specific credential in the final section of this file
       warehouse: dev_db
 
-  prod:
-    credentials:
-      warehouse: prod_db
-
-# This sets your default profile.
+# This sets your default profile, shall you be using multiple profiles.
+# Considering this tutorial only has one profile, this could be deleted.
 default_profile: dev
 
 # These are the credential details for the credentials used in your profile(s).
@@ -23,6 +20,3 @@ credentials:
   dev_db:
     type: sqlite
     database: dev.db
-  prod_db:
-    type: sqlite
-    database: prod.db

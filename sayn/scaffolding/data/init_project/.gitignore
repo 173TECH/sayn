@@ -3,7 +3,7 @@
 /logs/
 settings.yaml
 dev.db
-prod.db
+# prod.db
 
 # Python ignores
 # https://github.com/github/gitignore/blob/master/Python.gitignore
