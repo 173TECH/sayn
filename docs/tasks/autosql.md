@@ -56,7 +56,7 @@ With `autosql` tasks, you should use the `src` macro in your `SELECT` statements
 By using the `{{ src('my_table') }}` in your `FROM` clause, you are effectively telling SAYN that your task depends on the `my_table` table (or view). As a result, SAYN will look for the task that produces `my_table` and set it as a parent of this `autosql` task automatically.
 
 !!! tip
-    When using the `src` macro, you can pass a structure formatted as `schema.table` such as `{{ src(my_schema.my_table) }}`. In this case, SAYN interprets the first element as the schema, the second element as the table or view. If you use `schema_prefix` and / or `table_prefix` in your project settings, SAYN will then prepend the `schema_prefix` to the `schema` value and `table_prefix` to the `table` value. For example, if your `schema_prefix` is set to `analytics` and `table_prefix` to `up` then `{{ src('my_schema.my_table') }}` will compile `analytics_my_schema.up_my_table`.
+    When using the `src` macro, you can pass a structure formatted as `schema.table` such as `{{ src('my_schema.my_table') }}`. In this case, SAYN interprets the first element as the schema, the second element as the table or view. If you use `schema_prefix` and / or `table_prefix` in your project settings, SAYN will then prepend the `schema_prefix` to the `schema` value and `table_prefix` to the `table` value. For example, if your `schema_prefix` is set to `analytics` and `table_prefix` to `up` then `{{ src('my_schema.my_table') }}` will compile `analytics_my_schema.up_my_table`.
 
 ## Advanced Configuration
 
