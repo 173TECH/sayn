@@ -6,18 +6,18 @@ SELECT t.tournament_name
      , w.fighter_name AS winner_name
 
   FROM logs_battles b
-  
-  LEFT JOIN dim_tournaments t
+
+  LEFT JOIN {{ src('dim_tournaments') }} t
     ON b.tournament_id = t.tournament_id
-  
-  LEFT JOIN dim_arenas a
+
+  LEFT JOIN {{ src('dim_arenas') }} a
     ON b.arena_id = a.arena_id
-  
-  LEFT JOIN dim_fighters f1
+
+  LEFT JOIN {{ src('dim_fighters') }} f1
     ON b.fighter1_id = f1.fighter_id
-  
-  LEFT JOIN dim_fighters f2
+
+  LEFT JOIN {{ src('dim_fighters') }} f2
     ON b.fighter2_id = f2.fighter_id
-  
-  LEFT JOIN dim_fighters w
+
+  LEFT JOIN {{ src('dim_fighters') }} w
     ON b.winner_id = w.fighter_id

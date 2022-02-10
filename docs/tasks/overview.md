@@ -56,12 +56,10 @@ The properties defined in the group tell SAYN how to generate tasks:
 
     When SAYN interprets this group, for every file found matching the glob expression in `file_name` a task will be generated and the name of that task will match the name of the file without the extension. For example if the `sql/core` folder in our project contains 2 files called `table1.sql` and `table2.sql` then 2 tasks will be created called `table1` and `table2`. To allow those 2 tasks to create different tables in the database we use Jinja expressions. In this case we just call the result table exactly the name of the task using `"{{ task.name }}"`.
 
-Task `groups` are a convenient way to segment and organise your data processes in your SAYN project. Each YAML file in the `tasks` folder represents a task group.
-
 !!! tip
-    When growing a SAYN project, it is good practice to start separating your tasks in multiple groups (e.g. extracts, core models, marketing models, finance models, data science, etc.) in order to organise processes.
+    When a SAYN project grows, it is good practice to start separating your tasks in multiple groups (e.g. extracts, core models, marketing models, finance models, data science, etc.) in order to organise processes.
 
-This definition of `groups` here is available for `autosql`, `sql` and `python` tasks and you can read more by heading to the corresponding pages.
+This definition of `groups` in the `project.yaml` file is available for `autosql`, `sql` and `python` tasks. You can read more about this by heading to the corresponding pages.
 
 ## Task Attributes
 
