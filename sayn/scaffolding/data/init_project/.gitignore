@@ -2,7 +2,7 @@
 /compile/
 /logs/
 settings.yaml
-# dev.db
+dev.db
 prod.db
 
 # Python ignores
