@@ -14,27 +14,27 @@ As we did for the `autosql` tasks, we will need to add a task group for our Pyth
       models:
         ...
 
-      logs:
+      say_hello:
         type: python
-        module: load_data
+        module: say_hello
   ```
 
 This will do the following:
 
-* Create a task group called `logs`.
+* Create a task group called `say_hello`.
 * All tasks in this group will be of type `python`.
-* All functions using the `task` decorator in the file `python/load_data.py` will be transformed into Python tasks. This file should already exist in your `python` folder and defines one task: `load_data`. All `python` tasks should be stored in the `python` folder where an `__init__.py` file must exist.
+* All functions using the `task` decorator in the file `python/say_hello.py` will be transformed into Python tasks. This file should already exist in your `python` folder and defines one task: `say_hello`. All `python` tasks should be stored in the `python` folder where an `__init__.py` file must exist.
 
 ## Writing Your Python Tasks
 
 ### A Simple Python Task
 
-Our tutorial project has two `python` tasks. It starts with simple Python task that interacts with the task's context. This is the `say_hello` task, defined as follows:
+Our tutorial project has two `python` tasks. It starts with a simple Python task that interacts with the task's context. This is the `say_hello` task in the `python/say_hello.py` file, defined as follows:
 
 ```python
 from sayn import task
 
-@task()
+@task
 def say_hello(context):
     context.info('Hello!')
 ```
@@ -47,7 +47,22 @@ Here are the core concepts to know for running Python tasks with SAYN:
 
 ### Creating Data Logs
 
-The second task in the `python/load_data.py` module actually does something more interesting. It creates some random logs, which is the data you initially had in the logs table of `dev.db`. Let's look at whole the code from the `python/load_data.py` file:
+The second task in the `python/load_data.py` module actually does something more interesting. It creates some random logs, which is the data you initially had in the logs table of `dev.db`. First, let's add this task to `project.yaml` by adding a task group:
+
+!!! "project.yaml"
+  ```yaml
+  ...
+
+  groups:
+      models:
+        ...
+
+      logs:
+        type: python
+        module: load_data
+  ```
+
+Let's look at whole the code from the `python/load_data.py` file:
 
 ```python
 import random

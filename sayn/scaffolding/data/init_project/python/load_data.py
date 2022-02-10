@@ -3,12 +3,6 @@ from uuid import uuid4
 
 from sayn import task
 
-
-@task()
-def say_hello(context):
-    context.info("Hello!")
-
-
 @task(outputs=["logs_arenas", "logs_tournaments", "logs_battles", "logs_fighters"])
 def load_data(context, warehouse):
     fighters = ["Son Goku", "John", "Lucy", "Dr. x", "Carlos", "Dr. y?"]
