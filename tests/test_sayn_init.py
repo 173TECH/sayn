@@ -22,9 +22,8 @@ def test_sayn_init_contents(tmp_root_path):
     with inside_dir(str(tmp_root_path / project_name)):
         assert Path("settings.yaml").exists()
         assert Path("project.yaml").exists()
-        assert Path("tasks", "base.yaml").exists()
-        assert not Path("test.db").exists()
-        assert not Path("prod.db").exists()
+        assert Path("dev.db").exists()
+        assert Path("prod.db").exists()
 
 
 def test_sayn_run_default(tmp_root_path):
