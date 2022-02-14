@@ -83,7 +83,7 @@ class CompileConfig(BaseModel):
     tmp_schema: Optional[str]
     db_schema: Optional[str] = Field(None, alias="schema")
     table: Optional[str]
-    columns: List[Mapping[str, Any]] = list()
+    columns: Optional[List[Union[str, Mapping[str, Any]]]] = list()
     table_properties: Mapping[str, Any] = dict()
     post_hook: List[Mapping[str, Any]] = list()
     tags: Optional[List[str]]
@@ -128,8 +128,8 @@ class AutoSqlTask(SqlTask):
         if "task_name" in self._config_input:
             del self._config_input["task_name"]
 
-        if "columns" in config:
-            self._has_tests = True
+        # if "columns" in config:
+        #     self._has_tests = True
 
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
@@ -233,6 +233,9 @@ class AutoSqlTask(SqlTask):
                 self.test_query = result.value[0]
                 self.test_breakdown = result.value[1]
 
+        if self.test_query:
+            self._has_tests = True
+
         return Ok()
 
     def config_macro(self, **config):
@@ -244,6 +247,7 @@ class AutoSqlTask(SqlTask):
                 }
             )
             task_config_override = CompileConfig(**config)
+
             self.task_config.materialisation = (
                 task_config_override.materialisation or self.task_config.materialisation
             )
@@ -270,7 +274,6 @@ class AutoSqlTask(SqlTask):
             self.task_config.delete_key = (
                 task_config_override.delete_key or self.task_config.delete_key
             )
-
             # Sent to the wrapper
             if task_config_override.on_fail is not None:
                 self._config_input["on_fail"] = task_config_override.on_fail

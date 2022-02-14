@@ -112,9 +112,6 @@ class CopyTask(SqlTask):
         if "task_name" in self._config_input:
             del self._config_input["task_name"]
 
-        if "columns" in config:
-            self._has_tests = True
-
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]
@@ -259,6 +256,9 @@ class CopyTask(SqlTask):
             else:
                 self.test_query = result.value[0]
                 self.test_breakdown = result.value[1]
+
+        if self.test_query:
+            self._has_tests = True
 
         return Ok()
 
