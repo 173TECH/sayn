@@ -85,7 +85,7 @@ Table sorting can be specified under the `ddl` entry in the task definition
         materialisation: table
         destination:
           table: f_battles
-        ddl:
+        table_properties:
           sorting:
             columns:
               - arena_name
@@ -104,7 +104,7 @@ using a compound key (Redshift default). The type of sorting can be changed to i
         materialisation: table
         destination:
           table: f_battles
-        ddl:
+        table_properties:
           sorting:
             type: interleaved
             columns:
@@ -127,7 +127,7 @@ We can also specify the type of distribution: even, all or key based. If not spe
         materialisation: table
         destination:
           table: f_battles
-        ddl:
+        table_properties:
           distribution: all
     ```
 
@@ -142,7 +142,7 @@ If we want to distribute the table by a given column use the following:
         materialisation: table
         destination:
           table: f_battles
-        ddl:
+        table_properties:
           distribution: key(tournament_name)
     ```
 
