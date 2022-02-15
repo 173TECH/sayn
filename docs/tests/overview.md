@@ -25,13 +25,13 @@ Please see below the available SAYN test types:
 
 Tests are defined in a list format using the `tests` subfield for each entry in `columns`. For `unique` and `not_null` you need to include these keywords in the list, while for `allowed_values` we define another list that is populated by the allowed string values for that data field.
 
-For example, we can define tests to verify uniqueness and nullity for an `id` field and allowed values for a `alias` field for the following task in the `core` group:
+For example, we can define tests to verify uniqueness and nullity for the `id` field and allowed values for the `alias` field for the following task in the `core` group:
 
 !!! example "tasks.yaml"
     ```
       task:
         type: autosql
-        file_name: "core/*.sql"
+        file_name: "task.sql"
         materialisation: table
         destination:
           table: "{{ task.name }}"
@@ -47,6 +47,16 @@ For example, we can define tests to verify uniqueness and nullity for an `id` fi
                 - 'second'
                 - 'third'
     ```
+We can also define the tests inside `task.sql` by call `config` from a Jinja tag:
+
+!!! example "tasks.sql"
+    ```
+    {{ config(columns=[ {'name': 'id', 'tests':['unique', 'not_null']},
+                        {'name':'alias', 'tests':['allowed_values':['first','second','third']}]) }}
+
+    SELECT ...
+    ```
+
 
 Custom tests are defined in their own task group called `tests` (defining tasks in an arbitrary `test` group will cause SAYN to fail). `custom` tests are provided with an SQL file that needs to exist in a `tests` folder in the `sql` project folder.
 
@@ -66,5 +76,6 @@ For example, we can define a custom tests that executes the test query presented
     GROUP BY l.arena_id
     HAVING COUNT(*) > 0
     ```
+
 
 You can read more about test types by heading to the corresponding pages.

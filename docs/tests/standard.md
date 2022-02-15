@@ -21,7 +21,7 @@ An example of standard tests being defined for a task is:
     ```
     task:
       type: autosql
-      file_name: "core/*.sql"
+      file_name: "task.sql"
       materialisation: table
       destination:
         table: "{{ task.name }}"
@@ -33,9 +33,18 @@ An example of standard tests being defined for a task is:
               execute: True
         - name: alias
           tests:
-            - allowed_values:
+            - name: allowed_values
               - 'first'
               - 'second'
               - 'third'
               execute: False
+    ```
+We can also define the tests inside `task.sql` by call `config` from a Jinja tag:
+
+!!! example "tasks.sql"
+    ```
+    {{ config(columns=[ {'name': 'id', 'tests':['unique', {'name':'not_null', 'execute':True}]},
+                        {'name':'alias', 'tests':[{'name':'allowed_values':['first','second','third'], execute: False }]}]) }}
+
+    SELECT ...
     ```
