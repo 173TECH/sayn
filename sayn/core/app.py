@@ -63,6 +63,7 @@ class RunArguments:
     profile: Optional[str] = None
     command: Command = Command.UNDEFINED
     upstream_prod: bool = False
+    is_prod: bool = False
 
     include: List
     exclude: List
@@ -265,6 +266,9 @@ class App:
         parameters = settings_dict["parameters"] or dict()
         credentials = settings_dict["credentials"] or dict()
         stringify = settings_dict["stringify"] or dict()
+
+        if len(parameters) == 0 and len(stringify) == 0:
+            self.run_arguments.is_prod = True
 
         # Validate the given parameters
         error_items = set(parameters.keys()) - set(self.project_parameters.keys())
