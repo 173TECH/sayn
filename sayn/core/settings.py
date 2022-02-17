@@ -2,7 +2,7 @@ from copy import deepcopy
 import os
 from pathlib import Path
 import re
-from typing import Any, Mapping, Optional
+from typing import Any, Mapping, Optional, Sequence
 
 from pydantic import BaseModel, validator, ValidationError, Extra
 from ruamel.yaml import YAML
@@ -13,6 +13,7 @@ from .errors import Err, Exc, Ok
 
 RE_ENV_VAR_NAME = re.compile(
     r"SAYN_((?P<stringify>(SCHEMA|TABLE)_(PREFIX|SUFFIX|STRINGIFY))"
+    r"|(?P<from_prod>FROM_PROD)$"
     r"|(?P<type>PARAMETER|CREDENTIAL)_(?P<name>.+))$"
 )
 
@@ -32,6 +33,7 @@ class Environment(BaseModel):
     parameters: Optional[Mapping[str, Any]]
     credentials: Optional[Mapping[str, Mapping[str, Any]]]
     stringify: Optional[Stringify]
+    from_prod: Optional[Sequence[str]]
 
     class Config:
         extra = Extra.forbid
@@ -52,6 +54,7 @@ class SettingsYaml(BaseModel):
         table_prefix: Optional[str]
         table_suffix: Optional[str]
         table_override: Optional[str]
+        from_prod: Optional[Sequence[str]]
 
         class Config:
             extra = Extra.forbid
@@ -104,13 +107,14 @@ class SettingsYaml(BaseModel):
         return v
 
     def get_profile_info(self, profile_name=None):
-        if profile_name is not None:
-            profile_name = profile_name
-        else:
+        if profile_name is None:
             profile_name = self.default_profile
 
         if profile_name not in self.profiles:
             raise ValueError(f'Profile "{profile_name}" not in settings.yaml.')
+
+        if profile_name is None:
+            raise ValueError("Unknown profile")
 
         profile_info = self.profiles[profile_name]
 
@@ -131,6 +135,7 @@ class SettingsYaml(BaseModel):
                 }.items()
                 if v is not None
             },
+            "from_prod": [f for f in profile_info.from_prod or list()],
         }
 
 
@@ -151,18 +156,25 @@ def read_settings():
         settings_yaml = None
 
     # Process the environment variables
-    environment = {"parameters": dict(), "credentials": dict(), "stringify": dict()}
+    environment = {
+        "parameters": dict(),
+        "credentials": dict(),
+        "stringify": dict(),
+        "from_prod": list(),
+    }
     for name, value in os.environ.items():
-        name = RE_ENV_VAR_NAME.match(name)
-        if name is not None:
-            name = name.groupdict()
+        matched_name = RE_ENV_VAR_NAME.match(name)
+        if matched_name is not None:
+            matched_name = matched_name.groupdict()
 
-            if name["type"] is not None:
-                environment[name["type"].lower() + "s"][name["name"]] = YAML().load(
-                    value
-                )
+            if matched_name["type"] is not None:
+                environment[matched_name["type"].lower() + "s"][
+                    matched_name["name"]
+                ] = YAML().load(value)
+            elif matched_name["from_prod"] is not None:
+                environment["from_prod"] = YAML().load(value)
             else:
-                environment["stringify"][name["stringify"].lower()] = value
+                environment["stringify"][matched_name["stringify"].lower()] = value
 
     environment = {k: v for k, v in environment.items() if len(v) > 0}
     try:

@@ -9,7 +9,7 @@ from ..utils.compiler import TaskJinjaEnv
 from ..utils.misc import merge_dicts, merge_dict_list
 from ..utils.dag import upstream, topological_sort
 from ..utils.yaml import read_yaml_file
-from .errors import Err, Ok, SaynMissingFileError
+from .errors import Err, Ok
 
 
 class Project(BaseModel):
@@ -52,6 +52,18 @@ class Project(BaseModel):
             raise ValueError(f'default_db value "{v}" not in required_credentials')
 
         return v
+
+    @validator(
+        *[
+            f"{o}_{t}"
+            for o in ("table", "schema")
+            for t in ("prefix", "suffix", "override")
+        ],
+        allow_reuse=True,
+    )
+    def non_empty_strings(cls, v):
+        if len(v.strip()) != 0:
+            return v.strip()
 
 
 def read_project(project_root=Path(".")):
