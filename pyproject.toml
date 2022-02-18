@@ -14,7 +14,7 @@ include = ["CHANGELOG.md", "NOTICE.md", "mkdocs.yml", "docs/*", "docs/**/*"]
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.11"
 Click = "^8.0"
-jinja2 = "^2.10.3"
+jinja2 = "^3.0.3"
 sqlalchemy = "^1.4.25"
 terminaltables = "^3.1.0"
 pydantic = "^1.8"
