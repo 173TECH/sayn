@@ -1,8 +1,9 @@
 from .bigquery import Bigquery
-from .postgresql import Postgresql
-from .sqlite import Sqlite
+from .dummy import Dummy
 from .mysql import Mysql
+from .postgresql import Postgresql
 from .redshift import Redshift
+from .sqlite import Sqlite
 from .snowflake import Snowflake
 
 drivers = {
@@ -27,8 +28,17 @@ def create(name, name_in_settings, settings, stringify, prod_stringify):
         settings = {k: v for k, v in settings.items() if k not in db_params}
 
         db_obj = drivers[db_type](
-            name, name_in_settings, db_type, common_params, stringify, prod_stringify
+            name,
+            name_in_settings,
+            db_type,
+            common_params,
+            settings,
+            stringify,
+            prod_stringify,
         )
-        db_obj._set_engine(db_obj.create_engine(settings))
 
         return db_obj
+
+
+def create_dummy(name, stringify, prod_stringify):
+    return Dummy(name, name, "dummy", dict(), dict(), stringify, prod_stringify)

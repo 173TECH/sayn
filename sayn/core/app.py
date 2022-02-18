@@ -16,6 +16,7 @@ from ..database import Database
 
 from ..core.project import read_project, read_groups, get_tasks_dict
 from ..core.settings import read_settings
+from ..database.dummy import Dummy
 from ..logging import ConsoleLogger
 from ..utils.python_loader import PythonLoader
 from ..utils.task_query import get_query
@@ -327,10 +328,6 @@ class App:
         if error_items:
             return Err("app", "wrong_credentials", credentials=error_items)
 
-        error_items = set(self.credentials.keys()) - set(credentials.keys())
-        if error_items:
-            return Err("app", "missing_credentials", credentials=error_items)
-
         error_items = [n for n, v in credentials.items() if "type" not in v]
         if error_items:
             return Err("app", "missing_credential_type", credentials=error_items)
@@ -482,6 +479,15 @@ class App:
         exec_connections.update([o.connection_name for o in exec_outputs])
         exec_connections.update([o.connection_name for o in exec_sources])
 
+        # Now that we have done the config for all tasks and we know which
+        # connections are required, check that we have them all
+        connections_setup = {
+            n for n, v in self.connections.items() if not isinstance(v, Dummy)
+        }
+        error_items = exec_connections - connections_setup
+        if error_items:
+            return Err("app", "missing_credentials", credentials=error_items)
+
         # We recalculate the tables to introspect based on whether the upstream_prod
         # flag is set as well and whether this execution creates the object
         if self.run_arguments.upstream_prod:
@@ -519,8 +525,7 @@ class App:
 
         for connection_name in exec_connections:
             db = self.connections[connection_name]
-            # Force a query to test the connection
-            db.execute("select 1")
+            db._activate_connection()  # This call creates the engine and tests the connection
             if isinstance(db, Database):
                 try:
                     db._introspect(to_introspect[connection_name])

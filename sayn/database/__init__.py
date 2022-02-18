@@ -206,12 +206,20 @@ class Database:
     DBObjectFactory = DBObjectFactory
 
     def __init__(
-        self, name, name_in_settings, db_type, common_params, stringify, prod_stringify
+        self,
+        name,
+        name_in_settings,
+        db_type,
+        common_params,
+        settings,
+        stringify,
+        prod_stringify,
     ):
         self.name = name
         self.name_in_settings = name_in_settings
         self.db_type = db_type
         self.max_batch_rows = common_params.get("max_batch_rows", 50000)
+        self._settings = settings
         self._requested_objects = dict()
 
         self._jinja_env = Environment(
@@ -247,9 +255,17 @@ class Database:
         # CANNOT SET SCHEMA
         return feature in ()
 
-    def _set_engine(self, engine):
-        self.engine = engine
-        self.metadata = MetaData(self.engine)
+    def create_engine(self, settings):
+        raise NotImplementedError()
+
+    def _activate_connection(self):
+        self.engine = self.create_engine(self._settings)
+        if self.engine is not None:
+            # We'll have a None engine when the connection is missing from the settings.
+            # We create said object only to allow the config stage to run correctly.
+            self.metadata = MetaData(self.engine)
+            # Force a query to test the connection
+            self.execute("select 1")
 
     def _construct_tests(self, columns, table, schema=None):
         query = """

@@ -8,7 +8,7 @@ from pydantic import BaseModel, validator, ValidationError, Extra
 from ruamel.yaml import YAML
 from ruamel.yaml.error import MarkedYAMLError
 
-from ..database.creator import create as create_db
+from ..database.creator import create as create_db, create_dummy
 from .errors import Err, Exc, Ok
 
 RE_ENV_VAR_NAME = re.compile(
@@ -194,7 +194,12 @@ def get_settings(yaml, environment, profile_name=None):
     elif yaml is not None:
         out = yaml.get_profile_info(profile_name)
     else:
-        out = {"credentials": dict(), "parameters": dict(), "stringify": dict()}
+        out = {
+            "credentials": dict(),
+            "parameters": dict(),
+            "stringify": dict(),
+            "from_prod": list(),
+        }
 
     if profile_name is None and environment is not None:
         # When no profile is specified, and there's something in the environment,
@@ -217,14 +222,18 @@ def get_settings(yaml, environment, profile_name=None):
 
 
 def get_connections(credentials, stringify, prod_stringify):
-    try:
-        return Ok(
-            {
-                name: create_db(name, name, deepcopy(config), stringify, prod_stringify)
-                if config["type"] != "api"
-                else {k: v for k, v in config.items() if k != "type"}
-                for name, config in credentials.items()
-            }
-        )
-    except Exception as e:
-        return Exc(e)
+    out = dict()
+    for name, config in credentials.items():
+        try:
+            if config is None:
+                out[name] = create_dummy(name, stringify, prod_stringify)
+            elif config["type"] == "api":
+                out[name] = {k: v for k, v in config.items() if k != "type"}
+            else:
+                out[name] = create_db(
+                    name, name, deepcopy(config), stringify, prod_stringify
+                )
+        except Exception as e:
+            return Exc(e)
+
+    return Ok(out)
