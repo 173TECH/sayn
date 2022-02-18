@@ -172,7 +172,7 @@ def read_settings():
                     matched_name["name"]
                 ] = YAML().load(value)
             elif matched_name["from_prod"] is not None:
-                environment["from_prod"] = YAML().load(value)
+                environment["from_prod"] = [v.strip() for v in value.split(",")]
             else:
                 environment["stringify"][matched_name["stringify"].lower()] = value
 
@@ -209,6 +209,9 @@ def get_settings(yaml, environment, profile_name=None):
             out["stringify"].update(
                 {k: v for k, v in environment.stringify if v is not None}
             )
+
+        if environment.from_prod is not None:
+            out["from_prod"] = environment.from_prod
 
     return Ok(out)
 

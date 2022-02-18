@@ -315,6 +315,8 @@ def get_tasks_dict(
         elif group_definition.get("type") == "python":
             group_definition["group"] = group_name
             group_definition["type"] = "python_module"
+            if "module" not in group_definition:
+                return Err("task", "missing_module", group=group_name)
             module_path = group_definition.pop("module", None)
             result = python_loader.get_objects(
                 "python_tasks", module_path, DecoratorTaskWrapper

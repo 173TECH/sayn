@@ -266,6 +266,7 @@ class App:
         parameters = settings_dict["parameters"] or dict()
         credentials = settings_dict["credentials"] or dict()
         stringify = settings_dict["stringify"] or dict()
+        self.from_prod = settings_dict["from_prod"]
 
         if len(parameters) == 0 and len(stringify) == 0:
             self.run_arguments.is_prod = True
@@ -399,8 +400,8 @@ class App:
                     duration=datetime.now() - start_ts,
                     result=result_error,
                 )
-            else:
 
+            else:
                 result = task_objects[task_name].config(
                     task,
                     self.project_parameters,
