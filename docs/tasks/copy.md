@@ -4,7 +4,9 @@
 
 The `copy` task copies tables from one database to another. It can be used to automatically
 ingest data from operational databases (e.g. PostgreSQL) to your analytics warehouse.
-Copy tasks can only be defined in YAML groups in the tasks folder, not directly in `project.yaml`.
+
+!!! attention
+    Copy tasks can only be defined in YAML groups in the tasks folder, not directly in `project.yaml`.
 
 ## Defining `copy` Tasks
 

@@ -2,13 +2,14 @@
 
 ## About
 
-The `python` task allows you run python scripts. Therefore, those tasks can do anything Python can
+The `python` task allows you to run python scripts. Therefore, those tasks can do anything Python can
 do. They are extremely useful for data extraction or data science models.
 
-## Defining `python` Tasks
+There are two models for specifying python tasks in SAYN: a simple way through using decorators and a more advanced way which is class based.
 
-There are 2 models for specifying python tasks: decorator and class based. A decorator based tasks is defined
-by first adding a group in `project.yaml` pointing to the `.py` file where the task code lives:
+## Simple Definition of `python` Tasks
+
+You can define `python` tasks in SAYN very simply by using decorators. This will let you write a Python function and turn that function into a task. First, you need to add a group in `project.yaml` pointing to the `.py` file where the task code lives:
 
 !!! example "project.yaml"
     ```
@@ -20,10 +21,7 @@ by first adding a group in `project.yaml` pointing to the `.py` file where the t
           param1: some_value
     ```
 
-Now all tasks defined in `python/decorator_tasks.py` will be added to the DAG. The `module` property expects
-a python path from the `python` folder in a similar way as you would import a module in python. For example,
-if our task definition exists in `python/example_mod/decorator_tasks.py` the value in `module` would be
-`example_mod.decorator_tasks`.
+Now all tasks defined in `python/decorator_tasks.py` will be added to the DAG. The `module` property expects a python path from the `python` folder in a similar way as you would import a module in python. For example, if our task definition exists in `python/example_mod/decorator_tasks.py` the value in `module` would be `example_mod.decorator_tasks`.
 
 !!! example "python/decorator_tasks.py"
     ```
@@ -42,14 +40,13 @@ The above example showcases the key elements to a python task:
   * parameters to `task`: we can pass parameters `sources`, `outputs` and `parents` which are either lists of table names or a single table name. This allows SAYN define the task dependencies.
   * function name: the name of the function (`example_task` here) will be the name of the task. We can use this name with `-t` to execute this task only for example.
   * function parameters: arguments to the function have special meaning and so the names need to be respected:
-    * context: is an object granting access to some functionality like project parameters, connections and other functions as seen further down.
-    * warehouse: connection names (`required_credentials` in `project.yaml`) will automatically provide the object of that connection. You can specify any number of connections here.
+    * `context`: is an object granting access to some functionality like project parameters, connections and other functions as seen further down.
+    * `warehouse`: connection names (`required_credentials` in `project.yaml`) will automatically provide the object of that connection. You can specify any number of connections here.
     * param1: the rest of the function arguments are matched against task parameters, these are values defined in the `parameter` property in the group.
 
 !!! info "Python decorators"
-    Decorators in python are used to modify the behaviour of a function. It can be a bit daunting to understand
-    when we first encounter them but for the purpose of SAYN all you need to know that `@task` turns a standard python
-    function into a SAYN task passing via arguments useful objects. There are many resources online describing how decorators work,
+    Decorators in python are used to modify the behaviour of a function. It can be a bit daunting to understand when we first encounter them but for the purpose of SAYN all you need to know is that `@task` turns a standard python
+    function into a SAYN task which can assess useful properties via arguments. There are many resources online describing how decorators work,
     [for example this](https://realpython.com/primer-on-python-decorators/).
 
 Given the code above, this task will:
@@ -60,12 +57,11 @@ Given the code above, this task will:
     make sure you check [the database objects page](../database_objects.md).
   * Execute a create table statement using the tables above on the database called `warehouse` in the project.
 
-## Advanced usage with classes
+## Advanced `python` Task Definition With Classes
 
-The second model for defining python tasks is uses classes. When using this model we get an opportunity to:
+The second model for defining python tasks is through classes. When using this model we get an opportunity to:
 
-  * do validation before the task is executed by overloading the `setup` method, which is useful as a way to alert early during the
-    execution that something is incorrectly defined rather than waiting for the task to fail.
+  * do validation before the task is executed by overloading the `setup` method, which is useful as a way to alert early during the execution that something is incorrectly defined rather than waiting for the task to fail.
   * define more complex dependencies than `sources` and `outputs` by overloading the `config` method.
   * implement code for the `compile` stage allowing for more early stage indication of problems.
 
@@ -78,15 +74,7 @@ A `python` task using classes is defined as follows:
       class: file_name.ClassName
     ```
 
-Where `class` is a python path to the Python class implementing the task. This code should be stored in the
-`python` of your project, which in itself is a python module that's dynamically loaded, so it needs an empty
-`__init__.py` file in the folder.
-
-## Writing A `python` Task
-
-### Basics
-
-The basic code to construct a python task is:
+Where `class` is a python path to the Python class implementing the task. This code should be stored in the `python` folder of your project, which in itself is a python module that's dynamically loaded, so it needs an empty `__init__.py` file in the folder. The class then needs to be defined as follows:
 
 !!! example "python/file_name.py"
     ``` python
@@ -110,39 +98,27 @@ The basic code to construct a python task is:
 In this example:
 
 * We create a new class inheriting from SAYN's PythonTask.
-* We set some dependencies by calling `self.src` and `self.out`
+* We set some dependencies by calling `self.src` and `self.out`.
 * We define a setup method to do some sanity checks. This method can be skipped, but it's
   useful to check the validity of project parameters or so some initial setup.
 * We define the actual process to execute during `sayn run` with the `run` method.
-* Both `setup` and `run` return the task status as successful `return self.success()`, however
-  we can indicate a task failure to sayn with `return self.fail()`. Failing a python task
-  forces child tasks to be skipped.
+* Both `setup` and `run` return the task status as successful `return self.success()`, however we can indicate a task failure to sayn with `return self.fail()`. Failing a python task forces child tasks to be skipped.
 
 ???+ attention
-     Python tasks can return `self.success()` or `self.fail()` to indicate the result of the execution,
-     but it's not mandatory. If the code throws a python exception, the task will be considered as failed.
+     Python tasks can return `self.success()` or `self.fail()` to indicate the result of the execution, but it's not mandatory. If the code throws a python exception, the task will be considered as failed.
 
-### Using the SAYN API
+## Using the SAYN API
 
-When defining our python task, you would want to access parts of the SAYN infrastructure like
-parameters and connections. When using the decorator model, to access this functionality we need to include
-the `context` argument in the function, when using the class model the more standard `self` is used, and both
-give access to the same functionality. The list of available properties through `self` and `context` is:
+When defining our `python` task, you would want to access parts of the SAYN infrastructure like
+parameters and connections. When using the decorator model, to access this functionality we need to include the `context` argument in the function, when using the class model the more standard `self` is used, and both give access to the same functionality. The list of available properties through `self` and `context` is:
 
 * `parameters`: accesses project and task parameters. For more details on `parameters`,
   see the [Parameters](../parameters.md) section.
-* `run_arguments`: provides access to the arguments passed to the `sayn run` command like
-  the incremental values (`full_load`, `start_dt` and `end_dt`).
-* `connections`: dictionary containing the databases and other custom API credentials. API
-  connections appear as simple python dictionaries, while databases are SAYN's [Database](../api/database.md)
-  objects.
+* `run_arguments`: provides access to the arguments passed to the `sayn run` command like the incremental values (`full_load`, `start_dt` and `end_dt`).
+* `connections`: dictionary containing the databases and other custom API credentials. API connections appear as simple python dictionaries, while databases are SAYN's [Database](../api/database.md) objects.
 * `default_db`: provides access to the `default_db` database object specified in the `project.yaml` file.
-* `src`: the `src` macro that translates database object names as described in [database objects](../database_objects.md).
-  Bear in mind that using this function also adds dependencies to the task, but only when called from the `config` method
-  of a python task defined with the class model.
-* `out`: the `out` macro that translates database object names as described in [database objects](../database_objects.md).
-  Bear in mind that using this function also creates dependencies between tasks, but only when called from the `config`
-  method of a python task defined with the class model.
+* `src`: the `src` macro that translates database object names as described in [database objects](../database_objects.md). Bear in mind that using this function also adds dependencies to the task, but only when called from the `config` method of a python task defined with the class model.
+* `out`: the `out` macro that translates database object names as described in [database objects](../database_objects.md). Bear in mind that using this function also creates dependencies between tasks, but only when called from the `config` method of a python task defined with the class model.
 
 !!! tip
     You can use `self.default_db` to easily perform some operations on the default database such as reading or
@@ -155,15 +131,14 @@ give access to the same functionality. The list of available properties through 
     * with the `pandas.DataFrame.to_sql` method: `df.to_sql(self.default_db.engine, 'table')`.
     * with the `self.default_db.load_data` method: `self.default_db.load_data('table', df.to_dict('records'))`.
 
-### Logging For `python` Tasks With The SAYN API
+## Logging For `python` Tasks With The SAYN API
 
 The unit of process within a task in SAYN is the `step`. Using steps is useful to indicate current
-progress of execution but also for debugging purposes. The [tutorial](../tutorials/tutorial_part1.md)
-is a good example of usage, as we define the `load_data` task as having 5 steps:
+progress of execution but also for debugging purposes. The [tutorial](../tutorials/tutorial_part3.md) is a good example of usage, as we define the `load_data` task as having 5 steps:
 
 !!! example "python/load_data.py"
     ```python
-       self.set_run_steps(
+       context.set_run_steps(
            [
                "Generate Data",
                "Load fighters",
@@ -179,7 +154,7 @@ of that step with:
 
 !!! example "python/load_data.py"
     ```python
-    with self.step('Generate Data'):
+    with context.step('Generate Data'):
         data_to_load = get_data(tournament_battles)
     ```
 
