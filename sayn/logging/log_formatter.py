@@ -217,6 +217,16 @@ class LogFormatter:
             level = "error"
             message = self.bad(error.details["error_message"])
 
+        elif error.kind == "dag" and error.code == "empty_dag":
+            level = "error"
+            message = self.bad("No tasks defined in this project")
+
+        elif error.kind == "dag" and error.code == "empty_group":
+            level = "error"
+            message = self.bad(
+                f'Group "{error.details["group"]}" contains no tasks. Please check the "file_name" property'
+            )
+
         elif error.code == "wrong_credentials":
             level = "error"
             message = self.bad(

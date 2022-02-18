@@ -71,17 +71,13 @@ The `project.yaml` file is at the root level of your directory and contains:
 
     default_db: warehouse
 
-    presets:
+    groups:
       models:
         type: autosql
-        file_name: "{{ task.group }}/*.sql"
+        file_name: "*.sql"
         materialisation: table
         destination:
           table: "{{ task.name }}"
-
-    groups:
-      models:
-        preset: models
 
       logs:
         type: python

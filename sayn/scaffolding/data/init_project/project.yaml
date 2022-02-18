@@ -8,15 +8,11 @@ required_credentials:
 # Credential used by sql and autosql tasks
 default_db: warehouse
 
-presets:
-  models:
-    type: autosql
-    file_name: "{{ task.group }}/*.sql"
-    materialisation: table
-    destination:
-      table: "{{ task.name }}"
-
 # these groups define the tasks that will be picked up by SAYN
 groups:
   models:
-    preset: models
+    type: autosql
+    file_name: "*.sql"
+    materialisation: table
+    destination:
+      table: "{{ task.name }}"

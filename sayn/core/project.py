@@ -292,7 +292,9 @@ def get_tasks_dict(
             file_glob = compiler.compile(
                 group_definition["file_name"], task=TaskJinjaEnv(group=group_name)
             )
+            found_file = False
             for file in Path(sql_folder).glob(file_glob):
+                found_file = True
                 task_name = file.stem
                 if task_name in tasks:
                     return Err(
@@ -312,6 +314,9 @@ def get_tasks_dict(
                     errors[task_name] = result.error
 
                 tasks[task_name] = task
+
+            if not found_file:
+                return Err("dag", "empty_group", group=group_name)
 
         elif group_definition.get("type") == "python":
             group_definition["group"] = group_name

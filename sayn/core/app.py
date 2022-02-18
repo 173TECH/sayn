@@ -363,6 +363,10 @@ class App:
         # We first need to do the config of tasks
         failed_tasks = list()
         task_objects = dict()
+
+        if len(tasks) == 0:
+            self.finish_app(Err("dag", "empty_dag"))
+
         for task_name, task in tasks.items():
             task_tracker = self.tracker.get_task_tracker(task_name)
             task_tracker._report_event("start_stage")
@@ -505,6 +509,19 @@ class App:
 
         # We recalculate the tables to introspect based on whether the upstream_prod
         # flag is set as well and whether this execution creates the object
+        # def is_from_prod(obj):
+        #     if self.run_arguments.upstream_prod:
+        #         from_prod = set([o for o in exec_sources if o not in exec_outputs])
+        #     else:
+        #         from_prod = set()
+
+        #     if obj in from_prod:
+        #         (obj.connection_name, obj.schema_prod_value, obj.object_prod_value)
+        #     else:
+        #         (obj.connection_name, obj.schema_value, obj.object_value)
+
+        # import IPython;IPython.embed()
+
         if self.run_arguments.upstream_prod:
             # Now we calculate the objects that will come from prod
             from_prod = set([o for o in exec_sources if o not in exec_outputs])
