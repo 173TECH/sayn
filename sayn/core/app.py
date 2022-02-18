@@ -4,6 +4,7 @@ from itertools import groupby
 from pathlib import Path
 import shutil
 from uuid import UUID, uuid4
+import re
 import sys
 from typing import List, Optional
 
@@ -323,6 +324,19 @@ class App:
 
         self.stringify = get_stringify(self.input_stringify)
         self.prod_stringify = get_stringify(self.input_prod_stringify)
+        self.raw_stringify = get_stringify(
+            {
+                "database_prefix": None,  # project.database_prefix,
+                "database_suffix": None,  # project.database_suffix,
+                "database_override": None,  # project.database_override,
+                "schema_prefix": None,
+                "schema_suffix": None,
+                "schema_override": None,
+                "table_prefix": None,
+                "table_suffix": None,
+                "table_override": None,
+            }
+        )
 
         # Validate credentials
         error_items = set(credentials.keys()) - set(self.credentials.keys())
@@ -336,7 +350,13 @@ class App:
         self.credentials.update(credentials)
 
         # Create connections
-        result = get_connections(self.credentials, self.stringify, self.prod_stringify)
+        result = get_connections(
+            self.credentials,
+            self.stringify,
+            self.prod_stringify,
+            self.raw_stringify,
+            self.default_db,
+        )
         if result.is_err:
             return result
         else:
@@ -509,38 +529,26 @@ class App:
 
         # We recalculate the tables to introspect based on whether the upstream_prod
         # flag is set as well and whether this execution creates the object
-        # def is_from_prod(obj):
-        #     if self.run_arguments.upstream_prod:
-        #         from_prod = set([o for o in exec_sources if o not in exec_outputs])
-        #     else:
-        #         from_prod = set()
+        def is_from_prod(exec_outputs, obj):
 
-        #     if obj in from_prod:
-        #         (obj.connection_name, obj.schema_prod_value, obj.object_prod_value)
-        #     else:
-        #         (obj.connection_name, obj.schema_value, obj.object_value)
+            if self.run_arguments.upstream_prod:
+                if obj not in exec_outputs:
+                    return True
 
-        # import IPython;IPython.embed()
+            for regex in self.from_prod:
+                if re.match(regex, obj.get_value_raw()) is not None:
+                    return True
+            return False
 
-        if self.run_arguments.upstream_prod:
-            # Now we calculate the objects that will come from prod
-            from_prod = set([o for o in exec_sources if o not in exec_outputs])
-            to_introspect = set(
-                [
-                    (o.connection_name, o.schema_prod_value, o.object_prod_value)
-                    if o not in from_prod
-                    else (o.connection_name, o.schema_value, o.object_value)
-                    for o in exec_sources
-                ]
-            )
-        else:
-            from_prod = set()
-            to_introspect = set(
-                [
-                    (o.connection_name, o.schema_value, o.object_value)
-                    for o in exec_sources
-                ]
-            )
+        from_prod = set([o for o in exec_sources if is_from_prod(exec_outputs, o)])
+        to_introspect = set(
+            [
+                (o.connection_name, o.schema_prod_value, o.object_prod_value)
+                if is_from_prod(from_prod, o)
+                else (o.connection_name, o.schema_value, o.object_value)
+                for o in exec_sources
+            ]
+        )
 
         to_introspect.update(
             [(o.connection_name, o.schema_value, o.object_value) for o in exec_outputs]

@@ -18,6 +18,31 @@ RE_ENV_VAR_NAME = re.compile(
 )
 
 
+class TableGlob(str):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v):
+        if not isinstance(v, str):
+            raise TypeError("string required")
+        m = re.match(
+            r"((?P<schema>[a-zA-Z\*][_0-9a-zA-Z\*]*).)?(?P<table>[a-zA-Z\*][_0-9a-zA-Z\*]*)",
+            v,
+        )
+        if not m:
+            raise ValueError("invalid table specification")
+
+        out = ""
+        if m.groupdict()["schema"] is not None:
+            out += m.groupdict()["schema"].replace("*", ".*") + r"\."
+        if m.groupdict()["schema"] is not None:
+            out += m.groupdict()["table"].replace("*", ".*")
+
+        return cls(out)
+
+
 class Environment(BaseModel):
     class Stringify(BaseModel):
         # database_prefix: Optional[str]
@@ -33,7 +58,7 @@ class Environment(BaseModel):
     parameters: Optional[Mapping[str, Any]]
     credentials: Optional[Mapping[str, Mapping[str, Any]]]
     stringify: Optional[Stringify]
-    from_prod: Optional[Sequence[str]]
+    from_prod: Optional[Sequence[TableGlob]]
 
     class Config:
         extra = Extra.forbid
@@ -54,7 +79,7 @@ class SettingsYaml(BaseModel):
         table_prefix: Optional[str]
         table_suffix: Optional[str]
         table_override: Optional[str]
-        from_prod: Optional[Sequence[str]]
+        from_prod: Optional[Sequence[TableGlob]]
 
         class Config:
             extra = Extra.forbid
@@ -221,17 +246,25 @@ def get_settings(yaml, environment, profile_name=None):
     return Ok(out)
 
 
-def get_connections(credentials, stringify, prod_stringify):
+def get_connections(credentials, stringify, prod_stringify, raw_stringify, default_db):
     out = dict()
     for name, config in credentials.items():
         try:
             if config is None:
-                out[name] = create_dummy(name, stringify, prod_stringify)
+                out[name] = create_dummy(
+                    name, stringify, prod_stringify, raw_stringify, name == default_db
+                )
             elif config["type"] == "api":
                 out[name] = {k: v for k, v in config.items() if k != "type"}
             else:
                 out[name] = create_db(
-                    name, name, deepcopy(config), stringify, prod_stringify
+                    name,
+                    name,
+                    deepcopy(config),
+                    stringify,
+                    prod_stringify,
+                    raw_stringify,
+                    name == default_db,
                 )
         except Exception as e:
             return Exc(e)

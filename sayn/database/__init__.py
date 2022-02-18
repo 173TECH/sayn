@@ -113,6 +113,16 @@ class DbObject:
         self.value = ""
         self.prod_value = ""
 
+        self.raw_value = ""
+        if self.database is not None:
+            self.raw_value += self.database + "."
+
+        if self.schema is not None:
+            self.raw_value += self.schema + "."
+
+        if self.object is not None:
+            self.raw_value += self.object
+
         if self.database is not None:
             self.database_value = self.stringify["database"].compile(
                 database=self.database, connection=connection_name
@@ -160,6 +170,9 @@ class DbObject:
     def get_key(self):
         return f"{self.connection_name}:{self.database or ''}.{self.schema or ''}.{self.object}"
 
+    def get_value_raw(self):
+        return self.raw_value
+
     def get_value(self):
         return self.value
 
@@ -168,10 +181,18 @@ class DbObject:
 
 
 class DBObjectFactory:
-    def __init__(self, connection_name, stringify, prod_stringify):
+    def __init__(
+        self, connection_name, stringify, prod_stringify, raw_stringify, is_default
+    ):
         self.connection_name = connection_name
-        self.stringify = stringify
-        self.prod_stringify = prod_stringify
+        if is_default:
+            self.stringify = stringify
+        else:
+            self.stringify = raw_stringify
+        if is_default:
+            self.prod_stringify = prod_stringify
+        else:
+            self.prod_stringify = raw_stringify
 
     def from_components(self, database, schema, object):
         return DbObject(
@@ -214,6 +235,8 @@ class Database:
         settings,
         stringify,
         prod_stringify,
+        raw_stringify,
+        is_default=False,
     ):
         self.name = name
         self.name_in_settings = name_in_settings
@@ -221,6 +244,7 @@ class Database:
         self.max_batch_rows = common_params.get("max_batch_rows", 50000)
         self._settings = settings
         self._requested_objects = dict()
+        self._is_default = is_default
 
         self._jinja_env = Environment(
             loader=FileSystemLoader(Path(__file__).parent / "templates"),
@@ -234,7 +258,7 @@ class Database:
         )
 
         self._object_builder = self.DBObjectFactory(
-            self.name, stringify, prod_stringify
+            self.name, stringify, prod_stringify, raw_stringify, self._is_default
         )
 
     def feature(self, feature):
