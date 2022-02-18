@@ -48,7 +48,6 @@ class TaskWrapper:
       in_query (bool): whether the task is selected for execution based on the task query
       runner (Task): the object that will do the actual work
       status (TaskStatus): the current status of the task
-
     """
 
     name: str

@@ -360,6 +360,7 @@ class App:
 
     def set_tasks(self, tasks):
         # We first need to do the config of tasks
+        failed_tasks = list()
         task_objects = dict()
         for task_name, task in tasks.items():
             task_tracker = self.tracker.get_task_tracker(task_name)
@@ -370,6 +371,7 @@ class App:
             if result.is_err:
                 task_class = None
                 result_error = result
+                failed_tasks.append(task_name)
             else:
                 task_class = result.value
                 result_error = None
@@ -405,9 +407,21 @@ class App:
                     task.get("parameters"),
                 )
 
+                if result.is_err:
+                    failed_tasks.append(task_name)
+
                 task_tracker._report_event(
                     "finish_stage", duration=datetime.now() - start_ts, result=result
                 )
+
+        if len(failed_tasks) > 0:
+            # If any tasks fail to do config, we can't ensure the DAG is correct, so we abort
+            self.tasks = task_objects
+            self.tracker.finish_current_stage(
+                tasks={k: v.status for k, v in self.tasks.items()}
+            )
+
+            self.finish_app()
 
         # Now that all tasks are configured, we set the relationships so that we
         # can calculate the dag
