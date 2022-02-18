@@ -312,6 +312,7 @@ def get_tasks_dict(
                     errors[task_name] = result.error
 
                 tasks[task_name] = task
+
         elif group_definition.get("type") == "python":
             group_definition["group"] = group_name
             group_definition["type"] = "python_module"

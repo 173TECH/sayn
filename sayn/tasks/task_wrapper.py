@@ -2,7 +2,8 @@ from copy import deepcopy
 import re
 from typing import Any, Dict, Optional, Set
 
-from sayn.database import Database
+from ..database import Database
+from ..database.dummy import Dummy
 
 from ..core.errors import Err, Exc, Ok, Result
 from ..utils.misc import map_nested
@@ -279,6 +280,9 @@ class TaskWrapper:
         if result.is_err or result.value == TaskStatus.SKIPPED:
             return result
 
+        if self.runner is None:
+            return Ok()
+
         self.in_query = in_query
         self.status = TaskStatus.SETTING_UP
 
@@ -286,6 +290,12 @@ class TaskWrapper:
             self.status = TaskStatus.NOT_IN_QUERY
             return Ok()
         else:
+            # Clear all the dummy connections
+            self.runner.connections = {
+                n: None if isinstance(o, Dummy) else o
+                for n, o in self.runner.connections.items()
+            }
+
             needs_recompile = False
             for s in self.sources:
                 if s in sources_from_prod:
@@ -333,6 +343,9 @@ class TaskWrapper:
         result = self.check_skip()
         if result.is_err or result.value == TaskStatus.SKIPPED:
             return result
+
+        if self.runner is None:
+            return Ok()
 
         if not self.in_query:
             # TODO review this as it should never happend if running sayn cli
