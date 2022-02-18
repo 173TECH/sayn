@@ -112,6 +112,7 @@ class TaskWrapper:
                 "full_load": run_arguments.full_load,
                 "start_dt": run_arguments.start_dt,
                 "end_dt": run_arguments.end_dt,
+                "dates_specified": run_arguments.dates_specified,
                 "command": run_arguments.command.value,
                 "is_prod": run_arguments.is_prod,
                 "folders": {

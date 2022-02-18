@@ -60,6 +60,7 @@ class RunArguments:
     full_load: bool = False
     start_dt: date = date.today() - timedelta(days=1)
     end_dt: date = date.today() - timedelta(days=1)
+    dates_specified: bool = False
     debug: bool = False
     profile: Optional[str] = None
     command: Command = Command.UNDEFINED
