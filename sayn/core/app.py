@@ -525,8 +525,12 @@ class App:
 
         for connection_name in exec_connections:
             db = self.connections[connection_name]
-            db._activate_connection()  # This call creates the engine and tests the connection
             if isinstance(db, Database):
+                try:
+                    db._activate_connection()  # This call creates the engine and tests the connection
+                except Exception as exc:
+                    return Exc(exc, where="create_connection")
+
                 try:
                     db._introspect(to_introspect[connection_name])
                 except Exception as exc:
