@@ -17,6 +17,13 @@ RE_ENV_VAR_NAME = re.compile(
     r"|(?P<type>PARAMETER|CREDENTIAL)_(?P<name>.+))$"
 )
 
+RE_DEFAULT_RUN_VAL = re.compile(
+    r"^( *(?:(?:-t|--tasks|-x|--exclude)(?: +(?:group\:|tag\:)?[a-zA-Z][a-zA-Z_0-9]+)+|-u|--upstream-prod))+$"
+)
+RE_DEFAULT_RUN = re.compile(
+    r" *((?:-t|--tasks|-x|--exclude)(?: +(?:group\:|tag\:)?[a-zA-Z][a-zA-Z_0-9]+)+|-u|--upstream-prod)"
+)
+
 
 class TableGlob(str):
     @classmethod
@@ -80,10 +87,39 @@ class SettingsYaml(BaseModel):
         table_suffix: Optional[str]
         table_override: Optional[str]
         from_prod: Optional[Sequence[TableGlob]]
+        default_run: Optional[str]
 
         class Config:
             extra = Extra.forbid
             anystr_lower = True
+
+        @validator("default_run")
+        def default_run_validator(cls, v):
+            m = RE_DEFAULT_RUN_VAL.match(v)
+            if m is None:
+                raise ValueError(
+                    f'Invalid default_run specification "{v}". Allowed arguments: -t/--tasks, -x/--exclude and -u/--upstream-prod'
+                )
+
+            include = set()
+            exclude = set()
+            upstream_prod = None
+            for arg in RE_DEFAULT_RUN.findall(v):
+                arg = arg.strip()
+                if arg.startswith("-t") or arg.startswith("--tasks"):
+                    include.update(arg.split(" ")[1:])
+                elif arg.startswith("-x") or arg.startswith("--exclude"):
+                    exclude.update(arg.split(" ")[1:])
+                elif arg.startswith("-u") or arg.startswith("--upstream-prod"):
+                    upstream_prod = True
+                else:
+                    raise ValueError('Incorrect option in default_run "{arg}"')
+
+            return {
+                "include": include,
+                "exclude": exclude,
+                "upstream_prod": upstream_prod,
+            }
 
     credentials: Mapping[str, Mapping]
     profiles: Mapping[str, Profile]
@@ -161,6 +197,8 @@ class SettingsYaml(BaseModel):
                 if v is not None
             },
             "from_prod": [f for f in profile_info.from_prod or list()],
+            "default_run": profile_info.default_run
+            or {"include": set(), "exclude": set(), "upstream_prod": None},
         }
 
 

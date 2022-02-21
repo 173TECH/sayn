@@ -60,10 +60,10 @@ class CliApp(App):
         self.run_arguments.full_load = full_load
 
         if include is not None:
-            self.run_arguments.include = include
+            self.run_arguments.include = set(include)
 
         if exclude is not None:
-            self.run_arguments.exclude = exclude
+            self.run_arguments.exclude = set(exclude)
 
         if upstream_prod is not None:
             self.run_arguments.upstream_prod = upstream_prod

@@ -4,9 +4,8 @@ from itertools import groupby
 from pathlib import Path
 import shutil
 from uuid import UUID, uuid4
-import re
 import sys
-from typing import List, Optional
+from typing import Optional, Set
 
 from ..tasks.task_wrapper import TaskWrapper
 from ..utils.dag import query as dag_query, topological_sort
@@ -69,13 +68,13 @@ class RunArguments:
     upstream_prod: bool = False
     is_prod: bool = False
 
-    include: List
-    exclude: List
+    include: Set[str]
+    exclude: Set[str]
 
     def __init__(self):
         self.folders = self.Folders()
-        self.include = list()
-        self.exclude = list()
+        self.include = set()
+        self.exclude = set()
 
     def update(self, **kwargs):
         if "command" in kwargs:
@@ -320,6 +319,14 @@ class App:
             self.input_prod_stringify,
             self.from_prod,
         )
+
+        # Check the default_run setting and update run arguments
+        self.run_arguments.include.update(settings_dict["default_run"]["include"])
+        self.run_arguments.exclude.update(settings_dict["default_run"]["exclude"])
+        if settings_dict["default_run"]["upstream_prod"] is not None:
+            self.run_arguments.upstream_prod = settings_dict["default_run"][
+                "upstream_prod"
+            ]
 
         return Ok()
 
