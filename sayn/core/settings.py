@@ -37,7 +37,7 @@ class TableGlob(str):
         out = ""
         if m.groupdict()["schema"] is not None:
             out += m.groupdict()["schema"].replace("*", ".*") + r"\."
-        if m.groupdict()["schema"] is not None:
+        if m.groupdict()["table"] is not None:
             out += m.groupdict()["table"].replace("*", ".*")
 
         return cls(out)
@@ -246,14 +246,12 @@ def get_settings(yaml, environment, profile_name=None):
     return Ok(out)
 
 
-def get_connections(credentials, stringify, prod_stringify, raw_stringify, default_db):
+def get_connections(credentials):
     out = dict()
     for name, config in credentials.items():
         try:
             if config is None:
-                out[name] = create_dummy(
-                    name, stringify, prod_stringify, raw_stringify, name == default_db
-                )
+                out[name] = create_dummy(name)
             elif config["type"] == "api":
                 out[name] = {k: v for k, v in config.items() if k != "type"}
             else:
@@ -261,10 +259,6 @@ def get_connections(credentials, stringify, prod_stringify, raw_stringify, defau
                     name,
                     name,
                     deepcopy(config),
-                    stringify,
-                    prod_stringify,
-                    raw_stringify,
-                    name == default_db,
                 )
         except Exception as e:
             return Exc(e)

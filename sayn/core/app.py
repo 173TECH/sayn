@@ -17,7 +17,8 @@ from ..database import Database
 
 from ..core.project import read_project, read_groups, get_tasks_dict
 from ..core.settings import read_settings
-from ..database.dummy import Dummy
+from ..database.unknown import UnknownDb
+from ..database.objects import DbObjectCompiler
 from ..logging import ConsoleLogger
 from ..utils.python_loader import PythonLoader
 from ..utils.task_query import get_query
@@ -290,54 +291,6 @@ class App:
             self.run_arguments, self.project_parameters, self.prod_project_parameters
         )
 
-        # Now we can set the final stringify objects
-        self.input_stringify.update(stringify)
-
-        def get_stringify(input_stringify):
-            """Builds the final stringify"""
-
-            # The default is a jinja template with the object name, meaning no modifications to the input
-            stringify = {key: "{{ " + key + " }}" for key in ("schema", "table")}
-
-            for obj_type in ("schema", "table"):
-                if input_stringify.get(f"{obj_type}_override") is not None:
-                    # if *_override is defined, use that
-                    stringify[obj_type] = input_stringify[f"{obj_type}_override"]
-                else:
-                    if input_stringify.get(f"{obj_type}_prefix") is not None:
-                        stringify[obj_type] = (
-                            input_stringify[f"{obj_type}_prefix"]
-                            + "_"
-                            + stringify[obj_type]
-                        )
-
-                    if input_stringify.get(f"{obj_type}_suffix") is not None:
-                        stringify[obj_type] = (
-                            stringify[obj_type]
-                            + "_"
-                            + input_stringify[f"{obj_type}_suffix"]
-                        )
-
-            stringify = {k: self.compiler.prepare(v) for k, v in stringify.items()}
-
-            return stringify
-
-        self.stringify = get_stringify(self.input_stringify)
-        self.prod_stringify = get_stringify(self.input_prod_stringify)
-        self.raw_stringify = get_stringify(
-            {
-                "database_prefix": None,  # project.database_prefix,
-                "database_suffix": None,  # project.database_suffix,
-                "database_override": None,  # project.database_override,
-                "schema_prefix": None,
-                "schema_suffix": None,
-                "schema_override": None,
-                "table_prefix": None,
-                "table_suffix": None,
-                "table_override": None,
-            }
-        )
-
         # Validate credentials
         error_items = set(credentials.keys()) - set(self.credentials.keys())
         if error_items:
@@ -352,15 +305,21 @@ class App:
         # Create connections
         result = get_connections(
             self.credentials,
-            self.stringify,
-            self.prod_stringify,
-            self.raw_stringify,
-            self.default_db,
         )
         if result.is_err:
             return result
         else:
             self.connections = result.value
+
+        # Object compilation objects
+        self.input_stringify.update(stringify)
+        self.db_object_compiler = DbObjectCompiler(
+            self.connections,
+            self.default_db,
+            self.input_stringify,
+            self.input_prod_stringify,
+            self.from_prod,
+        )
 
         return Ok()
 
@@ -416,6 +375,7 @@ class App:
                 self.default_db,
                 self.run_arguments,
                 self.compiler,
+                self.db_object_compiler,
             )
 
             if task_class is None:
@@ -521,46 +481,40 @@ class App:
         # Now that we have done the config for all tasks and we know which
         # connections are required, check that we have them all
         connections_setup = {
-            n for n, v in self.connections.items() if not isinstance(v, Dummy)
+            n for n, v in self.connections.items() if not isinstance(v, UnknownDb)
         }
         error_items = exec_connections - connections_setup
         if error_items:
             return Err("app", "missing_credentials", credentials=error_items)
 
-        # We recalculate the tables to introspect based on whether the upstream_prod
-        # flag is set as well and whether this execution creates the object
-        def is_from_prod(exec_outputs, obj):
+        if self.run_arguments.upstream_prod:
+            sources_from_prod = {s for s in exec_sources if s not in exec_outputs}
+        else:
+            sources_from_prod = set()
 
-            if self.run_arguments.upstream_prod:
-                if obj not in exec_outputs:
-                    return True
+        self.db_object_compiler.set_sources_from_prod(sources_from_prod)
 
-            for regex in self.from_prod:
-                if re.match(regex, obj.get_value_raw()) is not None:
-                    return True
-            return False
+        # Get the objects to introspect
+        to_introspect = {self.db_object_compiler.src_obj(s) for s in exec_sources}
+        to_introspect.update({self.db_object_compiler.src_obj(o) for o in exec_outputs})
 
-        from_prod = set([o for o in exec_sources if is_from_prod(exec_outputs, o)])
-        to_introspect = set(
-            [
-                (o.connection_name, o.schema_prod_value, o.object_prod_value)
-                if is_from_prod(from_prod, o)
-                else (o.connection_name, o.schema_value, o.object_value)
-                for o in exec_sources
-            ]
-        )
-
-        to_introspect.update(
-            [(o.connection_name, o.schema_value, o.object_value) for o in exec_outputs]
-        )
-
-        # Reshape the list into dictionaries of connection > schema > set of objects
+        # Reshape the list into dictionaries of connection > database > schema > set of objects
         to_introspect = {
             conn: {
-                schema: set([v[2] for v in gg])
-                for schema, gg in groupby(g, key=lambda x: x[1])
+                db
+                or "": {
+                    sch or "": {v.table for v in ggg}
+                    for sch, ggg in groupby(gg, lambda x: x.schema)
+                }
+                for db, gg in groupby(g, lambda x: x.database)
             }
-            for conn, g in groupby(sorted(to_introspect), key=lambda x: x[0])
+            for conn, g in groupby(
+                sorted(
+                    to_introspect,
+                    key=lambda x: (x.connection_name, x.database, x.schema, x.table),
+                ),
+                key=lambda x: x.connection_name,
+            )
         }
 
         for connection_name in exec_connections:
@@ -596,7 +550,7 @@ class App:
 
             task.tracker._report_event("start_stage")
 
-            result = task.setup(task_name in tasks_in_query, from_prod)
+            result = task.setup(task_name in tasks_in_query, sources_from_prod)
 
             task.tracker._report_event(
                 "finish_stage", duration=datetime.now() - start_ts, result=result

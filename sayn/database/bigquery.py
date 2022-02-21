@@ -204,54 +204,59 @@ class Bigquery(Database):
         return Ok(properties)
 
     def _introspect(self, to_introspect):
-        for schema in to_introspect.keys():
-            db_object = [obj_name for obj_name in to_introspect[schema]]
-            if schema is None:
-                name = self.dataset
-            else:
-                name = schema
-            query = f"""SELECT t.table_name AS name
-                              , t.table_type AS type
-                              , array_agg(STRUCT(c.column_name, c.is_partitioning_column = 'YES' AS is_partition, c.clustering_ordinal_position)
-                                          ORDER BY clustering_ordinal_position) AS columns
-                           FROM {name}.INFORMATION_SCHEMA.TABLES t
-                           JOIN {name}.INFORMATION_SCHEMA.COLUMNS c
-                             ON c.table_name = t.table_name
-                          WHERE t.table_name IN ({', '.join(f"'{ts}'" for ts in db_object)})
-                          GROUP BY 1,2
-                    """
-            db_objects = {
-                o["name"]: {"type": o["type"], "columns": o["columns"]}
-                for o in self.read_data(query)
-            }
+        for project, datasets in to_introspect.items():
+            if project != "":
+                # We currently don't support 3 levels of db object specification.
+                raise ValueError("3 level db objects are not currently supported")
 
-            if schema not in self._requested_objects:
-                self._requested_objects[schema] = dict()
+            for dataset, objects in datasets.items():
+                if dataset is None or dataset == "":
+                    name = self.dataset
+                else:
+                    name = dataset
 
-            for obj_name in to_introspect[schema]:
-                # Always insert into the requested_objects dict
-                self._requested_objects[schema][obj_name] = {"type": None}
+                query = f"""SELECT t.table_name AS name
+                                  , t.table_type AS type
+                                  , array_agg(STRUCT(c.column_name, c.is_partitioning_column = 'YES' AS is_partition, c.clustering_ordinal_position)
+                                              ORDER BY clustering_ordinal_position) AS columns
+                               FROM {name}.INFORMATION_SCHEMA.TABLES t
+                               JOIN {name}.INFORMATION_SCHEMA.COLUMNS c
+                                 ON c.table_name = t.table_name
+                              WHERE t.table_name IN ({', '.join(f"'{ts}'" for ts in objects)})
+                              GROUP BY 1,2
+                        """
+                db_objects = {
+                    o["name"]: {"type": o["type"], "columns": o["columns"]}
+                    for o in self.read_data(query)
+                }
 
-                # Get the current config on the db
-                if obj_name in db_objects:
-                    db_object = db_objects[obj_name]
-                    if db_object["type"] == "BASE TABLE":
-                        self._requested_objects[schema][obj_name]["type"] = "table"
-                    elif db_object["type"] == "VIEW":
-                        self._requested_objects[schema][obj_name]["type"] = "view"
+                if dataset not in self._requested_objects:
+                    self._requested_objects[dataset] = dict()
 
-                    cluster_cols = []
-                    for c in db_object["columns"]:
-                        if c["is_partition"] is True:
-                            self._requested_objects[schema][obj_name]["partition"] = c[
-                                "column_name"
-                            ]
-                        if c["clustering_ordinal_position"] is not None:
-                            cluster_cols.append(c["column_name"])
-                    if cluster_cols:
-                        self._requested_objects[schema][obj_name][
-                            "cluster"
-                        ] = cluster_cols
+                for obj_name in objects:
+                    # Always insert into the requested_objects dict
+                    self._requested_objects[dataset][obj_name] = {"type": None}
+
+                    # Get the current config on the db
+                    if obj_name in db_objects:
+                        db_objects = db_objects[obj_name]
+                        if db_objects["type"] == "BASE TABLE":
+                            self._requested_objects[dataset][obj_name]["type"] = "table"
+                        elif db_objects["type"] == "VIEW":
+                            self._requested_objects[dataset][obj_name]["type"] = "view"
+
+                        cluster_cols = []
+                        for c in db_objects["columns"]:
+                            if c["is_partition"] is True:
+                                self._requested_objects[dataset][obj_name][
+                                    "partition"
+                                ] = c["column_name"]
+                            if c["clustering_ordinal_position"] is not None:
+                                cluster_cols.append(c["column_name"])
+                        if cluster_cols:
+                            self._requested_objects[dataset][obj_name][
+                                "cluster"
+                            ] = cluster_cols
 
     def _py2sqa(self, from_type):
         python_types = {

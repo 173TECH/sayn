@@ -1,7 +1,7 @@
 import inspect
 from typing import Optional, List, Union
 
-from ..database.dummy import Dummy
+from ..database.unknown import UnknownDb
 from .task import Task
 
 
@@ -71,7 +71,7 @@ class DecoratorTask(PythonTask):
                 # Special parameter equivalent to self
                 self.wrapper_params.append(self)
             elif param in self.connections:
-                if isinstance(self.connections[param], Dummy):
+                if isinstance(self.connections[param], UnknownDb):
                     return self.fail(f'Connection "{param}" missing from settings')
                 # The name of a connection makes it so that that argument
                 # is linked to the connection object itself

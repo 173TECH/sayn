@@ -10,7 +10,10 @@ def plot_dag(tasks, folder=None, file_name=None):
     task_list = list(tasks.keys())
     tasks = reverse_dict(tasks)
 
-    from graphviz import Digraph
+    try:
+        from graphviz import Digraph
+    except:
+        raise ImportError("`sayn dag-image` requires graphviz installed")
 
     dot = Digraph(comment="SAYN", graph_attr={"splines": "ortho", "nodesep": "0.8"})
     for n in task_list:

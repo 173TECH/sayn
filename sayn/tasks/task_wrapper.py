@@ -3,7 +3,7 @@ import re
 from typing import Any, Dict, Optional, Set
 
 from ..database import Database
-from ..database.dummy import Dummy
+from ..database.unknown import UnknownDb
 
 from ..core.errors import Err, Exc, Ok, Result
 from ..utils.misc import map_nested
@@ -25,10 +25,6 @@ _excluded_properties = (
     "preset",
     "on_fail",
 )
-
-
-# Regular expressions to parse a db object specification
-RE_OBJ = re.compile(r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?(?P<c2>[^.]+)")
 
 
 class TaskWrapper:
@@ -78,6 +74,7 @@ class TaskWrapper:
         default_db,
         run_arguments,
         compiler,
+        db_object_compiler,
     ):
         self.tags = set(tags or set())
         self.parent_names = set(parent_names or set())
@@ -97,6 +94,7 @@ class TaskWrapper:
 
         self.default_db = default_db
         self.connections = dict(connections)
+        self.db_object_compiler = db_object_compiler
 
         self.task_class = task_class
 
@@ -212,7 +210,7 @@ class TaskWrapper:
 
         self.outputs.update(
             {
-                self.get_db_obj(o, connection=target_connection)
+                self.db_object_compiler.from_string(o, connection=target_connection)
                 for o in self.outputs_yaml
             }
         )
@@ -226,7 +224,7 @@ class TaskWrapper:
 
         self.sources.update(
             {
-                self.get_db_obj(o, connection=source_connection)
+                self.db_object_compiler.from_string(o, connection=source_connection)
                 for o in self.sources_yaml
             }
         )
@@ -292,7 +290,7 @@ class TaskWrapper:
         else:
             # Clear all the dummy connections
             self.runner.connections = {
-                n: None if isinstance(o, Dummy) else o
+                n: None if isinstance(o, UnknownDb) else o
                 for n, o in self.runner.connections.items()
             }
 
@@ -401,62 +399,21 @@ class TaskWrapper:
 
         return Ok()
 
-    def get_db_obj(self, obj: str, connection=None):
-        obj = self.compiler.compile(obj)
-        m = RE_OBJ.match(obj)
-        if m is None:
-            raise ValueError(f'Incorrect format for database object "{obj}"')
-        else:
-            g = m.groupdict()
-            connection_name = g["connection"]
-            components = dict(
-                {"object": None, "schema": None, "database": None},
-                **dict(
-                    zip(
-                        ("object", "schema"),
-                        reversed(
-                            [
-                                v
-                                for k, v in g.items()
-                                if k != "connection" and v is not None
-                            ]
-                        ),
-                    )
-                ),
-            )
-
-            if connection is not None:
-                if isinstance(connection, str):
-                    connection_object = self.connections[connection]
-                elif isinstance(connection, Database):
-                    connection_object = connection
-                else:
-                    raise ValueError(f"Wrong type {type(connection)}")
-            else:
-                connection_object = self.connections[connection_name or self.default_db]
-
-            return connection_object._object_builder.from_components(**components)
-
     def src(self, obj, connection=None):
-        obj = self.get_db_obj(obj, connection=connection)
+        obj = self.db_object_compiler.from_string(obj, connection=connection)
 
         if self.status == TaskStatus.CONFIGURING:
             # During configuration we add to the list and use values based on settings
             self.sources.add(obj)
-            return obj.get_value()
-        else:
-            # In any other stage, we check to see is the object is in the list
-            # of objects to use from production
-            if obj in self.sources_from_prod:
-                return obj.get_prod_value()
-            else:
-                return obj.get_value()
+
+        return self.db_object_compiler.src_value(obj)
 
     def out(self, obj, connection=None):
-        obj = self.get_db_obj(obj, connection=connection)
+        obj = self.db_object_compiler.from_string(obj, connection=connection)
         if self.status == TaskStatus.CONFIGURING:
             self.outputs.add(obj)
-        return obj.get_value()
+
+        return self.db_object_compiler.out_value(obj)
 
     def has_tests(self):
         if self.runner is not None and self.runner._has_tests:
