@@ -49,9 +49,12 @@ class DbObject:
 
 
 class DbObjectCompiler:
-    regex_obj = re.compile(
-        r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?((?P<c2>.+)\.)?(?P<c3>[^.]+)"
-    )
+    # 3 levels is not fully supported
+    # regex_obj = re.compile(
+    #     r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?((?P<c2>.+)\.)?(?P<c3>[^.]+)"
+    # )
+
+    regex_obj = re.compile(r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?(?P<c2>[^.]+)")
 
     def __init__(
         self,
