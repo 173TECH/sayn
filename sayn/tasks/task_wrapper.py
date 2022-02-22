@@ -388,7 +388,10 @@ class TaskWrapper:
         missing = set()
         for source in self.sources:
             if source not in output_to_task:
-                missing.add(source)
+                if source.connection_name == self.default_db:
+                    # We only consider a missing parent if the
+                    # source is in the default_db
+                    missing.add(source)
             else:
                 for task_name in output_to_task[source]:
                     if task_name not in self.parent_names:
@@ -397,7 +400,7 @@ class TaskWrapper:
 
         # TODO send some message when a table is source
         if len(missing) > 0:
-            tables = ", ".join([f"{t.get_value()}" for t in missing])
+            tables = ", ".join([f"{t.raw}" for t in missing])
             self.tracker.warning(
                 f'No task creates table(s) "{tables}" referenced by task "{self.name}"'
             )
