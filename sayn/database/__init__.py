@@ -295,6 +295,7 @@ class Database:
             for schema, req_objs in schemas.items():
                 if schema == "":
                     schema = None
+
                 if schema is None:
                     db_objects = [
                         ("table", insp.get_table_names()),

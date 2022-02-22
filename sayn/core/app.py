@@ -500,10 +500,16 @@ class App:
             sources_from_prod = set()
 
         self.db_object_compiler.set_sources_from_prod(sources_from_prod)
+        sources_from_prod = {
+            s for s in exec_sources if self.db_object_compiler.is_from_prod(s)
+        }
 
         # Get the objects to introspect
+        # We create new DbObjects simply because it's simpler to convert to the correct
+        # specification depending on whether it's from_prod or not, but these new objects
+        # are not meant to be used anywhere else in the code
         to_introspect = {self.db_object_compiler.src_obj(s) for s in exec_sources}
-        to_introspect.update({self.db_object_compiler.src_obj(o) for o in exec_outputs})
+        to_introspect.update({self.db_object_compiler.out_obj(o) for o in exec_outputs})
 
         # Reshape the list into dictionaries of connection > database > schema > set of objects
         to_introspect = {

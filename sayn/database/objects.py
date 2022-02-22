@@ -118,29 +118,33 @@ class DbObjectCompiler:
     def set_sources_from_prod(self, sources_from_prod: Set[DbObject]) -> None:
         self.sources_from_prod = sources_from_prod
 
+    def is_from_prod(self, obj: DbObject) -> bool:
+        if obj.connection_name == self.default_db:
+            # Only for src, we might want to produce the prod version of the object
+            for regex in self.from_prod:
+                # Only usage of the raw value of a db object.
+                # We use raw as all specifications in the project code are meant
+                # to follow sayn logic, rather than the db specific special nomenclature
+                m = regex.match(obj.raw)
+                if m is not None:
+                    return True
+
+            for source in self.sources_from_prod:
+                if source == obj:
+                    return True
+
+        return False
+
     def _common_value(self, obj: DbObject, run_sensitive: bool) -> str:
         database = obj.database
         schema = obj.schema
         table = obj.table
 
         if obj.connection_name == self.default_db:
-            is_prod = False
             if run_sensitive:
-                # Only for src, we might want to produce the prod version of the object
-                for regex in self.from_prod:
-                    # Only usage of the raw value of a db object.
-                    # We use raw as all specifications in the project code are meant
-                    # to follow sayn logic, rather than the db specific special nomenclature
-                    m = regex.match(obj.raw)
-                    if m is not None:
-                        is_prod = True
-                        break
-
-                if not is_prod:
-                    for source in self.sources_from_prod:
-                        if source == obj:
-                            is_prod = True
-                            break
+                is_prod = self.is_from_prod(obj)
+            else:
+                is_prod = False
 
             if database is not None:
                 if is_prod:
