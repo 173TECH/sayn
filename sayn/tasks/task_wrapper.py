@@ -255,7 +255,10 @@ class TaskWrapper:
         failed_parents = {
             p.name: p.status
             for p in self.parents
-            if (p.status == TaskStatus.FAILED and p.on_fail != "no_skip")
+            if (
+                p.status in (TaskStatus.SETUP_FAILED, TaskStatus.FAILED)
+                and p.on_fail != "no_skip"
+            )
             or p.status == TaskStatus.SKIPPED
         }
 
@@ -267,6 +270,8 @@ class TaskWrapper:
             else:
                 return Ok(self.status)
 
+        elif self.status == TaskStatus.SETUP_FAILED:
+            return Err("task", "setup_error", status=self.status)
         elif "fail" in self.status.value:
             return Err("task", "task_error", status=self.status)
         else:
@@ -314,11 +319,11 @@ class TaskWrapper:
                     self.status = TaskStatus.READY
                     return Ok()
                 elif not isinstance(result, Result):
-                    self.status = TaskStatus.FAILED
+                    self.status = TaskStatus.SETUP_FAILED
                     self.tracker.current_step = None
                     return Err("task_result", "missing_result_error", result=result)
                 elif result.is_err:
-                    self.status = TaskStatus.FAILED
+                    self.status = TaskStatus.SETUP_FAILED
                     self.tracker.current_step = None
                     return result
                 else:
