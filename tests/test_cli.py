@@ -21,8 +21,10 @@ def run(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
 
-    start_dt = start_dt.date()
-    end_dt = end_dt.date()
+    if start_dt is not None:
+        start_dt = start_dt.date()
+    if end_dt is not None:
+        end_dt = end_dt.date()
 
     return {
         "command": "run",
@@ -43,8 +45,10 @@ def compile(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
 
-    start_dt = start_dt.date()
-    end_dt = end_dt.date()
+    if start_dt is not None:
+        start_dt = start_dt.date()
+    if end_dt is not None:
+        end_dt = end_dt.date()
 
     return {
         "command": "compile",
@@ -75,8 +79,8 @@ def test_simple_run():
         "exclude": [],
         "profile": None,
         "full_load": False,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -90,8 +94,8 @@ def test_simple_compile():
         "exclude": [],
         "profile": None,
         "full_load": False,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -105,8 +109,8 @@ def test_run_one_task():
         "exclude": [],
         "profile": None,
         "full_load": False,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -120,8 +124,8 @@ def test_run_two_tasks_old():
         "exclude": [],
         "profile": None,
         "full_load": False,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -135,8 +139,8 @@ def test_run_two_tasks_new():
         "exclude": [],
         "profile": None,
         "full_load": False,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -150,8 +154,8 @@ def test_compile_one_task():
         "exclude": [],
         "profile": None,
         "full_load": False,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -165,8 +169,8 @@ def test_compile_two_tasks_old():
         "exclude": [],
         "profile": None,
         "full_load": False,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -180,8 +184,8 @@ def test_compile_two_tasks_new():
         "exclude": [],
         "profile": None,
         "full_load": False,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -195,8 +199,8 @@ def test_run_debug():
         "exclude": [],
         "profile": None,
         "full_load": False,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -210,8 +214,8 @@ def test_compile_debug():
         "exclude": [],
         "profile": None,
         "full_load": False,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -225,8 +229,8 @@ def test_run_debug_multitasks():
         "exclude": [],
         "profile": None,
         "full_load": False,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -240,8 +244,8 @@ def test_compile_debug_multitasks():
         "exclude": [],
         "profile": None,
         "full_load": False,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -255,8 +259,8 @@ def test_run_full():
         "exclude": [],
         "profile": None,
         "full_load": True,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -270,8 +274,8 @@ def test_compile_full():
         "exclude": [],
         "profile": None,
         "full_load": True,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -285,8 +289,8 @@ def test_run_exclude():
         "exclude": ["something"],
         "profile": None,
         "full_load": False,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -300,8 +304,8 @@ def test_compile_exclude():
         "exclude": ["something"],
         "profile": None,
         "full_load": False,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -315,8 +319,8 @@ def test_run_include_exclude():
         "exclude": ["something"],
         "profile": None,
         "full_load": False,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }
 
 
@@ -330,6 +334,6 @@ def test_compile_include_exclude():
         "exclude": ["something"],
         "profile": None,
         "full_load": False,
-        "start_dt": yesterday,
-        "end_dt": yesterday,
+        "start_dt": None,
+        "end_dt": None,
     }

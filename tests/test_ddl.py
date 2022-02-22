@@ -6,8 +6,6 @@ def validate_ddl(ddl):
         "test",
         "test",
         {"type": "sqlite", "database": ":memory:"},
-        stringify=dict(),
-        prod_stringify=dict(),
     )
 
     res = db._validate_ddl(ddl["columns"], ddl["table_properties"], ddl["post_hook"])

@@ -31,7 +31,7 @@ def test_sql_task(tmp_path, target_db):
         drop_tables=["test_sql_task"],
     ) as task:
         assert task.config(file_name="test.sql").is_ok
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(task.default_db, "test_sql_task", [{"x": 1}])
@@ -47,7 +47,7 @@ def test_sql_task_compile(tmp_path, target_db):
         run_arguments={"command": "compile"},
     ) as task:
         assert task.config(file_name="test.sql").is_ok
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.compile().is_ok
 
@@ -62,7 +62,7 @@ def test_sql_task_param(tmp_path, target_db):
         task_params={"user_prefix": "tu_"},
     ) as task:
         assert task.config(file_name="test.sql").is_ok
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -87,7 +87,7 @@ def test_sql_task_run_err(tmp_path, target_db):
     """Test correct setup and run error for incorrect sql"""
     with sql_task(tmp_path, target_db, "SELECT * FROM non_existing_table") as task:
         assert task.config(file_name="test.sql").is_ok
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_err
 
@@ -101,7 +101,7 @@ def test_sql_task_run_multi_statements(tmp_path, target_db):
         drop_tables=["test_t1", "test_t2"],
     ) as task:
         assert task.config(file_name="test.sql").is_ok
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -128,7 +128,7 @@ def test_sql_task_dst_db(tmp_path, target_db):
         drop_tables=["test_sql_task"],
     ) as task:
         assert task.config(file_name="test.sql", db="target_db").is_ok
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
