@@ -159,6 +159,11 @@ simultaneously producing this example code to be executed in the database:
 The above examples are equivalent to each other and we use `context.src` in the decorator form and `self.src` in the more advanced class
 model. `context.out` and `self.out` are also available in python tasks and their behaviour is the same as with sql and autosql tasks.
 
+!!! info
+    `src` should only be used for tables that are managed by the SAYN project. If an external EL tool is being used to load data
+    into your warehouse, references to these tables should be hardcoded instead, as their names never change depending on your SAYN
+    profile, nor there are any task dependencies to infer from using `src`.
+
 Note that calling `src` and `out` in the `run` method of a python task class or in the function code when using a decorator doesn't
 affect task dependencies, it simply outputs the translated database object name. The task dependency behaviour in python tasks is done
 by either calling `self.src` or `self.out` in the `config` method of the class or by passing these references to the `task` decorator
