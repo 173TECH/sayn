@@ -227,6 +227,12 @@ class LogFormatter:
                 f'Group "{error.details["group"]}" contains no tasks. Please check the "file_name" property'
             )
 
+        elif error.kind == "task_query" and error.code == "query_overlap":
+            level = "error"
+            message = self.bad(
+                f"{error.details['overlap']} specified both as include and exclude"
+            )
+
         elif error.code == "wrong_credentials":
             level = "error"
             message = self.bad(
