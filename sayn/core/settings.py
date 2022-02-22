@@ -14,6 +14,7 @@ from .errors import Err, Exc, Ok
 RE_ENV_VAR_NAME = re.compile(
     r"SAYN_((?P<stringify>(SCHEMA|TABLE)_(PREFIX|SUFFIX|STRINGIFY))"
     r"|(?P<from_prod>FROM_PROD)$"
+    r"|(?P<default_run>DEFAULT_RUN)$"
     r"|(?P<type>PARAMETER|CREDENTIAL)_(?P<name>.+))$"
 )
 
@@ -66,10 +67,39 @@ class Environment(BaseModel):
     credentials: Optional[Mapping[str, Mapping[str, Any]]]
     stringify: Optional[Stringify]
     from_prod: Optional[Sequence[TableGlob]]
+    default_run: Optional[str]
 
     class Config:
         extra = Extra.forbid
         anystr_lower = True
+
+    @validator("default_run")
+    def default_run_validator(cls, v):
+        m = RE_DEFAULT_RUN_VAL.match(v)
+        if m is None:
+            raise ValueError(
+                f'Invalid default_run specification "{v}". Allowed arguments: -t/--tasks, -x/--exclude and -u/--upstream-prod'
+            )
+
+        include = set()
+        exclude = set()
+        upstream_prod = None
+        for arg in RE_DEFAULT_RUN.findall(v):
+            arg = arg.strip()
+            if arg.startswith("-t") or arg.startswith("--tasks"):
+                include.update(arg.split(" ")[1:])
+            elif arg.startswith("-x") or arg.startswith("--exclude"):
+                exclude.update(arg.split(" ")[1:])
+            elif arg.startswith("-u") or arg.startswith("--upstream-prod"):
+                upstream_prod = True
+            else:
+                raise ValueError('Incorrect option in default_run "{arg}"')
+
+        return {
+            "include": include,
+            "exclude": exclude,
+            "upstream_prod": upstream_prod,
+        }
 
 
 class SettingsYaml(BaseModel):
@@ -236,6 +266,8 @@ def read_settings():
                 ] = YAML().load(value)
             elif matched_name["from_prod"] is not None:
                 environment["from_prod"] = [v.strip() for v in value.split(",")]
+            elif matched_name["default_run"] is not None:
+                environment["default_run"] = value
             else:
                 environment["stringify"][matched_name["stringify"].lower()] = value
 
@@ -262,6 +294,7 @@ def get_settings(yaml, environment, profile_name=None):
             "parameters": dict(),
             "stringify": dict(),
             "from_prod": list(),
+            "default_run": {"include": set(), "exclude": set(), "upstream_prod": None},
         }
 
     if profile_name is None and environment is not None:
@@ -280,6 +313,9 @@ def get_settings(yaml, environment, profile_name=None):
 
         if environment.from_prod is not None:
             out["from_prod"] = environment.from_prod
+
+        if environment.default_run is not None:
+            out["default_run"] = environment.default_run
 
     return Ok(out)
 
