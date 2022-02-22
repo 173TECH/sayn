@@ -93,17 +93,23 @@ idna = { version = "3.3", optional = true }
 requests = { version = "2.27.1", optional = true }
 urllib3 = { version = "1.26.8", optional = true }
 numpy = { version = "1.21.4", optional = true }
-pyarrow = { version = "^6.0.0", optional = true }
+pyarrow = { version = "6.0.0", optional = true }
 
 # DAG visualisation
-graphviz = { version = "^0.14", optional = true }
+graphviz = { version = "0.19.1", optional = true }
 
 [tool.poetry.extras]
 all = ["graphviz", "psycopg2", "snowflake-connector-python", "snowflake-sqlalchemy", "pymysql"]
 postgresql = ["psycopg2"]
 mysql = ["pymysql"]
-snowflake = ["snowflake-connector-python", "snowflake-sqlalchemy"]
-bigquery = ["sqlalchemy-bigquery", "google-cloud-bigquery-storage", "pyarrow"]
+snowflake = ["snowflake-connector-python", "snowflake-sqlalchemy", "asn1crypto", "cffi", "cryptography",
+             "oscrypto", "pycparser", "pycryptodomex", "PyJWT", "pyOpenSSL", "pytz", "charset-normalizer",
+             "certifi", "idna", "requests", "urllib3", "numpy", "pyarrow"]
+bigquery = ["sqlalchemy-bigquery", "cachetools", "future", "google-api-core", "google-auth", "google-cloud-bigquery",
+            "google-cloud-core", "google-crc32c", "google-resumable-media", "googleapis-common-protos", "grpcio",
+            "grpcio-status", "packaging", "proto-plus", "protobuf", "pyasn1", "pyasn1-modules", "pyparsing", "python-dateutil",
+            "rsa", "google-cloud-bigquery-storage", "libcst", "mypy-extensions", "typing-inspect", "charset-normalizer",
+            "certifi", "idna", "requests", "urllib3", "numpy", "pyarrow"]
 graphviz = ["graphviz"]
 
 [tool.poetry.scripts]
