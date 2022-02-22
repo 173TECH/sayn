@@ -42,6 +42,11 @@ is transformed according to personal settings. For example, we could have a sche
 and another called `test_models` where we store data produced during development, with table names like `USER_PREFIX_table` rather
 than `table` so there's no collision and we minimise data redundancy.
 
+!!! warning
+    Name configuration only affects the `default_db`. When a SAYN project has more than 1 database
+    connection you can still use the macros described in this page to set dependencies, but the
+    resulting value of the macro is exactly the same as the input.
+
 ## Name configuration
 
 The modifications described above are setup with prefixes, suffixes and overrides. For example:
@@ -159,16 +164,72 @@ affect task dependencies, it simply outputs the translated database object name.
 by either calling `self.src` or `self.out` in the `config` method of the class or by passing these references to the `task` decorator
 in the `sources` and `outputs` arguments as seen in this example. For more details head to [the python task section](tasks/python).
 
-## Upstream prod
+## Altering the behaviour of `src`
 
 A very common situation when working in your data pipeline is when we have a lot of data to work with but at any point in time while modelling
 we find ourselves working only a subset of it. Working with sample data can be inconvenient during development because it hinders our
 ability to evaluate the result and the alternative, having a duplicate of the data for every person in the team, can be costly both in
-terms of money and time producing and maintaining these duplicates. For this reason SAYN comes equiped with a feature that simplifies this
-switching.
+terms of money and time producing and maintaining these duplicates. For this reason SAYN comes equiped with 2 features that simplifies this
+switchin: `from_prod` and upstream prod.
 
-We use upstream prod by specifying the flag (`-u` or `--upstream-prod`) when running SAYN while filtering, for example `sayn run -t example_task -u`.
-When we do this, any reference to tables produced by tasks not present in the current execution will use the parameters defined in `project.yaml`.
+`from_prod` is most useful when a team member never deals with a part of the SAYN project. For example, a data analyst that only deals with 
+modelling tasks in a SAYN project that also has extraction tasks. Upstream prod is most useful when we're doing changes to a small set of task,
+so we don't want to have to repopulate all the upstream tables.
+
+### `from_prod` configuration
+
+The first mechanism is `from_prod` which we set in the `settings.yaml` file and override the behaviour of `src`. An example:
+
+!!! example "project.yaml"
+    ```
+    schema_prefix: analytics
+    ```
+
+!!! example "sql/core/test_table.sql"
+    ```
+    SELECT *
+      FROM {{ src('logs.extract_table') }}
+    ```
+
+!!! example "settings.yaml"
+    ```
+    profiles:
+      dev:
+        table_prefix: up
+        schema_prefix: test
+        from_prod:
+          - "logs.*"
+    ```
+
+In the above example we have a task selecting data from `logs.extract_table` which for the purpose of this example we can assume is
+created by an extraction task pulling data from an API. On production, `src('logs.extract_table')` will be translated as
+`analytics_logs.extract_table`, whereas during development it will be translated as `test_logs.up_extract_table`, given the
+configuration in the `dev` profile in `settings.yaml`. However there's also a `from_prod` entry with `logs.*` which is telling
+SAYN that all tables or views from the `logs` schema should come from production, so the final code for the `test_table` task will
+actually be:
+
+!!! example "compile/core/test_table_select.sql"
+    ```
+    SELECT *
+      FROM analytics_logs.extract_table
+    ```
+
+As you can see, we just need to specify a list of tables in `from_prod` to always read from the production configuration, that is, the
+settings shared by all team members as specified in `project.yaml`. To make it easier to use, wildcards (`*`) are accepted, so that we
+can specify a whole schema like in the example, but we can also specify a list of tables explicitely instead.
+
+`from_prod` can also be specified using environment variables with `export SAYN_FROM_PROD="logs.*"` where the value is a comma
+separated list of tables.
+
+!!! warning
+    To avoid accidentally affecting production tables, `from_prod` only affects `src`. The result of calling `out` always evaluate
+    to your configuration in `settings.yaml` or environment variables.
+
+### Upstream prod
+
+The second mechanism to override the behaviour of `src` is upstream prod. We use upstream prod by specifying the flag (`-u` or `--upstream-prod`)
+when running SAYN while filtering, for example `sayn run -t example_task -u`. When we do this, any reference to tables produced by tasks not
+present in the current execution will use the parameters defined in `project.yaml`.
 For example:
 
 
@@ -237,17 +298,6 @@ as no task producing it is present in this execution, will be translated into th
 
 With upstream prod it becomes a lot easier to work with your modelling layer without having to duplicate all your upstream tables
 for every person in the team or being forced to work with sampled data.
-
-## Exceptions
-
-There are 2 notes to make about database object references:
-
-  * The source table for copy tasks are interpreted as specified in the YAML, rather than being translated. This is because the main
-    use case for copy is to serve as the EL layer of your ELT to, for example, pull data from your backend into the warehouse, and
-    typically naming conventions are not compatible with those in your warehouse.
-  * Calling `src` or `out` in a python task in the `run` or `compile` or when using decorators will not affect the dependencies
-    between tasks. To define dependencies through `src` and `out` you should either call these in the `config` method or specify
-    `sources` and `outputs` parameters to the `task` decorator.
 
 ## Advanced usage
 

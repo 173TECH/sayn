@@ -46,6 +46,15 @@ When doing this we might not want to have an up to date copy of all upstream obj
 as the source of your models. For this we can use the flag `-u` (`--upstream-prod`) which selects from production for tables
 not produced by the currently filtered tasks. Head over to [database objects](database_objects.md#upstream_prod) for more details
 
+Both task filtering and upstream prod arguments can be set using `default_run` in `settings.yaml`. Example:
+
+!!! example "settings.yaml"
+    profiles:
+      dev:
+        default_run: -x group:extract
+
+This example will make it so that running `sayn run` will already exclude the tasks in the group called `extract`.
+
 #### Incremental Tasks Options
 
 SAYN uses 3 arguments to manage incremental executions: `full_load`, `start_dt` and `end_dt`; which can

@@ -116,3 +116,21 @@ Taking the `settings.yaml` example above for the dev profile, in environment var
 
 When environement variables are defined and a `settings.yaml` file exists, the settings from both will
 be combined with the environment variables taking precedence.
+
+### Default run
+
+When a team member only works on a subset of the SAYN project (for example, a data analyst that works only
+with modelling tasks) it's useful to automatically filter the tasks that will be executed when we run
+`sayn run`. For this we can use the `default_run` configuration, which is set in the profile in your
+`settings.yaml` or through the environment variable `SAYN_DEFAULT_RUN`:
+
+!!! example "settings.yaml"
+    profile:
+      dev:
+        default_run: -x group:extract
+
+!!! example ".env.sh"
+    export SAYN_DEFAULT_RUN="-x group:extract"
+ 
+So we just add the arguments we would give after `sayn run` or `sayn compile`. Only task selection and
+upstream prod are allowed (`-t/--tasks`, `-x/--exclude` and `-u/--upstream-prod`).
