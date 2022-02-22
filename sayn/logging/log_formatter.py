@@ -233,6 +233,28 @@ class LogFormatter:
                 f"{error.details['overlap']} specified both as include and exclude"
             )
 
+        elif error.kind == "task_query" and error.code == "incorrect_syntax":
+            level = "error"
+            message = self.bad(f'Incorrect filter syntax "{error.details["query"]}"')
+
+        elif error.kind == "task_query" and error.code == "undefined_tag":
+            level = "error"
+            message = self.bad(
+                f'Tag not found in the project: "{error.details["tag"]}"'
+            )
+
+        elif error.kind == "task_query" and error.code == "undefined_group":
+            level = "error"
+            message = self.bad(
+                f'Group not found in the project: "{error.details["group"]}"'
+            )
+
+        elif error.kind == "task_query" and error.code == "undefined_task":
+            level = "error"
+            message = self.bad(
+                f'Task not found in the project: "{error.details["task"]}"'
+            )
+
         elif error.code == "wrong_credentials":
             level = "error"
             message = self.bad(
