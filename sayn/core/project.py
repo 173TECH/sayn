@@ -234,9 +234,9 @@ def get_tasks_dict(
                         groups=(group_name, tasks[task_name]["group"]),
                     )
                 result = get_task_dict(task, task_name, group_name, presets)
-                if result.is_ok:
+                if result.is_ok and "type" in result.value:
                     tasks[task_name] = result.value
-                    if tasks[task_name]["type"] == "test":
+                    if tasks[task_name].get("type") == "test":
                         return Err(
                             "dag",
                             "test in tasks",
