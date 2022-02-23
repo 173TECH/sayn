@@ -1,4 +1,4 @@
-# Tests
+# Data Tests
 
 ## About
 
@@ -54,6 +54,7 @@ We can also define the tests inside `task.sql` by call `config` from a Jinja tag
     {{ config(columns=[ {'name': 'id', 'tests':['unique', 'not_null']},
                         {'name':'alias', 'tests':['allowed_values':['first','second','third']}]) }}
 
+
     SELECT ...
     ```
 
@@ -65,7 +66,12 @@ For example, we can define a custom tests that executes the test query presented
 !!! example "tests.yaml"
     ```
     tests:
-      file_name: test.sql
+      test_1:
+        file_name: test.sql
+
+    tasks:
+      ...
+      ...
     ```
 
 !!! example "SQL test query"

@@ -44,7 +44,7 @@ We can also define the tests inside `task.sql` by call `config` from a Jinja tag
 !!! example "tasks.sql"
     ```
     {{ config(columns=[ {'name': 'id', 'tests':['unique', {'name':'not_null', 'execute':True}]},
-                        {'name':'alias', 'tests':[{'name':'allowed_values':['first','second','third'], execute: False }]}]) }}
+                        {'name':'alias', 'tests':[{'allowed_values':['first','second','third'], execute: False }]}]) }}
 
     SELECT ...
     ```

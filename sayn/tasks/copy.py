@@ -401,9 +401,7 @@ class CopyTask(SqlTask):
                     errinfo = f"Test Failed. You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
                     return self.fail(errinfo)
                 else:
-                    summary = (
-                        f"{len(executed)} tests were ran, {len(executed)} succeeded, "
-                    )
+                    summary = f"{len(executed)} tests were ran, {len(executed)-len(failed)} succeeded, "
                     if skipped:
                         summary += f", {len(skipped)} were skipped, "
                     summary += f"{len(failed)} failed."
