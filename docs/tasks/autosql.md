@@ -133,14 +133,27 @@ Autosql tasks accept a `columns` field in the task definition that affects the t
 SAYN also lets you control the CREATE TABLE statement if you need more specification. This is done with:
 
 * columns: the list of columns including their definitions.
+* table_properties: database specific properties that affect table creation (indexes, cluster, sorting, etc.).
+* post_hook: SQL statments executed right after the table/view creation.
 
 `columns` can define the following attributes:
 
 * name: the column name.
 * type: the column type.
-* primary: set to `True` if the column is part of the primary key.
-* unique: set to `True` to enforce a unique constraint on the column.
-* not_null: set to `True` to enforce a non null constraint on the column.
+* tests: list of keywords that constraint a specific column
+  - unique: enforces a unique constraint on the column.
+  - not_null: enforces a non null constraint on the column.
+  - allowed_values: list allowed values for the column.
+
+`table_properties` can define the following attributes (database specific):
+* indexes:
+* sorting: specify the sorting for the table
+* distribution_key: specify the type of distribution.
+* partitioning: specify the partitioning model for the table.
+* clustering: specify the clustering for the table.
+
+!!! attention
+      Each supported database might have specific `table_properties` related to it; see the database-specific pages for further details and examples.
 
 !!! Attention
     If the a primary key is defined in both the `columns` and `indexes` DDL entries, the primary key will be set as part of the `CREATE TABLE` statement only.
