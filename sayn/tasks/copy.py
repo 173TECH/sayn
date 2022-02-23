@@ -1,9 +1,9 @@
 from datetime import datetime
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, Optional, List, Union
 
 from pydantic import BaseModel, Field, validator, Extra
 from sqlalchemy import or_, select, column
-from terminaltables import AsciiTable
+from colorama import init, Fore, Style
 
 from ..core.errors import Err, Exc, Ok
 from ..database import Database
@@ -73,7 +73,7 @@ class Config(BaseModel):
     incremental_key: Optional[str]
     max_merge_rows: Optional[int]
     max_batch_rows: Optional[int]
-    columns: Optional[List[Dict[str, Any]]] = list()
+    columns: Optional[List[Union[str, Dict[str, Any]]]] = list()
     table_properties: Optional[List[Dict[str, Any]]] = list()
     post_hook: Optional[List[Dict[str, Any]]] = list()
 
@@ -111,9 +111,6 @@ class CopyTask(SqlTask):
     def config(self, **config):  # noqa: C901
         if "task_name" in self._config_input:
             del self._config_input["task_name"]
-
-        if "columns" in config:
-            self._has_tests = True
 
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
@@ -250,7 +247,7 @@ class CopyTask(SqlTask):
         else:
             return result
 
-        if self.run_arguments["command"] == "test":
+        if self.run_arguments["command"] == "test" and len(self.ddl["columns"]) != 0:
             result = self.target_db._construct_tests(
                 self.columns["columns"], self.table, self.schema
             )
@@ -259,6 +256,9 @@ class CopyTask(SqlTask):
             else:
                 self.test_query = result.value[0]
                 self.test_breakdown = result.value[1]
+
+            if self.test_query is not None:
+                self._has_tests = True
 
         return Ok()
 
@@ -319,35 +319,97 @@ class CopyTask(SqlTask):
         return result
 
     def test(self):
-        if self.test_query == "":
-            self.info(self.get_test_breakdown(self.test_breakdown))
+        step_queries = {
+            "Write Test Query": self.test_query,
+            "Execute Test Query": self.test_query,
+        }
+        breakdown = self.get_test_breakdown(self.test_breakdown)
+
+        if self.test_query is None:
+            self.info("Nothing to be done")
             return self.success()
         else:
-            with self.step("Write Test Query"):
-                self.write_compilation_output(self.test_query, "test")
+            self.set_run_steps(list(step_queries.keys()))
 
-            with self.step("Execute Test Query"):
-                result = self.default_db.read_data(self.test_query)
+            for step, query in step_queries.items():
+                with self.step(step):
+                    if "Write" in step:
+                        self.write_compilation_output(query, "test")
+                    if "Execute" in step:
+                        try:
+                            result = self.default_db.read_data(query)
+                        except Exception as e:
+                            return Exc(e)
 
-                self.info(self.get_test_breakdown(self.test_breakdown))
+            if len(result) == 0:
+                skipped = [brk for brk in breakdown if brk[0] == "SKIPPED"]
+                executed = [brk for brk in breakdown if brk[0] == "EXECUTED"]
 
-                if len(result) == 0:
-                    return self.success()
-                else:
-                    errout = "Test failed, summary:\n\n"
-                    errout += f"Total number of offending records: {sum([item['cnt'] for item in result])} \n"
-                    data = []
-                    data.append(
-                        ["Breach Count", "Prob. Value", "Test Type", "Failed Fields"]
+                if skipped:
+                    self.info(
+                        f"{Fore.GREEN}{len(skipped)} test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
                     )
+                self.info(
+                    f"{Fore.GREEN}{len(executed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}"
+                )
 
-                    for res in result:
-                        data.append([res["cnt"], res["val"], res["type"], res["col"]])
-                    table = AsciiTable(data)
+                return self.success()
+            else:
+                skipped = []
+                executed = []
+                failed = []
+                for brk in breakdown:
+                    if any(brk[1] != res["type"] for res in result) or any(
+                        brk[2] != res["col"] for res in result
+                    ):
+                        if brk[0] == "SKIPPED":
+                            skipped.append(brk)
+                        if brk[0] == "EXECUTED":
+                            executed.append(brk)
+                    else:
+                        failed.append(brk)
+                if self.run_arguments["debug"]:
 
-                    errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
+                    fl_info = [f"{Fore.RED}FAILED: "]
+                    for info in failed:
+                        count = sum(
+                            [
+                                item["cnt"]
+                                for item in result
+                                if (item["type"] == brk[1] and item["col"] == brk[2])
+                            ]
+                        )
+                        values = [
+                            item["val"]
+                            for item in result
+                            if (item["type"] == brk[1] and item["col"] == brk[2])
+                        ]
+                        values = ", ".join(values[:5])
+                        fl_info.append(
+                            f"{Fore.RED}{Style.BRIGHT}{brk[1]} test{Style.NORMAL} on {Style.BRIGHT}{brk[2]} FAILED{Style.NORMAL}. {count} offending records. \n\t    Please see some values for which the test failed: {Style.BRIGHT}{values}{Style.NORMAL}"
+                        )
+                    if skipped:
+                        self.info(
+                            f"{Fore.GREEN}{len(skipped)} test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
+                        )
+                    self.info(
+                        f"{Fore.GREEN}{len(executed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}"
+                    )
+                    for err in fl_info:
+                        self.info(err)
 
-                    return self.fail(errout + table.table + "\n\n" + errinfo)
+                    errinfo = f"Test Failed. You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
+                    return self.fail(errinfo)
+                else:
+                    summary = (
+                        f"{len(executed)} tests were ran, {len(executed)} succeeded, "
+                    )
+                    if skipped:
+                        summary += f", {len(skipped)} were skipped, "
+                    summary += f"{len(failed)} failed."
+                    self.warning(summary)
+                    errout = ", ".join(list(set([res["type"] for res in result])))
+                    return self.fail(f"Failed test types: {errout}")
 
     def execute(self, execute, debug, is_full_load, limit=None):
         # Introspect target

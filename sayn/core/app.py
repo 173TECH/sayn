@@ -185,7 +185,8 @@ class App:
         )
 
         self.tracker.finish_current_stage(
-            tasks={k: v.status for k, v in self.tasks.items()}
+            tasks={k: v.status for k, v in self.tasks.items()},
+            test=True if self.run_arguments.command == Command.TEST else False,
         )
 
         # Setup stage
@@ -194,7 +195,8 @@ class App:
         self.check_abort(self.setup_execution())
 
         self.tracker.finish_current_stage(
-            tasks={k: v.status for k, v in self.tasks.items() if v.in_query}
+            tasks={k: v.status for k, v in self.tasks.items() if v.in_query},
+            test=True if self.run_arguments.command == Command.TEST else False,
         )
 
     def set_project(self, project, file_groups):
@@ -608,7 +610,8 @@ class App:
                 )
 
         self.tracker.finish_current_stage(
-            tasks={k: v.status for k, v in tasks_in_query.items()}
+            tasks={k: v.status for k, v in tasks_in_query.items()},
+            test=True if self.run_arguments.command == Command.TEST else False,
         )
 
         self.finish_app()
