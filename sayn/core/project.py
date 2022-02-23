@@ -9,7 +9,7 @@ from ..utils.compiler import TaskJinjaEnv
 from ..utils.misc import merge_dicts, merge_dict_list
 from ..utils.dag import upstream, topological_sort
 from ..utils.yaml import read_yaml_file
-from .errors import Err, Ok
+from .errors import Err, Ok, SaynMissingFileError
 
 
 class Project(BaseModel):
@@ -52,18 +52,6 @@ class Project(BaseModel):
             raise ValueError(f'default_db value "{v}" not in required_credentials')
 
         return v
-
-    @validator(
-        *[
-            f"{o}_{t}"
-            for o in ("table", "schema")
-            for t in ("prefix", "suffix", "override")
-        ],
-        allow_reuse=True,
-    )
-    def non_empty_strings(cls, v):
-        if len(v.strip()) != 0:
-            return v.strip()
 
 
 def read_project(project_root=Path(".")):
@@ -234,7 +222,8 @@ def get_tasks_dict(
                         groups=(group_name, tasks[task_name]["group"]),
                     )
                 result = get_task_dict(task, task_name, group_name, presets)
-                if result.is_ok and "type" in task:
+                print(result)
+                if result.is_ok and "type" in result.value:
                     tasks[task_name] = result.value
                     if tasks[task_name].get("type") == "test":
                         return Err(
@@ -243,10 +232,7 @@ def get_tasks_dict(
                             task=task_name,
                         )
                 else:
-                    if "type" in task:
-                        errors[task_name] = result.error
-                    else:
-                        errors[task_name] = "Missing task type"
+                    errors[task_name] = result.error
 
         if group.tests is not None:
             for test_name, test in group.tests.items():
@@ -295,9 +281,7 @@ def get_tasks_dict(
             file_glob = compiler.compile(
                 group_definition["file_name"], task=TaskJinjaEnv(group=group_name)
             )
-            found_file = False
             for file in Path(sql_folder).glob(file_glob):
-                found_file = True
                 task_name = file.stem
                 if task_name in tasks:
                     return Err(
@@ -317,15 +301,9 @@ def get_tasks_dict(
                     errors[task_name] = result.error
 
                 tasks[task_name] = task
-
-            if not found_file:
-                return Err("dag", "empty_group", group=group_name)
-
         elif group_definition.get("type") == "python":
             group_definition["group"] = group_name
             group_definition["type"] = "python_module"
-            if "module" not in group_definition:
-                return Err("task", "missing_module", group=group_name)
             module_path = group_definition.pop("module", None)
             result = python_loader.get_objects(
                 "python_tasks", module_path, DecoratorTaskWrapper
