@@ -95,100 +95,6 @@ class DDL(BaseModel):
         }
 
 
-class DbObject:
-    def __init__(
-        self, connection_name, database, schema, object, stringify, prod_stringify
-    ):
-        self.connection_name = connection_name
-        self.database = database
-        self.schema = schema
-        self.object = object
-        self.stringify = stringify
-        self.prod_stringify = prod_stringify
-
-        self.database_value = None
-        self.database_prod_value = None
-        self.schema_value = None
-        self.schema_prod_value = None
-        self.object_value = None
-        self.object_prod_value = None
-        self.value = ""
-        self.prod_value = ""
-
-        if self.database is not None:
-            self.database_value = self.stringify["database"].compile(
-                database=self.database, connection=connection_name
-            )
-            self.value += self.database_value + "."
-
-            self.database_prod_value = self.prod_stringify["database"].compile_prod(
-                database=self.database, connection=connection_name
-            )
-            self.prod_value += self.database_prod_value + "."
-
-        if self.schema is not None:
-            self.schema_value = self.stringify["schema"].compile(
-                table=self.object, schema=self.schema, connection=connection_name
-            )
-            self.value += self.schema_value + "."
-
-            self.schema_prod_value = self.prod_stringify["schema"].compile_prod(
-                table=self.object, schema=self.schema, connection=connection_name
-            )
-            self.prod_value += self.schema_prod_value + "."
-
-        self.object_value = self.stringify["table"].compile(
-            table=self.object, schema=self.schema, connection=connection_name
-        )
-        self.value += self.object_value
-
-        self.object_prod_value = self.prod_stringify["table"].compile_prod(
-            table=self.object, schema=self.schema, connection=connection_name
-        )
-        self.prod_value += self.object_prod_value
-
-    def __hash__(self):
-        return hash(self.get_key())
-
-    def __eq__(self, obj):
-        return self.get_key() == obj.get_key()
-
-    def __lt__(self, obj):
-        return self.get_key() > obj.get_key()
-
-    def __repr__(self):
-        return self.get_key()
-
-    def get_key(self):
-        return f"{self.connection_name}:{self.database or ''}.{self.schema or ''}.{self.object}"
-
-    def get_value(self):
-        return self.value
-
-    def get_prod_value(self):
-        return self.prod_value
-
-
-class DBObjectFactory:
-    def __init__(self, connection_name, stringify, prod_stringify):
-        self.connection_name = connection_name
-        self.stringify = stringify
-        self.prod_stringify = prod_stringify
-
-    def from_components(self, database, schema, object):
-        return DbObject(
-            self.connection_name,
-            database,
-            schema,
-            object,
-            self.stringify,
-            self.prod_stringify,
-        )
-
-    # def from_string(self, obj):
-    #     return DbObject(connection_name, database, schema, obj, self.stringify, self.prod_stringify)
-
-
 class Database:
     """
     Base class for databases in SAYN.
@@ -205,15 +111,20 @@ class Database:
     """
 
     DDL = DDL
-    DBObjectFactory = DBObjectFactory
 
     def __init__(
-        self, name, name_in_settings, db_type, common_params, stringify, prod_stringify
+        self,
+        name,
+        name_in_settings,
+        db_type,
+        common_params,
+        settings,
     ):
         self.name = name
         self.name_in_settings = name_in_settings
         self.db_type = db_type
         self.max_batch_rows = common_params.get("max_batch_rows", 50000)
+        self._settings = settings
         self._requested_objects = dict()
 
         self._jinja_env = Environment(
@@ -227,9 +138,19 @@ class Database:
             keep_trailing_newline=True,
         )
 
-        self._object_builder = self.DBObjectFactory(
-            self.name, stringify, prod_stringify
+    def _obj_str(
+        self, database: Optional[str], schema: Optional[str], table: str
+    ) -> str:
+        return (
+            f"{database + '.' if database is not None else ''}"
+            f"{schema + '.' if schema is not None else ''}"
+            f"{table}"
         )
+
+    def _fully_qualify(
+        self, database: Optional[str], schema: Optional[str], table: str
+    ) -> str:
+        return self._obj_str(database, schema, table)
 
     def feature(self, feature):
         # Supported sql_features
@@ -249,9 +170,17 @@ class Database:
         # CANNOT SET SCHEMA
         return feature in ()
 
-    def _set_engine(self, engine):
-        self.engine = engine
-        self.metadata = MetaData(self.engine)
+    def create_engine(self, settings):
+        raise NotImplementedError()
+
+    def _activate_connection(self):
+        self.engine = self.create_engine(self._settings)
+        if self.engine is not None:
+            # We'll have a None engine when the connection is missing from the settings.
+            # We create said object only to allow the config stage to run correctly.
+            self.metadata = MetaData(self.engine)
+            # Force a query to test the connection
+            self.execute("select 1")
 
     def _construct_tests(self, columns, table, schema=None):
         query = """
@@ -362,32 +291,38 @@ class Database:
         insp = sqlalchemy.inspect(self.engine)
         out = dict()
 
-        for schema, req_objs in to_introspect.items():
-            if schema == "":
-                schema = None
-            if schema is None:
-                db_objects = [
-                    ("table", insp.get_table_names()),
-                    ("view", insp.get_view_names()),
-                ]
-            else:
-                db_objects = [
-                    ("table", insp.get_table_names(schema)),
-                    ("view", insp.get_view_names(schema)),
-                ]
+        for database, schemas in to_introspect.items():
+            if database != "":
+                # We currently don't support 3 levels of db object specification.
+                raise ValueError("3 level db objects are not currently supported")
 
-            # flatten the results
-            db_objects = {o: t for t, obs in db_objects for o in obs}
+            for schema, req_objs in schemas.items():
+                if schema == "":
+                    schema = None
 
-            if schema not in self._requested_objects:
-                self._requested_objects[schema] = dict()
-
-            out[schema] = dict()
-            for obj_name in req_objs:
-                if obj_name in db_objects:
-                    out[schema][obj_name] = {"type": db_objects[obj_name]}
+                if schema is None:
+                    db_objects = [
+                        ("table", insp.get_table_names()),
+                        ("view", insp.get_view_names()),
+                    ]
                 else:
-                    out[schema][obj_name] = {"type": None}
+                    db_objects = [
+                        ("table", insp.get_table_names(schema)),
+                        ("view", insp.get_view_names(schema)),
+                    ]
+
+                # flatten the results
+                db_objects = {o: t for t, obs in db_objects for o in obs}
+
+                if schema not in self._requested_objects:
+                    self._requested_objects[schema] = dict()
+
+                out[schema] = dict()
+                for obj_name in req_objs:
+                    if obj_name in db_objects:
+                        out[schema][obj_name] = {"type": db_objects[obj_name]}
+                    else:
+                        out[schema][obj_name] = {"type": None}
 
         self._requested_objects = out
 

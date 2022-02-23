@@ -46,7 +46,9 @@ A `copy` task is defined as follows:
       * Be defined in your `settings.yaml`.
       * Be one of the supported [databases](../databases/overview.md).
 
-The table specified in `destination` will be affected by prefixes, suffixes and overrides as described in [database objects](../database_objects.md). The source table however will be interpreted literally.
+The tables specified in `destination` and `source` will be affected by prefixes, suffixes and overrides as
+described in [database objects](../database_objects.md), meaning it only affects tables in the `default_db`
+(typically the `destination` in extraction tasks and the `source` in reverse ETL tasks).
 
 By default, tables will be copied in full every time SAYN runs replacing the table with the newly
 pulled data. This behaviour can be altered with the following:

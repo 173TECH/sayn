@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine, event
 from pydantic import validator
+from typing import Optional
 
 from . import Database
 
@@ -33,3 +34,20 @@ class Sqlite(Database):
     def execute(self, script):
         with self.engine.connect().execution_options(autocommit=True) as connection:
             connection.connection.executescript(script)
+
+    def _obj_str(
+        self, database: Optional[str], schema: Optional[str], table: str
+    ) -> str:
+        if schema is not None:
+            raise ValueError("Sqlite doesn't support schemas")
+
+        return (
+            f"{database + '.' if database is not None else ''}"
+            f"{schema + '.' if schema is not None else ''}"
+            f"{table}"
+        )
+
+    def _fully_qualify(
+        self, database: Optional[str], schema: Optional[str], table: str
+    ) -> str:
+        return self._obj_str(database, schema, table)
