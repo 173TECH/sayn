@@ -301,7 +301,7 @@ class Database:
         query += ") AS t;"
 
         if count_tests == 0:
-            return Ok(["", breakdown])
+            return Ok([None, breakdown])
 
         return Ok([query, breakdown])
 

@@ -325,7 +325,7 @@ class CopyTask(SqlTask):
         }
         breakdown = self.get_test_breakdown(self.test_breakdown)
 
-        if self.test_query == "":
+        if self.test_query is None:
             self.info("Nothing to be done")
             return self.success()
         else:
