@@ -222,7 +222,7 @@ def get_tasks_dict(
                         groups=(group_name, tasks[task_name]["group"]),
                     )
                 result = get_task_dict(task, task_name, group_name, presets)
-                print(result)
+
                 if result.is_ok and "type" in result.value:
                     tasks[task_name] = result.value
                     if tasks[task_name].get("type") == "test":
@@ -232,14 +232,22 @@ def get_tasks_dict(
                             task=task_name,
                         )
                 else:
-                    errors[task_name] = result.error
+                    if "type" in result.value:
+                        errors[task_name] = result.error
+                    else:
+                        errors[task_name] = Err(
+                            "get_task_dict",
+                            "no_type",
+                            group=group_name,
+                            task=task_name,
+                        )
 
         if group.tests is not None:
             for test_name, test in group.tests.items():
                 if "type" in test.keys():
                     return Err(
                         "dag",
-                        "Tests have no types",
+                        "type_on_test",
                         task=test_name,
                     )
 
