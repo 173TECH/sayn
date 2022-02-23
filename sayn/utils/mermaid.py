@@ -9,7 +9,7 @@ def plot_dag(dag, tasks, folder=None, file_name=None):
     task_list = list(dag.keys())
     tasks_dag = reverse_dict(dag)
 
-    text = """<div class="mermaid">\ngraph TB\n"""
+    text = """graph TB\n"""
 
     for a, l in tasks_dag.items():
         if a in task_list:
@@ -24,8 +24,8 @@ def plot_dag(dag, tasks, folder=None, file_name=None):
                 text += f"{t[0]}\n"
         text += "end\n"
 
-    text += """</div>\n<script>mermaid.initialize({startOnLoad:true});</script>\n<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>"""
+    # text += """</div>\n<script>mermaid.initialize({startOnLoad:true});</script>\n<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>"""
 
-    file = open("dag.html", "w")
+    file = open("./ui/src/Dag.svelte", "w")
     file.write(text)
     file.close()
