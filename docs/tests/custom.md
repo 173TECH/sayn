@@ -14,7 +14,12 @@ Defining `custom` tests is quite straight-forward. You only need to provide a `f
 !!! example "tests.yaml"
     ```
     tests:
-      file_name: test.sql
+      test_1:
+        file_name: test.sql
+
+    tasks:
+      ...
+      ...
     ```
 
 

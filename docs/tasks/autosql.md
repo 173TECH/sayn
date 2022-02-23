@@ -134,7 +134,7 @@ SAYN also lets you control the CREATE TABLE statement if you need more specifica
 
 * columns: the list of columns including their definitions.
 * table_properties: database specific properties that affect table creation (indexes, cluster, sorting, etc.).
-* post_hook: amends to the CREATE TABLE statement.
+* post_hook: SQL statments executed right after the table/view creation.
 
 `columns` can define the following attributes:
 
@@ -143,6 +143,7 @@ SAYN also lets you control the CREATE TABLE statement if you need more specifica
 * tests: list of keywords that constraint a specific column
   - unique: enforces a unique constraint on the column.
   - not_null: enforces a non null constraint on the column.
+  - allowed_values: list allowed values for the column.
 
 `table_properties` can define the following attributes:
 * indexes:

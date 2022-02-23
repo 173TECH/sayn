@@ -4,7 +4,7 @@
 
 SAYN provides an extension to the functionality of the `columns` field in task definitions that enables the user to make use of predefined (standard) or custom tests for their table data fields.
 
-Standard tests are implemented for the `autosql` and `copy` task types, while custom tests are not task bound and can be applied to any table in the warehouse. Custom tests are essentially SAYN `sql` tasks with a specific SQL query structure that only execute during the SAYN test suite.
+Standard tests are implemented for the `autosql` and `copy` task types, while custom tests are not task bound and can be applied to any table in the warehouse. Custom tests work like SAYN `sql` tasks with a specific SQL query structure that only execute during the SAYN test suite.
 
 Running `sayn test` through the CLI will execute all and only the standard and custom tests for a given project.
 
@@ -71,7 +71,7 @@ For example, we can define a custom tests that executes the test query presented
 !!! example "SQL test query"
     ```
     SELECT l.arena_id
-    FROM {{user_prefix}}dim_arenas as l
+    FROM dim_arenas as l
     WHERE l.arena_id IS NULL
     GROUP BY l.arena_id
     HAVING COUNT(*) > 0
