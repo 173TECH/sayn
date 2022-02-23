@@ -83,7 +83,13 @@ def _get_query_component(tasks, query):
         return Err("task_query", "wrong_query")
 
 
-def get_query(tasks, include=list(), exclude=list()):
+def get_query(tasks, include=None, exclude=None):
+    if include is None:
+        include = set()
+
+    if exclude is None:
+        exclude = set()
+
     overlap = set(include).intersection(set(exclude))
     if len(overlap) > 0:
         overlap = ", ".join(overlap)

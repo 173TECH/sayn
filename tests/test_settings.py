@@ -58,7 +58,13 @@ credentials:
             {
                 "credentials": {"warehouse": {"type": "sqlite", "database": "dev.db"}},
                 "parameters": None,
-                "stringify": dict(),  # {f"{o}_{k}": None for o in ('database', 'schema', 'table') for k in ('suffix', 'prefix', 'stringify')},
+                "stringify": dict(),
+                "from_prod": list(),
+                "default_run": {
+                    "include": set(),
+                    "exclude": set(),
+                    "upstream_prod": None,
+                },
             },
         )
 
@@ -84,6 +90,12 @@ credentials:
                 "credentials": {"warehouse": {"type": "sqlite", "database": "dev.db"}},
                 "parameters": None,
                 "stringify": dict(),
+                "from_prod": list(),
+                "default_run": {
+                    "include": set(),
+                    "exclude": set(),
+                    "upstream_prod": None,
+                },
             },
         )
 
@@ -191,6 +203,12 @@ def test_env_01(tmpdir):
                 "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
                 "parameters": {"param1": "value1"},
                 "stringify": dict(),
+                "from_prod": list(),
+                "default_run": {
+                    "include": set(),
+                    "exclude": set(),
+                    "upstream_prod": None,
+                },
             },
         )
 
@@ -209,6 +227,12 @@ def test_env_02(tmpdir):
                 "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
                 "parameters": {"param1": "value1"},
                 "stringify": dict(),
+                "from_prod": list(),
+                "default_run": {
+                    "include": set(),
+                    "exclude": set(),
+                    "upstream_prod": None,
+                },
             },
         )
 
@@ -227,6 +251,12 @@ def test_env_03(tmpdir):
                 "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
                 "parameters": {"param1": ["value1", "value2"]},
                 "stringify": dict(),
+                "from_prod": list(),
+                "default_run": {
+                    "include": set(),
+                    "exclude": set(),
+                    "upstream_prod": None,
+                },
             },
         )
 
@@ -245,6 +275,12 @@ def test_env_04(tmpdir):
                 "credentials": {"cred1": {"type": "sqlite", "database": "test.db"}},
                 "parameters": {"param1": 1},
                 "stringify": dict(),
+                "from_prod": list(),
+                "default_run": {
+                    "include": set(),
+                    "exclude": set(),
+                    "upstream_prod": None,
+                },
             },
         )
 
@@ -269,5 +305,11 @@ def test_env_05(tmpdir):
                     }
                 },
                 "stringify": dict(),
+                "from_prod": list(),
+                "default_run": {
+                    "include": set(),
+                    "exclude": set(),
+                    "upstream_prod": None,
+                },
             },
         )
