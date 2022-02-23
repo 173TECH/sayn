@@ -145,7 +145,7 @@ SAYN also lets you control the CREATE TABLE statement if you need more specifica
   - not_null: enforces a non null constraint on the column.
   - allowed_values: list allowed values for the column.
 
-`table_properties` can define the following attributes:
+`table_properties` can define the following attributes (database specific):
 * indexes:
 * sorting: specify the sorting for the table
 * distribution_key: specify the type of distribution.
