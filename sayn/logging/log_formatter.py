@@ -409,7 +409,6 @@ class LogFormatter:
             f"Total {'tasks' if details.get('test', False) is False else 'tests'}: {len(succeeded+failed+skipped)}. "
             f"Success: {len(succeeded)}. Failed {len(failed)}. Skipped {len(skipped)}."
         )
-
         if stage == "config":
             out = ["Finished project config:"]
             level = "info"
@@ -420,7 +419,11 @@ class LogFormatter:
             #     out.append(self.warn(f"Tasks to skip: {self.blist(skipped)}"))
             #     level = "error"
             if len(succeeded) > 0:
-                out.append(self.good(f"Tasks found: {self.blist(succeeded)}"))
+                out.append(
+                    self.good(
+                        f"{'Tasks' if details.get('test', False) is False else 'Tests'} found: {self.blist(succeeded)}"
+                    )
+                )
             return {"level": level, "message": out}
 
         elif stage == "setup":

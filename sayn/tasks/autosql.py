@@ -223,7 +223,7 @@ class AutoSqlTask(SqlTask):
         else:
             self.ddl = result.value
 
-        if self.run_arguments["command"] == "test":
+        if self.run_arguments["command"] == "test" and self.ddl["columns"]:
             result = self.target_db._construct_tests(
                 self.ddl["columns"], self.table, self.schema
             )
@@ -233,8 +233,8 @@ class AutoSqlTask(SqlTask):
                 self.test_query = result.value[0]
                 self.test_breakdown = result.value[1]
 
-        if self.test_query:
-            self._has_tests = True
+            if self.test_query is not None:
+                self._has_tests = True
 
         return Ok()
 
