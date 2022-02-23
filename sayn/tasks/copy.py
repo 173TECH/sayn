@@ -247,7 +247,7 @@ class CopyTask(SqlTask):
         else:
             return result
 
-        if self.run_arguments["command"] == "test" and self.ddl["columns"]:
+        if self.run_arguments["command"] == "test" and len(self.ddl["columns"]) != 0:
             result = self.target_db._construct_tests(
                 self.columns["columns"], self.table, self.schema
             )

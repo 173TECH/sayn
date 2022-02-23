@@ -223,7 +223,7 @@ class AutoSqlTask(SqlTask):
         else:
             self.ddl = result.value
 
-        if self.run_arguments["command"] == "test" and self.ddl["columns"]:
+        if self.run_arguments["command"] == "test" and len(self.ddl["columns"]) != 0:
             result = self.target_db._construct_tests(
                 self.ddl["columns"], self.table, self.schema
             )
