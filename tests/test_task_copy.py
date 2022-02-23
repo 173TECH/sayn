@@ -48,7 +48,7 @@ def test_copy_task(source_db, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
 
@@ -76,7 +76,7 @@ def test_copy_task_ddl(source_db, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
 
@@ -104,7 +104,7 @@ def test_copy_task_ddl_bq(source_db, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
 
@@ -131,7 +131,7 @@ def test_copy_task_ddl_rename(source_db, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
 
@@ -181,7 +181,7 @@ def test_copy_task_incremental(source_db, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
 
@@ -219,7 +219,7 @@ def test_copy_task_incremental2(source_db, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
 
@@ -252,7 +252,7 @@ def test_copy_task_dst_db(source_db, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -295,7 +295,7 @@ def test_copy_schemas01(source_db, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
 
@@ -336,7 +336,7 @@ def test_copy_schemas02(source_db, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
 
@@ -377,7 +377,7 @@ def test_copy_append01(source_db, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
 
@@ -425,7 +425,7 @@ def test_copy_append03(source_db, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
 

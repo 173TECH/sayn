@@ -1,5 +1,4 @@
 from datetime import date, timedelta
-from pathlib import Path
 import sys
 
 import click
@@ -8,8 +7,6 @@ from .utils.graphviz import plot_dag
 from .logging import ConsoleLogger, FancyLogger, FileLogger
 from .scaffolding.init_project import sayn_init
 from .core.app import App, Command
-from .core.errors import Err, Exc, Ok, Result, SaynError
-from .core.project import read_project, read_groups, get_tasks_dict
 from .tasks.task import TaskStatus
 
 yesterday = date.today() - timedelta(days=1)
@@ -25,8 +22,8 @@ class CliApp(App):
         upstream_prod=False,
         profile=None,
         full_load=False,
-        start_dt=yesterday,
-        end_dt=yesterday,
+        start_dt=None,
+        end_dt=None,
     ):
         super().__init__()
 
@@ -46,17 +43,27 @@ class CliApp(App):
             )
         )
 
-        self.run_arguments.start_dt = start_dt.date()
-        self.run_arguments.end_dt = end_dt.date()
+        if start_dt is not None:
+            self.run_arguments.dates_specified = True
+            self.run_arguments.start_dt = start_dt.date()
+        else:
+            self.run_arguments.start_dt = yesterday
+
+        if end_dt is not None:
+            self.run_arguments.dates_specified = True
+            self.run_arguments.end_dt = end_dt.date()
+        else:
+            end_dt = yesterday
+            self.run_arguments.end_dt = yesterday
 
         self.run_arguments.profile = profile
         self.run_arguments.full_load = full_load
 
         if include is not None:
-            self.run_arguments.include = include
+            self.run_arguments.include = set(include)
 
         if exclude is not None:
-            self.run_arguments.exclude = exclude
+            self.run_arguments.exclude = set(exclude)
 
         if upstream_prod is not None:
             self.run_arguments.upstream_prod = upstream_prod
@@ -146,14 +153,14 @@ def click_incremental(func):
         "--start-dt",
         "-s",
         type=click.DateTime(formats=["%Y-%m-%d"]),
-        default=str(yesterday),
+        default=None,
         help="For incremental loads, the start date",
     )(func)
     func = click.option(
         "--end-dt",
         "-e",
         type=click.DateTime(formats=["%Y-%m-%d"]),
-        default=str(yesterday),
+        default=None,
         help="For incremental loads, the end date",
     )(func)
     return func

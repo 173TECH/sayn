@@ -169,43 +169,42 @@ class CopyTask(SqlTask):
 
         # Setup sources
         self.source_db = self.connections[self.task_config.source.db]
-        self.source_schema = self.task_config.source.db_schema
-        self.source_table = self.task_config.source.table
-
-        # Given copy's use case, we should take the table and schema as it comes
-        # TODO add some specification for using `src` so that it works for reverse ETL
-        # if self.source_schema is None:
-        #     self.src(self.source_table, connection=self.source_db)
-        # else:
-        #     self.src(
-        #         f"{self.source_schema}.{self.source_table}", connection=self.source_db
-        #     )
+        if self.task_config.source.db_schema is None:
+            self.source_schema = None
+            self.source_table = self.src(
+                self.task_config.source.table, connection=self.source_db
+            )
+        else:
+            obj = self.src(
+                f"{self.task_config.source.db_schema}.{self.task_config.source.table}",
+                connection=self.source_db,
+            )
+            self.source_schema = obj.split(".")[0]
+            self.source_table = obj.split(".")[1]
 
         # Setup outputs
         self.config_tmp_schema = (
             self.task_config.destination.tmp_schema
             or self.task_config.destination.db_schema
         )
-        self.config_schema = self.task_config.destination.db_schema
-        self.config_table = self.task_config.destination.table
-        self.config_tmp_table = f"sayn_tmp_{self.config_table}"
+        config_schema = self.task_config.destination.db_schema
+        config_table = self.task_config.destination.table
+        config_tmp_table = f"sayn_tmp_{config_table}"
 
-        if self.config_schema is None:
+        if config_schema is None:
             self.schema = None
-            self.table = self.out(self.config_table, connection=self.target_db)
+            self.table = self.out(config_table, connection=self.target_db)
         else:
-            obj = self.out(
-                f"{self.config_schema}.{self.config_table}", connection=self.target_db
-            )
+            obj = self.out(f"{config_schema}.{config_table}", connection=self.target_db)
             self.schema = obj.split(".")[0]
             self.table = obj.split(".")[1]
 
         if self.config_tmp_schema is None:
             self.tmp_schema = None
-            self.tmp_table = self.out(self.config_tmp_table, connection=self.target_db)
+            self.tmp_table = self.out(config_tmp_table, connection=self.target_db)
         else:
             obj = self.out(
-                f"{self.config_schema}.{self.config_tmp_table}",
+                f"{config_schema}.{config_tmp_table}",
                 connection=self.target_db,
             )
             self.tmp_schema = obj.split(".")[0]
@@ -262,29 +261,20 @@ class CopyTask(SqlTask):
 
         return Ok()
 
-    def setup(self, needs_recompile):
-        if needs_recompile:
-            if self.config_schema is None:
-                self.table = self.out(self.config_table, connection=self.target_db)
-            else:
-                obj = self.out(
-                    f"{self.config_schema}.{self.config_table}",
-                    connection=self.target_db,
-                )
-                self.schema = obj.split(".")[0]
-                self.table = obj.split(".")[1]
-
-            if self.config_tmp_schema is None:
-                self.tmp_table = self.out(
-                    self.config_tmp_table, connection=self.target_db
+    def setup(self):
+        if self.needs_recompile:
+            if self.task_config.source.db_schema:
+                self.source_schema = None
+                self.source_table = self.src(
+                    self.task_config.source.table, connection=self.source_db
                 )
             else:
-                obj = self.out(
-                    f"{self.config_schema}.{self.config_tmp_table}",
-                    connection=self.target_db,
+                obj = self.src(
+                    f"{self.task_config.source.db_schema}.{self.task_config.source.table}",
+                    connection=self.source_db,
                 )
-                self.tmp_schema = obj.split(".")[0]
-                self.tmp_table = obj.split(".")[1]
+                self.source_schema = obj.split(".")[0]
+                self.source_table = obj.split(".")[1]
 
         return Ok()
 

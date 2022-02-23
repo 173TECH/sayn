@@ -38,7 +38,7 @@ def test_autosql_task_table(tmp_path, target_db):
         assert result.is_ok or result is None
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        result = task.setup(False)
+        result = task.setup()
         assert result.is_ok or result is None
 
         result = task.run()
@@ -57,7 +57,7 @@ def test_autosql_task_view(tmp_path, target_db):
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
 
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -94,7 +94,7 @@ def test_autosql_task_incremental(tmp_path, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -124,7 +124,7 @@ def test_autosql_task_compile(tmp_path, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.compile().is_ok
 
@@ -145,7 +145,7 @@ def test_autosql_task_param(tmp_path, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -208,7 +208,7 @@ def test_autosql_task_run_error(tmp_path, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_err
 
@@ -227,7 +227,7 @@ def test_autosql_task_table_db_dst(tmp_path, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -263,7 +263,7 @@ def test_autosql_task_run_ddl_columns(tmp_path, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         # test the pk has indeed been set
@@ -342,7 +342,7 @@ def test_autosql_task_run_ddl_diff_col_order(tmp_path, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -377,7 +377,7 @@ def test_autosql_task_run_ddl_diff_col_order_bq(tmp_path, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -407,7 +407,7 @@ def test_autosql_schemas01(tmp_path, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -455,7 +455,7 @@ def test_autosql_schemas02(tmp_path, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.run().is_ok
         assert validate_table(
@@ -506,7 +506,7 @@ def test_autosql_test_names(tmp_path, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
         assert task.run().is_ok
         assert task.test().is_ok
 
@@ -532,7 +532,7 @@ def test_autosql_test_lists(tmp_path, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
         assert task.run().is_ok
         assert task.test().is_ok
 
@@ -563,6 +563,6 @@ def test_autosql_test_values(tmp_path, target_db):
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
         assert task.run().is_ok
         assert task.test().is_ok
