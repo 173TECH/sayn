@@ -36,8 +36,6 @@ six = "1.16.0"
 spinners = "0.0.24"
 termcolor = "1.1.0"
 
-terminaltables = "3.1.10"
-
 # DB drivers (optional)
 # Postgresql and Redshift
 psycopg2 = { version = "2.9.3", optional = true }

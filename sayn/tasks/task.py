@@ -3,8 +3,6 @@ from enum import Enum
 from pathlib import Path
 from typing import Set, Dict, Any
 
-from terminaltables import AsciiTable
-
 from ..core.errors import Err, Ok
 from ..logging.task_event_tracker import TaskEventTracker
 from ..utils.compiler import Compiler

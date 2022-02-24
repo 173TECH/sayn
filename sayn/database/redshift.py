@@ -1,5 +1,5 @@
 from collections import Counter
-from typing import List, Optional, Dict, Union
+from typing import List, Optional, Union
 
 from pydantic import BaseModel, constr, validator, Extra
 from sqlalchemy import create_engine

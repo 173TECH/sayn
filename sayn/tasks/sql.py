@@ -7,7 +7,6 @@ from enum import Enum
 from ..core.errors import Ok, Err, Exc
 from ..database import Database
 from .task import Task
-from .test import Columns
 
 
 class Config(BaseModel):

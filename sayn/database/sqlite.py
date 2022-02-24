@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, event
-from pydantic import validator
+
 from typing import Optional
 
 from . import Database

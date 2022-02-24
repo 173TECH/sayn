@@ -234,16 +234,24 @@ def get_tasks_dict(
                         groups=(group_name, tasks[task_name]["group"]),
                     )
                 result = get_task_dict(task, task_name, group_name, presets)
-                if result.is_ok:
+                if result.is_ok and "type" in result.value:
                     tasks[task_name] = result.value
+                    if tasks[task_name].get("type") == "test":
+                        return Err(
+                            "dag",
+                            "test in tasks",
+                            task=task_name,
+                        )
                 else:
-                    errors[task_name] = result.error
-                if tasks[task_name]["type"] == "test":
-                    return Err(
-                        "dag",
-                        "test in tasks",
-                        task=task_name,
-                    )
+                    if "type" in result.value:
+                        errors[task_name] = result.error
+                    else:
+                        errors[task_name] = Err(
+                            "get_task_dict",
+                            "no_type",
+                            group=group_name,
+                            task=task_name,
+                        )
 
         if group.tests is not None:
             for test_name, test in group.tests.items():
