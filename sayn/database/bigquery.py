@@ -237,14 +237,14 @@ class Bigquery(Database):
 
                     # Get the current config on the db
                     if obj_name in db_objects:
-                        db_objects = db_objects[obj_name]
-                        if db_objects["type"] == "BASE TABLE":
+                        db_object = db_objects[obj_name]
+                        if db_object["type"] == "BASE TABLE":
                             self._requested_objects[dataset][obj_name]["type"] = "table"
-                        elif db_objects["type"] == "VIEW":
+                        elif db_object["type"] == "VIEW":
                             self._requested_objects[dataset][obj_name]["type"] = "view"
 
                         cluster_cols = []
-                        for c in db_objects["columns"]:
+                        for c in db_object["columns"]:
                             if c["is_partition"] is True:
                                 self._requested_objects[dataset][obj_name][
                                     "partition"
