@@ -2,7 +2,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, FilePath, validator, Extra
 from typing import List, Optional, Union
-from colorama import init, Fore, Style
+from colorama import Fore, Style
 
 from ..core.errors import Ok, Err, Exc
 from ..database import Database
@@ -66,7 +66,7 @@ class TestTask(Task):
 
         return Ok()
 
-    def setup(self, needs_recompile):
+    def setup(self):
         return Ok()
 
     def test(self):
@@ -105,4 +105,4 @@ class TestTask(Task):
                 )
                 return self.fail(errout + errinfo)
             else:
-                return self.fail(f"Failed test types: custom")
+                return self.fail("Failed test types: custom")

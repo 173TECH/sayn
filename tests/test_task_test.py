@@ -24,7 +24,7 @@ def task_tset(tmp_path, target_db, sql, data=None, **kwargs):
 def test_custom_test(tmp_path, target_db):
     with task_tset(tmp_path, target_db, "SELECT 1 AS x WHERE x IS NULL") as task:
         assert task.config(file_name="test.sql").is_ok
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.test().is_ok
 
@@ -32,6 +32,6 @@ def test_custom_test(tmp_path, target_db):
 def test_custom_test_fail(tmp_path, target_db):
     with task_tset(tmp_path, target_db, "SELECT 1 AS x WHERE x IS NOT NULL") as task:
         assert task.config(file_name="test.sql").is_ok
-        assert task.setup(False).is_ok
+        assert task.setup().is_ok
 
         assert task.test().is_err

@@ -414,21 +414,22 @@ class AutoSqlTask(SqlTask):
 
                     fl_info = [f"{Fore.RED}FAILED: "]
                     for info in failed:
+                        print(info)
                         count = sum(
                             [
                                 item["cnt"]
                                 for item in result
-                                if (item["type"] == brk[1] and item["col"] == brk[2])
+                                if (item["type"] == info[1] and item["col"] == info[2])
                             ]
                         )
                         values = [
                             item["val"]
                             for item in result
-                            if (item["type"] == brk[1] and item["col"] == brk[2])
+                            if (item["type"] == info[1] and item["col"] == info[2])
                         ]
                         values = ", ".join(values[:5])
                         fl_info.append(
-                            f"{Fore.RED}{Style.BRIGHT}{brk[1]} test{Style.NORMAL} on {Style.BRIGHT}{brk[2]} FAILED{Style.NORMAL}. {count} offending records. \n\t    Please see some values for which the test failed: {Style.BRIGHT}{values}{Style.NORMAL}"
+                            f"{Fore.RED}{Style.BRIGHT}{brk[1]} test{Style.NORMAL} on {Style.BRIGHT}{info[2]} FAILED{Style.NORMAL}. {count} offending records. \n\t    Please see some values for which the test failed: {Style.BRIGHT}{values}{Style.NORMAL}"
                         )
                     if skipped:
                         self.info(
