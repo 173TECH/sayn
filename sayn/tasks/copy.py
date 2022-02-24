@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional, List, Union
 
 from pydantic import BaseModel, Field, validator, Extra
 from sqlalchemy import or_, select, column
-from colorama import init, Fore, Style
+from colorama import Fore, Style
 
 from ..core.errors import Err, Exc, Ok
 from ..database import Database

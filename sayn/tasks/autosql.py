@@ -3,7 +3,7 @@ from typing import Any, List, Mapping, Optional, Union
 from enum import Enum
 
 from pydantic import BaseModel, Field, FilePath, validator, Extra
-from colorama import init, Fore, Style
+from colorama import Fore, Style
 
 from ..core.errors import Exc, Ok, Err
 from ..database import Database
@@ -414,7 +414,6 @@ class AutoSqlTask(SqlTask):
 
                     fl_info = [f"{Fore.RED}FAILED: "]
                     for info in failed:
-                        print(info)
                         count = sum(
                             [
                                 item["cnt"]

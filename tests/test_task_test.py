@@ -3,7 +3,7 @@ from contextlib import contextmanager
 import pytest
 from sayn.tasks.test import TestTask as Task
 
-from . import inside_dir, simulate_task, tables_with_data, validate_table, clear_tables
+from . import inside_dir, simulate_task, tables_with_data
 
 
 @contextmanager
