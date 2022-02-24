@@ -32,7 +32,10 @@ class FancyLogger(Logger):
 
     def task_stage_finish(self, stage, duration, result):
         if stage != "config":
-            self.spinner.text = f"[{self.task_order}/{self.total_tasks}] {self.task} ({human(duration)})"
+            if self.total_tasks == 0:
+                self.spinner.text = f"{self.task} ({human(duration)})"
+            else:
+                self.spinner.text = f"[{self.task_order}/{self.total_tasks}] {self.task} ({human(duration)})"
         else:
             self.spinner.text = f" {self.task} ({human(duration)})"
 
@@ -134,7 +137,10 @@ class FancyLogger(Logger):
                 pass  # self.task_set_steps(details)
 
             elif event == "start_stage":
-                self.task_text = f"[{self.task_order}/{self.total_tasks}] {self.task} (started at {ts})"
+                if self.total_tasks == 0:
+                    self.task_text = f"{self.task} (started at {ts})"
+                else:
+                    self.task_text = f"[{self.task_order}/{self.total_tasks}] {self.task} (started at {ts})"
                 self.spinner.text = self.task_text
                 self.spinner.start()
 
