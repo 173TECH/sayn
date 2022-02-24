@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://173tech.github.io/sayn/databases/redshift/">
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
     
     
       
@@ -278,6 +278,18 @@
   
 
           
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/tutorial_part3/" class="md-nav__link">
+        Tutorial (Part 3)
+      </a>
+    </li>
+  
+
+          
         </ul>
       </nav>
     </li>
@@ -388,6 +400,18 @@
     <li class="md-nav__item">
       <a href="../../parameters/" class="md-nav__link">
         Parameters
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../database_objects/" class="md-nav__link">
+        Database objects
       </a>
     </li>
   
@@ -508,6 +532,73 @@
 
   
   
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" >
+      
+      <label class="md-nav__link" for="nav-5">
+        Data Tests
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Data Tests" data-md-level="1">
+        <label class="md-nav__title" for="nav-5">
+          <span class="md-nav__icon md-icon"></span>
+          Data Tests
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/standard/" class="md-nav__link">
+        Standard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/custom/" class="md-nav__link">
+        Custom
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
     
   
   
@@ -515,14 +606,14 @@
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" checked>
       
-      <label class="md-nav__link" for="nav-5">
+      <label class="md-nav__link" for="nav-6">
         Databases
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Databases" data-md-level="1">
-        <label class="md-nav__title" for="nav-5">
+        <label class="md-nav__title" for="nav-6">
           <span class="md-nav__icon md-icon"></span>
           Databases
         </label>
@@ -722,14 +813,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
       
-      <label class="md-nav__link" for="nav-6">
+      <label class="md-nav__link" for="nav-7">
         API Reference
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="API Reference" data-md-level="1">
-        <label class="md-nav__title" for="nav-6">
+        <label class="md-nav__title" for="nav-7">
           <span class="md-nav__icon md-icon"></span>
           API Reference
         </label>
@@ -777,14 +868,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8" >
       
-      <label class="md-nav__link" for="nav-7">
+      <label class="md-nav__link" for="nav-8">
         Project Examples
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Project Examples" data-md-level="1">
-        <label class="md-nav__title" for="nav-7">
+        <label class="md-nav__title" for="nav-8">
           <span class="md-nav__icon md-icon"></span>
           Project Examples
         </label>
@@ -988,14 +1079,14 @@ dialect for extra parameters.</p>
 are specified.</p>
 <div class="admonition example">
 <p class="admonition-title">settings.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">credentials</span><span class="p">:</span>
-  <span class="nt">redshift-conn</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">redshift</span>
-    <span class="nt">host</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-redshift-cluster.adhfjlasdljfd.eu-west-1.redshift.amazonaws.com</span>
-    <span class="nt">port</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5439</span>
-    <span class="nt">user</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">awsuser</span>
-    <span class="nt">password</span><span class="p">:</span> <span class="s">&#39;Pas$w0rd&#39;</span> <span class="c1">#use quotes to avoid conflict with special characters</span>
-    <span class="nt">dbname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">models</span>
+<div class="highlight"><pre><span></span><code><span class="nt">credentials</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">redshift-conn</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redshift</span><span class="w"></span>
+<span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-redshift-cluster.adhfjlasdljfd.eu-west-1.redshift.amazonaws.com</span><span class="w"></span>
+<span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5439</span><span class="w"></span>
+<span class="w">    </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">awsuser</span><span class="w"></span>
+<span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Pas$w0rd&#39;</span><span class="w"> </span><span class="c1">#use quotes to avoid conflict with special characters</span><span class="w"></span>
+<span class="w">    </span><span class="nt">dbname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">models</span><span class="w"></span>
 </code></pre></div>
 </div>
 <h3 id="connecting_with_iam">Connecting With IAM<a class="headerlink" href="#connecting_with_iam" title="Permanent link">&para;</a></h3>
@@ -1003,12 +1094,12 @@ are specified.</p>
 connection, so only user, dbname and cluster_id are required.</p>
 <div class="admonition example">
 <p class="admonition-title">settings.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">credentials</span><span class="p">:</span>
-  <span class="nt">redshift-conn</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">redshift</span>
-    <span class="nt">cluster_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">my-redshift-cluster</span>
-    <span class="nt">user</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">awsuser</span>
-    <span class="nt">dbname</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">models</span>
+<div class="highlight"><pre><span></span><code><span class="nt">credentials</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">redshift-conn</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redshift</span><span class="w"></span>
+<span class="w">    </span><span class="nt">cluster_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-redshift-cluster</span><span class="w"></span>
+<span class="w">    </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">awsuser</span><span class="w"></span>
+<span class="w">    </span><span class="nt">dbname</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">models</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p>For this connection type to work:</p>
@@ -1026,37 +1117,37 @@ in the <code>ddl</code> entry in the task definition.</p>
 <p>Table sorting can be specified under the <code>ddl</code> entry in the task definition</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-  <span class="nt">f_battles</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_battles.sql</span>
-    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-    <span class="nt">destination</span><span class="p">:</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_battles</span>
-    <span class="nt">ddl</span><span class="p">:</span>
-      <span class="nt">sorting</span><span class="p">:</span>
-        <span class="nt">columns</span><span class="p">:</span>
-          <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">arena_name</span>
-          <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">fighter1_name</span>
+<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">f_battles</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autosql</span><span class="w"></span>
+<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f_battles.sql</span><span class="w"></span>
+<span class="w">    </span><span class="nt">materialisation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table</span><span class="w"></span>
+<span class="w">    </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f_battles</span><span class="w"></span>
+<span class="w">    </span><span class="nt">table_properties</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">sorting</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">columns</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">arena_name</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fighter1_name</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p>With the above example, the table <code>f_battles</code> will be sorted by <code>arena_name</code> and <code>fighter1_name</code>
 using a compound key (Redshift default). The type of sorting can be changed to interleaved.</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-  <span class="nt">f_battles</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_battles.sql</span>
-    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-    <span class="nt">destination</span><span class="p">:</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_battles</span>
-    <span class="nt">ddl</span><span class="p">:</span>
-      <span class="nt">sorting</span><span class="p">:</span>
-        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">interleaved</span>
-        <span class="nt">columns</span><span class="p">:</span>
-          <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">arena_name</span>
-          <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">fighter1_name</span>
+<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">f_battles</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autosql</span><span class="w"></span>
+<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f_battles.sql</span><span class="w"></span>
+<span class="w">    </span><span class="nt">materialisation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table</span><span class="w"></span>
+<span class="w">    </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f_battles</span><span class="w"></span>
+<span class="w">    </span><span class="nt">table_properties</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">sorting</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">interleaved</span><span class="w"></span>
+<span class="w">        </span><span class="nt">columns</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">arena_name</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fighter1_name</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p>For more information, read the latest docs about <a href="https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html" target="_blank">SORTKEY</a>.</p>
@@ -1064,29 +1155,29 @@ using a compound key (Redshift default). The type of sorting can be changed to i
 <p>We can also specify the type of distribution: even, all or key based. If not specified, the Redshift default is even distribution.</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-  <span class="nt">f_battles</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_battles.sql</span>
-    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-    <span class="nt">destination</span><span class="p">:</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_battles</span>
-    <span class="nt">ddl</span><span class="p">:</span>
-      <span class="nt">distribution</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">all</span>
+<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">f_battles</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autosql</span><span class="w"></span>
+<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f_battles.sql</span><span class="w"></span>
+<span class="w">    </span><span class="nt">materialisation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table</span><span class="w"></span>
+<span class="w">    </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f_battles</span><span class="w"></span>
+<span class="w">    </span><span class="nt">table_properties</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">distribution</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">all</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p>If we want to distribute the table by a given column use the following:</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-  <span class="nt">f_battles</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_battles.sql</span>
-    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-    <span class="nt">destination</span><span class="p">:</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">f_battles</span>
-    <span class="nt">ddl</span><span class="p">:</span>
-      <span class="nt">distribution</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">key(tournament_name)</span>
+<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">f_battles</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autosql</span><span class="w"></span>
+<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f_battles.sql</span><span class="w"></span>
+<span class="w">    </span><span class="nt">materialisation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table</span><span class="w"></span>
+<span class="w">    </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f_battles</span><span class="w"></span>
+<span class="w">    </span><span class="nt">table_properties</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">distribution</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">key(tournament_name)</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p>For more information, read the latest docs about

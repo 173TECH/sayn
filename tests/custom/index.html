@@ -9,14 +9,14 @@
       
       
       
-        <link rel="canonical" href="https://173tech.github.io/sayn/databases/bigquery/">
+        <link rel="canonical" href="https://173tech.github.io/sayn/tests/custom/">
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
     
     
       
-        <title>BigQuery - SAYN</title>
+        <title>Custom - SAYN</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#bigquery" class="md-skip">
+        <a href="#custom_tests" class="md-skip">
           Skip to content
         </a>
       
@@ -104,7 +104,7 @@
         <div class="md-header-nav__topic">
           <span class="md-ellipsis">
             
-              BigQuery
+              Custom
             
           </span>
         </div>
@@ -532,12 +532,14 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" checked>
       
       <label class="md-nav__link" for="nav-5">
         Data Tests
@@ -547,75 +549,6 @@
         <label class="md-nav__title" for="nav-5">
           <span class="md-nav__icon md-icon"></span>
           Data Tests
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../tests/overview/" class="md-nav__link">
-        Overview
-      </a>
-    </li>
-  
-
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../tests/standard/" class="md-nav__link">
-        Standard
-      </a>
-    </li>
-  
-
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../tests/custom/" class="md-nav__link">
-        Custom
-      </a>
-    </li>
-  
-
-          
-        </ul>
-      </nav>
-    </li>
-  
-
-    
-      
-      
-      
-
-  
-  
-    
-  
-  
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" checked>
-      
-      <label class="md-nav__link" for="nav-6">
-        Databases
-        <span class="md-nav__icon md-icon"></span>
-      </label>
-      <nav class="md-nav" aria-label="Databases" data-md-level="1">
-        <label class="md-nav__title" for="nav-6">
-          <span class="md-nav__icon md-icon"></span>
-          Databases
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -635,6 +568,18 @@
             
   
   
+  
+    <li class="md-nav__item">
+      <a href="../standard/" class="md-nav__link">
+        Standard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
     
   
   
@@ -646,12 +591,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          BigQuery
+          Custom
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        BigQuery
+        Custom
       </a>
       
         
@@ -668,29 +613,23 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#bigquery_specific_ddl" class="md-nav__link">
-    Bigquery Specific DDL
-  </a>
-  
-    <nav class="md-nav" aria-label="Bigquery Specific DDL">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#partitioning" class="md-nav__link">
-    Partitioning
+  <a href="#about" class="md-nav__link">
+    About
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#clustering" class="md-nav__link">
-    Clustering
+      
+        <li class="md-nav__item">
+  <a href="#defining_tests" class="md-nav__link">
+    Defining Tests
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#writing_custom_test_queries" class="md-nav__link">
+    Writing custom test queries
+  </a>
   
 </li>
       
@@ -702,12 +641,67 @@
   
 
           
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+      
+      <label class="md-nav__link" for="nav-6">
+        Databases
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Databases" data-md-level="1">
+        <label class="md-nav__title" for="nav-6">
+          <span class="md-nav__icon md-icon"></span>
+          Databases
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
             
   
   
   
     <li class="md-nav__item">
-      <a href="../mysql/" class="md-nav__link">
+      <a href="../../databases/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../databases/bigquery/" class="md-nav__link">
+        BigQuery
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../databases/mysql/" class="md-nav__link">
         MySQL
       </a>
     </li>
@@ -719,7 +713,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../postgresql/" class="md-nav__link">
+      <a href="../../databases/postgresql/" class="md-nav__link">
         PostgreSQL
       </a>
     </li>
@@ -731,7 +725,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../redshift/" class="md-nav__link">
+      <a href="../../databases/redshift/" class="md-nav__link">
         Redshift
       </a>
     </li>
@@ -743,7 +737,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../snowflake/" class="md-nav__link">
+      <a href="../../databases/snowflake/" class="md-nav__link">
         Snowflake
       </a>
     </li>
@@ -755,7 +749,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sqlite/" class="md-nav__link">
+      <a href="../../databases/sqlite/" class="md-nav__link">
         SQLite
       </a>
     </li>
@@ -915,29 +909,23 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#bigquery_specific_ddl" class="md-nav__link">
-    Bigquery Specific DDL
-  </a>
-  
-    <nav class="md-nav" aria-label="Bigquery Specific DDL">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#partitioning" class="md-nav__link">
-    Partitioning
+  <a href="#about" class="md-nav__link">
+    About
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#clustering" class="md-nav__link">
-    Clustering
+      
+        <li class="md-nav__item">
+  <a href="#defining_tests" class="md-nav__link">
+    Defining Tests
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#writing_custom_test_queries" class="md-nav__link">
+    Writing custom test queries
+  </a>
   
 </li>
       
@@ -954,86 +942,45 @@
               
                 
                 
-                <h1 id="bigquery">BigQuery<a class="headerlink" href="#bigquery" title="Permanent link">&para;</a></h1>
-<p>The BigQuery driver depends on <a href="https://github.com/mxmzdlv/pybigquery" target="_blank">pybigquery</a> and can be
-installed with:</p>
-<div class="highlight"><pre><span></span><code>pip install <span class="s2">&quot;sayn[bigquery]&quot;</span>
-</code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>SAYN 0.6 switched from <a href="https://github.com/mxmzdlv/pybigquery" target="_blank">pybigquery</a> to
-<a href="https://github.com/googleapis/python-bigquery-sqlalchemy">sqlalchemy-bigquery</a>. When upgrading, pybigquery
-should be uninstalled with <code>pip uninstall pybigquery</code>.</p>
+                <h1 id="custom_tests"><code>custom</code> tests<a class="headerlink" href="#custom_tests" title="Permanent link">&para;</a></h1>
+<h2 id="about">About<a class="headerlink" href="#about" title="Permanent link">&para;</a></h2>
+<p>Custom tests are defined in their own task group <code>tests</code>. In the test definition you provide an SQL query that comprises the test and during execution that query will get executed.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Defining normal tasks in the <code>tests</code> group will cause SAYN to fail. The SQL queries provided to the <code>custom</code> test, needs to live in a <code>tests</code> folder in the <code>sql</code> folder of the project.</p>
 </div>
-<p>The <a href="https://cloud.google.com/bigquery" target="_blank">Bigquery</a> connector looks for the following parameters:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>project</td>
-<td>GCP project where the cluster is</td>
-<td>Required</td>
-</tr>
-<tr>
-<td>credentials_path</td>
-<td>Path relative to the project to the json for the service account to use</td>
-<td>Required</td>
-</tr>
-<tr>
-<td>location</td>
-<td>Default location for tables created</td>
-<td>Dataset default</td>
-</tr>
-<tr>
-<td>dataset</td>
-<td>Dataset to use when running queries. Can be specified in sql</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>For advanced configurations, SAYN will pass other parameters to <code>create_engine</code>, so check the
-<a href="https://github.com/mxmzdlv/pybigquery" target="_blank">pybigquery</a>
-dialect for extra parameters.</p>
-<h2 id="bigquery_specific_ddl">Bigquery Specific DDL<a class="headerlink" href="#bigquery_specific_ddl" title="Permanent link">&para;</a></h2>
-<h3 id="partitioning">Partitioning<a class="headerlink" href="#partitioning" title="Permanent link">&para;</a></h3>
-<p>SAYN supports specifying the partitioning model for tables created with autosql and copy tasks. To do
-this we specify <code>partition</code> in the ddl field. The value is a string matching a BigQuery
-<a href="https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#partition_expression" target="_blank">partition expression</a>.</p>
+<h2 id="defining_tests">Defining Tests<a class="headerlink" href="#defining_tests" title="Permanent link">&para;</a></h2>
+<p>Defining <code>custom</code> tests is quite straight-forward. You only need to provide a <code>file_name</code>:</p>
 <div class="admonition example">
-<p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">f_battles</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autosql</span><span class="w"></span>
-<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f_battles.sql</span><span class="w"></span>
-<span class="w">    </span><span class="nt">materialisation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table</span><span class="w"></span>
-<span class="w">    </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f_battles</span><span class="w"></span>
-<span class="w">    </span><span class="nt">table_properties</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DATE(_PARTITIONTIME)</span><span class="w"></span>
+<p class="admonition-title">tests.yaml</p>
+<div class="highlight"><pre><span></span><code>tests:
+  test_1:
+    file_name: test.sql
+
+tasks:
+  ...
+  ...
 </code></pre></div>
 </div>
-<h3 id="clustering">Clustering<a class="headerlink" href="#clustering" title="Permanent link">&para;</a></h3>
-<p>We can also specify the clustering for the table with the <code>cluster</code> property in autosql and copy tasks.
-The value in this case is a list of columns. If the ddl for the task includes the list of columns, the
-columns specified in the <code>cluster</code> should be present in the column list.</p>
+<h2 id="writing_custom_test_queries">Writing <code>custom</code> test queries<a class="headerlink" href="#writing_custom_test_queries" title="Permanent link">&para;</a></h2>
+<p>SAYN considers a test to be successful (meaning it passed) when the executing query returns empty (with no results). Thus, when writing <code>custom</code> test queries, the test needs to be expressed as a lack of results to show. As an example, we can look at how <code>unique</code> and <code>not_null</code> tests can be implemented with <code>custom</code> tests:</p>
 <div class="admonition example">
-<p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">f_battles</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autosql</span><span class="w"></span>
-<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f_battles.sql</span><span class="w"></span>
-<span class="w">    </span><span class="nt">materialisation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table</span><span class="w"></span>
-<span class="w">    </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">f_battles</span><span class="w"></span>
-<span class="w">    </span><span class="nt">table_properties</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">cluster</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">arena_name</span><span class="w"></span>
+<p class="admonition-title">SQL test query - unique</p>
+<div class="highlight"><pre><span></span><code>SELECT t.column
+     , COUNT(*)
+  FROM table t
+ GROUP BY t.columns
+HAVING COUNT(*) &gt; 1
+</code></pre></div>
+</div>
+<div class="admonition example">
+<p class="admonition-title">SQL test query - nullity</p>
+<div class="highlight"><pre><span></span><code>SELECT t.column
+     , COUNT(*)
+  FROM table t
+ WHERE t.column IS NULL
+ GROUP BY t.column
+HAVING COUNT(*) &gt; 1
 </code></pre></div>
 </div>
                 
@@ -1054,7 +1001,7 @@ columns specified in the <code>cluster</code> should be present in the column li
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
         
-          <a href="../overview/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../standard/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-footer-nav__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
             </div>
@@ -1063,19 +1010,19 @@ columns specified in the <code>cluster</code> should be present in the column li
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Overview
+                Standard
               </div>
             </div>
           </a>
         
         
-          <a href="../mysql/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../../databases/overview/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-footer-nav__title">
               <div class="md-ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                MySQL
+                Overview
               </div>
             </div>
             <div class="md-footer-nav__button md-icon">

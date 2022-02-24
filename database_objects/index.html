@@ -9,14 +9,14 @@
       
       
       
-        <link rel="canonical" href="https://173tech.github.io/sayn/presets/">
+        <link rel="canonical" href="https://173tech.github.io/sayn/database_objects/">
       
       <link rel="shortcut icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
     
     
       
-        <title>Presets - SAYN</title>
+        <title>Database objects - SAYN</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#presets" class="md-skip">
+        <a href="#database_objects" class="md-skip">
           Skip to content
         </a>
       
@@ -104,7 +104,7 @@
         <div class="md-header-nav__topic">
           <span class="md-ellipsis">
             
-              Presets
+              Database objects
             
           </span>
         </div>
@@ -386,56 +386,11 @@
             
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Presets
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../presets/" class="md-nav__link">
         Presets
       </a>
-      
-        
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#defining_the_preset" class="md-nav__link">
-    Defining The preset
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#preset_inheritance" class="md-nav__link">
-    Preset Inheritance
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -455,11 +410,104 @@
             
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../database_objects/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Database objects
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Database objects
       </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#object_specification" class="md-nav__link">
+    Object specification
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compilation_of_object_names" class="md-nav__link">
+    Compilation of object names
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#name_configuration" class="md-nav__link">
+    Name configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencing_database_objects" class="md-nav__link">
+    Referencing database objects
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#altering_the_behaviour_of_src" class="md-nav__link">
+    Altering the behaviour of src
+  </a>
+  
+    <nav class="md-nav" aria-label="Altering the behaviour of src">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#from_prod_configuration" class="md-nav__link">
+    from_prod configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upstream_prod" class="md-nav__link">
+    Upstream prod
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced_usage" class="md-nav__link">
+    Advanced usage
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -902,15 +950,63 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#defining_the_preset" class="md-nav__link">
-    Defining The preset
+  <a href="#object_specification" class="md-nav__link">
+    Object specification
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#preset_inheritance" class="md-nav__link">
-    Preset Inheritance
+  <a href="#compilation_of_object_names" class="md-nav__link">
+    Compilation of object names
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#name_configuration" class="md-nav__link">
+    Name configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencing_database_objects" class="md-nav__link">
+    Referencing database objects
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#altering_the_behaviour_of_src" class="md-nav__link">
+    Altering the behaviour of src
+  </a>
+  
+    <nav class="md-nav" aria-label="Altering the behaviour of src">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#from_prod_configuration" class="md-nav__link">
+    from_prod configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upstream_prod" class="md-nav__link">
+    Upstream prod
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced_usage" class="md-nav__link">
+    Advanced usage
   </a>
   
 </li>
@@ -928,55 +1024,301 @@
               
                 
                 
-                <h1 id="presets">Presets<a class="headerlink" href="#presets" title="Permanent link">&para;</a></h1>
-<p>Presets are used to define common task configuration. If a <code>task</code> specifies a <code>preset</code> attribute, it
-will then inherit all attributes from the referred <code>preset</code>. This makes <code>presets</code> great to avoid
-repetition.</p>
-<h2 id="defining_the_preset">Defining The <code>preset</code><a class="headerlink" href="#defining_the_preset" title="Permanent link">&para;</a></h2>
+                <h1 id="database_objects">Database objects<a class="headerlink" href="#database_objects" title="Permanent link">&para;</a></h1>
+<p>The most common task found in SAYN projects is the <code>autosql</code> task. This is a type of tasks where you write a <code>SELECT</code> statement
+and SAYN handles the database object creation. When you run the project you would want a task selecting from a table to run
+after the task that creates said table. In order to simplify task dependencies, SAYN considers database objects core concepts
+and provides some tools to treat them as such.</p>
+<h2 id="object_specification">Object specification<a class="headerlink" href="#object_specification" title="Permanent link">&para;</a></h2>
+<p>In a relational database we typically find database tables organised into schemas, so for example <code>logs.tournaments</code> refers to
+a table (or view) called <code>tournaments</code> in the <code>logs</code> schema, whereas <code>arenas</code> refers to a table (or view) called <code>arenas</code> in the
+default schema. SAYN uses the same format to refer to database tables and views, but as we'll see this allows for a more dynamic use.</p>
+<h2 id="compilation_of_object_names">Compilation of object names<a class="headerlink" href="#compilation_of_object_names" title="Permanent link">&para;</a></h2>
+<p>In a real world scenario we want to write our code in a way that dynamically changes depending on the profile we're running
+on (eg: test vs production). This allows for multiple people to collaborate on the same project, wihtout someone's actions
+affecting the work of others in the team. Let's consider this example task:</p>
 <div class="admonition example">
-<p class="admonition-title">Preset</p>
-<div class="highlight"><pre><span></span><code><span class="nt">presets</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">modelling</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autosql</span><span class="w"></span>
-<span class="w">    </span><span class="nt">materialisation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table</span><span class="w"></span>
-<span class="w">    </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">tmp_schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">analytics_staging</span><span class="w"></span>
-<span class="w">      </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">analytics_models</span><span class="w"></span>
-<span class="w">      </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{task.name}}&#39;</span><span class="w"></span>
+<p class="admonition-title">tasks/core.yaml</p>
+<div class="highlight"><pre><span></span><code>tasks:
+  example_task:
+    type: autosql
+    materialisation: table
+    file_name: example_task.sql
+    destination:
+      schema: models
+      table: example_model
 </code></pre></div>
 </div>
-<p>The above defines a preset called <code>modelling</code>. Every <code>task</code> referring to it will be an <code>autosql</code>
-task and inherit all other attributes from it. For a task to use this configuration, we use the <code>preset</code>
-property in the task.</p>
+<p>This task uses the <code>SELECT</code> statement in the file <code>sql/example_task.sql</code> and creates a table <code>example_model</code> in the <code>models</code> schema
+of the default database. Now, if someone in your team runs this task, <code>models.example_model</code> will be replace with their new code
+and if someone else in the team is executing a task that reads from it it can produce undesired results.</p>
+<p>A way to solve this problem could be to have different databases for each person in a team but that can easily lead to complicated
+database setups, potential data governance issues and increased database costs, as you might need a copy of the data per person
+working with it.</p>
+<p>In SAYN there's another solution: we express database object names like <code>schema.table</code> but the code that's execution in the database
+is transformed according to personal settings. For example, we could have a schema called <code>analytics_models</code> where our production lives
+and another called <code>test_models</code> where we store data produced during development, with table names like <code>USER_PREFIX_table</code> rather
+than <code>table</code> so there's no collision and we minimise data redundancy.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Name configuration only affects the <code>default_db</code>. When a SAYN project has more than 1 database
+connection you can still use the macros described in this page to set dependencies, but the
+resulting value of the macro is exactly the same as the input.</p>
+</div>
+<h2 id="name_configuration">Name configuration<a class="headerlink" href="#name_configuration" title="Permanent link">&para;</a></h2>
+<p>The modifications described above are setup with prefixes, suffixes and overrides. For example:</p>
 <div class="admonition example">
-<p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">task_name</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">preset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">modelling</span><span class="w"></span>
-<span class="w">    </span><span class="c1">#other task properties</span><span class="w"></span>
+<p class="admonition-title">settings.yaml</p>
+<div class="highlight"><pre><span></span><code>profiles:
+  test:
+    schema_prefix: test
+    table_prefix: up
 </code></pre></div>
 </div>
-<p>Presets can be defined both in <code>project.yaml</code> and in any task group file (files in the <code>tasks</code> folder).</p>
-<h2 id="preset_inheritance">Preset Inheritance<a class="headerlink" href="#preset_inheritance" title="Permanent link">&para;</a></h2>
-<p>Presets can reference other presets, the behaviour of this reference being exactly as it works for task.</p>
+<p>The above will make every <code>schema.table</code> specification to be compiled to <code>test_schema.up_table</code>.</p>
+<p>Following the example in the previous section, if we want the to call the production schema <code>analytics_models</code> we can do so by
+adding the prefix in the <code>project.yaml</code> file:</p>
 <div class="admonition example">
 <p class="admonition-title">project.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">presets</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">modelling</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autosql</span><span class="w"></span>
-<span class="w">    </span><span class="nt">materialisation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table</span><span class="w"></span>
-<span class="w">    </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">tmp_schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">analytics_staging</span><span class="w"></span>
-<span class="w">      </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">analytics_models</span><span class="w"></span>
-<span class="w">      </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{task.name}}&#39;</span><span class="w"></span>
-
-<span class="w">  </span><span class="nt">modelling_view</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">preset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">modelling</span><span class="w"></span>
-<span class="w">    </span><span class="nt">materialisation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">view</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code>schema_prefix: analytics
 </code></pre></div>
 </div>
-<p>In the above example, <code>modelling_view</code> is a preset with exactly the same properties as preset <code>modelling</code>
-except it will generate a view when materialising an autosql task.</p>
+<p>Having both files above configured like that will make it so that referencing <code>models.example_model</code> on production will be translated
+to <code>analytics_models.example_model</code> whereas the same code during testing will be translated as <code>test_models.up_example_model</code>. In other
+words, what we define in <code>project.yaml</code> is the default behaviour which can be overriden in <code>settings.yaml</code>.</p>
+<p>Aside from <code>schema_prefix</code> and <code>table_prefix</code> we also have <code>suffix</code> (<code>schema_suffix</code> and <code>table_suffix</code>) which as expected would instead
+of prepending the value and an underscore, it adds that at the end.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Although the name of these settigns is <code>table_*</code> this also applies to views in the database. Similarly
+in some databases the concept of <code>schema</code> is called differently (eg: dataset in BigQuery) but <code>schema</code>
+is still used for all databases in SAYN.</p>
+</div>
+<h2 id="referencing_database_objects">Referencing database objects<a class="headerlink" href="#referencing_database_objects" title="Permanent link">&para;</a></h2>
+<p>So far we've seen how the properties of an autosql task use this database object specification, but the real power of this feature is when
+used in the code of the task itself, which we do this with the <code>src</code> and <code>out</code> macros. For example:</p>
+<div class="admonition example">
+<p class="admonition-title">settings.yaml</p>
+<div class="highlight"><pre><span></span><code>profiles:
+  test:
+    schema_prefix: test
+    table_prefix: up
+</code></pre></div>
+</div>
+<div class="admonition example">
+<p class="admonition-title">sql/example_model.sql</p>
+<div class="highlight"><pre><span></span><code>SELECT *
+  FROM {{ src(&#39;logs.raw_table&#39;) }}
+</code></pre></div>
+</div>
+<p>Here we're calling the <code>src</code> macro that does 2 things:</p>
+<ul>
+<li>Using prefixes and suffixes translates <code>logs.raw_table</code> to the appropriate table name</li>
+<li>Declares that <code>example_task</code> (as defined earlier in this page) depends on the task(s) that produce <code>logs.raw_table</code></li>
+</ul>
+<p>So the output code to be executed in the database will be:</p>
+<div class="admonition example">
+<p class="admonition-title">compile/core/example_model.sql</p>
+<div class="highlight"><pre><span></span><code>-- SAYN adds the table management code
+SELECT *
+  FROM test_logs.up_raw_table
+</code></pre></div>
+</div>
+<p>The counterpart to <code>src</code> is <code>out</code> which similarly translates the value to the appropriate database name, as well as it defines database
+objects produced by the task. In <code>autosql</code> tasks <code>out</code> is not present since there's no usage for it, however this is useful for <code>sql</code> tasks:</p>
+<div class="admonition example">
+<p class="admonition-title">sql/example_sql.sql</p>
+<div class="highlight"><pre><span></span><code>CREATE OR REPLACE TABLE {{ out(&#39;models.sql_example&#39;) }} AS
+SELECT *
+  FROM {{ src(&#39;logs.raw_table&#39;) }}
+</code></pre></div>
+</div>
+<p>This code tells SAYN that this sql task produces the table <code>models.sql_example</code> and depends on the table <code>logs.raw_table</code>, while
+simultaneously producing this example code to be executed in the database:</p>
+<div class="admonition example">
+<p class="admonition-title">compile/core/example_sql.sql</p>
+<div class="highlight"><pre><span></span><code>CREATE OR REPLACE TABLE test_models.up_sql_example AS
+SELECT *
+  FROM test_logs.up_raw_table
+</code></pre></div>
+</div>
+<p><code>src</code> and <code>out</code> are also available to python tasks, however we use them with <code>context.src</code> or <code>self.src</code>:</p>
+<div class="admonition example">
+<p class="admonition-title">python/example.py</p>
+<div class="highlight"><pre><span></span><code>@task(sources=&#39;logs.raw_table&#39;)
+def example_python(context, warehouse):
+    table_name = context.src(&#39;logs.raw_table&#39;)
+    data = warehouse.read_data(f&quot;select * from {table_name}&quot;)
+    ...
+</code></pre></div>
+</div>
+<div class="admonition example">
+<p class="admonition-title">python/advanced_example.py</p>
+<div class="highlight"><pre><span></span><code>class MyTask(PythonTask):
+    def config(self):
+        self.table_name = self.src(&#39;logs.raw_table&#39;)
+
+    def run(self):
+        data = self.default_db.read_data(f&quot;select * from {self.table_name}&quot;)
+    ...
+</code></pre></div>
+</div>
+<p>The above examples are equivalent to each other and we use <code>context.src</code> in the decorator form and <code>self.src</code> in the more advanced class
+model. <code>context.out</code> and <code>self.out</code> are also available in python tasks and their behaviour is the same as with sql and autosql tasks.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p><code>src</code> should only be used for tables that are managed by the SAYN project. If an external EL tool is being used to load data
+into your warehouse, references to these tables should be hardcoded instead, as their names never change depending on your SAYN
+profile, nor there are any task dependencies to infer from using <code>src</code>.</p>
+</div>
+<p>Note that calling <code>src</code> and <code>out</code> in the <code>run</code> method of a python task class or in the function code when using a decorator doesn't
+affect task dependencies, it simply outputs the translated database object name. The task dependency behaviour in python tasks is done
+by either calling <code>self.src</code> or <code>self.out</code> in the <code>config</code> method of the class or by passing these references to the <code>task</code> decorator
+in the <code>sources</code> and <code>outputs</code> arguments as seen in this example. For more details head to <a href="tasks/python">the python task section</a>.</p>
+<h2 id="altering_the_behaviour_of_src">Altering the behaviour of <code>src</code><a class="headerlink" href="#altering_the_behaviour_of_src" title="Permanent link">&para;</a></h2>
+<p>A very common situation when working in your data pipeline is when we have a lot of data to work with but at any point in time while modelling
+we find ourselves working only a subset of it. Working with sample data can be inconvenient during development because it hinders our
+ability to evaluate the result and the alternative, having a duplicate of the data for every person in the team, can be costly both in
+terms of money and time producing and maintaining these duplicates. For this reason SAYN comes equiped with 2 features that simplifies this
+switchin: <code>from_prod</code> and upstream prod.</p>
+<p><code>from_prod</code> is most useful when a team member never deals with a part of the SAYN project. For example, a data analyst that only deals with 
+modelling tasks in a SAYN project that also has extraction tasks. Upstream prod is most useful when we're doing changes to a small set of task,
+so we don't want to have to repopulate all the upstream tables.</p>
+<h3 id="from_prod_configuration"><code>from_prod</code> configuration<a class="headerlink" href="#from_prod_configuration" title="Permanent link">&para;</a></h3>
+<p>The first mechanism is <code>from_prod</code> which we set in the <code>settings.yaml</code> file and override the behaviour of <code>src</code>. An example:</p>
+<div class="admonition example">
+<p class="admonition-title">project.yaml</p>
+<div class="highlight"><pre><span></span><code>schema_prefix: analytics
+</code></pre></div>
+</div>
+<div class="admonition example">
+<p class="admonition-title">sql/core/test_table.sql</p>
+<div class="highlight"><pre><span></span><code>SELECT *
+  FROM {{ src(&#39;logs.extract_table&#39;) }}
+</code></pre></div>
+</div>
+<div class="admonition example">
+<p class="admonition-title">settings.yaml</p>
+<div class="highlight"><pre><span></span><code>profiles:
+  dev:
+    table_prefix: up
+    schema_prefix: test
+    from_prod:
+      - &quot;logs.*&quot;
+</code></pre></div>
+</div>
+<p>In the above example we have a task selecting data from <code>logs.extract_table</code> which for the purpose of this example we can assume is
+created by an extraction task pulling data from an API. On production, <code>src('logs.extract_table')</code> will be translated as
+<code>analytics_logs.extract_table</code>, whereas during development it will be translated as <code>test_logs.up_extract_table</code>, given the
+configuration in the <code>dev</code> profile in <code>settings.yaml</code>. However there's also a <code>from_prod</code> entry with <code>logs.*</code> which is telling
+SAYN that all tables or views from the <code>logs</code> schema should come from production, so the final code for the <code>test_table</code> task will
+actually be:</p>
+<div class="admonition example">
+<p class="admonition-title">compile/core/test_table_select.sql</p>
+<div class="highlight"><pre><span></span><code>SELECT *
+  FROM analytics_logs.extract_table
+</code></pre></div>
+</div>
+<p>As you can see, we just need to specify a list of tables in <code>from_prod</code> to always read from the production configuration, that is, the
+settings shared by all team members as specified in <code>project.yaml</code>. To make it easier to use, wildcards (<code>*</code>) are accepted, so that we
+can specify a whole schema like in the example, but we can also specify a list of tables explicitely instead.</p>
+<p><code>from_prod</code> can also be specified using environment variables with <code>export SAYN_FROM_PROD="logs.*"</code> where the value is a comma
+separated list of tables.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>To avoid accidentally affecting production tables, <code>from_prod</code> only affects <code>src</code>. The result of calling <code>out</code> always evaluate
+to your configuration in <code>settings.yaml</code> or environment variables.</p>
+</div>
+<h3 id="upstream_prod">Upstream prod<a class="headerlink" href="#upstream_prod" title="Permanent link">&para;</a></h3>
+<p>The second mechanism to override the behaviour of <code>src</code> is upstream prod. We use upstream prod by specifying the flag (<code>-u</code> or <code>--upstream-prod</code>)
+when running SAYN while filtering, for example <code>sayn run -t example_task -u</code>. When we do this, any reference to tables produced by tasks not
+present in the current execution will use the parameters defined in <code>project.yaml</code>.
+For example:</p>
+<div class="admonition example">
+<p class="admonition-title">project.yaml</p>
+<div class="highlight"><pre><span></span><code>schema_prefix: analytics
+</code></pre></div>
+</div>
+<div class="admonition example">
+<p class="admonition-title">settings.yaml</p>
+<div class="highlight"><pre><span></span><code>profiles:
+  test:
+    schema_prefix: test
+    table_prefix: up
+</code></pre></div>
+</div>
+<div class="admonition example">
+<p class="admonition-title">sql/example_model.sql</p>
+<div class="highlight"><pre><span></span><code>SELECT *
+  FROM {{ src(&#39;logs.raw_table&#39;) }}
+</code></pre></div>
+</div>
+<p>Running <code>sayn run -t example_task</code> will run the following code in the database:</p>
+<div class="admonition example">
+<p class="admonition-title">compile/core/example_task_create_table.sql</p>
+<div class="highlight"><pre><span></span><code>CREATE OR REPLACE TABLE test_models.up_example_model AS
+SELECT *
+  FROM test_logs.up_raw_table
+</code></pre></div>
+</div>
+<p>So the <code>src</code> macro translates <code>logs.raw_table</code> to the testing name <code>test_logs.up_raw_table</code>. However, with upstream prod
+(<code>sayn run -t example_task -u</code>) the code executed will be:</p>
+<div class="admonition example">
+<p class="admonition-title">compile/core/example_task_create_table.sql</p>
+<div class="highlight"><pre><span></span><code>CREATE OR REPLACE TABLE test_models.up_example_model AS
+SELECT *
+  FROM analytics_logs.raw_table
+</code></pre></div>
+</div>
+<p>Since no task in this execution creates <code>logs.raw_table</code> in SAYN translates that instead to the production name <code>analytics_logs.raw_table</code>,
+while the table created is still the test version.</p>
+<p>Let' assume now that we have another task that we want to include in the execution:</p>
+<div class="admonition example">
+<p class="admonition-title">sql/another_example_model.sql</p>
+<div class="highlight"><pre><span></span><code>SELECT *
+  FROM {{ src(&#39;models.example_model&#39;) }}
+</code></pre></div>
+</div>
+<p>So when run <code>sayn run -t example_task another_example_task -u</code> the code for the <code>example_task</code> will remain the same as above,
+but the code executed for <code>another_example_model</code> will be:</p>
+<div class="admonition example">
+<p class="admonition-title">compile/core/another_example_task_create_table.sql</p>
+<div class="highlight"><pre><span></span><code>CREATE OR REPLACE TABLE test_models.up_another_example_model AS
+SELECT *
+  FROM test_models.up_example_model
+</code></pre></div>
+</div>
+<p>Because <code>example_task</code> is part of this exeuction and produces the table <code>models.example_model</code> reference by <code>another_example_task</code>
+<code>models.example_model</code> is translated using the testing settings into <code>test_models.up_example_model</code> unlike <code>logs.raw_table</code> which
+as no task producing it is present in this execution, will be translated into the production name.</p>
+<p>With upstream prod it becomes a lot easier to work with your modelling layer without having to duplicate all your upstream tables
+for every person in the team or being forced to work with sampled data.</p>
+<h2 id="advanced_usage">Advanced usage<a class="headerlink" href="#advanced_usage" title="Permanent link">&para;</a></h2>
+<p>For a more advanced usage, we also have <code>schema_override</code> and <code>table_override</code> which allows us to completely change the behaviour.
+With <code>override</code> what we do is define the exact value that a schema or table name will have based on some Jinja template logic. To
+this template 3 values are passed:</p>
+<ul>
+<li><code>table</code>: the name of the table specified in sayn code</li>
+<li><code>schema</code>: the name of the schema specified in sayn code</li>
+<li><code>connection</code>: the name of the connection it refers to</li>
+</ul>
+<div class="admonition example">
+<p class="admonition-title">settings.yaml</p>
+<div class="highlight"><pre><span></span><code>profiles:
+  test:
+    schema_override: &quot;{% if schema != &#39;logs&#39; %}test{% else %}analytics{% endif %}_{{ schema }}&quot;
+    table_override: &quot;{% if schema != &#39;logs&#39; %}up_{{ table }}{% else %}{{ table }}{% endif %}&quot;
+</code></pre></div>
+</div>
+<p>With this example, a reference to <code>models.example_model</code> will be translated as <code>test_models.up_example_model</code> but a reference to
+<code>logs.raw_logs</code> will be translated as <code>analytics_logs.raw_logs</code>. This can be useful in cases where someone in the team never
+works with data ingestion, so every modelling task ran by them will always reads from production data, rather than having to
+duplicate the data or having to work with a sample of this raw data.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Note that with the above example of override, a task writting to the logs schema will always write to the production version
+<code>analytics_logs</code> so to avoid issue you should always have good permissions setup in your database.</p>
+</div>
                 
               
               
@@ -995,7 +1337,7 @@ except it will generate a view when materialising an autosql task.</p>
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
         
-          <a href="../tasks/overview/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../parameters/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-footer-nav__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
             </div>
@@ -1004,19 +1346,19 @@ except it will generate a view when materialising an autosql task.</p>
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Tasks
+                Parameters
               </div>
             </div>
           </a>
         
         
-          <a href="../parameters/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../tasks/overview/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-footer-nav__title">
               <div class="md-ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Parameters
+                Overview
               </div>
             </div>
             <div class="md-footer-nav__button md-icon">

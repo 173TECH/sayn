@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://173tech.github.io/sayn/tasks/copy/">
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
     
     
       
@@ -278,6 +278,18 @@
   
 
           
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/tutorial_part3/" class="md-nav__link">
+        Tutorial (Part 3)
+      </a>
+    </li>
+  
+
+          
         </ul>
       </nav>
     </li>
@@ -388,6 +400,18 @@
     <li class="md-nav__item">
       <a href="../../parameters/" class="md-nav__link">
         Parameters
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../database_objects/" class="md-nav__link">
+        Database objects
       </a>
     </li>
   
@@ -524,8 +548,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data_types_and_ddl" class="md-nav__link">
-    Data types and DDL
+  <a href="#data_types_and_columns" class="md-nav__link">
+    Data types and columns
   </a>
   
 </li>
@@ -570,11 +594,78 @@
         <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" >
       
       <label class="md-nav__link" for="nav-5">
+        Data Tests
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Data Tests" data-md-level="1">
+        <label class="md-nav__title" for="nav-5">
+          <span class="md-nav__icon md-icon"></span>
+          Data Tests
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/standard/" class="md-nav__link">
+        Standard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/custom/" class="md-nav__link">
+        Custom
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+      
+      <label class="md-nav__link" for="nav-6">
         Databases
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Databases" data-md-level="1">
-        <label class="md-nav__title" for="nav-5">
+        <label class="md-nav__title" for="nav-6">
           <span class="md-nav__icon md-icon"></span>
           Databases
         </label>
@@ -682,14 +773,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
       
-      <label class="md-nav__link" for="nav-6">
+      <label class="md-nav__link" for="nav-7">
         API Reference
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="API Reference" data-md-level="1">
-        <label class="md-nav__title" for="nav-6">
+        <label class="md-nav__title" for="nav-7">
           <span class="md-nav__icon md-icon"></span>
           API Reference
         </label>
@@ -737,14 +828,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8" >
       
-      <label class="md-nav__link" for="nav-7">
+      <label class="md-nav__link" for="nav-8">
         Project Examples
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Project Examples" data-md-level="1">
-        <label class="md-nav__title" for="nav-7">
+        <label class="md-nav__title" for="nav-8">
           <span class="md-nav__icon md-icon"></span>
           Project Examples
         </label>
@@ -832,8 +923,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data_types_and_ddl" class="md-nav__link">
-    Data types and DDL
+  <a href="#data_types_and_columns" class="md-nav__link">
+    Data types and columns
   </a>
   
 </li>
@@ -855,20 +946,24 @@
 <h2 id="about">About<a class="headerlink" href="#about" title="Permanent link">&para;</a></h2>
 <p>The <code>copy</code> task copies tables from one database to another. It can be used to automatically
 ingest data from operational databases (e.g. PostgreSQL) to your analytics warehouse.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Copy tasks can only be defined in YAML groups in the tasks folder, not directly in <code>project.yaml</code>.</p>
+</div>
 <h2 id="defining_copy_tasks">Defining <code>copy</code> Tasks<a class="headerlink" href="#defining_copy_tasks" title="Permanent link">&para;</a></h2>
 <p>A <code>copy</code> task is defined as follows:</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">task_copy</span><span class="p">:</span>
-  <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">copy</span>
-  <span class="nt">source</span><span class="p">:</span>
-    <span class="nt">db</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_db</span>
-    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_schema</span>
-    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_table</span>
-  <span class="nt">destination</span><span class="p">:</span>
-    <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">staging_schema</span>
-    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">schema</span>
-    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table_name</span>
+<div class="highlight"><pre><span></span><code><span class="nt">task_copy</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">copy</span><span class="w"></span>
+<span class="w">  </span><span class="nt">source</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">db</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">from_db</span><span class="w"></span>
+<span class="w">    </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">from_schema</span><span class="w"></span>
+<span class="w">    </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">from_table</span><span class="w"></span>
+<span class="w">  </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">tmp_schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">staging_schema</span><span class="w"></span>
+<span class="w">    </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">schema</span><span class="w"></span>
+<span class="w">    </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table_name</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p><code>copy</code> tasks have the following parameters that need to be set:</p>
@@ -890,13 +985,16 @@ ingest data from operational databases (e.g. PostgreSQL) to your analytics wareh
 </ul>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>You do not need to specify <code>db</code> unless you want the destination database to be different than the <code>default_db</code> you define in <code>project.yaml</code> (which is the default database used by SAYN). If you define the <code>db</code> attribute, it needs to:</p>
+<p>By default the destination is the database defined by <code>default_db</code> in <code>project.yaml</code>. <code>db</code> can be specified to change this, in which case the connection specified needs to:</p>
 <ul>
 <li>Be a credential from the <code>required_credentials</code> list in <code>project.yaml</code>.</li>
 <li>Be defined in your <code>settings.yaml</code>.</li>
 <li>Be one of the supported <a href="../../databases/overview/">databases</a>.</li>
 </ul>
 </div>
+<p>The tables specified in <code>destination</code> and <code>source</code> will be affected by prefixes, suffixes and overrides as
+described in <a href="../../database_objects/">database objects</a>, meaning it only affects tables in the <code>default_db</code>
+(typically the <code>destination</code> in extraction tasks and the <code>source</code> in reverse ETL tasks).</p>
 <p>By default, tables will be copied in full every time SAYN runs replacing the table with the newly
 pulled data. This behaviour can be altered with the following:</p>
 <ul>
@@ -914,18 +1012,18 @@ pulled data. This behaviour can be altered with the following:</p>
 </ul>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">task_copy</span><span class="p">:</span>
-  <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">copy</span>
-  <span class="nt">source</span><span class="p">:</span>
-    <span class="nt">db</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_db</span>
-    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_schema</span>
-    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_table</span>
-  <span class="nt">destination</span><span class="p">:</span>
-    <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">staging_schema</span>
-    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">schema</span>
-    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table_name</span>
-  <span class="nt">incremental_key</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">updated_at</span>
-  <span class="nt">delete_key</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">id</span>
+<div class="highlight"><pre><span></span><code><span class="nt">task_copy</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">copy</span><span class="w"></span>
+<span class="w">  </span><span class="nt">source</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">db</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">from_db</span><span class="w"></span>
+<span class="w">    </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">from_schema</span><span class="w"></span>
+<span class="w">    </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">from_table</span><span class="w"></span>
+<span class="w">  </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">tmp_schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">staging_schema</span><span class="w"></span>
+<span class="w">    </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">schema</span><span class="w"></span>
+<span class="w">    </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table_name</span><span class="w"></span>
+<span class="w">  </span><span class="nt">incremental_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">updated_at</span><span class="w"></span>
+<span class="w">  </span><span class="nt">delete_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">id</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p>In this example, we use <code>updated_at</code> which is a field updated every time a record changes (or is created)
@@ -933,18 +1031,18 @@ on a hypothetical backend database to select new records, and then we replace al
 based on the <code>id</code>s found in this new dataset.</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">task_copy</span><span class="p">:</span>
-  <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">copy</span>
-  <span class="nt">source</span><span class="p">:</span>
-    <span class="nt">db</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_db</span>
-    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_schema</span>
-    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_table</span>
-  <span class="nt">destination</span><span class="p">:</span>
-    <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">staging_schema</span>
-    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">schema</span>
-    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table_name</span>
-  <span class="nt">incremental_key</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">updated_at</span>
-  <span class="nt">append</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+<div class="highlight"><pre><span></span><code><span class="nt">task_copy</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">copy</span><span class="w"></span>
+<span class="w">  </span><span class="nt">source</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">db</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">from_db</span><span class="w"></span>
+<span class="w">    </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">from_schema</span><span class="w"></span>
+<span class="w">    </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">from_table</span><span class="w"></span>
+<span class="w">  </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">tmp_schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">staging_schema</span><span class="w"></span>
+<span class="w">    </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">schema</span><span class="w"></span>
+<span class="w">    </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table_name</span><span class="w"></span>
+<span class="w">  </span><span class="nt">incremental_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">updated_at</span><span class="w"></span>
+<span class="w">  </span><span class="nt">append</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p>In this other example, whenever the task runs it checks the latest value of <code>updated_at</code> and appends to the
@@ -969,29 +1067,28 @@ of records loaded is lower than the value of <code>max_merge_rows</code>. In ord
 process will also stop after a maximum of 100 iteration. To avoid issues, it should be set to a very
 large value (larger than <code>max_batch_rows</code>).</p>
 </div>
-<h2 id="data_types_and_ddl">Data types and DDL<a class="headerlink" href="#data_types_and_ddl" title="Permanent link">&para;</a></h2>
-<p><code>copy</code> tasks accept a <code>ddl</code> field in the task definition in the same way that <code>autosql</code> does. With this
+<h2 id="data_types_and_columns">Data types and columns<a class="headerlink" href="#data_types_and_columns" title="Permanent link">&para;</a></h2>
+<p><code>copy</code> tasks accept a <code>columns</code> field in the task definition in the same way that <code>autosql</code> does. With this
 specification, we can override the default behaviour of copy when it comes to column types by enforcing
 specific column types in the final table:</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">task_copy</span><span class="p">:</span>
-  <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">copy</span>
-  <span class="nt">source</span><span class="p">:</span>
-    <span class="nt">db</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_db</span>
-    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_schema</span>
-    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_table</span>
-  <span class="nt">destination</span><span class="p">:</span>
-    <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">staging_schema</span>
-    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">schema</span>
-    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table_name</span>
-  <span class="nt">incremental_key</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">updated_at</span>
-  <span class="nt">delete_key</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">id</span>
-  <span class="nt">ddl</span><span class="p">:</span>
-    <span class="nt">columns</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">id</span>
-      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">updated_at</span>
-        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">timestamp</span>
+<div class="highlight"><pre><span></span><code><span class="nt">task_copy</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">copy</span><span class="w"></span>
+<span class="w">  </span><span class="nt">source</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">db</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">from_db</span><span class="w"></span>
+<span class="w">    </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">from_schema</span><span class="w"></span>
+<span class="w">    </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">from_table</span><span class="w"></span>
+<span class="w">  </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">tmp_schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">staging_schema</span><span class="w"></span>
+<span class="w">    </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">schema</span><span class="w"></span>
+<span class="w">    </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table_name</span><span class="w"></span>
+<span class="w">  </span><span class="nt">incremental_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">updated_at</span><span class="w"></span>
+<span class="w">  </span><span class="nt">delete_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">id</span><span class="w"></span>
+<span class="w">  </span><span class="nt">columns</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">id</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">updated_at</span><span class="w"></span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">timestamp</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p>In this example we define 2 columns for <code>task_copy</code>: <code>id</code> and <code>updated_at</code>. This will make SAYN:
@@ -1003,23 +1100,22 @@ change the name of the column in the destination table. When using this property
 and <code>incremental_key</code> need to reference this new name.</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">task_copy</span><span class="p">:</span>
-  <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">copy</span>
-  <span class="nt">source</span><span class="p">:</span>
-    <span class="nt">db</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_db</span>
-    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_schema</span>
-    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">from_table</span>
-  <span class="nt">destination</span><span class="p">:</span>
-    <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">staging_schema</span>
-    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">schema</span>
-    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table_name</span>
-  <span class="nt">incremental_key</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">updated_ts</span>
-  <span class="nt">delete_key</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">id</span>
-  <span class="nt">ddl</span><span class="p">:</span>
-    <span class="nt">columns</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">id</span>
-      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">updated_at</span>
-        <span class="nt">dst_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">updated_ts</span>
+<div class="highlight"><pre><span></span><code><span class="nt">task_copy</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">copy</span><span class="w"></span>
+<span class="w">  </span><span class="nt">source</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">db</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">from_db</span><span class="w"></span>
+<span class="w">    </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">from_schema</span><span class="w"></span>
+<span class="w">    </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">from_table</span><span class="w"></span>
+<span class="w">  </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">tmp_schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">staging_schema</span><span class="w"></span>
+<span class="w">    </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">schema</span><span class="w"></span>
+<span class="w">    </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table_name</span><span class="w"></span>
+<span class="w">  </span><span class="nt">incremental_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">updated_ts</span><span class="w"></span>
+<span class="w">  </span><span class="nt">delete_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">id</span><span class="w"></span>
+<span class="w">  </span><span class="nt">columns</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">id</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">updated_at</span><span class="w"></span>
+<span class="w">      </span><span class="nt">dst_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">updated_ts</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p>In this example, the <code>updated_at</code> column at source will be called <code>updated_ts</code> on the target.

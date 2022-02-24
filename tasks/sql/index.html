@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://173tech.github.io/sayn/tasks/sql/">
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
     
     
       
@@ -278,6 +278,18 @@
   
 
           
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/tutorial_part3/" class="md-nav__link">
+        Tutorial (Part 3)
+      </a>
+    </li>
+  
+
+          
         </ul>
       </nav>
     </li>
@@ -388,6 +400,18 @@
     <li class="md-nav__item">
       <a href="../../parameters/" class="md-nav__link">
         Parameters
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../database_objects/" class="md-nav__link">
+        Database objects
       </a>
     </li>
   
@@ -511,6 +535,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#config_macro" class="md-nav__link">
+    Config macro
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -563,11 +594,78 @@
         <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" >
       
       <label class="md-nav__link" for="nav-5">
+        Data Tests
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Data Tests" data-md-level="1">
+        <label class="md-nav__title" for="nav-5">
+          <span class="md-nav__icon md-icon"></span>
+          Data Tests
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/standard/" class="md-nav__link">
+        Standard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/custom/" class="md-nav__link">
+        Custom
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+      
+      <label class="md-nav__link" for="nav-6">
         Databases
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Databases" data-md-level="1">
-        <label class="md-nav__title" for="nav-5">
+        <label class="md-nav__title" for="nav-6">
           <span class="md-nav__icon md-icon"></span>
           Databases
         </label>
@@ -675,14 +773,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
       
-      <label class="md-nav__link" for="nav-6">
+      <label class="md-nav__link" for="nav-7">
         API Reference
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="API Reference" data-md-level="1">
-        <label class="md-nav__title" for="nav-6">
+        <label class="md-nav__title" for="nav-7">
           <span class="md-nav__icon md-icon"></span>
           API Reference
         </label>
@@ -730,14 +828,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8" >
       
-      <label class="md-nav__link" for="nav-7">
+      <label class="md-nav__link" for="nav-8">
         Project Examples
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Project Examples" data-md-level="1">
-        <label class="md-nav__title" for="nav-7">
+        <label class="md-nav__title" for="nav-8">
           <span class="md-nav__icon md-icon"></span>
           Project Examples
         </label>
@@ -824,6 +922,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#config_macro" class="md-nav__link">
+    Config macro
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -845,25 +950,41 @@ executing <code>UPDATE</code> statements for example, that wouldn't be covered b
 <p>A <code>sql</code> task is defined as follows:</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">task_sql</span><span class="p">:</span>
-  <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sql</span>
-  <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sql_task.sql</span>
+<div class="highlight"><pre><span></span><code><span class="nt">task_sql</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sql</span><span class="w"></span>
+<span class="w">  </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sql_task.sql</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p>A <code>sql</code> task is defined by the following attributes:</p>
 <ul>
-<li><code>file_name</code>: path to a file under the <code>sql</code> folder containing the SQL script to execute.</li>
+<li><code>file_name</code>: the path to a file <strong>within the sql folder of the project's root</strong>. When defining <code>sql</code> <code>groups</code> in <code>project.yaml</code> this property needs to be a glob expression, for example <code>group/*.sql</code>.</li>
 <li><code>db</code>: the (optional) destination database.</li>
 </ul>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>You do not need to specify <code>db</code> unless you want the destination database to be different than the <code>default_db</code> you define in <code>project.yaml</code> (which is the default database used by SAYN). If you define the <code>db</code> attribute, it needs to:</p>
+<p>By default the task is executed in the database defined by <code>default_db</code> in <code>project.yaml</code>. <code>db</code> can be specified to change this, in which case the connection specified needs to:</p>
 <ul>
 <li>Be a credential from the <code>required_credentials</code> list in <code>project.yaml</code>.</li>
 <li>Be defined in your <code>settings.yaml</code>.</li>
 <li>Be one of the supported <a href="../../databases/overview/">databases</a>.</li>
 </ul>
 </div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The sql code can use the <code>src</code> and <code>out</code> macros to implicitly create task dependencies as decribed in <a href="../../database_objects/">database objects</a>.</p>
+</div>
+<h2 id="config_macro">Config macro<a class="headerlink" href="#config_macro" title="Permanent link">&para;</a></h2>
+<p>Like <code>autosql</code> tasks, we can overload some values specified in the YAML. This is useful when we define
+groups in <code>project.yaml</code> and for a specific task we need to make a configuration change like the <code>tags</code>. To use this we simply call <code>config</code> from a Jinja tag within the sql file:</p>
+<div class="admonition example">
+<p class="admonition-title">autosql with config</p>
+<div class="highlight"><pre><span></span><code>{{ config(tags=[&#39;creation_tasks&#39;]) }}
+
+CREATE TABLE ...
+</code></pre></div>
+</div>
+<p>The above code will override the value of <code>tags</code> setting defined in YAML so we can filter on a group of tasks when running SAYN. Other
+properties are available for overloading for advanced use cases: <code>parents</code>, <code>outputs</code> and <code>sources</code>.</p>
                 
               
               

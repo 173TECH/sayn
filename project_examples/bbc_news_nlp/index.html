@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://173tech.github.io/sayn/project_examples/bbc_news_nlp/">
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
     
     
       
@@ -278,6 +278,18 @@
   
 
           
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/tutorial_part3/" class="md-nav__link">
+        Tutorial (Part 3)
+      </a>
+    </li>
+  
+
+          
         </ul>
       </nav>
     </li>
@@ -388,6 +400,18 @@
     <li class="md-nav__item">
       <a href="../../parameters/" class="md-nav__link">
         Parameters
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../database_objects/" class="md-nav__link">
+        Database objects
       </a>
     </li>
   
@@ -516,11 +540,78 @@
         <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" >
       
       <label class="md-nav__link" for="nav-5">
+        Data Tests
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Data Tests" data-md-level="1">
+        <label class="md-nav__title" for="nav-5">
+          <span class="md-nav__icon md-icon"></span>
+          Data Tests
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/standard/" class="md-nav__link">
+        Standard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/custom/" class="md-nav__link">
+        Custom
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+      
+      <label class="md-nav__link" for="nav-6">
         Databases
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Databases" data-md-level="1">
-        <label class="md-nav__title" for="nav-5">
+        <label class="md-nav__title" for="nav-6">
           <span class="md-nav__icon md-icon"></span>
           Databases
         </label>
@@ -628,14 +719,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
       
-      <label class="md-nav__link" for="nav-6">
+      <label class="md-nav__link" for="nav-7">
         API Reference
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="API Reference" data-md-level="1">
-        <label class="md-nav__title" for="nav-6">
+        <label class="md-nav__title" for="nav-7">
           <span class="md-nav__icon md-icon"></span>
           API Reference
         </label>
@@ -683,14 +774,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8" >
       
-      <label class="md-nav__link" for="nav-7">
+      <label class="md-nav__link" for="nav-8">
         Project Examples
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Project Examples" data-md-level="1">
-        <label class="md-nav__title" for="nav-7">
+        <label class="md-nav__title" for="nav-8">
           <span class="md-nav__icon md-icon"></span>
           Project Examples
         </label>
@@ -1005,26 +1096,30 @@
 <li><code>table</code>: name of the table we plan to create in our database</li>
 <li><code>links</code>: list of links to rss feeds</li>
 </ul>
-<details class="example"><summary>tasks/extract.yaml</summary><div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-  <span class="nt">load_data</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python</span>
-    <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">load_data.LoadData</span>
-    <span class="nt">parameters</span><span class="p">:</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">logs_bbc_feeds</span>
-      <span class="nt">links</span><span class="p">:</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/england/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/wales/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/scotland/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/northern_ireland/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/middle_east/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/latin_america/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/europe/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/asia/rss.xml</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/africa/rss.xml</span>
+<details class="example">
+<summary>tasks/extract.yaml</summary>
+<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">load_data</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python</span><span class="w"></span>
+<span class="w">    </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">load_data.LoadData</span><span class="w"></span>
+<span class="w">    </span><span class="nt">parameters</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">logs_bbc_feeds</span><span class="w"></span>
+<span class="w">      </span><span class="nt">links</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/england/rss.xml</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/wales/rss.xml</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/scotland/rss.xml</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/northern_ireland/rss.xml</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/middle_east/rss.xml</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/latin_america/rss.xml</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/europe/rss.xml</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/asia/rss.xml</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://feeds.bbci.co.uk/news/world/africa/rss.xml</span><span class="w"></span>
 </code></pre></div>
 </details>
-<details class="note" open="open"><summary>Note</summary><p>Parameters are not a requirement, however parameters make the code dynamic which is useful for reusability.</p>
+<details class="note" open="open">
+<summary>Note</summary>
+<p>Parameters are not a requirement, however parameters make the code dynamic which is useful for reusability.</p>
 </details>
 <p>The <code>load_data</code> task will have the following steps:</p>
 <ul>
@@ -1039,13 +1134,17 @@
 <li><code>setup</code>: sets the order of steps to run</li>
 <li><code>run</code>: defines what each step does during the run</li>
 </ul>
-<details class="attention" open="open"><summary>Attention</summary><p><code>fetch_bbc_data</code> is a utility method for this task, while <code>setup</code> and <code>run</code> are the usual SAYN methods. Please note that methods <code>setup</code> and <code>run</code> need to return either <code>self.success()</code> or <code>self.fail()</code> in order to run.</p>
+<details class="attention" open="open">
+<summary>Attention</summary>
+<p><code>fetch_bbc_data</code> is a utility method for this task, while <code>setup</code> and <code>run</code> are the usual SAYN methods. Please note that methods <code>setup</code> and <code>run</code> need to return either <code>self.success()</code> or <code>self.fail()</code> in order to run.</p>
 </details>
 <h6 id="utility_method_fetch_bbc_data">Utility Method (<code>fetch_bbc_data</code>)<a class="headerlink" href="#utility_method_fetch_bbc_data" title="Permanent link">&para;</a></h6>
 <p>The <code>fetch_bbc_data</code> function uses the <code>feedparser.parse</code> method to fetch the raw data from the rss feed link. It then converts the data into a <code>pandas dataframe</code> to make it easier to work with.</p>
 <p>The function also extracts the source of each article and adds it under the <code>source</code> column.</p>
 <p>Lastly, the function assigns a <code>unique_id</code> to each article which is based on its article id and the source it originates from. This is because the same article may be published in multiple sources with the same id, which means our original ids are not unique and could be misleading.</p>
-<details class="example"><summary>python/load_data.py</summary><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<details class="example">
+<summary>python/load_data.py</summary>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">feedparser</span> <span class="k">as</span> <span class="nn">f</span>
 <span class="kn">from</span> <span class="nn">sayn</span> <span class="kn">import</span> <span class="n">PythonTask</span>
 
@@ -1105,7 +1204,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">success</span><span class="p">()</span>
 </code></pre></div>
 </details>
-<details class="tip"><summary>Tip</summary><p><code>self.parameters["user_prefix"]</code> is set dynamically based on what you set it to in project.yaml, this can also be overwritten in settings.yaml</p>
+<details class="tip">
+<summary>Tip</summary>
+<p><code>self.parameters["user_prefix"]</code> is set dynamically based on what you set it to in project.yaml, this can also be overwritten in settings.yaml</p>
 </details>
 <h3 id="step_2_modelling_group">Step 2: Modelling Group<a class="headerlink" href="#step_2_modelling_group" title="Permanent link">&para;</a></h3>
 <p>Quick Summary:</p>
@@ -1118,48 +1219,60 @@
 <h4 id="task_details_dim_bbc_feeds">Task Details (<code>dim_bbc_feeds</code>)<a class="headerlink" href="#task_details_dim_bbc_feeds" title="Permanent link">&para;</a></h4>
 <p>Currently our <code>load_data</code> task appends data to our database but it does not filter out any potential duplicates that we might encounter after multiple runs. This is where the <code>modelling</code> group comes in, we can define an <a href="../../tasks/autosql/">AutoSQL task</a> to filter out any duplicates.</p>
 <p>First, we need to create a sql query in our <code>sql</code> folder that will filter out any duplicates; we will call it <code>dim_bbc_feeds.sql</code></p>
-<details class="example"><summary>sql/dim_bbc_feeds.sql</summary><div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="k">DISTINCT</span> <span class="n">unique_id</span>
-     <span class="p">,</span> <span class="n">id</span>
-     <span class="p">,</span> <span class="n">title</span>
-     <span class="p">,</span> <span class="n">summary</span>
-     <span class="p">,</span> <span class="n">link</span>
-     <span class="p">,</span> <span class="n">guidislink</span>
-     <span class="p">,</span> <span class="n">published</span>
-     <span class="p">,</span> <span class="k">source</span>
-<span class="k">FROM</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">logs_bbc_feeds</span>
+<details class="example">
+<summary>sql/dim_bbc_feeds.sql</summary>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">unique_id</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">title</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">summary</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">link</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">guidislink</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">published</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="k">source</span><span class="w"></span>
+<span class="k">FROM</span><span class="w"> </span><span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">logs_bbc_feeds</span><span class="w"></span>
 </code></pre></div>
 </details>
-<details class="tip"><summary>Tip</summary><p><code>{{user_prefix}}</code> is set dynamically. The default value is set in <code>project.yaml</code>. This can be overwritten using profiles in <code>settings.yaml</code>.</p>
+<details class="tip">
+<summary>Tip</summary>
+<p><code>{{user_prefix}}</code> is set dynamically. The default value is set in <code>project.yaml</code>. This can be overwritten using profiles in <code>settings.yaml</code>.</p>
 </details>
 <p>Next, we will define a modelling <a href="../../presets/">preset</a> in <code>project.yaml</code>. <a href="../../presets/">Presets</a> enable you to create a task prototype which can be reused when defining tasks. Hence, the modelling <a href="../../presets/">preset</a> will simplify the code in <code>modelling.yaml</code> while also allowing us to set dynamic file and table names.</p>
-<details class="attention" open="open"><summary>Attention</summary><p>Presets defined in <code>project.yaml</code> are project level presets, you can also define presets within individual task groups.</p>
+<details class="attention" open="open">
+<summary>Attention</summary>
+<p>Presets defined in <code>project.yaml</code> are project level presets, you can also define presets within individual task groups.</p>
 </details>
-<details class="example"><summary>project.yaml</summary><div class="highlight"><pre><span></span><code><span class="nt">required_credentials</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">warehouse</span>
+<details class="example">
+<summary>project.yaml</summary>
+<div class="highlight"><pre><span></span><code><span class="nt">required_credentials</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warehouse</span><span class="w"></span>
 
-<span class="nt">default_db</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">warehouse</span>
+<span class="nt">default_db</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warehouse</span><span class="w"></span>
 
-<span class="nt">presets</span><span class="p">:</span>
+<span class="nt">presets</span><span class="p">:</span><span class="w"></span>
 
-    <span class="nt">modelling</span><span class="p">:</span>
-      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-      <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-      <span class="nt">file_name</span><span class="p">:</span> <span class="s">&quot;{{</span><span class="nv"> </span><span class="s">task.name</span><span class="nv"> </span><span class="s">}}.sql&quot;</span>
-      <span class="nt">destination</span><span class="p">:</span>
-        <span class="nt">table</span><span class="p">:</span> <span class="s">&quot;{{</span><span class="nv"> </span><span class="s">user_prefix</span><span class="nv"> </span><span class="s">}}{{</span><span class="nv"> </span><span class="s">task.name</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">    </span><span class="nt">modelling</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autosql</span><span class="w"></span>
+<span class="w">      </span><span class="nt">materialisation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table</span><span class="w"></span>
+<span class="w">      </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">task.name</span><span class="nv"> </span><span class="s">}}.sql&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">user_prefix</span><span class="nv"> </span><span class="s">}}{{</span><span class="nv"> </span><span class="s">task.name</span><span class="nv"> </span><span class="s">}}&quot;</span><span class="w"></span>
 
-<span class="nt">parameters</span><span class="p">:</span>
-  <span class="nt">user_prefix</span><span class="p">:</span>
+<span class="nt">parameters</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">user_prefix</span><span class="p">:</span><span class="w"></span>
 </code></pre></div>
 </details>
-<details class="tip"><summary>Tip</summary><p><code>{{ task.name }}</code> returns the name of task</p>
+<details class="tip">
+<summary>Tip</summary>
+<p><code>{{ task.name }}</code> returns the name of task</p>
 </details>
 <p>Now that we have the modelling <a href="../../presets/">preset</a>, we can use it in the <code>modelling</code> group. Since we want <code>dim_bbc_feeds</code> to run after our <code>load_data</code> task, we will need to set the parents of the task to <code>load_data</code>.</p>
-<details class="example"><summary>tasks/modelling.yaml</summary><div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-    <span class="nt">dim_bbc_feeds</span><span class="p">:</span>
-      <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
-      <span class="nt">parents</span><span class="p">:</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">load_data</span>
+<details class="example">
+<summary>tasks/modelling.yaml</summary>
+<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">dim_bbc_feeds</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">preset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">modelling</span><span class="w"></span>
+<span class="w">      </span><span class="nt">parents</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">load_data</span><span class="w"></span>
 </code></pre></div>
 </details>
 <h3 id="step_3_data_science_group">Step 3: Data Science Group<a class="headerlink" href="#step_3_data_science_group" title="Permanent link">&para;</a></h3>
@@ -1185,40 +1298,42 @@
 <p>Both tasks will use data from our <code>dim_bbc_feeds</code> table, therefore we will need to set their their table <a href="../../parameters/">parameters</a> to <code>dim_bbc_feeds</code>. Since both of these tasks are children of the <code>dim_bbc_feeds</code> task, we will also need to set their parents attributes to <code>dim_bbc_feeds</code>.</p>
 <p>The <code>nlp</code> task has a <code>text</code> parameter, this parameter specifies which columns have text for processing.
 The <code>wordcloud</code> task has a <code>stopwords</code> parameter, this parameter provides additional context related stopwords (e.g. "say" and its variations seem to be very common in summaries, however they are not very informative).</p>
-<details class="example"><summary>tasks/data_science.yaml</summary><div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>      
-  <span class="nt">nlp</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python</span>
-    <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">nlp.LanguageProcessing</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dim_bbc_feeds</span>
-    <span class="nt">parameters</span><span class="p">:</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_bbc_feeds</span>
-      <span class="nt">text</span><span class="p">:</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">title</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">summary</span>
+<details class="example">
+<summary>tasks/data_science.yaml</summary>
+<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span><span class="w">      </span>
+<span class="w">  </span><span class="nt">nlp</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python</span><span class="w"></span>
+<span class="w">    </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nlp.LanguageProcessing</span><span class="w"></span>
+<span class="w">    </span><span class="nt">parents</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dim_bbc_feeds</span><span class="w"></span>
+<span class="w">    </span><span class="nt">parameters</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dim_bbc_feeds</span><span class="w"></span>
+<span class="w">      </span><span class="nt">text</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">title</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">summary</span><span class="w"></span>
 
-  <span class="nt">wordcloud</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python</span>
-    <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">wordcloud.RenderCloud</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dim_bbc_feeds</span>
-    <span class="nt">parameters</span><span class="p">:</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_bbc_feeds</span>
-      <span class="nt">stopwords</span><span class="p">:</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">say</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">said</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">says</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">will</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">country</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">US</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">England</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Scotland</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Wales</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">NI</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Ireland</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Europe</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">BBC</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">yn</span>
+<span class="w">  </span><span class="nt">wordcloud</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python</span><span class="w"></span>
+<span class="w">    </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wordcloud.RenderCloud</span><span class="w"></span>
+<span class="w">    </span><span class="nt">parents</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dim_bbc_feeds</span><span class="w"></span>
+<span class="w">    </span><span class="nt">parameters</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dim_bbc_feeds</span><span class="w"></span>
+<span class="w">      </span><span class="nt">stopwords</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">say</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">said</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">says</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">will</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">country</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">US</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">England</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Scotland</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Wales</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NI</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ireland</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Europe</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">BBC</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yn</span><span class="w"></span>
 </code></pre></div>
 </details>
 <h4 id="task_details_wordcloud">Task Details (<code>wordcloud</code>)<a class="headerlink" href="#task_details_wordcloud" title="Permanent link">&para;</a></h4>
@@ -1234,9 +1349,13 @@ The <code>wordcloud</code> task has a <code>stopwords</code> parameter, this par
 <li><code>setup</code>: sets the order of steps to run</li>
 <li><code>run</code>: defines what each step does during the run</li>
 </ul>
-<details class="attention" open="open"><summary>Attention</summary><p><code>word_cloud</code> is a utility method for this task, while <code>setup</code> and <code>run</code> are the usual SAYN methods. Please note that methods <code>setup</code> and <code>run</code> need to return either <code>self.success()</code> or <code>self.fail()</code> in order to run.</p>
+<details class="attention" open="open">
+<summary>Attention</summary>
+<p><code>word_cloud</code> is a utility method for this task, while <code>setup</code> and <code>run</code> are the usual SAYN methods. Please note that methods <code>setup</code> and <code>run</code> need to return either <code>self.success()</code> or <code>self.fail()</code> in order to run.</p>
 </details>
-<details class="example"><summary>python/wordcloud.py</summary><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<details class="example">
+<summary>python/wordcloud.py</summary>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">sayn</span> <span class="kn">import</span> <span class="n">PythonTask</span>
@@ -1323,9 +1442,13 @@ The <code>wordcloud</code> task has a <code>stopwords</code> parameter, this par
 <li><code>setup</code>: sets the order of steps to run</li>
 <li><code>run</code>: defines what each step does during the run</li>
 </ul>
-<details class="attention" open="open"><summary>Attention</summary><p><code>desc_text</code> is a utility method for this task, while <code>setup</code> and <code>run</code> are the usual SAYN methods. Please note that methods <code>setup</code> and <code>run</code> need to return either <code>self.success()</code> or <code>self.fail()</code> in order to run.</p>
+<details class="attention" open="open">
+<summary>Attention</summary>
+<p><code>desc_text</code> is a utility method for this task, while <code>setup</code> and <code>run</code> are the usual SAYN methods. Please note that methods <code>setup</code> and <code>run</code> need to return either <code>self.success()</code> or <code>self.fail()</code> in order to run.</p>
 </details>
-<details class="example"><summary>python/nlp.py</summary><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<details class="example">
+<summary>python/nlp.py</summary>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">sayn</span> <span class="kn">import</span> <span class="n">PythonTask</span>
 <span class="kn">from</span> <span class="nn">nltk</span> <span class="kn">import</span> <span class="n">download</span>
 <span class="kn">from</span> <span class="nn">nltk.tokenize</span> <span class="kn">import</span> <span class="n">word_tokenize</span><span class="p">,</span> <span class="n">sent_tokenize</span>
@@ -1389,38 +1512,44 @@ The <code>wordcloud</code> task has a <code>stopwords</code> parameter, this par
 </details>
 <h4 id="task_details_dim_bbc_feeds_nlp_stats">Task Details (<code>dim_bbc_feeds_nlp_stats</code>)<a class="headerlink" href="#task_details_dim_bbc_feeds_nlp_stats" title="Permanent link">&para;</a></h4>
 <p>Now that we have individual article statistics, it would be a good idea to create an additional modelling task to find some aggregate statistics grouped by source. Let's create another SQL query called <code>dim_bbc_feeds_nlp_stats</code> in the <code>sql</code> folder. This query will give us the average, grouped by source, of the text statistics generated by the <code>nlp</code> task.</p>
-<details class="example"><summary>sql/dim_bbc_feeds_nlp_stats.py</summary><div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="k">source</span>
-     <span class="p">,</span> <span class="k">AVG</span><span class="p">(</span><span class="n">title_letters</span><span class="p">)</span> <span class="k">AS</span> <span class="n">average_tl</span>
-     <span class="p">,</span> <span class="k">AVG</span><span class="p">(</span><span class="n">title_words</span><span class="p">)</span> <span class="k">AS</span> <span class="n">average_tw</span>
-     <span class="p">,</span> <span class="k">AVG</span><span class="p">(</span><span class="n">title_sentences</span><span class="p">)</span> <span class="k">AS</span> <span class="n">average_ts</span>
-     <span class="p">,</span> <span class="k">AVG</span><span class="p">(</span><span class="n">summary_letters</span><span class="p">)</span> <span class="k">AS</span> <span class="n">average_sl</span>
-     <span class="p">,</span> <span class="k">AVG</span><span class="p">(</span><span class="n">summary_words</span><span class="p">)</span> <span class="k">AS</span> <span class="n">average_sw</span>
-     <span class="p">,</span> <span class="k">AVG</span><span class="p">(</span><span class="n">summary_sentences</span><span class="p">)</span> <span class="k">AS</span> <span class="n">average_ss</span>
+<details class="example">
+<summary>sql/dim_bbc_feeds_nlp_stats.py</summary>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="k">source</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="k">AVG</span><span class="p">(</span><span class="n">title_letters</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">average_tl</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="k">AVG</span><span class="p">(</span><span class="n">title_words</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">average_tw</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="k">AVG</span><span class="p">(</span><span class="n">title_sentences</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">average_ts</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="k">AVG</span><span class="p">(</span><span class="n">summary_letters</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">average_sl</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="k">AVG</span><span class="p">(</span><span class="n">summary_words</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">average_sw</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="k">AVG</span><span class="p">(</span><span class="n">summary_sentences</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">average_ss</span><span class="w"></span>
 
-<span class="k">FROM</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">dim_bbc_feeds_nlp</span>
+<span class="k">FROM</span><span class="w"> </span><span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">dim_bbc_feeds_nlp</span><span class="w"></span>
 
-<span class="k">GROUP</span> <span class="k">BY</span> <span class="mi">1</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 
-<span class="k">ORDER</span> <span class="k">BY</span> <span class="mi">1</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 </code></pre></div>
 </details>
 <p>Finally, we can add the <code>dim_bbc_feeds_nlp_stats</code> task to the the <code>modelling</code> group. Like the previous modelling task, we will create this task using the modelling <a href="../../presets/">preset</a> in <code>project.yaml</code>; setting the parents parameter to <code>nlp</code>. We want to materialise this query as a view; therefore, we will need to overwrite the materialisation parameter of the preset.</p>
-<details class="example"><summary>modelling.yaml</summary><div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-    <span class="nt">dim_bbc_feeds</span><span class="p">:</span>
-      <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
-      <span class="nt">parents</span><span class="p">:</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">load_data</span>
+<details class="example">
+<summary>modelling.yaml</summary>
+<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">dim_bbc_feeds</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">preset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">modelling</span><span class="w"></span>
+<span class="w">      </span><span class="nt">parents</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">load_data</span><span class="w"></span>
 
-    <span class="nt">dim_bbc_feeds_nlp_stats</span><span class="p">:</span>
-      <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
-      <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">view</span>
-      <span class="nt">parents</span><span class="p">:</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">nlp</span>
+<span class="w">    </span><span class="nt">dim_bbc_feeds_nlp_stats</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">preset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">modelling</span><span class="w"></span>
+<span class="w">      </span><span class="nt">materialisation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">view</span><span class="w"></span>
+<span class="w">      </span><span class="nt">parents</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nlp</span><span class="w"></span>
 </code></pre></div>
 </details>
 <h4 id="step_4_run_the_project">Step 4: Run the project<a class="headerlink" href="#step_4_run_the_project" title="Permanent link">&para;</a></h4>
 <p>All that's left is to run the project in the command line. Change your directory to this project's folder and enter <code>sayn run</code>.</p>
-<details class="attention" open="open"><summary>Attention</summary><p>Please note that if you did not clone the git repo, you may have some issues with the wordcloud generation. We recommend you create a folder called <code>img</code> within the <code>python</code> folder, if you do not already have one.</p>
+<details class="attention" open="open">
+<summary>Attention</summary>
+<p>Please note that if you did not clone the git repo, you may have some issues with the wordcloud generation. We recommend you create a folder called <code>img</code> within the <code>python</code> folder, if you do not already have one.</p>
 </details>
                 
               

@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://173tech.github.io/sayn/cli/">
       
       <link rel="shortcut icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
     
     
       
@@ -278,6 +278,18 @@
   
 
           
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/tutorial_part3/" class="md-nav__link">
+        Tutorial (Part 3)
+      </a>
+    </li>
+  
+
+          
         </ul>
       </nav>
     </li>
@@ -494,6 +506,18 @@
   
 
           
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../database_objects/" class="md-nav__link">
+        Database objects
+      </a>
+    </li>
+  
+
+          
         </ul>
       </nav>
     </li>
@@ -617,11 +641,78 @@
         <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" >
       
       <label class="md-nav__link" for="nav-5">
+        Data Tests
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Data Tests" data-md-level="1">
+        <label class="md-nav__title" for="nav-5">
+          <span class="md-nav__icon md-icon"></span>
+          Data Tests
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tests/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tests/standard/" class="md-nav__link">
+        Standard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tests/custom/" class="md-nav__link">
+        Custom
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+      
+      <label class="md-nav__link" for="nav-6">
         Databases
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Databases" data-md-level="1">
-        <label class="md-nav__title" for="nav-5">
+        <label class="md-nav__title" for="nav-6">
           <span class="md-nav__icon md-icon"></span>
           Databases
         </label>
@@ -729,14 +820,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
       
-      <label class="md-nav__link" for="nav-6">
+      <label class="md-nav__link" for="nav-7">
         API Reference
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="API Reference" data-md-level="1">
-        <label class="md-nav__title" for="nav-6">
+        <label class="md-nav__title" for="nav-7">
           <span class="md-nav__icon md-icon"></span>
           API Reference
         </label>
@@ -784,14 +875,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8" >
       
-      <label class="md-nav__link" for="nav-7">
+      <label class="md-nav__link" for="nav-8">
         Project Examples
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Project Examples" data-md-level="1">
-        <label class="md-nav__title" for="nav-7">
+        <label class="md-nav__title" for="nav-8">
           <span class="md-nav__icon md-icon"></span>
           Project Examples
         </label>
@@ -979,6 +1070,18 @@ following arguments to filter:</p>
 <li><code>sayn run -x task_name</code>: run all tasks except <code>task_name</code>.</li>
 <li><code>sayn run -t group:marketing -x +task_name</code>: run all tasks in the <code>marketing</code> task group except <code>task_name</code> and its ancestors.</li>
 </ul>
+<p>Quite often we want to make some changes to a small set of tasks, explore the new results, make some more changes and repeat.
+When doing this we might not want to have an up to date copy of all upstream objects and instead we might want to use production
+as the source of your models. For this we can use the flag <code>-u</code> (<code>--upstream-prod</code>) which selects from production for tables
+not produced by the currently filtered tasks. Head over to <a href="../database_objects/#upstream_prod">database objects</a> for more details</p>
+<p>Both task filtering and upstream prod arguments can be set using <code>default_run</code> in <code>settings.yaml</code>. Example:</p>
+<div class="admonition example">
+<p class="admonition-title">settings.yaml</p>
+<p>profiles:
+  dev:
+    default_run: -x group:extract</p>
+</div>
+<p>This example will make it so that running <code>sayn run</code> will already exclude the tasks in the group called <code>extract</code>.</p>
 <h4 id="incremental_tasks_options">Incremental Tasks Options<a class="headerlink" href="#incremental_tasks_options" title="Permanent link">&para;</a></h4>
 <p>SAYN uses 3 arguments to manage incremental executions: <code>full_load</code>, <code>start_dt</code> and <code>end_dt</code>; which can
 be overridden with these arguments to <code>sayn run</code>:</p>
@@ -1013,7 +1116,7 @@ installed with <code>pip install "sayn[graphviz]"</code>.</p>
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
         
-          <a href="../tutorials/tutorial_part2/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../tutorials/tutorial_part3/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-footer-nav__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
             </div>
@@ -1022,7 +1125,7 @@ installed with <code>pip install "sayn[graphviz]"</code>.</p>
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Tutorial (Part 2)
+                Tutorial (Part 3)
               </div>
             </div>
           </a>

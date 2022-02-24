@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://173tech.github.io/sayn/tutorials/tutorial_part2/">
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
     
     
       
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tutorial_part_2" class="md-skip">
+        <a href="#tutorial_part_2_data_modelling_with_sayn" class="md-skip">
           Skip to content
         </a>
       
@@ -304,57 +304,50 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#step_1_define_the_project_parameters" class="md-nav__link">
-    Step 1: Define The Project parameters
+  <a href="#sql_tasks_with_sayn" class="md-nav__link">
+    SQL Tasks With SAYN
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#step_2_making_tasks_dynamic_with_parameters" class="md-nav__link">
-    Step 2: Making Tasks Dynamic With parameters
+  <a href="#defining_the_task_group" class="md-nav__link">
+    Defining The Task Group
   </a>
   
-    <nav class="md-nav" aria-label="Step 2: Making Tasks Dynamic With parameters">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#writing_your_models" class="md-nav__link">
+    Writing Your Models
+  </a>
+  
+    <nav class="md-nav" aria-label="Writing Your Models">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#in_python_tasks" class="md-nav__link">
-    In python Tasks
+  <a href="#a_simple_model" class="md-nav__link">
+    A Simple Model
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#in_autosql_tasks" class="md-nav__link">
-    In autosql Tasks
+  <a href="#a_model_with_dependency" class="md-nav__link">
+    A Model With Dependency
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changing_your_model_materialisation" class="md-nav__link">
+    Changing Your Model Materialisation
   </a>
   
 </li>
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step_3_making_task_definitions_dynamic_with_parameters" class="md-nav__link">
-    Step 3: Making Task Definitions Dynamic With parameters
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step_4_using_presets_to_standardise_task_definitions" class="md-nav__link">
-    Step 4: Using presets To Standardise Task Definitions
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#running_our_new_project" class="md-nav__link">
-    Running Our New Project
-  </a>
   
 </li>
       
@@ -369,6 +362,18 @@
   
 </nav>
       
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial_part3/" class="md-nav__link">
+        Tutorial (Part 3)
+      </a>
     </li>
   
 
@@ -483,6 +488,18 @@
     <li class="md-nav__item">
       <a href="../../parameters/" class="md-nav__link">
         Parameters
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../database_objects/" class="md-nav__link">
+        Database objects
       </a>
     </li>
   
@@ -611,11 +628,78 @@
         <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" >
       
       <label class="md-nav__link" for="nav-5">
+        Data Tests
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Data Tests" data-md-level="1">
+        <label class="md-nav__title" for="nav-5">
+          <span class="md-nav__icon md-icon"></span>
+          Data Tests
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/standard/" class="md-nav__link">
+        Standard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/custom/" class="md-nav__link">
+        Custom
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+      
+      <label class="md-nav__link" for="nav-6">
         Databases
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Databases" data-md-level="1">
-        <label class="md-nav__title" for="nav-5">
+        <label class="md-nav__title" for="nav-6">
           <span class="md-nav__icon md-icon"></span>
           Databases
         </label>
@@ -723,14 +807,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
       
-      <label class="md-nav__link" for="nav-6">
+      <label class="md-nav__link" for="nav-7">
         API Reference
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="API Reference" data-md-level="1">
-        <label class="md-nav__title" for="nav-6">
+        <label class="md-nav__title" for="nav-7">
           <span class="md-nav__icon md-icon"></span>
           API Reference
         </label>
@@ -778,14 +862,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8" >
       
-      <label class="md-nav__link" for="nav-7">
+      <label class="md-nav__link" for="nav-8">
         Project Examples
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Project Examples" data-md-level="1">
-        <label class="md-nav__title" for="nav-7">
+        <label class="md-nav__title" for="nav-8">
           <span class="md-nav__icon md-icon"></span>
           Project Examples
         </label>
@@ -859,57 +943,50 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#step_1_define_the_project_parameters" class="md-nav__link">
-    Step 1: Define The Project parameters
+  <a href="#sql_tasks_with_sayn" class="md-nav__link">
+    SQL Tasks With SAYN
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#step_2_making_tasks_dynamic_with_parameters" class="md-nav__link">
-    Step 2: Making Tasks Dynamic With parameters
+  <a href="#defining_the_task_group" class="md-nav__link">
+    Defining The Task Group
   </a>
   
-    <nav class="md-nav" aria-label="Step 2: Making Tasks Dynamic With parameters">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#writing_your_models" class="md-nav__link">
+    Writing Your Models
+  </a>
+  
+    <nav class="md-nav" aria-label="Writing Your Models">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#in_python_tasks" class="md-nav__link">
-    In python Tasks
+  <a href="#a_simple_model" class="md-nav__link">
+    A Simple Model
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#in_autosql_tasks" class="md-nav__link">
-    In autosql Tasks
+  <a href="#a_model_with_dependency" class="md-nav__link">
+    A Model With Dependency
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changing_your_model_materialisation" class="md-nav__link">
+    Changing Your Model Materialisation
   </a>
   
 </li>
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step_3_making_task_definitions_dynamic_with_parameters" class="md-nav__link">
-    Step 3: Making Task Definitions Dynamic With parameters
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#step_4_using_presets_to_standardise_task_definitions" class="md-nav__link">
-    Step 4: Using presets To Standardise Task Definitions
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#running_our_new_project" class="md-nav__link">
-    Running Our New Project
-  </a>
   
 </li>
       
@@ -933,158 +1010,87 @@
               
                 
                 
-                <h1 id="tutorial_part_2">Tutorial: Part 2<a class="headerlink" href="#tutorial_part_2" title="Permanent link">&para;</a></h1>
-<p>This tutorial builds upon the <a href="../tutorial_part1/">Tutorial: Part 1</a> and introduces you to SAYN concepts which will enable you to make your projects more dynamic and efficient.</p>
-<p>In <a href="../tutorial_part1/">Tutorial: Part 1</a> we implemented our first ETL process with SAYN. We will now expand on that by adding <code>parameters</code> and <code>presets</code>.</p>
-<p>A <a href="https://github.com/173TECH/sayn_tutorial_part2" target="_blank">Github repository</a> is available with the final code if you prefer to have all the code written directly. After cloning, you simply need to make sure to rename the <code>sample_settings.yaml</code> file to <code>settings.yaml</code> for the project to work.</p>
-<h3 id="step_1_define_the_project_parameters">Step 1: Define The Project <code>parameters</code><a class="headerlink" href="#step_1_define_the_project_parameters" title="Permanent link">&para;</a></h3>
-<p>You can use <code>parameters</code> in order to make your SAYN tasks' code dynamic. We will set one project parameter called <code>user_prefix</code>. This will enable us to distinguish which user generated tables.</p>
-<p>First, add <code>paramaters</code> at the end of <code>project.yaml</code>. This is a YAML map which defines the default value.</p>
+                <h1 id="tutorial_part_2_data_modelling_with_sayn">Tutorial Part 2: Data Modelling With SAYN<a class="headerlink" href="#tutorial_part_2_data_modelling_with_sayn" title="Permanent link">&para;</a></h1>
+<p>In the <a href="../tutorial_part1/">first part of the tutorial</a>, we executed our first SAYN run and went through the core components of a SAYN project. We will now see how to use SAYN for data modelling, a major process of analytics warehousing.</p>
+<h2 id="sql_tasks_with_sayn">SQL Tasks With SAYN<a class="headerlink" href="#sql_tasks_with_sayn" title="Permanent link">&para;</a></h2>
+<p>SAYN can execute two main types of SQL tasks:
+* <code>autosql</code>: these tasks take a <code>SELECT</code> statement and create a table or view using it. All the processes are automated by SAYN in the background.
+* <code>sql</code>: these tasks take your SQL statement as is and execute it. These are not covered in this tutorial.</p>
+<h2 id="defining_the_task_group">Defining The Task Group<a class="headerlink" href="#defining_the_task_group" title="Permanent link">&para;</a></h2>
+<p>In order to execute your tasks, you will need to define a task group. This is done in the <code>project.yaml</code> file, under the <code>groups</code> entry. This is the <code>models</code> group we have defined in our project:</p>
 <div class="admonition example">
 <p class="admonition-title">project.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># ...</span>
-<span class="nt">parameters</span><span class="p">:</span>
-  <span class="nt">user_prefix</span><span class="p">:</span> <span class="s">&#39;&#39;</span> <span class="c1">#no prefix for prod</span>
-</code></pre></div>
-</div>
-<p>In this case we defined a parameter <code>user_prefix</code> that we will use to name tables. This is useful when multiple users are testing a project as it allows the final table name to be different between collaborators.</p>
-<p>Now we can define the value of the parameter on each profile. We do this in the <code>settings.yaml</code>.</p>
-<div class="admonition example">
-<p class="admonition-title">settings.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">profiles</span><span class="p">:</span>
-  <span class="nt">dev</span><span class="p">:</span>
-    <span class="nt">credentials</span><span class="p">:</span>
-      <span class="nt">warehouse</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dev_db</span>
-    <span class="nt">parameters</span><span class="p">:</span>
-      <span class="nt">user_prefix</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">up_</span>
-  <span class="nt">prod</span><span class="p">:</span>
-    <span class="nt">credentials</span><span class="p">:</span>
-      <span class="nt">warehouse</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">prod_db</span>
-</code></pre></div>
-</div>
-<p>Note how we don't redefine the parameter in our prod profile as the default value is more appropriate.</p>
-<h3 id="step_2_making_tasks_dynamic_with_parameters">Step 2: Making Tasks Dynamic With <code>parameters</code><a class="headerlink" href="#step_2_making_tasks_dynamic_with_parameters" title="Permanent link">&para;</a></h3>
-<p>Now that our parameters are setup, we can use those to make our tasks' code dynamic.</p>
-<h4 id="in_python_tasks">In <code>python</code> Tasks<a class="headerlink" href="#in_python_tasks" title="Permanent link">&para;</a></h4>
-<p>For the Python <code>load_data</code> task, we will access the <code>user_prefix</code> parameter and then pass it to the
-functions doing the data processing. You can look into <code>python/utils.py</code> to see how we use the <code>user_prefix</code> parameter to change the table names.</p>
-<div class="admonition example">
-<p class="admonition-title">python/load_data.py</p>
-<div class="highlight"><pre><span></span><code>    <span class="c1"># ...</span>
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">user_prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;user_prefix&#39;</span><span class="p">]</span>
-    <span class="c1"># ...</span>
-                <span class="n">q_create</span> <span class="o">=</span> <span class="n">get_create_table</span><span class="p">(</span><span class="n">log_type</span><span class="p">,</span> <span class="n">user_prefix</span><span class="p">)</span>
-    <span class="c1"># ...</span>
-</code></pre></div>
-</div>
-<h4 id="in_autosql_tasks">In <code>autosql</code> Tasks<a class="headerlink" href="#in_autosql_tasks" title="Permanent link">&para;</a></h4>
-<p>The files in the <code>sql</code> folder are always interpreted as <a href="https://palletsprojects.com/p/jinja/" target="_blank">Jinja</a>
-templates. This means that in order to access parameters all we have to do is enclose it in <code>{{ }}</code> Jinja blocks. For example, in order to reference the tables created by <code>load_data</code> the <code>dim_arenas</code> task can be changed like this:</p>
-<div class="admonition example">
-<p class="admonition-title">sql/dim_arenas.sql</p>
-<div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="n">l</span><span class="p">.</span><span class="n">arena_id</span>
-     <span class="p">,</span> <span class="n">l</span><span class="p">.</span><span class="n">arena_name</span>
+<div class="highlight"><pre><span></span><code><span class="nn">...</span><span class="w"></span>
 
-<span class="k">FROM</span> <span class="err">{{</span><span class="n">user_prefix</span><span class="err">}}</span><span class="n">logs_arenas</span> <span class="n">l</span>
+<span class="nt">groups</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">models</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autosql</span><span class="w"></span>
+<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">task.group</span><span class="nv"> </span><span class="s">}}/*.sql&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">materialisation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table</span><span class="w"></span>
+<span class="w">    </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">task.name</span><span class="nv"> </span><span class="s">}}&quot;</span><span class="w"></span>
 </code></pre></div>
 </div>
-<p>Now <code>sayn run</code> will transform the above into valid SQL creating <code>compile/base/dim_arenas.sql</code> with it. The file path following the rule <code>compile/task_group_name/autosql_task_name.sql</code>:</p>
-<div class="admonition example">
-<p class="admonition-title">compile/base/dim_arenas.sql</p>
-<div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="n">l</span><span class="p">.</span><span class="n">arena_id</span>
-     <span class="p">,</span> <span class="n">l</span><span class="p">.</span><span class="n">arena_name</span>
-
-<span class="k">FROM</span> <span class="n">up_logs_arenas</span> <span class="n">l</span>
-</code></pre></div>
-</div>
-<p>SAYN provides a <code>sayn compile</code> command that works like <code>sayn run</code> except that it won't execute the code. What it does though, is generate the compiled files that SAYN would run with the <code>sayn run</code> command.</p>
-<h3 id="step_3_making_task_definitions_dynamic_with_parameters">Step 3: Making Task Definitions Dynamic With <code>parameters</code><a class="headerlink" href="#step_3_making_task_definitions_dynamic_with_parameters" title="Permanent link">&para;</a></h3>
-<p>Now that our python task generates tables with the <code>user_prefix</code> in the name and our autosql tasks will select data from it. What we also need to do is change the table names our autosql tasks are generating. For that, let's take <code>dim_arenas</code> and modify it so that it generates a table called <code>up_dim_arenas</code> (or other user_prefix defined in <code>settings.yaml</code>):</p>
-<div class="admonition example">
-<p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-  <span class="c1"># ...</span>
-  <span class="nt">dim_arenas</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_arenas.sql</span>
-    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-    <span class="nt">destination</span><span class="p">:</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="s">&#39;{{</span><span class="nv"> </span><span class="s">user_prefix</span><span class="nv"> </span><span class="s">}}{{</span><span class="nv"> </span><span class="s">task.name</span><span class="nv"> </span><span class="s">}}&#39;</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">load_data</span>
-  <span class="c1"># ...</span>
-</code></pre></div>
-</div>
-<p>Note the value of <code>destination.table</code> is now some Jinja code that will compile to the value of <code>user_prefix</code> followed by the name of the task.</p>
-<h3 id="step_4_using_presets_to_standardise_task_definitions">Step 4: Using <code>presets</code> To Standardise Task Definitions<a class="headerlink" href="#step_4_using_presets_to_standardise_task_definitions" title="Permanent link">&para;</a></h3>
-<p>Because most of our tasks have a similar configuration, we can significantly reduce the YAML task definitions using <code>presets</code>. <code>presets</code> allow you to define common properties shared by several
-tasks.</p>
-<div class="admonition example">
-<p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">presets</span><span class="p">:</span>
-  <span class="nt">modelling</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="s">&#39;{{</span><span class="nv"> </span><span class="s">task.name</span><span class="nv"> </span><span class="s">}}.sql&#39;</span>
-    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-    <span class="nt">destination</span><span class="p">:</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="s">&#39;{{</span><span class="nv"> </span><span class="s">user_prefix</span><span class="nv"> </span><span class="s">}}{{</span><span class="nv"> </span><span class="s">task.name</span><span class="nv"> </span><span class="s">}}&#39;</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">load_data</span>
-
-<span class="nt">tasks</span><span class="p">:</span>
-  <span class="c1"># ...</span>
-  <span class="nt">dim_arenas</span><span class="p">:</span>
-    <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
-  <span class="c1"># ...</span>
-</code></pre></div>
-</div>
-<p>Now the <code>modelling</code> preset has to dynamic properties:
-* <code>table</code>: defined like we did in the previous so that the create table contains the <code>user_prefix</code> in the name.
-* <code>file_name</code>: that uses the task name to point at the correct file in the sql folder.</p>
-<p>In addition, <code>modelling</code> is defined so that tasks referencing it:
-* are <code>autosql</code> tasks.
-* Materialise as tables.
-* Have <code>load_data</code> as a parent task, so that models always run after our log generator.</p>
-<p>When a task references a preset, we're not restricted to the values defined in the preset. A task can override those values. Take <code>f_rankings</code> for example:</p>
-<div class="admonition example">
-<p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-  <span class="c1"># ...</span>
-  <span class="nt">f_rankings</span><span class="p">:</span>
-    <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
-    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">view</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">f_fighter_results</span>
-</code></pre></div>
-</div>
-<p>Here we're overloading 2 properties:
-* <code>materialisation</code> which will make f_rankings a view rather than a table.
-* <code>parents</code> which will make <code>f_ranking</code> depend on <code>f_fighter_results</code> as well as <code>load_data</code> as defined in the preset.</p>
-<h2 id="running_our_new_project">Running Our New Project<a class="headerlink" href="#running_our_new_project" title="Permanent link">&para;</a></h2>
-<p>You can now test running <code>sayn run</code> or <code>sayn -p prod</code>. The two options will do the following:</p>
+<p>This group effectively does the following:</p>
 <ul>
-<li><code>sayn run</code>:<ul>
-<li>use our <code>dev</code> profile</li>
-<li>create all tables into a <code>dev.db</code> database</li>
-<li>prefix all tables with <code>up_</code> and read from <code>up_</code> prefixed tables</li>
+<li>It creates a task group called <code>models</code>.</li>
+<li>This task group is defined to be <code>autosql</code> tasks.</li>
+<li>Each file with a <code>.sql</code> extension in the <code>sql/models</code> folder will be turned into an <code>autosql</code> task. Do not worry about the <code>{{ task.group }}</code> notation for now, this is simple Jinja templating to dynamically pick the <code>models</code> name of the group.</li>
+<li>All tasks from the group will model the output as tables.</li>
+<li>The tables will be named as per the <code>task</code> name. This <code>task</code> name is automatically generated from your file name, excluding the <code>.sql</code> extension.</li>
 </ul>
-</li>
-<li><code>sayn run -p prod</code>:<ul>
-<li>use our <code>prod</code> profile</li>
-<li>create all tables into a <code>prod.db</code> database</li>
-<li>will not use a prefix when creating / reading tables</li>
-</ul>
-</li>
-</ul>
+<h2 id="writing_your_models">Writing Your Models<a class="headerlink" href="#writing_your_models" title="Permanent link">&para;</a></h2>
+<h3 id="a_simple_model">A Simple Model<a class="headerlink" href="#a_simple_model" title="Permanent link">&para;</a></h3>
+<p>As explained in the previous section, each file with a <code>.sql</code> extension in the <code>sql/models</code> folder will be turned into an <code>autosql</code> task following our <code>models</code> group definition.</p>
+<p>For example, the <code>dim_arenas.sql</code> file in the <code>sql/models</code> folder will be turned into a <code>dim_arenas</code> task. This is the SQL code of this file:</p>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">arena_id</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">arena_name</span><span class="w"></span>
+<span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="n">logs_arenas</span><span class="w"> </span><span class="n">l</span><span class="w"></span>
+</code></pre></div>
+<p>When executed, this task will create a table called <code>dim_arenas</code> using this SQL code. This is the <code>dim_arenas</code> you can find in the <code>dev.db</code> SQLite database at the root level of the project folder. You can execute this task only by running the command <code>sayn run -t dim_arenas</code>, where <code>dim_arenas</code> is our <code>task</code> name.</p>
+<h3 id="a_model_with_dependency">A Model With Dependency<a class="headerlink" href="#a_model_with_dependency" title="Permanent link">&para;</a></h3>
+<p>Now, let's have a look at a model which depends on another model. The file <code>f_battles.sql</code> is a good example and actually depends on multiple other models. This is how the SQL query is written:</p>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">tournament_name</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">tournament_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">battle_id</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">battle_id</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">arena_name</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">f1</span><span class="p">.</span><span class="n">fighter_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">fighter1_name</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">f2</span><span class="p">.</span><span class="n">fighter_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">fighter2_name</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">.</span><span class="n">fighter_name</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">winner_name</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="n">logs_battles</span><span class="w"> </span><span class="n">b</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="err">{{</span><span class="w"> </span><span class="n">src</span><span class="p">(</span><span class="s1">&#39;dim_tournaments&#39;</span><span class="p">)</span><span class="w"> </span><span class="err">}}</span><span class="w"> </span><span class="n">t</span><span class="w"></span>
+<span class="w">    </span><span class="k">ON</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">tournament_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">tournament_id</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="err">{{</span><span class="w"> </span><span class="n">src</span><span class="p">(</span><span class="s1">&#39;dim_arenas&#39;</span><span class="p">)</span><span class="w"> </span><span class="err">}}</span><span class="w"> </span><span class="n">a</span><span class="w"></span>
+<span class="w">    </span><span class="k">ON</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">arena_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">arena_id</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="err">{{</span><span class="w"> </span><span class="n">src</span><span class="p">(</span><span class="s1">&#39;dim_fighters&#39;</span><span class="p">)</span><span class="w"> </span><span class="err">}}</span><span class="w"> </span><span class="n">f1</span><span class="w"></span>
+<span class="w">    </span><span class="k">ON</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">fighter1_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f1</span><span class="p">.</span><span class="n">fighter_id</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="err">{{</span><span class="w"> </span><span class="n">src</span><span class="p">(</span><span class="s1">&#39;dim_fighters&#39;</span><span class="p">)</span><span class="w"> </span><span class="err">}}</span><span class="w"> </span><span class="n">f2</span><span class="w"></span>
+<span class="w">    </span><span class="k">ON</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">fighter2_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f2</span><span class="p">.</span><span class="n">fighter_id</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="err">{{</span><span class="w"> </span><span class="n">src</span><span class="p">(</span><span class="s1">&#39;dim_fighters&#39;</span><span class="p">)</span><span class="w"> </span><span class="err">}}</span><span class="w"> </span><span class="n">w</span><span class="w"></span>
+<span class="w">    </span><span class="k">ON</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">winner_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w</span><span class="p">.</span><span class="n">fighter_id</span><span class="w"></span>
+</code></pre></div>
+<p>As you can see, this query uses another Jinja templating notation, the <code>src</code> function which is core to using SAYN efficiently. You pass this function the name of a table, and SAYN will automatically build the dependencies between your tasks! For example, this <code>f_battles</code> task sources the table <code>dim_tournaments</code> (amongst others) with the <code>src</code> function. As a result, SAYN will look for the task that produces this <code>dim_tournaments</code> table (which is the <code>dim_tournaments</code> task) and set this task as a parent of the <code>f_battles</code> task. Therefore, <code>dim_tournaments</code> will always execute before <code>f_battles</code>. From the above code, you can see that many tasks will be set as parents of the <code>f_battles</code> task.</p>
+<h3 id="changing_your_model_materialisation">Changing Your Model Materialisation<a class="headerlink" href="#changing_your_model_materialisation" title="Permanent link">&para;</a></h3>
+<p>You can easily amend the configuration of a single task when necessary with SAYN. For example, the task <code>f_rankings</code>, generated by <code>f_rankings.sql</code>, uses the following query:</p>
+<div class="highlight"><pre><span></span><code><span class="err">{{</span><span class="w"> </span><span class="n">config</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">materialisation</span><span class="o">=</span><span class="s1">&#39;view&#39;</span><span class="w"></span>
+<span class="w">   </span><span class="p">)</span><span class="w"></span>
+<span class="err">}}</span><span class="w"></span>
+
+<span class="k">SELECT</span><span class="w"> </span><span class="n">fr</span><span class="p">.</span><span class="n">fighter_name</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="k">SUM</span><span class="p">(</span><span class="n">fr</span><span class="p">.</span><span class="n">is_winner</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">FLOAT</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="k">DISTINCT</span><span class="w"> </span><span class="n">fr</span><span class="p">.</span><span class="n">battle_id</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">win_rate</span><span class="w"></span>
+<span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="err">{{</span><span class="w"> </span><span class="n">src</span><span class="p">(</span><span class="s1">&#39;f_fighter_results&#39;</span><span class="p">)</span><span class="w"> </span><span class="err">}}</span><span class="w"> </span><span class="n">fr</span><span class="w"></span>
+<span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">DESC</span><span class="w"></span>
+</code></pre></div>
+<p>As you can see, this task uses the <code>config</code> function, which will in this case overwrite the materialisation of the task's output to a view instead of a table. This <code>config</code> function can be really useful when you want to overwrite some attributes of specific tasks within your group.</p>
 <h2 id="what_next">What Next?<a class="headerlink" href="#what_next" title="Permanent link">&para;</a></h2>
-<p>This is it, you should now have a good understanding of the core ways of using SAYN. You can play further with this project and easily transfer it to a PostgreSQL database for example by:</p>
-<ul>
-<li>changing the credentials in <code>settings.yaml</code>.</li>
-<li>setting the <code>tmp_schema</code> and <code>schema</code> attributes of your <code>modelling</code> preset to <code>public</code>.</li>
-</ul>
-<p>Otherwise, you can learn more about the specific SAYN features by having a look at the specific sections of the documentation.</p>
-<p>Enjoy SAYN :)</p>
+<p>You now know how to build data models with SAYN. The <a href="../tutorial_part3/">next section of this tutorial</a> will now go through how to use SAYN for Python processes. This will enable you to leverage SAYN for end-to-end ELT processes or data science tasks!</p>
                 
               
               
@@ -1118,13 +1124,13 @@ tasks.</p>
           </a>
         
         
-          <a href="../../cli/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../tutorial_part3/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-footer-nav__title">
               <div class="md-ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                CLI
+                Tutorial (Part 3)
               </div>
             </div>
             <div class="md-footer-nav__button md-icon">

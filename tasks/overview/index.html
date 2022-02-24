@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://173tech.github.io/sayn/tasks/overview/">
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
     
     
       
@@ -278,6 +278,18 @@
   
 
           
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/tutorial_part3/" class="md-nav__link">
+        Tutorial (Part 3)
+      </a>
+    </li>
+  
+
+          
         </ul>
       </nav>
     </li>
@@ -393,6 +405,18 @@
   
 
           
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../database_objects/" class="md-nav__link">
+        Database objects
+      </a>
+    </li>
+  
+
+          
         </ul>
       </nav>
     </li>
@@ -483,15 +507,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#task_groups" class="md-nav__link">
-    Task Groups
+  <a href="#task_attributes" class="md-nav__link">
+    Task Attributes
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#task_attributes" class="md-nav__link">
-    Task Attributes
+  <a href="#yaml_based_definition_of_tasks" class="md-nav__link">
+    YAML based definition of tasks
   </a>
   
 </li>
@@ -591,11 +615,78 @@
         <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" >
       
       <label class="md-nav__link" for="nav-5">
+        Data Tests
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Data Tests" data-md-level="1">
+        <label class="md-nav__title" for="nav-5">
+          <span class="md-nav__icon md-icon"></span>
+          Data Tests
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/standard/" class="md-nav__link">
+        Standard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/custom/" class="md-nav__link">
+        Custom
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+      
+      <label class="md-nav__link" for="nav-6">
         Databases
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Databases" data-md-level="1">
-        <label class="md-nav__title" for="nav-5">
+        <label class="md-nav__title" for="nav-6">
           <span class="md-nav__icon md-icon"></span>
           Databases
         </label>
@@ -703,14 +794,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
       
-      <label class="md-nav__link" for="nav-6">
+      <label class="md-nav__link" for="nav-7">
         API Reference
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="API Reference" data-md-level="1">
-        <label class="md-nav__title" for="nav-6">
+        <label class="md-nav__title" for="nav-7">
           <span class="md-nav__icon md-icon"></span>
           API Reference
         </label>
@@ -758,14 +849,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8" >
       
-      <label class="md-nav__link" for="nav-7">
+      <label class="md-nav__link" for="nav-8">
         Project Examples
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Project Examples" data-md-level="1">
-        <label class="md-nav__title" for="nav-7">
+        <label class="md-nav__title" for="nav-8">
           <span class="md-nav__icon md-icon"></span>
           Project Examples
         </label>
@@ -860,15 +951,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#task_groups" class="md-nav__link">
-    Task Groups
+  <a href="#task_attributes" class="md-nav__link">
+    Task Attributes
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#task_attributes" class="md-nav__link">
-    Task Attributes
+  <a href="#yaml_based_definition_of_tasks" class="md-nav__link">
+    YAML based definition of tasks
   </a>
   
 </li>
@@ -895,17 +986,18 @@
                 
                 <h1 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h1>
 <h2 id="about">About<a class="headerlink" href="#about" title="Permanent link">&para;</a></h2>
-<p>Tasks are the backbone of your SAYN project. They are used by SAYN to create a DAG (Directed Acyclic Graph).</p>
+<p>A SAYN project is split into units of execution called tasks. The order of execution of these tasks is given based on the dependencies between them which you specify when writing your tasks. SAYN then takes this information and generates a DAG (Direct Acyclic Graph) automatically.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>A Directed Acyclic Graph is a concept which enables to conveniently model tasks and dependencies. It uses the following key principles</p>
+<p>A Directed Acyclic Graph is a data structure which enables the conveniently modelling of tasks and dependencies:</p>
 <ul>
-<li><code>graph</code>: a specific data structure which consists of <code>nodes</code> connected by <code>edges</code>.</li>
+<li><code>graph</code>: a data structure which consists of <code>nodes</code> connected by <code>edges</code>.</li>
 <li><code>directed</code>: dependencies have a direction. If there is an <code>edge</code> (i.e. a dependency) between two tasks, one will run before the other.</li>
 <li><code>acyclic</code>: there are no circular dependencies. If you process the whole graph, you will never encounter the same task twice.</li>
 </ul>
 </div>
-<p>Dependencies between tasks are defined with the <code>parents</code> list. To relate back to the DAG concept, this implies each task in SAYN represents a <code>node</code> and <code>edges</code> are defined by the <code>parents</code> attribute of each task. For example, the SAYN tutorial defines the following DAG:</p>
+<p>Dependencies between tasks are defined based on the tables or views that tasks need to read. In SAYN, this is automated through the concept of <code>sources</code> and <code>outputs</code>. For more custom use, SAYN also supports the manual definition of relationship between tasks through <code>parents</code>.</p>
+<p>For example, the SAYN tutorial defines the following DAG:</p>
 <p><img alt="Tutorial" src="../../dag.png" /></p>
 <p>Through tasks, SAYN provides a lot of automation under the hood, so make sure you explore the various task types SAYN offers!</p>
 <h2 id="task_types">Task Types<a class="headerlink" href="#task_types" title="Permanent link">&para;</a></h2>
@@ -914,22 +1006,70 @@
 <li><a href="../autosql/"><code>autosql</code></a>: simply write a <code>SELECT</code> statement and SAYN automates the data processing (i.e. table or view creation, incremental load, etc.) for you.</li>
 <li><a href="../python/"><code>python</code></a>: enables you to write a Python process. Can be used for a wide range of cases from data extraction to data science models - anything Python lets you do.</li>
 <li><a href="../copy/"><code>copy</code></a>: enables to automatically copy data from one database to another.</li>
-<li><a href="../dummy/"><code>dummy</code></a>: those tasks do not do anything. They can be used as connectors between tasks.</li>
 <li><a href="../sql/"><code>sql</code></a>: executes any SQL statement. There can be multiple statements within the SQL file.</li>
+<li><a href="../dummy/"><code>dummy</code></a>: those tasks do not do anything. They can be used as connectors between tasks.</li>
 </ul>
 <h2 id="defining_tasks">Defining Tasks<a class="headerlink" href="#defining_tasks" title="Permanent link">&para;</a></h2>
-<p>Tasks are defined in YAML files located under the <code>tasks</code> folder at the root level of your SAYN project. Each file in the <code>tasks</code> folder represents a <a href="#task_groups">task group</a> and can be executed independently. By default, SAYN includes any file in the <code>tasks</code> folder ending with a <code>.yaml</code> extension when creating the DAG.</p>
+<p>Tasks in SAYN are defined into <code>groups</code> which we describe in the <code>project.yaml</code> file in your project. Task <code>groups</code> define a set of tasks which share the same attributes. For example we can define a group formed of <code>autosql</code> tasks called <code>core</code> like this:</p>
+<div class="admonition example">
+<p class="admonition-title">project.yaml</p>
+<div class="highlight"><pre><span></span><code>groups:
+  core:
+    type: autosql
+    file_name: &quot;core/*.sql&quot;
+    materialisation: table
+    destination:
+      table: &quot;{{ task.name }}&quot;
+</code></pre></div>
+</div>
+<p>The properties defined in the group tell SAYN how to generate tasks:</p>
+<ul>
+<li><code>type</code>: this tells SAYN to create tasks of type <a href="../autosql/">autosql</a></li>
+<li><code>file_name</code>: this property tells SAYN what files to use to generate tasks. The files for autosql tasks are stored under the <code>sql</code> folder, so this expression is telling us to create a task per file with the extension <code>sql</code> found in the <code>sql/core</code> folder</li>
+<li><code>materialisation</code>: describes what database object to create in the database</li>
+<li><code>destination</code>: defines where to create the database object, in this case we're just using the name, which will simply be the name of the task</li>
+</ul>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>You would always want the <code>file_name</code> property used in group definitions to be a <a href="https://en.wikipedia.org/wiki/Glob_(programming)">glob expression</a> so that it points at a list of files. Any other property defined in groups will be interpreted as described in the page for the task type in this documentation.</p>
+<p>When SAYN interprets this group, for every file found matching the glob expression in <code>file_name</code> a task will be generated and the name of that task will match the name of the file without the extension. For example if the <code>sql/core</code> folder in our project contains 2 files called <code>table1.sql</code> and <code>table2.sql</code> then 2 tasks will be created called <code>table1</code> and <code>table2</code>. To allow those 2 tasks to create different tables in the database we use Jinja expressions. In this case we just call the result table exactly the name of the task using <code>"{{ task.name }}"</code>.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>When a SAYN project grows, it is good practice to start separating your tasks in multiple groups (e.g. extracts, core models, marketing models, finance models, data science, etc.) in order to organise processes.</p>
+</div>
+<p>This definition of <code>groups</code> in the <code>project.yaml</code> file is available for <code>autosql</code>, <code>sql</code> and <code>python</code> tasks. You can read more about this by heading to the corresponding pages.</p>
+<h2 id="task_attributes">Task Attributes<a class="headerlink" href="#task_attributes" title="Permanent link">&para;</a></h2>
+<div class="admonition example">
+<p class="admonition-title">project.yaml</p>
+<div class="highlight"><pre><span></span><code>groups:
+  core:
+    type: autosql
+    file_name: &quot;core/*.sql&quot;
+    materialisation: table
+    destination:
+      table: &quot;{{ task.name }}&quot;
+</code></pre></div>
+</div>
+<p>As you saw in the example above, task attributes can be defined in a dynamic way. This example shows how to use the task name to dynamically define a task. This will effectively tell the task to create the outputs of the <code>core</code> tasks into tables based on the <code>task</code> name, which is the name of the file without the <code>.sql</code> extension for <code>autosql</code> tasks.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You can also reference to <code>{{ task.group }}</code> dynamically.</p>
+</div>
+<h2 id="yaml_based_definition_of_tasks">YAML based definition of tasks<a class="headerlink" href="#yaml_based_definition_of_tasks" title="Permanent link">&para;</a></h2>
+<p>The model described above makes creating a SAYN project very easy, but there are situations where a more advanced model is required. For that we can
+define tasks in YAML files under the <code>tasks</code> folder at the root level of your SAYN project. Each file in the <code>tasks</code> folder represents a <a href="#task_groups">task group</a> and can be executed independently. By default, SAYN includes any file in the <code>tasks</code> folder ending with a <code>.yaml</code> extension when creating the DAG.</p>
 <p>Within each YAML file, tasks are defined in the <code>tasks</code> entry.</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-  <span class="nt">task_1</span><span class="p">:</span>
-    <span class="c1"># Task properties</span>
+<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">task_1</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="c1"># Task properties</span><span class="w"></span>
 
-  <span class="nt">task_2</span><span class="p">:</span>
-    <span class="c1"># Task properties</span>
+<span class="w">  </span><span class="nt">task_2</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="c1"># Task properties</span><span class="w"></span>
 
-  <span class="c1"># ...</span>
+<span class="w">  </span><span class="c1"># ...</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p>All tasks share a number of common properties available:</p>
@@ -958,6 +1098,16 @@
 <td>Optional list</td>
 </tr>
 <tr>
+<td>sources</td>
+<td>A list of database tables or views this task uses.</td>
+<td>Optional list</td>
+</tr>
+<tr>
+<td>outputs</td>
+<td>A list of database tables or views this task produces</td>
+<td>Optional list</td>
+</tr>
+<tr>
 <td>tags</td>
 <td>A list of tags used in <code>sayn run -t tag:tag_name</code>. This allows for advanced task filtering when we don't want to run all tasks in the project.</td>
 <td>Optional list</td>
@@ -973,99 +1123,23 @@
 <p class="admonition-title">Attention</p>
 <p>Different task types have different attributes. Make sure that you check each task type's specific documentation to understand how to define it.</p>
 </div>
-<h2 id="task_groups">Task Groups<a class="headerlink" href="#task_groups" title="Permanent link">&para;</a></h2>
-<p>Task groups are a convenient way to segment and organise your data processes in your SAYN project. Each YAML file in the <code>tasks</code> folder represents a task group.</p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>When growing a SAYN project, it is good practice to start separating your tasks in multiple groups (e.g. extracts, core models, marketing models, finance models, data science, etc.) in order to organise processes.</p>
-</div>
-<p>Each task group file defines tasks (required) and presets (optional).</p>
-<div class="admonition example">
-<p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">presets</span><span class="p">:</span>
-  <span class="nt">modelling</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-    <span class="nt">destination</span><span class="p">:</span>
-      <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_staging</span>
-      <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_models</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="s">&#39;{{task.name}}&#39;</span>
-
-<span class="nt">tasks</span><span class="p">:</span>
-  <span class="nt">load_data</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python</span>
-    <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">load_data.LoadData</span>
-
-  <span class="c1">#task defined without preset</span>
-  <span class="nt">dim_tournaments</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_tournaments.sql</span>
-    <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-    <span class="nt">destination</span><span class="p">:</span>
-      <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_staging</span>
-      <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_models</span>
-      <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_tournaments</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">load_data</span>
-
-  <span class="c1">#task defined using a preset</span>
-  <span class="nt">dim_arenas</span><span class="p">:</span>
-    <span class="nt">preset</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">modelling</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dim_arenas.sql</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">load_data</span>
-</code></pre></div>
-</div>
-<table>
-<thead>
-<tr>
-<th>Property</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>tasks</td>
-<td>The set of tasks that compose the task group. For more details on <code>tasks</code>, please see the <a href="./">Tasks</a> section.</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>presets</td>
-<td>Defines preset task structures shared by several tasks. Presets defined within task group files can inherit from presets defined at the project level in <code>project.yaml</code>. See the <a href="../../presets/">Presets</a> section for more details.</td>
-<td>Optional</td>
-</tr>
-</tbody>
-</table>
-<h2 id="task_attributes">Task Attributes<a class="headerlink" href="#task_attributes" title="Permanent link">&para;</a></h2>
-<p>Task attributes can be used when defining tasks in a dynamic way. The following example shows how to use the task name and task group dynamically when defining a task:</p>
-<div class="admonition example">
-<p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-  <span class="nt">sql_task</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="s">&#39;{{task.group}}/{{task.name}}.sql&#39;</span>
-</code></pre></div>
-</div>
-<p>This will effectively tell the task to look for a file located at <code>base/sql_task.sql</code> in the <code>sql</code> folder.</p>
 <h2 id="task_failure_behaviour">Task failure behaviour<a class="headerlink" href="#task_failure_behaviour" title="Permanent link">&para;</a></h2>
-<p>When a task fails during an execution, all descendent tasks will be skipped as expected. However sometimes it can be useful to 
-execute descending tasks even if a parent fails, for example when an API can frequently throw errors and we want to continue the
-execution just with as much data as it was possible to pull from it. In this case we make use of the <code>on_fail</code> task property to
+<p>When a task fails during an execution, all descendent tasks will be skipped as expected. However sometimes it can be useful to
+execute descending tasks even if a parent fails, for example when an API can frequently throw errors and we want to continue the execution just with as much data as it was possible to pull from it. In this case we make use of the <code>on_fail</code> task property to
 specify that we do not want to skip descending tasks.</p>
 <div class="admonition example">
 <p class="admonition-title">tasks/base.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-  <span class="nt">could_fail_task</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python</span>
-    <span class="nt">class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">could_fail.CouldFailTask</span>
-    <span class="nt">on_fail</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">no_skip</span>
+<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">could_fail_task</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python</span><span class="w"></span>
+<span class="w">    </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">could_fail.CouldFailTask</span><span class="w"></span>
+<span class="w">    </span><span class="nt">on_fail</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">no_skip</span><span class="w"></span>
 
-  <span class="nt">child_task</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">query_using_could_fail_data.sql</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">failing_task</span>
+<span class="w">  </span><span class="nt">child_task</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sql</span><span class="w"></span>
+<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">query_using_could_fail_data.sql</span><span class="w"></span>
+<span class="w">    </span><span class="nt">parents</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">failing_task</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p>In the above case, if <code>could_fail_task</code> fails, <code>child_task</code> will not be skipped.</p>
@@ -1087,7 +1161,7 @@ specify that we do not want to skip descending tasks.</p>
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
         
-          <a href="../../parameters/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../../database_objects/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-footer-nav__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
             </div>
@@ -1096,7 +1170,7 @@ specify that we do not want to skip descending tasks.</p>
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Parameters
+                Database objects
               </div>
             </div>
           </a>

@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://173tech.github.io/sayn/tasks/dummy/">
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
     
     
       
@@ -278,6 +278,18 @@
   
 
           
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/tutorial_part3/" class="md-nav__link">
+        Tutorial (Part 3)
+      </a>
+    </li>
+  
+
+          
         </ul>
       </nav>
     </li>
@@ -388,6 +400,18 @@
     <li class="md-nav__item">
       <a href="../../parameters/" class="md-nav__link">
         Parameters
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../database_objects/" class="md-nav__link">
+        Database objects
       </a>
     </li>
   
@@ -570,11 +594,78 @@
         <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" >
       
       <label class="md-nav__link" for="nav-5">
+        Data Tests
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Data Tests" data-md-level="1">
+        <label class="md-nav__title" for="nav-5">
+          <span class="md-nav__icon md-icon"></span>
+          Data Tests
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/standard/" class="md-nav__link">
+        Standard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/custom/" class="md-nav__link">
+        Custom
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+      
+      <label class="md-nav__link" for="nav-6">
         Databases
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Databases" data-md-level="1">
-        <label class="md-nav__title" for="nav-5">
+        <label class="md-nav__title" for="nav-6">
           <span class="md-nav__icon md-icon"></span>
           Databases
         </label>
@@ -682,14 +773,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
       
-      <label class="md-nav__link" for="nav-6">
+      <label class="md-nav__link" for="nav-7">
         API Reference
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="API Reference" data-md-level="1">
-        <label class="md-nav__title" for="nav-6">
+        <label class="md-nav__title" for="nav-7">
           <span class="md-nav__icon md-icon"></span>
           API Reference
         </label>
@@ -737,14 +828,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8" >
       
-      <label class="md-nav__link" for="nav-7">
+      <label class="md-nav__link" for="nav-8">
         Project Examples
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Project Examples" data-md-level="1">
-        <label class="md-nav__title" for="nav-7">
+        <label class="md-nav__title" for="nav-8">
           <span class="md-nav__icon md-icon"></span>
           Project Examples
         </label>
@@ -858,70 +949,70 @@
 <p>A <code>dummy</code> task has no additional properties other than the properties shared by all task types.</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code><span class="nt">task_dummy</span><span class="p">:</span>
-  <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dummy</span>
+<div class="highlight"><pre><span></span><code><span class="nt">task_dummy</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dummy</span><span class="w"></span>
 </code></pre></div>
 </div>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
 <p><code>dummy</code> tasks come in useful when you have multiple tasks that depend upon a long list of parents. Let's consider the following setup in your task group <code>task_group.yaml</code>:</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-  <span class="c1">#definition of task_1, task_2, task_3, task_4 ...</span>
+<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="c1">#definition of task_1, task_2, task_3, task_4 ...</span><span class="w"></span>
 
-  <span class="nt">task_mlt_parents_1</span><span class="p">:</span>
-    <span class="c1">#task definition</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">task_1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">task_2</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">task_3</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">task_4</span>
+<span class="w">  </span><span class="nt">task_mlt_parents_1</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#task definition</span><span class="w"></span>
+<span class="w">    </span><span class="nt">parents</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_2</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_3</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_4</span><span class="w"></span>
 
-  <span class="nt">task_mlt_parents_2</span><span class="p">:</span>
-    <span class="c1">#task definition</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">task_1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">task_2</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">task_3</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">task_4</span>
+<span class="w">  </span><span class="nt">task_mlt_parents_2</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#task definition</span><span class="w"></span>
+<span class="w">    </span><span class="nt">parents</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_2</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_3</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_4</span><span class="w"></span>
 
-  <span class="nt">task_mlt_parents_3</span><span class="p">:</span>
-    <span class="c1">#task definition</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">task_1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">task_2</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">task_3</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">task_4</span>
+<span class="w">  </span><span class="nt">task_mlt_parents_3</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#task definition</span><span class="w"></span>
+<span class="w">    </span><span class="nt">parents</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_2</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_3</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_4</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p>You can avoid repeating the <code>parents</code> across those multiple tasks using a <code>dummy</code> task to create a connector. This is how it would look like with a dummy task.</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
-<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
-  <span class="c1">#some tasks</span>
+<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="c1">#some tasks</span><span class="w"></span>
 
-  <span class="nt">dummy_task</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dummy</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">task_1</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">task_2</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">task_3</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">task_4</span>
+<span class="w">  </span><span class="nt">dummy_task</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dummy</span><span class="w"></span>
+<span class="w">    </span><span class="nt">parents</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_1</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_2</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_3</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_4</span><span class="w"></span>
 
-  <span class="nt">task_mlt_parents_1</span><span class="p">:</span>
-    <span class="c1">#task definition</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dummy_task</span>
+<span class="w">  </span><span class="nt">task_mlt_parents_1</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#task definition</span><span class="w"></span>
+<span class="w">    </span><span class="nt">parents</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dummy_task</span><span class="w"></span>
 
-  <span class="nt">task_mlt_parents_2</span><span class="p">:</span>
-    <span class="c1">#task definition</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dummy_task</span>
+<span class="w">  </span><span class="nt">task_mlt_parents_2</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#task definition</span><span class="w"></span>
+<span class="w">    </span><span class="nt">parents</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dummy_task</span><span class="w"></span>
 
-  <span class="nt">task_mlt_parents_3</span><span class="p">:</span>
-    <span class="c1">#task definition</span>
-    <span class="nt">parents</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dummy_task</span>
+<span class="w">  </span><span class="nt">task_mlt_parents_3</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#task definition</span><span class="w"></span>
+<span class="w">    </span><span class="nt">parents</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dummy_task</span><span class="w"></span>
 </code></pre></div>
 </div>
                 
@@ -957,7 +1048,7 @@
           </a>
         
         
-          <a href="../../databases/overview/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../../tests/overview/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-footer-nav__title">
               <div class="md-ellipsis">
                 <span class="md-footer-nav__direction">

@@ -9,14 +9,14 @@
       
       
       
-        <link rel="canonical" href="https://173tech.github.io/sayn/tutorials/tutorial_part1/">
+        <link rel="canonical" href="https://173tech.github.io/sayn/tutorials/tutorial_part3/">
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
     
     
       
-        <title>Tutorial (Part 1) - SAYN</title>
+        <title>Tutorial (Part 3) - SAYN</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tutorial_part_1_getting_started_with_sayn" class="md-skip">
+        <a href="#tutorial_part_3_using_python_with_sayn" class="md-skip">
           Skip to content
         </a>
       
@@ -104,7 +104,7 @@
         <div class="md-header-nav__topic">
           <span class="md-ellipsis">
             
-              Tutorial (Part 1)
+              Tutorial (Part 3)
             
           </span>
         </div>
@@ -259,6 +259,30 @@
             
   
   
+  
+    <li class="md-nav__item">
+      <a href="../tutorial_part1/" class="md-nav__link">
+        Tutorial (Part 1)
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial_part2/" class="md-nav__link">
+        Tutorial (Part 2)
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
     
   
   
@@ -270,12 +294,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Tutorial (Part 1)
+          Tutorial (Part 3)
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Tutorial (Part 1)
+        Tutorial (Part 3)
       </a>
       
         
@@ -292,37 +316,37 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#your_first_sayn_run" class="md-nav__link">
-    Your First SAYN Run
+  <a href="#adding_your_python_task_group" class="md-nav__link">
+    Adding Your Python Task Group
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#project_overview" class="md-nav__link">
-    Project Overview
+  <a href="#writing_your_python_tasks" class="md-nav__link">
+    Writing Your Python Tasks
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#setting_up_your_project" class="md-nav__link">
-    Setting Up Your Project
-  </a>
-  
-    <nav class="md-nav" aria-label="Setting Up Your Project">
+    <nav class="md-nav" aria-label="Writing Your Python Tasks">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#step_1_define_the_project_in_projectyaml" class="md-nav__link">
-    Step 1: Define The Project In project.yaml
+  <a href="#a_simple_python_task" class="md-nav__link">
+    A Simple Python Task
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step_2_define_your_individual_settings" class="md-nav__link">
-    Step 2: Define Your Individual Settings
+  <a href="#creating_data_logs" class="md-nav__link">
+    Creating Data Logs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setting_dependencies_with_load_data" class="md-nav__link">
+    Setting Dependencies With load_data
   </a>
   
 </li>
@@ -343,30 +367,6 @@
   
 </nav>
       
-    </li>
-  
-
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tutorial_part2/" class="md-nav__link">
-        Tutorial (Part 2)
-      </a>
-    </li>
-  
-
-          
-            
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tutorial_part3/" class="md-nav__link">
-        Tutorial (Part 3)
-      </a>
     </li>
   
 
@@ -936,37 +936,37 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#your_first_sayn_run" class="md-nav__link">
-    Your First SAYN Run
+  <a href="#adding_your_python_task_group" class="md-nav__link">
+    Adding Your Python Task Group
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#project_overview" class="md-nav__link">
-    Project Overview
+  <a href="#writing_your_python_tasks" class="md-nav__link">
+    Writing Your Python Tasks
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#setting_up_your_project" class="md-nav__link">
-    Setting Up Your Project
-  </a>
-  
-    <nav class="md-nav" aria-label="Setting Up Your Project">
+    <nav class="md-nav" aria-label="Writing Your Python Tasks">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#step_1_define_the_project_in_projectyaml" class="md-nav__link">
-    Step 1: Define The Project In project.yaml
+  <a href="#a_simple_python_task" class="md-nav__link">
+    A Simple Python Task
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#step_2_define_your_individual_settings" class="md-nav__link">
-    Step 2: Define Your Individual Settings
+  <a href="#creating_data_logs" class="md-nav__link">
+    Creating Data Logs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setting_dependencies_with_load_data" class="md-nav__link">
+    Setting Dependencies With load_data
   </a>
   
 </li>
@@ -996,106 +996,171 @@
               
                 
                 
-                <h1 id="tutorial_part_1_getting_started_with_sayn">Tutorial Part 1: Getting Started With SAYN<a class="headerlink" href="#tutorial_part_1_getting_started_with_sayn" title="Permanent link">&para;</a></h1>
-<p>This tutorial navigates you through your first SAYN run and explains the core components of a SAYN project. It uses the example project created by <code>sayn init</code>. It assumes SAYN is setup as described in the
-<a href="../../installation/">installation section</a>.</p>
-<h2 id="your_first_sayn_run">Your First SAYN Run<a class="headerlink" href="#your_first_sayn_run" title="Permanent link">&para;</a></h2>
-<p>To get started, open a terminal, activate your virtual environment (<code>source sayn_venv/bin/activate</code>) and run the following:</p>
-<div class="highlight"><pre><span></span><code>sayn init sayn_tutorial
-<span class="nb">cd</span> sayn_tutorial
-sayn run
-</code></pre></div>
-<p>This will create a new project with the contents of this tutorial and execute it.</p>
-<p><img alt="sayn run execution" src="../sayn_run1.gif" /></p>
-<p>You have made your first SAYN run! This executed several tasks that created SQL data models (several tables and one view) in the SQLite database <code>dev.db</code>. You can use
-<a href="https://sqlitebrowser.org/dl/" target="_blank">DB Browser for SQLite</a> in order to view the content of the database. These data models model battles from various tournaments and are similar to transformation processes you would run in-warehouse for analytics purposes.</p>
-<p>Now that you have made your first SAYN run, let's cover what happens in the background.</p>
-<h2 id="project_overview">Project Overview<a class="headerlink" href="#project_overview" title="Permanent link">&para;</a></h2>
-<p>The <code>sayn_tutorial</code> folder has the following structure:</p>
-<div class="highlight"><pre><span></span><code>tutorial
-├── project.yaml
-├── settings.yaml
-├── python
-│   ├── __init__.py
-│   └── load_data.py
-├── sql
-│   ├── dim_arenas.sql
-│   ├── dim_fighters.sql
-│   ├── dim_tournaments.sql
-│   ├── f_battles.sql
-│   ├── f_fighter_results.sql
-│   └── f_rankings.sql
-├── compile
-├── logs
-├── .gitignore
-├── readme.md
-└── requirements.txt
-</code></pre></div>
-<p>The main files are:</p>
-<ul>
-<li><code>project.yaml</code>: defines the SAYN project and the task groups. It is <strong>shared across all collaborators</strong>.</li>
-<li><code>settings.yaml</code>: defines the individual user's settings. It is <strong>unique for each collaborator and should never be pushed to git</strong> as it contains credentials.</li>
-<li><code>python</code>: folder where scripts for <code>python</code> tasks are stored.</li>
-<li><code>sql</code>: folder where SQL files for <code>sql</code> and <code>autosql</code> tasks are stored.</li>
-<li><code>logs</code>: folder where SAYN logs are written.</li>
-<li><code>compile</code>: folder where compiled SQL queries before execution.</li>
-</ul>
-<h2 id="setting_up_your_project">Setting Up Your Project<a class="headerlink" href="#setting_up_your_project" title="Permanent link">&para;</a></h2>
-<p>Now let's see how the tutorial project would be created from scratch.</p>
-<h3 id="step_1_define_the_project_in_projectyaml">Step 1: Define The Project In <code>project.yaml</code><a class="headerlink" href="#step_1_define_the_project_in_projectyaml" title="Permanent link">&para;</a></h3>
-<p>The <code>project.yaml</code> file is at the root level of your directory and contains:</p>
-<div class="admonition example">
-<p class="admonition-title">project.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">required_credentials</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warehouse</span><span class="w"></span>
-
-<span class="nt">default_db</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warehouse</span><span class="w"></span>
+                <h1 id="tutorial_part_3_using_python_with_sayn">Tutorial Part 3: Using Python With SAYN<a class="headerlink" href="#tutorial_part_3_using_python_with_sayn" title="Permanent link">&para;</a></h1>
+<p>The <a href="../tutorial_part2/">previous section of this tutorial</a> showed you how to use SAYN for data modelling purposes. We will now show you how to use Python with SAYN. This will therefore enable you to write end-to-end ELT processes and data science tasks with SAYN. Let's dive in!</p>
+<h2 id="adding_your_python_task_group">Adding Your Python Task Group<a class="headerlink" href="#adding_your_python_task_group" title="Permanent link">&para;</a></h2>
+<p>As we did for the <code>autosql</code> tasks, we will need to add a task group for our Python tasks. To do so, add the following to your <code>project.yaml</code>:</p>
+<p>!!! "project.yaml"
+  <div class="highlight"><pre><span></span><code><span class="nn">...</span><span class="w"></span>
 
 <span class="nt">groups</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">models</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autosql</span><span class="w"></span>
-<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;*.sql&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="nt">materialisation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table</span><span class="w"></span>
-<span class="w">    </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">task.name</span><span class="nv"> </span><span class="s">}}&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">models</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
 
-<span class="w">  </span><span class="nt">logs</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python</span><span class="w"></span>
-<span class="w">    </span><span class="nt">module</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">load_data</span><span class="w"></span>
-</code></pre></div>
-</div>
-<p>The following is defined:</p>
+<span class="w">    </span><span class="nt">say_hello</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python</span><span class="w"></span>
+<span class="w">      </span><span class="nt">module</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">say_hello</span><span class="w"></span>
+</code></pre></div></p>
+<p>This will do the following:</p>
 <ul>
-<li><code>required_credentials</code>: the list of credentials used by the project. In this case we have a single credential called <code>warehouse</code>. The connection details will be defined in <code>settings.yaml</code>.</li>
-<li><code>default_db</code>: the database used by sql and autosql tasks. Since we only have 1 credential, this field could be skipped.</li>
-<li><code>groups</code>: these define the core task groups of the project. The project only has one task group which defines the <code>models</code> task group. More details on what groups do in the next section of the tutorial.</li>
+<li>Create a task group called <code>say_hello</code>.</li>
+<li>All tasks in this group will be of type <code>python</code>.</li>
+<li>All functions using the <code>task</code> decorator in the file <code>python/say_hello.py</code> will be transformed into Python tasks. This file should already exist in your <code>python</code> folder and defines one task: <code>say_hello</code>. All <code>python</code> tasks should be stored in the <code>python</code> folder where an <code>__init__.py</code> file must exist.</li>
 </ul>
-<h3 id="step_2_define_your_individual_settings">Step 2: Define Your Individual Settings<a class="headerlink" href="#step_2_define_your_individual_settings" title="Permanent link">&para;</a></h3>
-<p>Your individual settings are defined by the <code>settings.yaml</code> file which is stored at the root level of your directory. It contains:</p>
-<div class="admonition example">
-<p class="admonition-title">settings.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">profiles</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">dev</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">credentials</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">warehouse</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dev_db</span><span class="w"></span>
+<h2 id="writing_your_python_tasks">Writing Your Python Tasks<a class="headerlink" href="#writing_your_python_tasks" title="Permanent link">&para;</a></h2>
+<h3 id="a_simple_python_task">A Simple Python Task<a class="headerlink" href="#a_simple_python_task" title="Permanent link">&para;</a></h3>
+<p>Our tutorial project has two <code>python</code> tasks. It starts with a simple Python task that interacts with the task's context. This is the <code>say_hello</code> task in the <code>python/say_hello.py</code> file, defined as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sayn</span> <span class="kn">import</span> <span class="n">task</span>
 
-<span class="nt">default_profile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dev</span><span class="w"></span>
-
-<span class="nt">credentials</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">dev_db</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sqlite</span><span class="w"></span>
-<span class="w">    </span><span class="nt">database</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dev.db</span><span class="w"></span>
+<span class="nd">@task</span>
+<span class="k">def</span> <span class="nf">say_hello</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Hello!&#39;</span><span class="p">)</span>
 </code></pre></div>
-</div>
-<p>The following is defined:</p>
+<p>Here are the core concepts to know for running Python tasks with SAYN:</p>
 <ul>
-<li><code>profiles</code>: the definion of profiles for the project. A profile defines the connection between credentials in the <code>project.yaml</code> file and your own credentials.</li>
-<li><code>default_profile</code>: the profile used by default at execution time. This can be overriden if necessary via <code>-p</code> flag of the run command.</li>
-<li><code>credentials</code>: here we define the credentials necessary to run the project. We simply define our <code>warehouse</code> credential which is currently a SQLite database.</li>
+<li>You should import the <code>task</code> decorator from <code>sayn</code> which you can then use to define your tasks. There is a more advanced way to define <code>python</code> tasks with classes using SAYN which you can find in the documentation related to <code>python</code> tasks.</li>
+<li>Use the <code>@task</code> decorator and then simply define your function. The task name will be the name of the function, in this case <code>say_hello</code>.</li>
+<li>We pass the <code>context</code> to our function, which can then be used in our code to access task related information and control the logger. In our case, we log <code>Hello!</code> as information.</li>
 </ul>
+<h3 id="creating_data_logs">Creating Data Logs<a class="headerlink" href="#creating_data_logs" title="Permanent link">&para;</a></h3>
+<p>The second task in the <code>python/load_data.py</code> module actually does something more interesting. It creates some random logs, which is the data you initially had in the logs table of <code>dev.db</code>. First, let's add this task to <code>project.yaml</code> by adding a task group:</p>
+<p>!!! "project.yaml"
+  <div class="highlight"><pre><span></span><code><span class="nn">...</span><span class="w"></span>
+
+<span class="nt">groups</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">models</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+
+<span class="w">    </span><span class="nt">logs</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python</span><span class="w"></span>
+<span class="w">      </span><span class="nt">module</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">load_data</span><span class="w"></span>
+</code></pre></div></p>
+<p>Let's look at whole the code from the <code>python/load_data.py</code> file:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
+
+<span class="kn">from</span> <span class="nn">sayn</span> <span class="kn">import</span> <span class="n">task</span>
+
+<span class="nd">@task</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">say_hello</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Hello!&#39;</span><span class="p">)</span>
+
+<span class="nd">@task</span><span class="p">(</span><span class="n">outputs</span><span class="o">=</span><span class="p">[</span>
+        <span class="s1">&#39;logs_arenas&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;logs_tournaments&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;logs_battles&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;logs_fighters&#39;</span><span class="p">]</span>
+     <span class="p">)</span>
+<span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">warehouse</span><span class="p">):</span>
+    <span class="n">fighters</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Son Goku&quot;</span><span class="p">,</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span> <span class="s2">&quot;Lucy&quot;</span><span class="p">,</span> <span class="s2">&quot;Dr. x&quot;</span><span class="p">,</span> <span class="s2">&quot;Carlos&quot;</span><span class="p">,</span> <span class="s2">&quot;Dr. y?&quot;</span><span class="p">]</span>
+    <span class="n">arenas</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Earth Canyon&quot;</span><span class="p">,</span> <span class="s2">&quot;World Edge&quot;</span><span class="p">,</span> <span class="s2">&quot;Namek&quot;</span><span class="p">,</span> <span class="s2">&quot;Volcanic Crater&quot;</span><span class="p">,</span> <span class="s2">&quot;Underwater&quot;</span><span class="p">]</span>
+    <span class="n">tournaments</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;World Championships&quot;</span><span class="p">,</span> <span class="s2">&quot;Tenka-ichi Budokai&quot;</span><span class="p">,</span> <span class="s2">&quot;King of the Mountain&quot;</span><span class="p">]</span>
+
+    <span class="n">context</span><span class="o">.</span><span class="n">set_run_steps</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;Generate Dimensions&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Generate Battles&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Load fighters&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Load arenas&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Load tournaments&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Load battles&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="s2">&quot;Generate Dimensions&quot;</span><span class="p">):</span>
+        <span class="c1"># Add ids to the dimensions</span>
+        <span class="n">fighters</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;fighter_id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">()),</span> <span class="s2">&quot;fighter_name&quot;</span><span class="p">:</span> <span class="n">val</span><span class="p">}</span>
+            <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fighters</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">arenas</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;arena_id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">()),</span> <span class="s2">&quot;arena_name&quot;</span><span class="p">:</span> <span class="n">val</span><span class="p">}</span>
+            <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">arenas</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">tournaments</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;tournament_id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">()),</span> <span class="s2">&quot;tournament_name&quot;</span><span class="p">:</span> <span class="n">val</span><span class="p">}</span>
+            <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tournaments</span><span class="p">)</span>
+        <span class="p">]</span>
+
+    <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="s2">&quot;Generate Battles&quot;</span><span class="p">):</span>
+        <span class="n">battles</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">tournament</span> <span class="ow">in</span> <span class="n">tournaments</span><span class="p">:</span>
+            <span class="n">tournament_id</span> <span class="o">=</span> <span class="n">tournament</span><span class="p">[</span><span class="s2">&quot;tournament_id&quot;</span><span class="p">]</span>
+            <span class="c1"># Randomly select a number of battles to generate for each tournament</span>
+            <span class="n">n_battles</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">])</span>
+
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_battles</span><span class="p">):</span>
+                <span class="n">battle_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
+
+                <span class="c1"># Randomly choose fighters and arena</span>
+                <span class="n">fighter1_id</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">fighters</span><span class="p">)[</span><span class="s2">&quot;fighter_id&quot;</span><span class="p">]</span>
+                <span class="n">fighter2_id</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fighters</span> <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;fighter_id&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">fighter1_id</span><span class="p">]</span>
+                <span class="p">)[</span><span class="s2">&quot;fighter_id&quot;</span><span class="p">]</span>
+                <span class="n">arena_id</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">arenas</span><span class="p">)[</span><span class="s2">&quot;arena_id&quot;</span><span class="p">]</span>
+
+                <span class="c1"># Pick a winner</span>
+                <span class="n">winner_id</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">fighter1_id</span> <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">0.5</span> <span class="k">else</span> <span class="n">fighter2_id</span>
+                <span class="p">)</span>
+
+                <span class="n">battles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;event_id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">()),</span>
+                        <span class="s2">&quot;tournament_id&quot;</span><span class="p">:</span> <span class="n">tournament_id</span><span class="p">,</span>
+                        <span class="s2">&quot;battle_id&quot;</span><span class="p">:</span> <span class="n">battle_id</span><span class="p">,</span>
+                        <span class="s2">&quot;arena_id&quot;</span><span class="p">:</span> <span class="n">arena_id</span><span class="p">,</span>
+                        <span class="s2">&quot;fighter1_id&quot;</span><span class="p">:</span> <span class="n">fighter1_id</span><span class="p">,</span>
+                        <span class="s2">&quot;fighter2_id&quot;</span><span class="p">:</span> <span class="n">fighter2_id</span><span class="p">,</span>
+                        <span class="s2">&quot;winner_id&quot;</span><span class="p">:</span> <span class="n">winner_id</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+    <span class="n">data_to_load</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;fighters&quot;</span><span class="p">:</span> <span class="n">fighters</span><span class="p">,</span>
+        <span class="s2">&quot;arenas&quot;</span><span class="p">:</span> <span class="n">arenas</span><span class="p">,</span>
+        <span class="s2">&quot;tournaments&quot;</span><span class="p">:</span> <span class="n">tournaments</span><span class="p">,</span>
+        <span class="s2">&quot;battles&quot;</span><span class="p">:</span> <span class="n">battles</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Load logs</span>
+    <span class="k">for</span> <span class="n">log_type</span><span class="p">,</span> <span class="n">log_data</span> <span class="ow">in</span> <span class="n">data_to_load</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Load </span><span class="si">{</span><span class="n">log_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="n">warehouse</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;logs_</span><span class="si">{</span><span class="n">log_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">log_data</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>The second task defined in this module is the <code>load_data</code> one. It uses some further features:</p>
+<ul>
+<li>The <code>load_data</code> task produces <code>outputs</code> which are defined in the decorator. This will enable you to refer to these outputs with the <code>src</code> function in <code>autosql</code> tasks and automatically set dependencies to the <code>load_data</code> task.</li>
+<li><code>warehouse</code> is also passed as a parameter to the function. This enables you to easily access the <code>warehouse</code> connection in your task. You can notably see that at the end of the script with the call to <code>warehouse.load_data</code>.</li>
+</ul>
+<h3 id="setting_dependencies_with_load_data">Setting Dependencies With <code>load_data</code><a class="headerlink" href="#setting_dependencies_with_load_data" title="Permanent link">&para;</a></h3>
+<p>As mentioned, we now have a <code>python</code> task which produces some logs which we want our <code>autosql</code> tasks to use for the data modelling process. As a result, we should ensure that the <code>load_data</code> task is always executed first. Because our <code>load_data</code> task produces <code>outputs</code>, we can refer to these with the <code>src</code> function in <code>autosql</code> tasks and automatically create dependencies. For example, the SQL query of the <code>dim_arenas</code> task should be changed from:</p>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">arena_id</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">arena_name</span><span class="w"></span>
+<span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="n">logs_arenas</span><span class="w"> </span><span class="n">l</span><span class="w"></span>
+</code></pre></div>
+<p>To:</p>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">arena_id</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">arena_name</span><span class="w"></span>
+<span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="err">{{</span><span class="w"> </span><span class="n">src</span><span class="p">(</span><span class="s1">&#39;logs_arenas&#39;</span><span class="p">)</span><span class="w"> </span><span class="err">}}</span><span class="w"> </span><span class="n">l</span><span class="w"></span>
+</code></pre></div>
+<p>This will now mention that the <code>dim_arenas</code> task sources the <code>logs_arenas</code> table which is an <code>output</code> of the <code>load_data</code> task. SAYN will automatically make <code>load_data</code> a parent of the <code>dim_arenas</code> task and therefore always execute it before. You can do the same for all the other logs tables used in the other <code>autosql</code> tasks.</p>
 <h2 id="what_next">What Next?<a class="headerlink" href="#what_next" title="Permanent link">&para;</a></h2>
-<p>You now know the core components and have made your first SAYN run, congratulations! In the <a href="../tutorial_part2/">next section of the tutorial</a>, we go through how to use SAYN for data modelling.</p>
-<p>Enjoy SAYN :)</p>
+<p>This is it for our tutorial. You should now have a good understanding of the true power of SAYN! Our documentation has more extensive details about all the concepts we covered:</p>
+<ul>
+<li>ADD</li>
+</ul>
+<p>Enjoy SAYN and happy ELT-ing! :)</p>
                 
               
               
@@ -1114,7 +1179,7 @@ sayn run
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
         
-          <a href="../../installation/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../tutorial_part2/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-footer-nav__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
             </div>
@@ -1123,19 +1188,19 @@ sayn run
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Installation
+                Tutorial (Part 2)
               </div>
             </div>
           </a>
         
         
-          <a href="../tutorial_part2/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../../cli/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-footer-nav__title">
               <div class="md-ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Tutorial (Part 2)
+                CLI
               </div>
             </div>
             <div class="md-footer-nav__button md-icon">

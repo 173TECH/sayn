@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://173tech.github.io/sayn/tasks/autosql/">
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
     
     
       
@@ -278,6 +278,18 @@
   
 
           
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/tutorial_part3/" class="md-nav__link">
+        Tutorial (Part 3)
+      </a>
+    </li>
+  
+
+          
         </ul>
       </nav>
     </li>
@@ -393,6 +405,18 @@
   
 
           
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../database_objects/" class="md-nav__link">
+        Database objects
+      </a>
+    </li>
+  
+
+          
         </ul>
       </nav>
     </li>
@@ -488,6 +512,20 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#setting_dependencies_with_autosql" class="md-nav__link">
+    Setting Dependencies With autosql
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced_configuration" class="md-nav__link">
+    Advanced Configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#using_autosql_in_incremental_mode" class="md-nav__link">
     Using autosql In incremental Mode
   </a>
@@ -495,19 +533,12 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining_ddls" class="md-nav__link">
-    Defining DDLs
+  <a href="#defining_columns" class="md-nav__link">
+    Defining columns
   </a>
   
-    <nav class="md-nav" aria-label="Defining DDLs">
+    <nav class="md-nav" aria-label="Defining columns">
       <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#alter_table_ddls" class="md-nav__link">
-    ALTER TABLE DDLs
-  </a>
-  
-</li>
         
           <li class="md-nav__item">
   <a href="#create_table_ddls" class="md-nav__link">
@@ -597,11 +628,78 @@
         <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" >
       
       <label class="md-nav__link" for="nav-5">
+        Data Tests
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Data Tests" data-md-level="1">
+        <label class="md-nav__title" for="nav-5">
+          <span class="md-nav__icon md-icon"></span>
+          Data Tests
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/standard/" class="md-nav__link">
+        Standard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/custom/" class="md-nav__link">
+        Custom
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+      
+      <label class="md-nav__link" for="nav-6">
         Databases
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Databases" data-md-level="1">
-        <label class="md-nav__title" for="nav-5">
+        <label class="md-nav__title" for="nav-6">
           <span class="md-nav__icon md-icon"></span>
           Databases
         </label>
@@ -709,14 +807,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
       
-      <label class="md-nav__link" for="nav-6">
+      <label class="md-nav__link" for="nav-7">
         API Reference
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="API Reference" data-md-level="1">
-        <label class="md-nav__title" for="nav-6">
+        <label class="md-nav__title" for="nav-7">
           <span class="md-nav__icon md-icon"></span>
           API Reference
         </label>
@@ -764,14 +862,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8" >
       
-      <label class="md-nav__link" for="nav-7">
+      <label class="md-nav__link" for="nav-8">
         Project Examples
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Project Examples" data-md-level="1">
-        <label class="md-nav__title" for="nav-7">
+        <label class="md-nav__title" for="nav-8">
           <span class="md-nav__icon md-icon"></span>
           Project Examples
         </label>
@@ -859,6 +957,20 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#setting_dependencies_with_autosql" class="md-nav__link">
+    Setting Dependencies With autosql
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced_configuration" class="md-nav__link">
+    Advanced Configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#using_autosql_in_incremental_mode" class="md-nav__link">
     Using autosql In incremental Mode
   </a>
@@ -866,19 +978,12 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#defining_ddls" class="md-nav__link">
-    Defining DDLs
+  <a href="#defining_columns" class="md-nav__link">
+    Defining columns
   </a>
   
-    <nav class="md-nav" aria-label="Defining DDLs">
+    <nav class="md-nav" aria-label="Defining columns">
       <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#alter_table_ddls" class="md-nav__link">
-    ALTER TABLE DDLs
-  </a>
-  
-</li>
         
           <li class="md-nav__item">
   <a href="#create_table_ddls" class="md-nav__link">
@@ -909,31 +1014,31 @@
 <h2 id="about">About<a class="headerlink" href="#about" title="Permanent link">&para;</a></h2>
 <p>The <code>autosql</code> task lets you write a <code>SELECT</code> statement and SAYN then automates the data processing (i.e. table or view creation, incremental load, etc.) for you.</p>
 <h2 id="defining_autosql_tasks">Defining <code>autosql</code> Tasks<a class="headerlink" href="#defining_autosql_tasks" title="Permanent link">&para;</a></h2>
-<p>An <code>autosql</code> task is defined as follows:</p>
+<p>An <code>autosql</code> task group is defined as follows:</p>
 <div class="admonition example">
-<p class="admonition-title">autosql task definition</p>
-<div class="highlight"><pre><span></span><code><span class="nn">...</span>
+<p class="admonition-title">project.yaml</p>
+<div class="highlight"><pre><span></span><code>...
 
-<span class="nt">task_autosql</span><span class="p">:</span>
-  <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-  <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">task_autosql.sql</span>
-  <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-  <span class="nt">destination</span><span class="p">:</span>
-    <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_staging</span>
-    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_models</span>
-    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">task_autosql</span>
-<span class="nn">...</span>
+groups:
+  core:
+    type: autosql
+    file_name: &quot;core/*.sql&quot;
+    materialisation: table
+    destination:
+      table: &quot;{{ task.name }}&quot;
+
+...
 </code></pre></div>
 </div>
 <p>An <code>autosql</code> task is defined by the following attributes:</p>
 <ul>
 <li><code>type</code>: <code>autosql</code>.</li>
-<li><code>file_name</code>: the name of the file <strong>within the sql folder of the project's root</strong>.</li>
+<li><code>file_name</code>: the path to a file <strong>within the sql folder of the project's root</strong>. When defining <code>autosql</code> groups in <code>project.yaml</code> this property needs to be a glob expression, for example <code>group/*.sql</code>.</li>
 <li><code>materialisation</code>: this should be either <code>table</code>, <code>view</code> or <code>incremental</code>. <code>table</code> will create a table, <code>view</code> will create a view. <code>incremental</code> will create a table and will load the data incrementally based on a delete key (see more detail on <code>incremental</code> below).</li>
 <li><code>destination</code>: this sets the details of the data processing.<ul>
-<li><code>tmp_schema</code>: the (optional) schema which will be used to store any necessary temporary object created in the process.</li>
-<li><code>schema</code>: the (optional) destination schema where the object will be created.</li>
-<li><code>table</code>: is the name of the object that will be created.</li>
+<li><code>tmp_schema</code>: the (optional) schema which will be used to store any necessary temporary object created in the process. The final compiled value is affected by <code>schema_prefix</code>, <code>schema_suffix</code> and <code>schema_override</code> as specified in <a href="../../database_objects/">database objects</a>.</li>
+<li><code>schema</code>: the (optional) destination schema where the object will be created. The final compiled value is affected by <code>schema_prefix</code>, <code>schema_suffix</code> and <code>schema_override</code> as specified in <a href="../../database_objects/">database objects</a>.</li>
+<li><code>table</code>: is the name of the object that will be created. The final compiled value is affected by <code>table_prefix</code>, <code>table_suffix</code> and <code>table_override</code> as specified in <a href="../../database_objects/">database objects</a>.</li>
 <li><code>db</code>: the (optional) destination database.</li>
 </ul>
 </li>
@@ -941,13 +1046,36 @@
 </ul>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>You do not need to specify <code>db</code> unless you want the destination database to be different than the <code>default_db</code> you define in <code>project.yaml</code> (which is the default database used by SAYN). If you define the <code>db</code> attribute, it needs to:</p>
+<p>By default the task is executed in the database defined by <code>default_db</code> in <code>project.yaml</code>. <code>db</code> can be specified to change this, in which case the connection specified needs to:</p>
 <ul>
 <li>Be a credential from the <code>required_credentials</code> list in <code>project.yaml</code>.</li>
 <li>Be defined in your <code>settings.yaml</code>.</li>
 <li>Be one of the supported <a href="../../databases/overview/">databases</a>.</li>
 </ul>
 </div>
+<h2 id="setting_dependencies_with_autosql">Setting Dependencies With <code>autosql</code><a class="headerlink" href="#setting_dependencies_with_autosql" title="Permanent link">&para;</a></h2>
+<p>With <code>autosql</code> tasks, you should use the <code>src</code> macro in your <code>SELECT</code> statements to implicitly create task dependencies.</p>
+<p>!!! example <code>autosql</code> query
+  <div class="highlight"><pre><span></span><code>SELECT field1
+     , field2
+  FROM {{ src(&#39;my_table&#39;) }} l
+</code></pre></div></p>
+<p>By using the <code>{{ src('my_table') }}</code> in your <code>FROM</code> clause, you are effectively telling SAYN that your task depends on the <code>my_table</code> table (or view). As a result, SAYN will look for the task that produces <code>my_table</code> and set it as a parent of this <code>autosql</code> task automatically.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>When using the <code>src</code> macro, you can pass a structure formatted as <code>schema.table</code> such as <code>{{ src('my_schema.my_table') }}</code>. In this case, SAYN interprets the first element as the schema, the second element as the table or view. If you use <code>schema_prefix</code> and / or <code>table_prefix</code> in your project settings, SAYN will then prepend the <code>schema_prefix</code> to the <code>schema</code> value and <code>table_prefix</code> to the <code>table</code> value. For example, if your <code>schema_prefix</code> is set to <code>analytics</code> and <code>table_prefix</code> to <code>up</code> then <code>{{ src('my_schema.my_table') }}</code> will compile <code>analytics_my_schema.up_my_table</code>.</p>
+</div>
+<h2 id="advanced_configuration">Advanced Configuration<a class="headerlink" href="#advanced_configuration" title="Permanent link">&para;</a></h2>
+<p>If you need to amend the configuration (e.g. materialisation) of a specific <code>autosql</code> task within a <code>group</code>, you can overload the values specified in the YAML group definition. To do this, we simply call <code>config</code> from a Jinja tag within the sql file of the task:</p>
+<div class="admonition example">
+<p class="admonition-title">autosql with config</p>
+<div class="highlight"><pre><span></span><code>{{ config(materialisation=&#39;view&#39;) }}
+
+SELECT ...
+</code></pre></div>
+</div>
+<p>The above code will override the value of <code>materialisation</code> setting defined in YAML to make this model a view. All other parameters
+described above in this page are also available to overload with <code>config</code> except <code>db</code>, <code>file_name</code> and <code>name</code>.</p>
 <h2 id="using_autosql_in_incremental_mode">Using <code>autosql</code> In <code>incremental</code> Mode<a class="headerlink" href="#using_autosql_in_incremental_mode" title="Permanent link">&para;</a></h2>
 <p><code>autosql</code> tasks support loads incrementally, which is extremely useful for large data volumes when full
 refresh (<code>materialisation: table</code>) would be infeasible.</p>
@@ -956,18 +1084,18 @@ refresh (<code>materialisation: table</code>) would be infeasible.</p>
 2. Defining a <code>delete_key</code></p>
 <div class="admonition example">
 <p class="admonition-title">autosql in incremental mode</p>
-<div class="highlight"><pre><span></span><code><span class="nn">...</span>
+<div class="highlight"><pre><span></span><code><span class="nn">...</span><span class="w"></span>
 
-<span class="nt">task_autosql_incremental</span><span class="p">:</span>
-  <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-  <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">task_autosql_incremental.sql</span>
-  <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">incremental</span>
-  <span class="nt">destination</span><span class="p">:</span>
-    <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_staging</span>
-    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_models</span>
-    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">task_autosql</span>
-  <span class="nt">delete_key</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dt</span>
-<span class="nn">...</span>
+<span class="nt">task_autosql_incremental</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autosql</span><span class="w"></span>
+<span class="w">  </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_autosql_incremental.sql</span><span class="w"></span>
+<span class="w">  </span><span class="nt">materialisation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">incremental</span><span class="w"></span>
+<span class="w">  </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">tmp_schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">analytics_staging</span><span class="w"></span>
+<span class="w">    </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">analytics_models</span><span class="w"></span>
+<span class="w">    </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_autosql</span><span class="w"></span>
+<span class="w">  </span><span class="nt">delete_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dt</span><span class="w"></span>
+<span class="nn">...</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p>When using <code>incremental</code>, SAYN will do the following in the background:</p>
@@ -986,93 +1114,73 @@ refresh (<code>materialisation: table</code>) would be infeasible.</p>
 </ul>
 <div class="admonition example">
 <p class="admonition-title">SQL using incremental arguments</p>
-<div class="highlight"><pre><span></span><code><span class="k">SELECT</span> <span class="n">dt</span>
-     <span class="p">,</span> <span class="n">field2</span>
-     <span class="p">,</span> <span class="k">COUNT</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">AS</span> <span class="k">c</span>
-  <span class="k">FROM</span> <span class="k">table</span>
- <span class="k">WHERE</span> <span class="n">dt</span> <span class="k">BETWEEN</span> <span class="err">{{</span> <span class="n">start_dt</span> <span class="err">}}</span> <span class="k">AND</span> <span class="err">{{</span> <span class="n">end_dt</span> <span class="err">}}</span>
- <span class="k">GROUP</span> <span class="k">BY</span> <span class="mi">1</span><span class="p">,</span><span class="mi">2</span>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">dt</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">field2</span><span class="w"></span>
+<span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">c</span><span class="w"></span>
+<span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="k">table</span><span class="w"></span>
+<span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">dt</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="err">{{</span><span class="w"> </span><span class="n">start_dt</span><span class="w"> </span><span class="err">}}</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="err">{{</span><span class="w"> </span><span class="n">end_dt</span><span class="w"> </span><span class="err">}}</span><span class="w"></span>
+<span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="w"></span>
 </code></pre></div>
 </div>
-<h2 id="defining_ddls">Defining DDLs<a class="headerlink" href="#defining_ddls" title="Permanent link">&para;</a></h2>
-<p>Autosql tasks support the definition of optional DDL. Each DDL entry is independent to others (you can define only DDLs which are relevant to you).</p>
+<h2 id="defining_columns">Defining columns<a class="headerlink" href="#defining_columns" title="Permanent link">&para;</a></h2>
+<p>Autosql tasks accept a <code>columns</code> field in the task definition that affects the table creation by enforcing types and column order.</p>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
 <p>Each supported database might have specific DDL related to it. Below are the DDLs that SAYN supports across all databases. For DDLs related to specific databases see the database-specific pages.</p>
-</div>
-<h3 id="alter_table_ddls">ALTER TABLE DDLs<a class="headerlink" href="#alter_table_ddls" title="Permanent link">&para;</a></h3>
-<p>The following DDLs will be issued by SAYN with <code>ALTER TABLE</code> statements:</p>
-<ul>
-<li>indexes: the indexes to add on the table.</li>
-<li>primary_key: this should be added in the indexes section using the <code>primary_key</code> name for the index.</li>
-<li>permissions: the permissions you want to give to each role. You should map each role to the rights you want to grant separated by commas (e.g. SELECT, DELETE).</li>
-</ul>
-<div class="admonition example">
-<p class="admonition-title">autosql with DDL</p>
-<div class="highlight"><pre><span></span><code><span class="nn">...</span>
-
-<span class="nt">task_autosql</span><span class="p">:</span>
-  <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-  <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">task_autosql.sql</span>
-  <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-  <span class="nt">destination</span><span class="p">:</span>
-    <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_staging</span>
-    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_models</span>
-    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">task_autosql</span>
-  <span class="nt">ddl</span><span class="p">:</span>
-    <span class="nt">indexes</span><span class="p">:</span>
-      <span class="nt">primary_key</span><span class="p">:</span>
-        <span class="nt">columns</span><span class="p">:</span>
-          <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">column1</span>
-          <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">column2</span>
-      <span class="nt">idx1</span><span class="p">:</span>
-        <span class="nt">columns</span><span class="p">:</span>
-          <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">column1</span>
-    <span class="nt">permissions</span><span class="p">:</span>
-      <span class="nt">role_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">SELECT</span>
-<span class="nn">...</span>
-</code></pre></div>
 </div>
 <h3 id="create_table_ddls">CREATE TABLE DDLs<a class="headerlink" href="#create_table_ddls" title="Permanent link">&para;</a></h3>
 <p>SAYN also lets you control the CREATE TABLE statement if you need more specification. This is done with:</p>
 <ul>
 <li>columns: the list of columns including their definitions.</li>
+<li>table_properties: database specific properties that affect table creation (indexes, cluster, sorting, etc.).</li>
+<li>post_hook: SQL statments executed right after the table/view creation.</li>
 </ul>
 <p><code>columns</code> can define the following attributes:</p>
 <ul>
 <li>name: the column name.</li>
 <li>type: the column type.</li>
-<li>primary: set to <code>True</code> if the column is part of the primary key.</li>
-<li>unique: set to <code>True</code> to enforce a unique constraint on the column.</li>
-<li>not_null: set to <code>True</code> to enforce a non null constraint on the column.</li>
+<li>tests: list of keywords that constraint a specific column</li>
+<li>unique: enforces a unique constraint on the column.</li>
+<li>not_null: enforces a non null constraint on the column.</li>
+<li>allowed_values: list allowed values for the column.</li>
 </ul>
+<p><code>table_properties</code> can define the following attributes (database specific):
+* indexes:
+* sorting: specify the sorting for the table
+* distribution_key: specify the type of distribution.
+* partitioning: specify the partitioning model for the table.
+* clustering: specify the clustering for the table.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Each supported database might have specific <code>table_properties</code> related to it; see the database-specific pages for further details and examples.</p>
+</div>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
 <p>If the a primary key is defined in both the <code>columns</code> and <code>indexes</code> DDL entries, the primary key will be set as part of the <code>CREATE TABLE</code> statement only.</p>
 </div>
 <div class="admonition example">
-<p class="admonition-title">autosql with columns DDL</p>
-<div class="highlight"><pre><span></span><code><span class="nn">...</span>
+<p class="admonition-title">autosql with columns</p>
+<div class="highlight"><pre><span></span><code><span class="nn">...</span><span class="w"></span>
 
-<span class="nt">task_autosql</span><span class="p">:</span>
-  <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">autosql</span>
-  <span class="nt">file_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">task_autosql.sql</span>
-  <span class="nt">materialisation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">table</span>
-  <span class="nt">destination</span><span class="p">:</span>
-    <span class="nt">tmp_schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_staging</span>
-    <span class="nt">schema</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_models</span>
-    <span class="nt">table</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">task_autosql</span>
-  <span class="nt">ddl</span><span class="p">:</span>
-    <span class="nt">columns</span><span class="p">:</span>
-      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">x</span>
-        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">int</span>
-        <span class="nt">primary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
-      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">y</span>
-        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">varchar</span>
-        <span class="nt">unique</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
-    <span class="nt">permissions</span><span class="p">:</span>
-      <span class="nt">role_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">SELECT</span>
-<span class="nn">...</span>
+<span class="nt">task_autosql</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autosql</span><span class="w"></span>
+<span class="w">  </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_autosql.sql</span><span class="w"></span>
+<span class="w">  </span><span class="nt">materialisation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">table</span><span class="w"></span>
+<span class="w">  </span><span class="nt">destination</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">tmp_schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">analytics_staging</span><span class="w"></span>
+<span class="w">    </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">analytics_models</span><span class="w"></span>
+<span class="w">    </span><span class="nt">table</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_autosql</span><span class="w"></span>
+<span class="w">  </span><span class="nt">ddl</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">columns</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">x</span><span class="w"></span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">int</span><span class="w"></span>
+<span class="w">        </span><span class="nt">primary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">y</span><span class="w"></span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">varchar</span><span class="w"></span>
+<span class="w">        </span><span class="nt">unique</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"></span>
+<span class="w">    </span><span class="nt">permissions</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">role_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SELECT</span><span class="w"></span>
+<span class="nn">...</span><span class="w"></span>
 </code></pre></div>
 </div>
                 

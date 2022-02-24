@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://173tech.github.io/sayn/settings/settings_yaml/">
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
     
     
       
@@ -278,6 +278,18 @@
   
 
           
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/tutorial_part3/" class="md-nav__link">
+        Tutorial (Part 3)
+      </a>
+    </li>
+  
+
+          
         </ul>
       </nav>
     </li>
@@ -396,6 +408,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#default_run" class="md-nav__link">
+    Default run
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -435,6 +454,18 @@
     <li class="md-nav__item">
       <a href="../../parameters/" class="md-nav__link">
         Parameters
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../database_objects/" class="md-nav__link">
+        Database objects
       </a>
     </li>
   
@@ -563,11 +594,78 @@
         <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" >
       
       <label class="md-nav__link" for="nav-5">
+        Data Tests
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Data Tests" data-md-level="1">
+        <label class="md-nav__title" for="nav-5">
+          <span class="md-nav__icon md-icon"></span>
+          Data Tests
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/standard/" class="md-nav__link">
+        Standard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/custom/" class="md-nav__link">
+        Custom
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+      
+      <label class="md-nav__link" for="nav-6">
         Databases
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Databases" data-md-level="1">
-        <label class="md-nav__title" for="nav-5">
+        <label class="md-nav__title" for="nav-6">
           <span class="md-nav__icon md-icon"></span>
           Databases
         </label>
@@ -675,14 +773,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
       
-      <label class="md-nav__link" for="nav-6">
+      <label class="md-nav__link" for="nav-7">
         API Reference
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="API Reference" data-md-level="1">
-        <label class="md-nav__title" for="nav-6">
+        <label class="md-nav__title" for="nav-7">
           <span class="md-nav__icon md-icon"></span>
           API Reference
         </label>
@@ -730,14 +828,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8" >
       
-      <label class="md-nav__link" for="nav-7">
+      <label class="md-nav__link" for="nav-8">
         Project Examples
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Project Examples" data-md-level="1">
-        <label class="md-nav__title" for="nav-7">
+        <label class="md-nav__title" for="nav-8">
           <span class="md-nav__icon md-icon"></span>
           Project Examples
         </label>
@@ -824,6 +922,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#default_run" class="md-nav__link">
+    Default run
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -847,45 +952,45 @@ databases and APIs used by the SAYN project.</p>
 </div>
 <div class="admonition example">
 <p class="admonition-title">settings.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">default_profile</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dev</span>
+<div class="highlight"><pre><span></span><code><span class="nt">default_profile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dev</span><span class="w"></span>
 
-<span class="nt">profiles</span><span class="p">:</span>
-  <span class="nt">dev</span><span class="p">:</span>
-    <span class="nt">credentials</span><span class="p">:</span>
-      <span class="nt">warehouse</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">snowflake-songoku</span>
+<span class="nt">profiles</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">dev</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">credentials</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">warehouse</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">snowflake-songoku</span><span class="w"></span>
 
-    <span class="nt">parameters</span><span class="p">:</span>
-      <span class="nt">table_prefix</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">songoku_</span>
-      <span class="nt">schema_logs</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_logs</span>
-      <span class="nt">schema_staging</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_adhoc</span>
-      <span class="nt">schema_models</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_adhoc</span>
+<span class="w">    </span><span class="nt">parameters</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">table_prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">songoku_</span><span class="w"></span>
+<span class="w">      </span><span class="nt">schema_logs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">analytics_logs</span><span class="w"></span>
+<span class="w">      </span><span class="nt">schema_staging</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">analytics_adhoc</span><span class="w"></span>
+<span class="w">      </span><span class="nt">schema_models</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">analytics_adhoc</span><span class="w"></span>
 
-  <span class="nt">prod</span><span class="p">:</span>
-    <span class="nt">credentials</span><span class="p">:</span>
-      <span class="nt">warehouse</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">snowflake-prod</span>
+<span class="w">  </span><span class="nt">prod</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">credentials</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">warehouse</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">snowflake-prod</span><span class="w"></span>
 
-    <span class="c1"># no need for prod parameters as those are read from project.yaml</span>
+<span class="w">    </span><span class="c1"># no need for prod parameters as those are read from project.yaml</span><span class="w"></span>
 
-<span class="nt">credentials</span><span class="p">:</span>
-  <span class="nt">snowflake-songoku</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">snowflake</span>
-    <span class="nt">account</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">snowflake-account</span><span class="p p-Indicator">]</span>
-    <span class="nt">user</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">user-name</span><span class="p p-Indicator">]</span>
-    <span class="nt">password</span><span class="p">:</span> <span class="s">&#39;[password]&#39;</span>
-    <span class="nt">database</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">database</span><span class="p p-Indicator">]</span>
-    <span class="nt">schema</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">schema</span><span class="p p-Indicator">]</span>
-    <span class="nt">warehouse</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">warehouse</span><span class="p p-Indicator">]</span>
-    <span class="nt">role</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">role</span><span class="p p-Indicator">]</span>
+<span class="nt">credentials</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">snowflake-songoku</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">snowflake</span><span class="w"></span>
+<span class="w">    </span><span class="nt">account</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">snowflake-account</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">user-name</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;[password]&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">database</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">database</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">schema</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">warehouse</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">warehouse</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">role</span><span class="p p-Indicator">]</span><span class="w"></span>
 
-  <span class="nt">snowflake-prod</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">snowflake</span>
-    <span class="nt">account</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">snowflake-account</span><span class="p p-Indicator">]</span>
-    <span class="nt">user</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">user-name</span><span class="p p-Indicator">]</span>
-    <span class="nt">password</span><span class="p">:</span> <span class="s">&#39;[password]&#39;</span>
-    <span class="nt">database</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">database</span><span class="p p-Indicator">]</span>
-    <span class="nt">schema</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">schema</span><span class="p p-Indicator">]</span>
-    <span class="nt">warehouse</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">warehouse</span><span class="p p-Indicator">]</span>
-    <span class="nt">role</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">role</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">snowflake-prod</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">snowflake</span><span class="w"></span>
+<span class="w">    </span><span class="nt">account</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">snowflake-account</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">user-name</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;[password]&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">database</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">database</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">schema</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">warehouse</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">warehouse</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">role</span><span class="p p-Indicator">]</span><span class="w"></span>
 </code></pre></div>
 </div>
 <table>
@@ -924,10 +1029,10 @@ For a definition of a database connection see to the documentation for your
 <p>For custom credentials, use the <code>type: api</code> and include values required:</p>
 <div class="admonition example">
 <p class="admonition-title">settings.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">credentials</span><span class="p">:</span>
-  <span class="nt">credential_name</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">api</span>
-    <span class="nt">api_key</span><span class="p">:</span> <span class="s">&#39;api_key&#39;</span>
+<div class="highlight"><pre><span></span><code><span class="nt">credentials</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">credential_name</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api</span><span class="w"></span>
+<span class="w">    </span><span class="nt">api_key</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;api_key&#39;</span><span class="w"></span>
 </code></pre></div>
 </div>
 <p>All credentials are accessible through <code>self.connections['credential_name']</code> where <code>credential_name</code> is the
@@ -966,6 +1071,23 @@ The values when using environment variables are either basic types (ie: strings)
 </div>
 <p>When environement variables are defined and a <code>settings.yaml</code> file exists, the settings from both will
 be combined with the environment variables taking precedence.</p>
+<h3 id="default_run">Default run<a class="headerlink" href="#default_run" title="Permanent link">&para;</a></h3>
+<p>When a team member only works on a subset of the SAYN project (for example, a data analyst that works only
+with modelling tasks) it's useful to automatically filter the tasks that will be executed when we run
+<code>sayn run</code>. For this we can use the <code>default_run</code> configuration, which is set in the profile in your
+<code>settings.yaml</code> or through the environment variable <code>SAYN_DEFAULT_RUN</code>:</p>
+<div class="admonition example">
+<p class="admonition-title">settings.yaml</p>
+<p>profile:
+  dev:
+    default_run: -x group:extract</p>
+</div>
+<div class="admonition example">
+<p class="admonition-title">.env.sh</p>
+<p>export SAYN_DEFAULT_RUN="-x group:extract"</p>
+</div>
+<p>So we just add the arguments we would give after <code>sayn run</code> or <code>sayn compile</code>. Only task selection and
+upstream prod are allowed (<code>-t/--tasks</code>, <code>-x/--exclude</code> and <code>-u/--upstream-prod</code>).</p>
                 
               
               

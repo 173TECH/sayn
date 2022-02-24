@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://173tech.github.io/sayn/settings/project_yaml/">
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
     
     
       
@@ -278,6 +278,18 @@
   
 
           
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/tutorial_part3/" class="md-nav__link">
+        Tutorial (Part 3)
+      </a>
+    </li>
+  
+
+          
         </ul>
       </nav>
     </li>
@@ -399,6 +411,18 @@
     <li class="md-nav__item">
       <a href="../../parameters/" class="md-nav__link">
         Parameters
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../database_objects/" class="md-nav__link">
+        Database objects
       </a>
     </li>
   
@@ -527,11 +551,78 @@
         <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" >
       
       <label class="md-nav__link" for="nav-5">
+        Data Tests
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Data Tests" data-md-level="1">
+        <label class="md-nav__title" for="nav-5">
+          <span class="md-nav__icon md-icon"></span>
+          Data Tests
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/standard/" class="md-nav__link">
+        Standard
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tests/custom/" class="md-nav__link">
+        Custom
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+      
+      <label class="md-nav__link" for="nav-6">
         Databases
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Databases" data-md-level="1">
-        <label class="md-nav__title" for="nav-5">
+        <label class="md-nav__title" for="nav-6">
           <span class="md-nav__icon md-icon"></span>
           Databases
         </label>
@@ -639,14 +730,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
       
-      <label class="md-nav__link" for="nav-6">
+      <label class="md-nav__link" for="nav-7">
         API Reference
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="API Reference" data-md-level="1">
-        <label class="md-nav__title" for="nav-6">
+        <label class="md-nav__title" for="nav-7">
           <span class="md-nav__icon md-icon"></span>
           API Reference
         </label>
@@ -694,14 +785,14 @@
     <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7" >
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8" >
       
-      <label class="md-nav__link" for="nav-7">
+      <label class="md-nav__link" for="nav-8">
         Project Examples
         <span class="md-nav__icon md-icon"></span>
       </label>
       <nav class="md-nav" aria-label="Project Examples" data-md-level="1">
-        <label class="md-nav__title" for="nav-7">
+        <label class="md-nav__title" for="nav-8">
           <span class="md-nav__icon md-icon"></span>
           Project Examples
         </label>
@@ -783,21 +874,28 @@
 <p>The <code>project.yaml</code> defines the core components of the SAYN project. It is <strong>shared across all collaborators</strong>.</p>
 <div class="admonition example">
 <p class="admonition-title">project.yaml</p>
-<div class="highlight"><pre><span></span><code><span class="nt">required_credentials</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">warehouse</span>
+<div class="highlight"><pre><span></span><code><span class="nt">required_credentials</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warehouse</span><span class="w"></span>
 
-<span class="nt">default_db</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">warehouse</span>
+<span class="nt">default_db</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warehouse</span><span class="w"></span>
 
-<span class="nt">parameters</span><span class="p">:</span>
-  <span class="nt">user_prefix</span><span class="p">:</span> <span class="s">&#39;&#39;</span>
-  <span class="nt">schema_logs</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_logs</span>
-  <span class="nt">schema_staging</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_staging</span>
-  <span class="nt">schema_models</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">analytics_models</span>
+<span class="nt">schema_prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">analytics</span><span class="w"></span>
 
-<span class="nt">presets</span><span class="p">:</span>
-  <span class="nt">preset1</span><span class="p">:</span>
-    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sql</span>
-    <span class="nt">file_name</span><span class="p">:</span> <span class="s">&#39;{{</span><span class="nv"> </span><span class="s">task.name</span><span class="nv"> </span><span class="s">}}.sql&#39;</span>
+<span class="nt">parameters</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">user_prefix</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">schema_logs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">analytics_logs</span><span class="w"></span>
+<span class="w">  </span><span class="nt">schema_staging</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">analytics_staging</span><span class="w"></span>
+<span class="w">  </span><span class="nt">schema_models</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">analytics_models</span><span class="w"></span>
+
+<span class="nt">presets</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">preset1</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sql</span><span class="w"></span>
+<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">task.name</span><span class="nv"> </span><span class="s">}}.sql&#39;</span><span class="w"></span>
+
+<span class="nt">groups</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">group1</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sql</span><span class="w"></span>
+<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;group1/*.sql&quot;</span><span class="w"></span>
 </code></pre></div>
 </div>
 <table>
@@ -827,6 +925,16 @@
 <tr>
 <td>presets</td>
 <td>Defines preset task structures so task can inherit attributes from those <code>presets</code> directly. See the <a href="../../presets/">Presets</a> section for more details.</td>
+<td></td>
+</tr>
+<tr>
+<td>groups</td>
+<td>Defines groups that automatically generate tasks based on a list of files or a python module. See <a href="../../tasks/overview/">the task overview</a> and <a href="../../tasks/python/">python tasks</a> for more details.</td>
+<td></td>
+</tr>
+<tr>
+<td>prefix/suffix/override</td>
+<td>Settings to modify <a href="../../database_objects/">database object</a> references</td>
 <td></td>
 </tr>
 </tbody>
