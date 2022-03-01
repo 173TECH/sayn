@@ -84,6 +84,7 @@ class TestTask(Task):
         )
 
         self.test_query = self.compiler.compile(self.task_config.file_name)
+        self.test_query += " LIMIT 5\n"
 
         return Ok()
 

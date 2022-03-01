@@ -227,7 +227,7 @@ class Database:
         query = ""
         for q in parts:
             query += q.strip() + "\n"
-        query += ") AS t;"
+        query += ") AS t\n LIMIT 5;"
 
         if count_tests == 0:
             return Ok([None, breakdown])
