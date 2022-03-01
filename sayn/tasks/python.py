@@ -55,9 +55,9 @@ class DecoratorTask(PythonTask):
             out,
         )
 
-        self._config_input["sources"].update(sources)
-        self._config_input["outputs"].update(outputs)
-        self._config_input["parents"].update(parents)
+        self._config_input["sources"].update({compiler.compile(o) for o in sources})
+        self._config_input["outputs"].update({compiler.compile(o) for o in outputs})
+        self._config_input["parents"].update({compiler.compile(o) for o in parents})
         self._func = func
 
     def config(self):
