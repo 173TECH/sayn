@@ -401,9 +401,9 @@ class AutoSqlTask(SqlTask):
                 executed = []
                 failed = []
                 for brk in breakdown:
-                    if any(brk[1] != res["type"] for res in result) or any(
-                        brk[2] != res["col"] for res in result
-                    ):
+                    if (
+                        sum(brk[1] != res["type"] for res in result) == len(result)
+                    ) or (sum(brk[2] != res["col"] for res in result) == len(result)):
                         if brk[0] == "SKIPPED":
                             skipped.append(brk)
                         if brk[0] == "EXECUTED":
@@ -426,7 +426,7 @@ class AutoSqlTask(SqlTask):
                             for item in result
                             if (item["type"] == info[1] and item["col"] == info[2])
                         ]
-                        values = ", ".join(values[:5])
+                        values = ", ".join([str(v) for v in values[:5]])
                         fl_info.append(
                             f"{Fore.RED}{Style.BRIGHT}{brk[1]} test{Style.NORMAL} on {Style.BRIGHT}{info[2]} FAILED{Style.NORMAL}. {count} offending records. \n\t    Please see some values for which the test failed: {Style.BRIGHT}{values}{Style.NORMAL}"
                         )
