@@ -263,7 +263,7 @@ class CopyTask(SqlTask):
 
     def setup(self):
         if self.needs_recompile:
-            if self.task_config.source.db_schema:
+            if self.task_config.source.db_schema is None:
                 self.source_schema = None
                 self.source_table = self.src(
                     self.task_config.source.table, connection=self.source_db
