@@ -46,10 +46,10 @@ class OnFailValue(str, Enum):
 
 class CompileConfig(BaseModel):
     tags: Optional[List[str]]
-    sources: Optional[List[str]]
-    outputs: Optional[List[str]]
-    parents: Optional[List[str]]
-    on_fail: Optional[OnFailValue]
+    # sources: Optional[List[str]]
+    # outputs: Optional[List[str]]
+    # parents: Optional[List[str]]
+    # on_fail: Optional[OnFailValue]
 
     class Config:
         extra = Extra.forbid
@@ -90,49 +90,17 @@ class TestTask(Task):
 
     def config_macro(self, **config):
         if self.allow_config:
-            config.update(
-                {
-                    "supports_schemas": not self.target_db.feature("NO SCHEMA SUPPORT"),
-                    "db_type": self.target_db.db_type,
-                }
-            )
             task_config_override = CompileConfig(**config)
 
-            self.task_config.materialisation = (
-                task_config_override.materialisation or self.task_config.materialisation
-            )
-            self.task_config.destination.db_schema = (
-                task_config_override.db_schema or self.task_config.destination.db_schema
-            )
-            self.task_config.destination.tmp_schema = (
-                task_config_override.tmp_schema
-                or self.task_config.destination.tmp_schema
-            )
-            self.task_config.destination.table = (
-                task_config_override.table or self.task_config.destination.table
-            )
-            self.task_config.columns = (
-                task_config_override.columns or self.task_config.columns
-            )
-            self.task_config.table_properties = (
-                task_config_override.table_properties
-                or self.task_config.table_properties
-            )
-            self.task_config.post_hook = (
-                task_config_override.post_hook or self.task_config.post_hook
-            )
-            self.task_config.delete_key = (
-                task_config_override.delete_key or self.task_config.delete_key
-            )
             # Sent to the wrapper
-            if task_config_override.on_fail is not None:
-                self._config_input["on_fail"] = task_config_override.on_fail
+            # if task_config_override.on_fail is not None:
+            #     self._config_input["on_fail"] = task_config_override.on_fail
 
             if task_config_override.tags is not None:
                 self._config_input["tags"] = task_config_override.tags
 
-            if task_config_override.parents is not None:
-                self._config_input["parents"] = task_config_override.parents
+            # if task_config_override.parents is not None:
+            #     self._config_input["parents"] = task_config_override.parents
 
         # Returns an empty string to avoid productin incorrect sql
         return ""
@@ -169,11 +137,9 @@ class TestTask(Task):
                     for r in list(res.values()):
                         data.append(r)
                 data = data[:5]
-                values = ", ".join([str(v) for v in data])
+
                 errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
-                self.info(
-                    f"{Fore.RED}Please see some values for which the test failed: {Style.BRIGHT}{values}{Style.NORMAL}"
-                )
+
                 return self.fail(errout + errinfo)
             else:
                 return self.fail("Failed test types: custom")

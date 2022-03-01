@@ -250,15 +250,18 @@ class TaskWrapper:
         self.compiler.update_globals(**task_parameters)
 
     def check_skip(self):
-        failed_parents = {
-            p.name: p.status
-            for p in self.parents
-            if (
-                p.status in (TaskStatus.SETUP_FAILED, TaskStatus.FAILED)
-                and p.on_fail != "no_skip"
-            )
-            or p.status == TaskStatus.SKIPPED
-        }
+        if self.run_arguments["command"] != "test":
+            failed_parents = {
+                p.name: p.status
+                for p in self.parents
+                if (
+                    p.status in (TaskStatus.SETUP_FAILED, TaskStatus.FAILED)
+                    and p.on_fail != "no_skip"
+                )
+                or p.status == TaskStatus.SKIPPED
+            }
+        else:
+            failed_parents = {}
 
         if len(failed_parents) > 0:
             self.status = TaskStatus.SKIPPED
