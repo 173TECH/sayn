@@ -401,15 +401,16 @@ class AutoSqlTask(SqlTask):
                 executed = []
                 failed = []
                 for brk in breakdown:
-                    if any(brk[1] != res["type"] for res in result) or any(
-                        brk[2] != res["col"] for res in result
-                    ):
+                    if (
+                        sum(brk[1] != res["type"] for res in result) == len(result)
+                    ) or (sum(brk[2] != res["col"] for res in result) == len(result)):
                         if brk[0] == "SKIPPED":
                             skipped.append(brk)
                         if brk[0] == "EXECUTED":
                             executed.append(brk)
                     else:
                         failed.append(brk)
+
                 if self.run_arguments["debug"]:
 
                     fl_info = [f"{Fore.RED}FAILED: "]
@@ -421,21 +422,15 @@ class AutoSqlTask(SqlTask):
                                 if (item["type"] == info[1] and item["col"] == info[2])
                             ]
                         )
-                        values = [
-                            item["val"]
-                            for item in result
-                            if (item["type"] == info[1] and item["col"] == info[2])
-                        ]
-                        values = ", ".join(values[:5])
                         fl_info.append(
-                            f"{Fore.RED}{Style.BRIGHT}{brk[1]} test{Style.NORMAL} on {Style.BRIGHT}{info[2]} FAILED{Style.NORMAL}. {count} offending records. \n\t    Please see some values for which the test failed: {Style.BRIGHT}{values}{Style.NORMAL}"
+                            f"{Fore.RED}{Style.BRIGHT}{info[1]} test{Style.NORMAL} on {Style.BRIGHT}{info[2]} FAILED{Style.NORMAL}. {count} offending records."
                         )
                     if skipped:
                         self.info(
                             f"{Fore.GREEN}{len(skipped)} test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
                         )
                     self.info(
-                        f"{Fore.GREEN}{len(executed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}"
+                        f"{Fore.GREEN}{len(executed)+len(failed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}"
                     )
                     for err in fl_info:
                         self.info(err)
@@ -443,7 +438,7 @@ class AutoSqlTask(SqlTask):
                     errinfo = f"Test Failed. You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
                     return self.fail(errinfo)
                 else:
-                    summary = f"{len(executed)} tests were ran, {len(executed)-len(failed)} succeeded, "
+                    summary = f"{len(executed)+len(failed)} tests were ran, {len(executed)-len(failed)} succeeded, "
                     if skipped:
                         summary += f", {len(skipped)} were skipped, "
                     summary += f"{len(failed)} failed."
