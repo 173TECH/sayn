@@ -1,6 +1,23 @@
 # Change Log
 
-## [0.6.0] - 2022-01-25
+## [0.6.2] - 2022-02-24
+
+### Changed
+
+- New settings `from_prod` allows to mark tables that are always read from production
+- New settings `default_run` allows to define a default run filter
+- Apply db object transformations only to `defaul_db`
+- Allow columns in copy to be specified with just the name
+- Renamed `values` to `allowed_values` in data testing
+- Various improvements to cli messaging
+- Refactoring of db objects internal code
+- Allows SAYN to run when unused credentials are missing from settings
+
+### Fixed
+
+- Pin dependency version to resolve issue with MarkupSafe
+
+## [0.6.1] - 2022-01-25
 
 ### Fixed
 
