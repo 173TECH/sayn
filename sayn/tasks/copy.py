@@ -369,14 +369,8 @@ class CopyTask(SqlTask):
                                 if (item["type"] == info[1] and item["col"] == info[2])
                             ]
                         )
-                        values = [
-                            item["val"]
-                            for item in result
-                            if (item["type"] == info[1] and item["col"] == info[2])
-                        ]
-                        values = ", ".join(values[:5])
                         fl_info.append(
-                            f"{Fore.RED}{Style.BRIGHT}{brk[1]} test{Style.NORMAL} on {Style.BRIGHT}{info[2]} FAILED{Style.NORMAL}. {count} offending records."
+                            f"{Fore.RED}{Style.BRIGHT}{info[1]} test{Style.NORMAL} on {Style.BRIGHT}{info[2]} FAILED{Style.NORMAL}. {count} offending records."
                         )
                     if skipped:
                         self.info(
