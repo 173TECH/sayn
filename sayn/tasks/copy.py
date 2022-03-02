@@ -340,7 +340,7 @@ class CopyTask(SqlTask):
                         f"{Fore.GREEN}{len(skipped)} test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
                     )
                 self.info(
-                    f"{Fore.GREEN}{len(executed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}"
+                    f"{Fore.GREEN}{len(executed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}, {len(executed)} succeeded."
                 )
 
                 return self.success()
@@ -377,7 +377,7 @@ class CopyTask(SqlTask):
                             f"{Fore.GREEN}{len(skipped)} test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
                         )
                     self.info(
-                        f"{Fore.GREEN}{len(executed)+len(failed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}"
+                        f"{Fore.GREEN}{len(executed)+len(failed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}, {max(len(executed)-len(failed), 0)} succeeded."
                     )
                     for err in fl_info:
                         self.info(err)
@@ -385,7 +385,7 @@ class CopyTask(SqlTask):
                     errinfo = f"Test Failed. You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
                     return self.fail(errinfo)
                 else:
-                    summary = f"{len(executed)+len(failed)} tests were ran, {len(executed)-len(failed)} succeeded, "
+                    summary = f"{len(executed)+len(failed)} tests were ran, {max(len(executed)-len(failed), 0)} succeeded, "
                     if skipped:
                         summary += f", {len(skipped)} were skipped, "
                     summary += f"{len(failed)} failed."
