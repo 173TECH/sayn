@@ -1,5 +1,17 @@
 # Change Log
 
+## [0.6.2] - 2022-03-02
+
+### Changed
+
+- Supports `src` in custom tests
+
+### Fixed
+
+- Issue with copy tasks from the `default_db`
+- Test results completion improvements
+
+
 ## [0.6.2] - 2022-02-24
 
 ### Changed
