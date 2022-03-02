@@ -389,10 +389,10 @@ class AutoSqlTask(SqlTask):
 
                 if skipped:
                     self.info(
-                        f"{Fore.GREEN}{len(skipped)} test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
+                        f"{Fore.GREEN}{len(skipped)} Column test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
                     )
                 self.info(
-                    f"{Fore.GREEN}{len(executed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}"
+                    f"{Fore.GREEN}{len(executed)} Column test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}, {len(executed)} succeeded."
                 )
 
                 return self.success()
@@ -410,7 +410,6 @@ class AutoSqlTask(SqlTask):
                             executed.append(brk)
                     else:
                         failed.append(brk)
-
                 if self.run_arguments["debug"]:
 
                     fl_info = [f"{Fore.RED}FAILED: "]
@@ -427,10 +426,10 @@ class AutoSqlTask(SqlTask):
                         )
                     if skipped:
                         self.info(
-                            f"{Fore.GREEN}{len(skipped)} test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
+                            f"{Fore.GREEN}{len(skipped)} Column test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
                         )
                     self.info(
-                        f"{Fore.GREEN}{len(executed)+len(failed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}"
+                        f"{Fore.GREEN}{len(executed)+len(failed)} Column test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}, {len(executed)} succeeded."
                     )
                     for err in fl_info:
                         self.info(err)
@@ -438,7 +437,7 @@ class AutoSqlTask(SqlTask):
                     errinfo = f"Test Failed. You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
                     return self.fail(errinfo)
                 else:
-                    summary = f"{len(executed)+len(failed)} tests were ran, {len(executed)-len(failed)} succeeded, "
+                    summary = f"{len(executed)+len(failed)} Column tests were ran, {len(executed)} succeeded, "
                     if skipped:
                         summary += f", {len(skipped)} were skipped, "
                     summary += f"{len(failed)} failed."
