@@ -263,7 +263,7 @@ class CopyTask(SqlTask):
 
     def setup(self):
         if self.needs_recompile:
-            if self.task_config.source.db_schema:
+            if self.task_config.source.db_schema is None:
                 self.source_schema = None
                 self.source_table = self.src(
                     self.task_config.source.table, connection=self.source_db
@@ -337,10 +337,10 @@ class CopyTask(SqlTask):
 
                 if skipped:
                     self.info(
-                        f"{Fore.GREEN}{len(skipped)} test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
+                        f"{Fore.GREEN}{len(skipped)} Column test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
                     )
                 self.info(
-                    f"{Fore.GREEN}{len(executed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}"
+                    f"{Fore.GREEN}{len(executed)} Column test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}, {len(executed)} succeeded."
                 )
 
                 return self.success()
@@ -369,21 +369,15 @@ class CopyTask(SqlTask):
                                 if (item["type"] == info[1] and item["col"] == info[2])
                             ]
                         )
-                        values = [
-                            item["val"]
-                            for item in result
-                            if (item["type"] == info[1] and item["col"] == info[2])
-                        ]
-                        values = ", ".join(values[:5])
                         fl_info.append(
-                            f"{Fore.RED}{Style.BRIGHT}{brk[1]} test{Style.NORMAL} on {Style.BRIGHT}{info[2]} FAILED{Style.NORMAL}. {count} offending records. \n\t    Please see some values for which the test failed: {Style.BRIGHT}{values}{Style.NORMAL}"
+                            f"{Fore.RED}{Style.BRIGHT}{info[1]} test{Style.NORMAL} on {Style.BRIGHT}{info[2]} FAILED{Style.NORMAL}. {count} offending records."
                         )
                     if skipped:
                         self.info(
                             f"{Fore.GREEN}{len(skipped)} test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
                         )
                     self.info(
-                        f"{Fore.GREEN}{len(executed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}"
+                        f"{Fore.GREEN}{len(executed)+len(failed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}, {len(executed)} succeeded."
                     )
                     for err in fl_info:
                         self.info(err)
@@ -391,7 +385,7 @@ class CopyTask(SqlTask):
                     errinfo = f"Test Failed. You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
                     return self.fail(errinfo)
                 else:
-                    summary = f"{len(executed)} tests were ran, {len(executed)-len(failed)} succeeded, "
+                    summary = f"{len(executed)+len(failed)} Column tests were ran, {len(executed)} succeeded, "
                     if skipped:
                         summary += f", {len(skipped)} were skipped, "
                     summary += f"{len(failed)} failed."

@@ -1,4 +1,4 @@
-# Tests
+# Data Tests
 
 ## About
 
@@ -6,9 +6,15 @@ SAYN provides an extension to the functionality of the `columns` field in task d
 
 Standard tests are implemented for the `autosql` and `copy` task types, while custom tests are not task bound and can be applied to any table in the warehouse. Custom tests work like SAYN `sql` tasks with a specific SQL query structure that only execute during the SAYN test suite.
 
-Running `sayn test` through the CLI will execute all and only the standard and custom tests for a given project.
+Running `sayn test` through the CLI will execute the standard and custom tests for a given project.
 
 All CLI usage for tasks applies to tests as well, with the major difference being that tests don't make use of a DAG to determine the order of execution (so attempting to execute tests on parents of children of a task is not supported).
+
+Examples:
+
+* `sayn test -t test_name`: run `task_name` only.
+* `sayn test -t test1 test2`: runs `task1` and `task2` only.
+* `sayn test -x test_name`: run all tests except `task_name`.
 
 
 ## Test Types
@@ -54,6 +60,7 @@ We can also define the tests inside `task.sql` by call `config` from a Jinja tag
     {{ config(columns=[ {'name': 'id', 'tests':['unique', 'not_null']},
                         {'name':'alias', 'tests':['allowed_values':['first','second','third']}]) }}
 
+
     SELECT ...
     ```
 
@@ -65,7 +72,12 @@ For example, we can define a custom tests that executes the test query presented
 !!! example "tests.yaml"
     ```
     tests:
-      file_name: test.sql
+      test_1:
+        file_name: test.sql
+
+    tasks:
+      ...
+      ...
     ```
 
 !!! example "SQL test query"

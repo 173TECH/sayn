@@ -163,7 +163,9 @@ class Bigquery(Database):
                             if not col["dst_name"]
                             else col["dst_name"],
                             "type": t["type"],
-                            "allowed_values": ", ".join(f"'{c}'" for c in t["values"]),
+                            "allowed_values": ", ".join(
+                                f"'{c}'" for c in t["allowed_values"]
+                            ),
                         },
                     )
 
@@ -171,7 +173,7 @@ class Bigquery(Database):
         query = ""
         for q in parts:
             query += q.strip() + "\n"
-        query += ") AS t;"
+        query += ") AS t\n LIMIT 5;"
 
         if count_tests == 0:
             return Ok([None, breakdown])
