@@ -5,7 +5,7 @@ from pathlib import Path
 import shutil
 from uuid import UUID, uuid4
 import sys
-from typing import List, Optional
+from typing import Optional, Set
 
 from ..tasks.task_wrapper import TaskWrapper
 from ..utils.dag import query as dag_query, topological_sort
@@ -16,6 +16,8 @@ from ..database import Database
 
 from ..core.project import read_project, read_groups, get_tasks_dict
 from ..core.settings import read_settings
+from ..database.unknown import UnknownDb
+from ..database.objects import DbObjectCompiler
 from ..logging import ConsoleLogger
 from ..utils.python_loader import PythonLoader
 from ..utils.task_query import get_query
@@ -59,18 +61,20 @@ class RunArguments:
     full_load: bool = False
     start_dt: date = date.today() - timedelta(days=1)
     end_dt: date = date.today() - timedelta(days=1)
+    dates_specified: bool = False
     debug: bool = False
     profile: Optional[str] = None
     command: Command = Command.UNDEFINED
     upstream_prod: bool = False
+    is_prod: bool = False
 
-    include: List
-    exclude: List
+    include: Set[str]
+    exclude: Set[str]
 
     def __init__(self):
         self.folders = self.Folders()
-        self.include = list()
-        self.exclude = list()
+        self.include = set()
+        self.exclude = set()
 
     def update(self, **kwargs):
         if "command" in kwargs:
@@ -185,7 +189,8 @@ class App:
         )
 
         self.tracker.finish_current_stage(
-            tasks={k: v.status for k, v in self.tasks.items()}
+            tasks={k: v.status for k, v in self.tasks.items()},
+            test=True if self.run_arguments.command == Command.TEST else False,
         )
 
         # Setup stage
@@ -194,7 +199,8 @@ class App:
         self.check_abort(self.setup_execution())
 
         self.tracker.finish_current_stage(
-            tasks={k: v.status for k, v in self.tasks.items() if v.in_query}
+            tasks={k: v.status for k, v in self.tasks.items() if v.in_query},
+            test=True if self.run_arguments.command == Command.TEST else False,
         )
 
     def set_project(self, project, file_groups):
@@ -265,6 +271,10 @@ class App:
         parameters = settings_dict["parameters"] or dict()
         credentials = settings_dict["credentials"] or dict()
         stringify = settings_dict["stringify"] or dict()
+        self.from_prod = settings_dict["from_prod"]
+
+        if len(parameters) == 0 and len(stringify) == 0:
+            self.run_arguments.is_prod = True
 
         # Validate the given parameters
         error_items = set(parameters.keys()) - set(self.project_parameters.keys())
@@ -282,49 +292,10 @@ class App:
             self.run_arguments, self.project_parameters, self.prod_project_parameters
         )
 
-        # Now we can set the final stringify objects
-        self.input_stringify.update(stringify)
-
-        def get_stringify(input_stringify):
-            """Builds the final stringify"""
-
-            # The default is a jinja template with the object name, meaning no modifications to the input
-            stringify = {key: "{{ " + key + " }}" for key in ("schema", "table")}
-
-            for obj_type in ("schema", "table"):
-                if input_stringify.get(f"{obj_type}_override") is not None:
-                    # if *_override is defined, use that
-                    stringify[obj_type] = input_stringify[f"{obj_type}_override"]
-                else:
-                    if input_stringify.get(f"{obj_type}_prefix") is not None:
-                        stringify[obj_type] = (
-                            input_stringify[f"{obj_type}_prefix"]
-                            + "_"
-                            + stringify[obj_type]
-                        )
-
-                    if input_stringify.get(f"{obj_type}_suffix") is not None:
-                        stringify[obj_type] = (
-                            stringify[obj_type]
-                            + "_"
-                            + input_stringify[f"{obj_type}_suffix"]
-                        )
-
-            stringify = {k: self.compiler.prepare(v) for k, v in stringify.items()}
-
-            return stringify
-
-        self.stringify = get_stringify(self.input_stringify)
-        self.prod_stringify = get_stringify(self.input_prod_stringify)
-
         # Validate credentials
         error_items = set(credentials.keys()) - set(self.credentials.keys())
         if error_items:
             return Err("app", "wrong_credentials", credentials=error_items)
-
-        error_items = set(self.credentials.keys()) - set(credentials.keys())
-        if error_items:
-            return Err("app", "missing_credentials", credentials=error_items)
 
         error_items = [n for n, v in credentials.items() if "type" not in v]
         if error_items:
@@ -333,11 +304,31 @@ class App:
         self.credentials.update(credentials)
 
         # Create connections
-        result = get_connections(self.credentials, self.stringify, self.prod_stringify)
+        result = get_connections(
+            self.credentials,
+        )
         if result.is_err:
             return result
         else:
             self.connections = result.value
+
+        # Object compilation objects
+        self.input_stringify.update(stringify)
+        self.db_object_compiler = DbObjectCompiler(
+            self.connections,
+            self.default_db,
+            self.input_stringify,
+            self.input_prod_stringify,
+            self.from_prod,
+        )
+
+        # Check the default_run setting and update run arguments
+        self.run_arguments.include.update(settings_dict["default_run"]["include"])
+        self.run_arguments.exclude.update(settings_dict["default_run"]["exclude"])
+        if settings_dict["default_run"]["upstream_prod"] is not None:
+            self.run_arguments.upstream_prod = settings_dict["default_run"][
+                "upstream_prod"
+            ]
 
         return Ok()
 
@@ -358,7 +349,12 @@ class App:
 
     def set_tasks(self, tasks):
         # We first need to do the config of tasks
+        failed_tasks = list()
         task_objects = dict()
+
+        if len(tasks) == 0:
+            self.finish_app(Err("dag", "empty_dag"))
+
         for task_name, task in tasks.items():
             task_tracker = self.tracker.get_task_tracker(task_name)
             task_tracker._report_event("start_stage")
@@ -368,6 +364,7 @@ class App:
             if result.is_err:
                 task_class = None
                 result_error = result
+                failed_tasks.append(task_name)
             else:
                 task_class = result.value
                 result_error = None
@@ -387,6 +384,7 @@ class App:
                 self.default_db,
                 self.run_arguments,
                 self.compiler,
+                self.db_object_compiler,
             )
 
             if task_class is None:
@@ -395,17 +393,29 @@ class App:
                     duration=datetime.now() - start_ts,
                     result=result_error,
                 )
-            else:
 
+            else:
                 result = task_objects[task_name].config(
                     task,
                     self.project_parameters,
                     task.get("parameters"),
                 )
 
+                if result.is_err:
+                    failed_tasks.append(task_name)
+
                 task_tracker._report_event(
                     "finish_stage", duration=datetime.now() - start_ts, result=result
                 )
+
+        if len(failed_tasks) > 0:
+            # If any tasks fail to do config, we can't ensure the DAG is correct, so we abort
+            self.tasks = task_objects
+            self.tracker.finish_current_stage(
+                tasks={k: v.status for k, v in self.tasks.items()}
+            )
+
+            self.finish_app()
 
         # Now that all tasks are configured, we set the relationships so that we
         # can calculate the dag
@@ -477,46 +487,59 @@ class App:
         exec_connections.update([o.connection_name for o in exec_outputs])
         exec_connections.update([o.connection_name for o in exec_sources])
 
-        # We recalculate the tables to introspect based on whether the upstream_prod
-        # flag is set as well and whether this execution creates the object
+        # Now that we have done the config for all tasks and we know which
+        # connections are required, check that we have them all
+        connections_setup = {
+            n for n, v in self.connections.items() if not isinstance(v, UnknownDb)
+        }
+        error_items = exec_connections - connections_setup
+        if error_items:
+            return Err("app", "missing_credentials", credentials=error_items)
+
         if self.run_arguments.upstream_prod:
-            # Now we calculate the objects that will come from prod
-            from_prod = set([o for o in exec_sources if o not in exec_outputs])
-            to_introspect = set(
-                [
-                    (o.connection_name, o.schema_prod_value, o.object_prod_value)
-                    if o not in from_prod
-                    else (o.connection_name, o.schema_value, o.object_value)
-                    for o in exec_sources
-                ]
-            )
+            sources_from_prod = {s for s in exec_sources if s not in exec_outputs}
         else:
-            from_prod = set()
-            to_introspect = set(
-                [
-                    (o.connection_name, o.schema_value, o.object_value)
-                    for o in exec_sources
-                ]
-            )
+            sources_from_prod = set()
 
-        to_introspect.update(
-            [(o.connection_name, o.schema_value, o.object_value) for o in exec_outputs]
-        )
+        self.db_object_compiler.set_sources_from_prod(sources_from_prod)
+        sources_from_prod = {
+            s for s in exec_sources if self.db_object_compiler.is_from_prod(s)
+        }
 
-        # Reshape the list into dictionaries of connection > schema > set of objects
+        # Get the objects to introspect
+        # We create new DbObjects simply because it's simpler to convert to the correct
+        # specification depending on whether it's from_prod or not, but these new objects
+        # are not meant to be used anywhere else in the code
+        to_introspect = {self.db_object_compiler.src_obj(s) for s in exec_sources}
+        to_introspect.update({self.db_object_compiler.out_obj(o) for o in exec_outputs})
+
+        # Reshape the list into dictionaries of connection > database > schema > set of objects
         to_introspect = {
             conn: {
-                schema: set([v[2] for v in gg])
-                for schema, gg in groupby(g, key=lambda x: x[1])
+                db
+                or "": {
+                    sch or "": {v.table for v in ggg}
+                    for sch, ggg in groupby(gg, lambda x: x.schema)
+                }
+                for db, gg in groupby(g, lambda x: x.database)
             }
-            for conn, g in groupby(sorted(to_introspect), key=lambda x: x[0])
+            for conn, g in groupby(
+                sorted(
+                    to_introspect,
+                    key=lambda x: (x.connection_name, x.database, x.schema, x.table),
+                ),
+                key=lambda x: x.connection_name,
+            )
         }
 
         for connection_name in exec_connections:
             db = self.connections[connection_name]
-            # Force a query to test the connection
-            db.execute("select 1")
             if isinstance(db, Database):
+                try:
+                    db._activate_connection()  # This call creates the engine and tests the connection
+                except Exception as exc:
+                    return Exc(exc, where="create_connection")
+
                 try:
                     db._introspect(to_introspect[connection_name])
                 except Exception as exc:
@@ -542,7 +565,7 @@ class App:
 
             task.tracker._report_event("start_stage")
 
-            result = task.setup(task_name in tasks_in_query, from_prod)
+            result = task.setup(task_name in tasks_in_query, sources_from_prod)
 
             task.tracker._report_event(
                 "finish_stage", duration=datetime.now() - start_ts, result=result
@@ -608,7 +631,8 @@ class App:
                 )
 
         self.tracker.finish_current_stage(
-            tasks={k: v.status for k, v in tasks_in_query.items()}
+            tasks={k: v.status for k, v in tasks_in_query.items()},
+            test=True if self.run_arguments.command == Command.TEST else False,
         )
 
         self.finish_app()

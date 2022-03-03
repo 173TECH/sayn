@@ -3,10 +3,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Set, Dict, Any
 
-from terminaltables import AsciiTable
-
 from ..core.errors import Err, Ok
-from ..database import Database
 from ..logging.task_event_tracker import TaskEventTracker
 from ..utils.compiler import Compiler
 
@@ -59,6 +56,7 @@ class Task:
     compiler: Compiler
 
     _has_tests = False
+    _needs_recompile = False
 
     # Handy properties
     @property
@@ -74,6 +72,10 @@ class Task:
     def logger(self):
         return self._tracker
 
+    @property
+    def needs_recompile(self):
+        return self._needs_recompile
+
     # Task lifetime methods
 
     def config(self, **config):
@@ -81,10 +83,8 @@ class Task:
             "SAYN task", self.__class__.__name__, "setup", str(config)
         )
 
-    def setup(self, needs_recompile: bool):
-        raise NotImplementedError(
-            "SAYN task", self.__class__.__name__, "setup", needs_recompile
-        )
+    def setup(self):
+        raise NotImplementedError("SAYN task", self.__class__.__name__, "setup")
 
     def run(self):
         raise NotImplementedError("SAYN task", self.__class__.__name__, "run")
@@ -215,19 +215,13 @@ class Task:
 
     def get_test_breakdown(self, breakdown):
         data = []
-        data.append(["Status", "Test Type", "Fields Tested"])
         for brk in breakdown:
-            if "print" in brk:
-                data.append([" ", " ", " "])
-            elif not brk["execute"]:
+            if not brk["execute"]:
                 data.append(["SKIPPED", brk["type"], brk["column"]])
-            elif brk["status"] and brk["execute"]:
-                data.append(["RESOLVED", brk["type"], brk["column"]])
             else:
                 data.append(["EXECUTED", brk["type"], brk["column"]])
 
-        table = AsciiTable(data)
-        return "\n" + table.table
+        return data
 
     # Jinja methods
 

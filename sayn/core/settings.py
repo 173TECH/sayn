@@ -2,19 +2,53 @@ from copy import deepcopy
 import os
 from pathlib import Path
 import re
-from typing import Any, Mapping, Optional
+from typing import Any, Mapping, Optional, Sequence
 
 from pydantic import BaseModel, validator, ValidationError, Extra
 from ruamel.yaml import YAML
 from ruamel.yaml.error import MarkedYAMLError
 
-from ..database.creator import create as create_db
+from ..database.creator import create as create_db, create_dummy
 from .errors import Err, Exc, Ok
 
 RE_ENV_VAR_NAME = re.compile(
     r"SAYN_((?P<stringify>(SCHEMA|TABLE)_(PREFIX|SUFFIX|STRINGIFY))"
+    r"|(?P<from_prod>FROM_PROD)$"
+    r"|(?P<default_run>DEFAULT_RUN)$"
     r"|(?P<type>PARAMETER|CREDENTIAL)_(?P<name>.+))$"
 )
+
+RE_DEFAULT_RUN_VAL = re.compile(
+    r"^( *(?:(?:-t|--tasks|-x|--exclude)(?: +(?:group\:|tag\:)?[a-zA-Z][a-zA-Z_0-9]+)+|-u|--upstream-prod))+$"
+)
+RE_DEFAULT_RUN = re.compile(
+    r" *((?:-t|--tasks|-x|--exclude)(?: +(?:group\:|tag\:)?[a-zA-Z][a-zA-Z_0-9]+)+|-u|--upstream-prod)"
+)
+
+
+class TableGlob(str):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v):
+        if not isinstance(v, str):
+            raise TypeError("string required")
+        m = re.match(
+            r"((?P<schema>[a-zA-Z\*][_0-9a-zA-Z\*]*).)?(?P<table>[a-zA-Z\*][_0-9a-zA-Z\*]*)",
+            v,
+        )
+        if not m:
+            raise ValueError("invalid table specification")
+
+        out = ""
+        if m.groupdict()["schema"] is not None:
+            out += m.groupdict()["schema"].replace("*", ".*") + r"\."
+        if m.groupdict()["table"] is not None:
+            out += m.groupdict()["table"].replace("*", ".*")
+
+        return cls(out)
 
 
 class Environment(BaseModel):
@@ -32,10 +66,40 @@ class Environment(BaseModel):
     parameters: Optional[Mapping[str, Any]]
     credentials: Optional[Mapping[str, Mapping[str, Any]]]
     stringify: Optional[Stringify]
+    from_prod: Optional[Sequence[TableGlob]]
+    default_run: Optional[str]
 
     class Config:
         extra = Extra.forbid
         anystr_lower = True
+
+    @validator("default_run")
+    def default_run_validator(cls, v):
+        m = RE_DEFAULT_RUN_VAL.match(v)
+        if m is None:
+            raise ValueError(
+                f'Invalid default_run specification "{v}". Allowed arguments: -t/--tasks, -x/--exclude and -u/--upstream-prod'
+            )
+
+        include = set()
+        exclude = set()
+        upstream_prod = None
+        for arg in RE_DEFAULT_RUN.findall(v):
+            arg = arg.strip()
+            if arg.startswith("-t") or arg.startswith("--tasks"):
+                include.update(arg.split(" ")[1:])
+            elif arg.startswith("-x") or arg.startswith("--exclude"):
+                exclude.update(arg.split(" ")[1:])
+            elif arg.startswith("-u") or arg.startswith("--upstream-prod"):
+                upstream_prod = True
+            else:
+                raise ValueError('Incorrect option in default_run "{arg}"')
+
+        return {
+            "include": include,
+            "exclude": exclude,
+            "upstream_prod": upstream_prod,
+        }
 
 
 class SettingsYaml(BaseModel):
@@ -52,10 +116,40 @@ class SettingsYaml(BaseModel):
         table_prefix: Optional[str]
         table_suffix: Optional[str]
         table_override: Optional[str]
+        from_prod: Optional[Sequence[TableGlob]]
+        default_run: Optional[str]
 
         class Config:
             extra = Extra.forbid
             anystr_lower = True
+
+        @validator("default_run")
+        def default_run_validator(cls, v):
+            m = RE_DEFAULT_RUN_VAL.match(v)
+            if m is None:
+                raise ValueError(
+                    f'Invalid default_run specification "{v}". Allowed arguments: -t/--tasks, -x/--exclude and -u/--upstream-prod'
+                )
+
+            include = set()
+            exclude = set()
+            upstream_prod = None
+            for arg in RE_DEFAULT_RUN.findall(v):
+                arg = arg.strip()
+                if arg.startswith("-t") or arg.startswith("--tasks"):
+                    include.update(arg.split(" ")[1:])
+                elif arg.startswith("-x") or arg.startswith("--exclude"):
+                    exclude.update(arg.split(" ")[1:])
+                elif arg.startswith("-u") or arg.startswith("--upstream-prod"):
+                    upstream_prod = True
+                else:
+                    raise ValueError('Incorrect option in default_run "{arg}"')
+
+            return {
+                "include": include,
+                "exclude": exclude,
+                "upstream_prod": upstream_prod,
+            }
 
     credentials: Mapping[str, Mapping]
     profiles: Mapping[str, Profile]
@@ -104,13 +198,14 @@ class SettingsYaml(BaseModel):
         return v
 
     def get_profile_info(self, profile_name=None):
-        if profile_name is not None:
-            profile_name = profile_name
-        else:
+        if profile_name is None:
             profile_name = self.default_profile
 
         if profile_name not in self.profiles:
             raise ValueError(f'Profile "{profile_name}" not in settings.yaml.')
+
+        if profile_name is None:
+            raise ValueError("Unknown profile")
 
         profile_info = self.profiles[profile_name]
 
@@ -131,6 +226,9 @@ class SettingsYaml(BaseModel):
                 }.items()
                 if v is not None
             },
+            "from_prod": [f for f in profile_info.from_prod or list()],
+            "default_run": profile_info.default_run
+            or {"include": set(), "exclude": set(), "upstream_prod": None},
         }
 
 
@@ -151,18 +249,27 @@ def read_settings():
         settings_yaml = None
 
     # Process the environment variables
-    environment = {"parameters": dict(), "credentials": dict(), "stringify": dict()}
+    environment = {
+        "parameters": dict(),
+        "credentials": dict(),
+        "stringify": dict(),
+        "from_prod": list(),
+    }
     for name, value in os.environ.items():
-        name = RE_ENV_VAR_NAME.match(name)
-        if name is not None:
-            name = name.groupdict()
+        matched_name = RE_ENV_VAR_NAME.match(name)
+        if matched_name is not None:
+            matched_name = matched_name.groupdict()
 
-            if name["type"] is not None:
-                environment[name["type"].lower() + "s"][name["name"]] = YAML().load(
-                    value
-                )
+            if matched_name["type"] is not None:
+                environment[matched_name["type"].lower() + "s"][
+                    matched_name["name"]
+                ] = YAML().load(value)
+            elif matched_name["from_prod"] is not None:
+                environment["from_prod"] = [v.strip() for v in value.split(",")]
+            elif matched_name["default_run"] is not None:
+                environment["default_run"] = value
             else:
-                environment["stringify"][name["stringify"].lower()] = value
+                environment["stringify"][matched_name["stringify"].lower()] = value
 
     environment = {k: v for k, v in environment.items() if len(v) > 0}
     try:
@@ -182,7 +289,13 @@ def get_settings(yaml, environment, profile_name=None):
     elif yaml is not None:
         out = yaml.get_profile_info(profile_name)
     else:
-        out = {"credentials": dict(), "parameters": dict(), "stringify": dict()}
+        out = {
+            "credentials": dict(),
+            "parameters": dict(),
+            "stringify": dict(),
+            "from_prod": list(),
+            "default_run": {"include": set(), "exclude": set(), "upstream_prod": None},
+        }
 
     if profile_name is None and environment is not None:
         # When no profile is specified, and there's something in the environment,
@@ -198,18 +311,30 @@ def get_settings(yaml, environment, profile_name=None):
                 {k: v for k, v in environment.stringify if v is not None}
             )
 
+        if environment.from_prod is not None:
+            out["from_prod"] = environment.from_prod
+
+        if environment.default_run is not None:
+            out["default_run"] = environment.default_run
+
     return Ok(out)
 
 
-def get_connections(credentials, stringify, prod_stringify):
-    try:
-        return Ok(
-            {
-                name: create_db(name, name, deepcopy(config), stringify, prod_stringify)
-                if config["type"] != "api"
-                else {k: v for k, v in config.items() if k != "type"}
-                for name, config in credentials.items()
-            }
-        )
-    except Exception as e:
-        return Exc(e)
+def get_connections(credentials):
+    out = dict()
+    for name, config in credentials.items():
+        try:
+            if config is None:
+                out[name] = create_dummy(name)
+            elif config["type"] == "api":
+                out[name] = {k: v for k, v in config.items() if k != "type"}
+            else:
+                out[name] = create_db(
+                    name,
+                    name,
+                    deepcopy(config),
+                )
+        except Exception as e:
+            return Exc(e)
+
+    return Ok(out)

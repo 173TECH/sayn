@@ -94,20 +94,21 @@ def simulate_task(
 
     connections = dict()
     if target_db is not None:
-        connections = {
-            "target_db": create_db(
-                "target_db", "target_db", target_db.copy(), dict(), dict()
-            )
-        }
+        connections["target_db"] = create_db(
+            "target_db",
+            "target_db",
+            target_db.copy(),
+        )
 
     if source_db is not None:
-        connections.update(
-            {
-                "source_db": create_db(
-                    "source_db", "source_db", source_db.copy(), dict(), dict()
-                )
-            }
+        connections["source_db"] = create_db(
+            "source_db",
+            "source_db",
+            source_db.copy(),
         )
+
+    for c in connections.values():
+        c._activate_connection()
 
     obj_run_arguments = RunArguments()
     obj_run_arguments.update(**run_arguments)
@@ -147,12 +148,12 @@ def simulate_task(
                 connection_name = connection.name
 
             if connection_name not in self.to_introspect:
-                self.to_introspect[connection_name] = dict()
+                self.to_introspect[connection_name] = {"": dict()}
 
-            if schema not in self.to_introspect[connection_name]:
-                self.to_introspect[connection_name][schema] = set()
+            if schema not in self.to_introspect[connection_name][""]:
+                self.to_introspect[connection_name][""][schema] = set()
 
-            self.to_introspect[connection_name][schema].add(table)
+            self.to_introspect[connection_name][""][schema].add(table)
 
             return obj
 

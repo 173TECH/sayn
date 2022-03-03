@@ -1,9 +1,9 @@
 from pathlib import Path
-from typing import Any, List, Mapping, Optional
+from typing import Any, List, Mapping, Optional, Union
 from enum import Enum
 
 from pydantic import BaseModel, Field, FilePath, validator, Extra
-from terminaltables import AsciiTable
+from colorama import Fore, Style
 
 from ..core.errors import Exc, Ok, Err
 from ..database import Database
@@ -46,7 +46,7 @@ class Config(BaseModel):
     delete_key: Optional[str]
     materialisation: str
     destination: Destination
-    columns: List[Mapping[str, Any]] = list()
+    columns: Optional[List[Union[str, Mapping[str, Any]]]] = list()
     table_properties: Mapping[str, Any] = dict()
     post_hook: List[Mapping[str, Any]] = list()
 
@@ -83,7 +83,7 @@ class CompileConfig(BaseModel):
     tmp_schema: Optional[str]
     db_schema: Optional[str] = Field(None, alias="schema")
     table: Optional[str]
-    columns: List[Mapping[str, Any]] = list()
+    columns: Optional[List[Union[str, Mapping[str, Any]]]] = list()
     table_properties: Mapping[str, Any] = dict()
     post_hook: List[Mapping[str, Any]] = list()
     tags: Optional[List[str]]
@@ -128,8 +128,8 @@ class AutoSqlTask(SqlTask):
         if "task_name" in self._config_input:
             del self._config_input["task_name"]
 
-        if "columns" in config:
-            self._has_tests = True
+        # if "columns" in config:
+        #     self._has_tests = True
 
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
@@ -223,7 +223,7 @@ class AutoSqlTask(SqlTask):
         else:
             self.ddl = result.value
 
-        if self.run_arguments["command"] == "test":
+        if self.run_arguments["command"] == "test" and len(self.ddl["columns"]) != 0:
             result = self.target_db._construct_tests(
                 self.ddl["columns"], self.table, self.schema
             )
@@ -232,6 +232,9 @@ class AutoSqlTask(SqlTask):
             else:
                 self.test_query = result.value[0]
                 self.test_breakdown = result.value[1]
+
+            if self.test_query is not None:
+                self._has_tests = True
 
         return Ok()
 
@@ -244,6 +247,7 @@ class AutoSqlTask(SqlTask):
                 }
             )
             task_config_override = CompileConfig(**config)
+
             self.task_config.materialisation = (
                 task_config_override.materialisation or self.task_config.materialisation
             )
@@ -270,7 +274,6 @@ class AutoSqlTask(SqlTask):
             self.task_config.delete_key = (
                 task_config_override.delete_key or self.task_config.delete_key
             )
-
             # Sent to the wrapper
             if task_config_override.on_fail is not None:
                 self._config_input["on_fail"] = task_config_override.on_fail
@@ -284,8 +287,8 @@ class AutoSqlTask(SqlTask):
         # Returns an empty string to avoid productin incorrect sql
         return ""
 
-    def setup(self, needs_recompile):
-        if needs_recompile:
+    def setup(self):
+        if self.needs_recompile:
             self.sql_query = self.prepared_sql_query.compile()
 
         return Ok()
@@ -358,32 +361,92 @@ class AutoSqlTask(SqlTask):
         return self.execute(True, self.run_arguments["debug"])
 
     def test(self):
-        if self.test_query == "":
-            self.info(self.get_test_breakdown(self.test_breakdown))
+        step_queries = {
+            "Write Test Query": self.test_query,
+            "Execute Test Query": self.test_query,
+        }
+        breakdown = self.get_test_breakdown(self.test_breakdown)
+
+        if self.test_query is None:
+            self.info("Nothing to be done")
             return self.success()
         else:
-            with self.step("Write Test Query"):
-                self.write_compilation_output(self.test_query, "test")
+            self.set_run_steps(list(step_queries.keys()))
 
-            with self.step("Execute Test Query"):
-                result = self.default_db.read_data(self.test_query)
+            for step, query in step_queries.items():
+                with self.step(step):
+                    if "Write" in step:
+                        self.write_compilation_output(query, "test")
+                    if "Execute" in step:
+                        try:
+                            result = self.default_db.read_data(query)
+                        except Exception as e:
+                            return Exc(e)
 
-                self.info(self.get_test_breakdown(self.test_breakdown))
+            if len(result) == 0:
+                skipped = [brk for brk in breakdown if brk[0] == "SKIPPED"]
+                executed = [brk for brk in breakdown if brk[0] == "EXECUTED"]
 
-                if len(result) == 0:
-                    return self.success()
-                else:
-                    errout = "Test failed, summary:\n\n"
-                    errout += f"Total number of offending records: {sum([item['cnt'] for item in result])} \n"
-                    data = []
-                    data.append(
-                        ["Breach Count", "Prob. Value", "Test Type", "Failed Fields"]
+                if skipped:
+                    self.info(
+                        f"{Fore.GREEN}{len(skipped)} test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
                     )
+                self.info(
+                    f"{Fore.GREEN}{len(executed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}"
+                )
 
-                    for res in result:
-                        data.append([res["cnt"], res["val"], res["type"], res["col"]])
-                    table = AsciiTable(data)
+                return self.success()
+            else:
+                skipped = []
+                executed = []
+                failed = []
+                for brk in breakdown:
+                    if any(brk[1] != res["type"] for res in result) or any(
+                        brk[2] != res["col"] for res in result
+                    ):
+                        if brk[0] == "SKIPPED":
+                            skipped.append(brk)
+                        if brk[0] == "EXECUTED":
+                            executed.append(brk)
+                    else:
+                        failed.append(brk)
+                if self.run_arguments["debug"]:
 
-                    errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
+                    fl_info = [f"{Fore.RED}FAILED: "]
+                    for info in failed:
+                        count = sum(
+                            [
+                                item["cnt"]
+                                for item in result
+                                if (item["type"] == info[1] and item["col"] == info[2])
+                            ]
+                        )
+                        values = [
+                            item["val"]
+                            for item in result
+                            if (item["type"] == info[1] and item["col"] == info[2])
+                        ]
+                        values = ", ".join(values[:5])
+                        fl_info.append(
+                            f"{Fore.RED}{Style.BRIGHT}{brk[1]} test{Style.NORMAL} on {Style.BRIGHT}{info[2]} FAILED{Style.NORMAL}. {count} offending records. \n\t    Please see some values for which the test failed: {Style.BRIGHT}{values}{Style.NORMAL}"
+                        )
+                    if skipped:
+                        self.info(
+                            f"{Fore.GREEN}{len(skipped)} test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
+                        )
+                    self.info(
+                        f"{Fore.GREEN}{len(executed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}"
+                    )
+                    for err in fl_info:
+                        self.info(err)
 
-                    return self.fail(errout + table.table + "\n\n" + errinfo)
+                    errinfo = f"Test Failed. You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
+                    return self.fail(errinfo)
+                else:
+                    summary = f"{len(executed)} tests were ran, {len(executed)-len(failed)} succeeded, "
+                    if skipped:
+                        summary += f", {len(skipped)} were skipped, "
+                    summary += f"{len(failed)} failed."
+                    self.warning(summary)
+                    errout = ", ".join(list(set([res["type"] for res in result])))
+                    return self.fail(f"Failed test types: {errout}")

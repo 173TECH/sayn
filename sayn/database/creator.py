@@ -1,9 +1,10 @@
 from .bigquery import Bigquery
-from .postgresql import Postgresql
-from .sqlite import Sqlite
 from .mysql import Mysql
+from .postgresql import Postgresql
 from .redshift import Redshift
+from .sqlite import Sqlite
 from .snowflake import Snowflake
+from .unknown import UnknownDb
 
 drivers = {
     "postgresql": Postgresql,
@@ -17,7 +18,7 @@ drivers = {
 db_params = ("max_batch_rows", "type")
 
 
-def create(name, name_in_settings, settings, stringify, prod_stringify):
+def create(name, name_in_settings, settings):
     db_type = settings.pop("type")
     if db_type not in drivers:
         raise ValueError(f"No driver for {db_type} found")
@@ -27,8 +28,15 @@ def create(name, name_in_settings, settings, stringify, prod_stringify):
         settings = {k: v for k, v in settings.items() if k not in db_params}
 
         db_obj = drivers[db_type](
-            name, name_in_settings, db_type, common_params, stringify, prod_stringify
+            name,
+            name_in_settings,
+            db_type,
+            common_params,
+            settings,
         )
-        db_obj._set_engine(db_obj.create_engine(settings))
 
         return db_obj
+
+
+def create_dummy(name):
+    return UnknownDb(name, name, "dummy", dict(), dict())

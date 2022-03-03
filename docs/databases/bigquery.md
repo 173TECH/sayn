@@ -43,7 +43,7 @@ this we specify `partition` in the ddl field. The value is a string matching a B
         materialisation: table
         destination:
           table: f_battles
-        ddl:
+        table_properties:
           partition: DATE(_PARTITIONTIME)
     ```
 
@@ -62,7 +62,7 @@ columns specified in the `cluster` should be present in the column list.
         materialisation: table
         destination:
           table: f_battles
-        ddl:
+        table_properties:
           cluster:
             - arena_name
     ```

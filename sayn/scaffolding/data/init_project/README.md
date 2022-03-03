@@ -7,10 +7,9 @@ Quick overview:
 
 SAYN uses 2 key files to control the project:
   - settings.yaml: individual settings which are not shared
-  - project.yaml: project settings which are shared across all collaborators on the project
+  - project.yaml: project configuration which are shared across all collaborators on the project.
 
-SAYN code is stored in 3 main folders:
-  - tasks: where the SAYN tasks are defined. Each YAML file in this folder represents a task group.
+SAYN code is stored in 2 main folders:
   - sql: code for SQL tasks
   - python: code for python tasks
 

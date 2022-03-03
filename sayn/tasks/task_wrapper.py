@@ -1,8 +1,7 @@
 from copy import deepcopy
-import re
 from typing import Any, Dict, Optional, Set
 
-from sayn.database import Database
+from ..database.unknown import UnknownDb
 
 from ..core.errors import Err, Exc, Ok, Result
 from ..utils.misc import map_nested
@@ -26,10 +25,6 @@ _excluded_properties = (
 )
 
 
-# Regular expressions to parse a db object specification
-RE_OBJ = re.compile(r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?(?P<c2>[^.]+)")
-
-
 class TaskWrapper:
     """Task wrapper managing the execution of tasks.
 
@@ -47,7 +42,6 @@ class TaskWrapper:
       in_query (bool): whether the task is selected for execution based on the task query
       runner (Task): the object that will do the actual work
       status (TaskStatus): the current status of the task
-
     """
 
     name: str
@@ -78,6 +72,7 @@ class TaskWrapper:
         default_db,
         run_arguments,
         compiler,
+        db_object_compiler,
     ):
         self.tags = set(tags or set())
         self.parent_names = set(parent_names or set())
@@ -97,6 +92,7 @@ class TaskWrapper:
 
         self.default_db = default_db
         self.connections = dict(connections)
+        self.db_object_compiler = db_object_compiler
 
         self.task_class = task_class
 
@@ -112,7 +108,9 @@ class TaskWrapper:
                 "full_load": run_arguments.full_load,
                 "start_dt": run_arguments.start_dt,
                 "end_dt": run_arguments.end_dt,
+                "dates_specified": run_arguments.dates_specified,
                 "command": run_arguments.command.value,
+                "is_prod": run_arguments.is_prod,
                 "folders": {
                     "python": run_arguments.folders.python,
                     "sql": run_arguments.folders.sql,
@@ -210,7 +208,7 @@ class TaskWrapper:
 
         self.outputs.update(
             {
-                self.get_db_obj(o, connection=target_connection)
+                self.db_object_compiler.from_string(o, connection=target_connection)
                 for o in self.outputs_yaml
             }
         )
@@ -224,7 +222,7 @@ class TaskWrapper:
 
         self.sources.update(
             {
-                self.get_db_obj(o, connection=source_connection)
+                self.db_object_compiler.from_string(o, connection=source_connection)
                 for o in self.sources_yaml
             }
         )
@@ -255,7 +253,10 @@ class TaskWrapper:
         failed_parents = {
             p.name: p.status
             for p in self.parents
-            if (p.status == TaskStatus.FAILED and p.on_fail != "no_skip")
+            if (
+                p.status in (TaskStatus.SETUP_FAILED, TaskStatus.FAILED)
+                and p.on_fail != "no_skip"
+            )
             or p.status == TaskStatus.SKIPPED
         }
 
@@ -267,6 +268,8 @@ class TaskWrapper:
             else:
                 return Ok(self.status)
 
+        elif self.status == TaskStatus.SETUP_FAILED:
+            return Err("task", "setup_error", status=self.status)
         elif "fail" in self.status.value:
             return Err("task", "task_error", status=self.status)
         else:
@@ -278,6 +281,9 @@ class TaskWrapper:
         if result.is_err or result.value == TaskStatus.SKIPPED:
             return result
 
+        if self.runner is None:
+            return Ok()
+
         self.in_query = in_query
         self.status = TaskStatus.SETTING_UP
 
@@ -285,16 +291,24 @@ class TaskWrapper:
             self.status = TaskStatus.NOT_IN_QUERY
             return Ok()
         else:
+            # Clear all the dummy connections
+            self.runner.connections = {
+                n: None if isinstance(o, UnknownDb) else o
+                for n, o in self.runner.connections.items()
+            }
+
             needs_recompile = False
             for s in self.sources:
                 if s in sources_from_prod:
                     needs_recompile = True
 
+            self.runner._needs_recompile = needs_recompile
+
             self.sources_from_prod = sources_from_prod
 
             # Run the setup stage for the runner and return the results
             try:
-                result = self.runner.setup(needs_recompile)
+                result = self.runner.setup()
             except Exception as exc:
                 result = Exc(exc)
 
@@ -303,11 +317,11 @@ class TaskWrapper:
                     self.status = TaskStatus.READY
                     return Ok()
                 elif not isinstance(result, Result):
-                    self.status = TaskStatus.FAILED
+                    self.status = TaskStatus.SETUP_FAILED
                     self.tracker.current_step = None
                     return Err("task_result", "missing_result_error", result=result)
                 elif result.is_err:
-                    self.status = TaskStatus.FAILED
+                    self.status = TaskStatus.SETUP_FAILED
                     self.tracker.current_step = None
                     return result
                 else:
@@ -330,6 +344,9 @@ class TaskWrapper:
         result = self.check_skip()
         if result.is_err or result.value == TaskStatus.SKIPPED:
             return result
+
+        if self.runner is None:
+            return Ok()
 
         if not self.in_query:
             # TODO review this as it should never happend if running sayn cli
@@ -369,7 +386,10 @@ class TaskWrapper:
         missing = set()
         for source in self.sources:
             if source not in output_to_task:
-                missing.add(source)
+                if source.connection_name == self.default_db:
+                    # We only consider a missing parent if the
+                    # source is in the default_db
+                    missing.add(source)
             else:
                 for task_name in output_to_task[source]:
                     if task_name not in self.parent_names:
@@ -378,69 +398,28 @@ class TaskWrapper:
 
         # TODO send some message when a table is source
         if len(missing) > 0:
-            tables = ", ".join([f"{t.get_value()}" for t in missing])
+            tables = ", ".join([f"{t.raw}" for t in missing])
             self.tracker.warning(
                 f'No task creates table(s) "{tables}" referenced by task "{self.name}"'
             )
 
         return Ok()
 
-    def get_db_obj(self, obj: str, connection=None):
-        obj = self.compiler.compile(obj)
-        m = RE_OBJ.match(obj)
-        if m is None:
-            raise ValueError(f'Incorrect format for database object "{obj}"')
-        else:
-            g = m.groupdict()
-            connection_name = g["connection"]
-            components = dict(
-                {"object": None, "schema": None, "database": None},
-                **dict(
-                    zip(
-                        ("object", "schema"),
-                        reversed(
-                            [
-                                v
-                                for k, v in g.items()
-                                if k != "connection" and v is not None
-                            ]
-                        ),
-                    )
-                ),
-            )
-
-            if connection is not None:
-                if isinstance(connection, str):
-                    connection_object = self.connections[connection]
-                elif isinstance(connection, Database):
-                    connection_object = connection
-                else:
-                    raise ValueError(f"Wrong type {type(connection)}")
-            else:
-                connection_object = self.connections[connection_name or self.default_db]
-
-            return connection_object._object_builder.from_components(**components)
-
     def src(self, obj, connection=None):
-        obj = self.get_db_obj(obj, connection=connection)
+        obj = self.db_object_compiler.from_string(obj, connection=connection)
 
         if self.status == TaskStatus.CONFIGURING:
             # During configuration we add to the list and use values based on settings
             self.sources.add(obj)
-            return obj.get_value()
-        else:
-            # In any other stage, we check to see is the object is in the list
-            # of objects to use from production
-            if obj in self.sources_from_prod:
-                return obj.get_prod_value()
-            else:
-                return obj.get_value()
+
+        return self.db_object_compiler.src_value(obj)
 
     def out(self, obj, connection=None):
-        obj = self.get_db_obj(obj, connection=connection)
+        obj = self.db_object_compiler.from_string(obj, connection=connection)
         if self.status == TaskStatus.CONFIGURING:
             self.outputs.add(obj)
-        return obj.get_value()
+
+        return self.db_object_compiler.out_value(obj)
 
     def has_tests(self):
         if self.runner is not None and self.runner._has_tests:

@@ -1,28 +1,24 @@
 import inspect
 from typing import Optional, List, Union
 
+from ..database.unknown import UnknownDb
 from .task import Task
 
 
 class PythonTask(Task):
     def config(self, **task_config):
-        self.debug("Nothing to be done")
         return self.success()
 
-    def setup(self, needs_recompile: bool):
-        self.debug("Nothing to be done")
+    def setup(self):
         return self.success()
 
     def run(self):
-        self.debug("Nothing to be done")
         return self.success()
 
     def compile(self):
-        self.debug("Nothing to be done")
         return self.success()
 
     def test(self):
-        self.debug("Nothing to be done")
         return self.success()
 
 
@@ -75,6 +71,8 @@ class DecoratorTask(PythonTask):
                 # Special parameter equivalent to self
                 self.wrapper_params.append(self)
             elif param in self.connections:
+                if isinstance(self.connections[param], UnknownDb):
+                    return self.fail(f'Connection "{param}" missing from settings')
                 # The name of a connection makes it so that that argument
                 # is linked to the connection object itself
                 self.wrapper_params.append(self.connections[param])
@@ -92,7 +90,7 @@ class DecoratorTask(PythonTask):
         while len(self._config_input["outputs"]) > 0:
             self.out(self._config_input["outputs"].pop())
 
-    def setup(self, needs_update):
+    def setup(self):
         pass
 
     def compile(self):

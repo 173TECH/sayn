@@ -1,178 +1,105 @@
-# Tutorial: Part 2
+# Tutorial Part 2: Data Modelling With SAYN
 
-This tutorial builds upon the [Tutorial: Part 1](tutorial_part1.md) and introduces you to SAYN concepts which will enable you to make your projects more dynamic and efficient.
+In the [first part of the tutorial](tutorial_part1.md), we executed our first SAYN run and went through the core components of a SAYN project. We will now see how to use SAYN for data modelling, a major process of analytics warehousing.
 
-In [Tutorial: Part 1](tutorial_part1.md) we implemented our first ETL process with SAYN. We will now expand on that by adding `parameters` and `presets`.
+## SQL Tasks With SAYN
 
-A [Github repository](https://github.com/173TECH/sayn_tutorial_part2){target="\_blank"} is available with the final code if you prefer to have all the code written directly. After cloning, you simply need to make sure to rename the `sample_settings.yaml` file to `settings.yaml` for the project to work.
+SAYN can execute two main types of SQL tasks:
+* `autosql`: these tasks take a `SELECT` statement and create a table or view using it. All the processes are automated by SAYN in the background.
+* `sql`: these tasks take your SQL statement as is and execute it. These are not covered in this tutorial.
 
-### Step 1: Define The Project `parameters`
+## Defining The Task Group
 
-You can use `parameters` in order to make your SAYN tasks' code dynamic. We will set one project parameter called `user_prefix`. This will enable us to distinguish which user generated tables.
-
-First, add `paramaters` at the end of `project.yaml`. This is a YAML map which defines the default value.
+In order to execute your tasks, you will need to define a task group. This is done in the `project.yaml` file, under the `groups` entry. This is the `models` group we have defined in our project:
 
 !!! example "project.yaml"
-    ``` yaml
-    # ...
-    parameters:
-      user_prefix: '' #no prefix for prod
-    ```
-
-In this case we defined a parameter `user_prefix` that we will use to name tables. This is useful when multiple users are testing a project as it allows the final table name to be different between collaborators.
-
-Now we can define the value of the parameter on each profile. We do this in the `settings.yaml`.
-
-!!! example "settings.yaml"
-    ``` yaml
-    profiles:
-      dev:
-        credentials:
-          warehouse: dev_db
-        parameters:
-          user_prefix: up_
-      prod:
-        credentials:
-          warehouse: prod_db
-    ```
-
-Note how we don't redefine the parameter in our prod profile as the default value is more appropriate.
-
-### Step 2: Making Tasks Dynamic With `parameters`
-
-Now that our parameters are setup, we can use those to make our tasks' code dynamic.
-
-#### In `python` Tasks
-
-For the Python `load_data` task, we will access the `user_prefix` parameter and then pass it to the
-functions doing the data processing. You can look into `python/utils.py` to see how we use the `user_prefix` parameter to change the table names.
-
-!!! example "python/load_data.py"
-    ```python
-        # ...
-        def run(self):
-            user_prefix = self.parameters['user_prefix']
-        # ...
-                    q_create = get_create_table(log_type, user_prefix)
-        # ...
-    ```
-
-#### In `autosql` Tasks
-
-The files in the `sql` folder are always interpreted as [Jinja](https://palletsprojects.com/p/jinja/){target="\_blank"}
-templates. This means that in order to access parameters all we have to do is enclose it in `{{ }}` Jinja blocks. For example, in order to reference the tables created by `load_data` the `dim_arenas` task can be changed like this:
-
-!!! example "sql/dim_arenas.sql"
-    ```sql
-    SELECT l.arena_id
-         , l.arena_name
-
-    FROM {{user_prefix}}logs_arenas l
-    ```
-
-Now `sayn run` will transform the above into valid SQL creating `compile/base/dim_arenas.sql` with it. The file path following the rule `compile/task_group_name/autosql_task_name.sql`:
-
-!!! example "compile/base/dim_arenas.sql"
-    ```sql
-    SELECT l.arena_id
-         , l.arena_name
-
-    FROM up_logs_arenas l
-    ```
-
-SAYN provides a `sayn compile` command that works like `sayn run` except that it won't execute the code. What it does though, is generate the compiled files that SAYN would run with the `sayn run` command.
-
-### Step 3: Making Task Definitions Dynamic With `parameters`
-
-Now that our python task generates tables with the `user_prefix` in the name and our autosql tasks will select data from it. What we also need to do is change the table names our autosql tasks are generating. For that, let's take `dim_arenas` and modify it so that it generates a table called `up_dim_arenas` (or other user_prefix defined in `settings.yaml`):
-
-!!! example "tasks/base.yaml"
     ```yaml
-    tasks:
-      # ...
-      dim_arenas:
+    ...
+
+    groups:
+      models:
         type: autosql
-        file_name: dim_arenas.sql
+        file_name: "{{ task.group }}/*.sql"
         materialisation: table
         destination:
-          table: '{{ user_prefix }}{{ task.name }}'
-        parents:
-          - load_data
-      # ...
+          table: "{{ task.name }}"
     ```
 
-Note the value of `destination.table` is now some Jinja code that will compile to the value of `user_prefix` followed by the name of the task.
+This group effectively does the following:
 
-### Step 4: Using `presets` To Standardise Task Definitions
+* It creates a task group called `models`.
+* This task group is defined to be `autosql` tasks.
+* Each file with a `.sql` extension in the `sql/models` folder will be turned into an `autosql` task. Do not worry about the `{{ task.group }}` notation for now, this is simple Jinja templating to dynamically pick the `models` name of the group.
+* All tasks from the group will model the output as tables.
+* The tables will be named as per the `task` name. This `task` name is automatically generated from your file name, excluding the `.sql` extension.
 
-Because most of our tasks have a similar configuration, we can significantly reduce the YAML task definitions using `presets`. `presets` allow you to define common properties shared by several
-tasks.
+## Writing Your Models
 
-!!! example "tasks/base.yaml"
-    ```yaml
-    presets:
-      modelling:
-        type: autosql
-        file_name: '{{ task.name }}.sql'
-        materialisation: table
-        destination:
-          table: '{{ user_prefix }}{{ task.name }}'
-        parents:
-          - load_data
+### A Simple Model
 
-    tasks:
-      # ...
-      dim_arenas:
-        preset: modelling
-      # ...
-    ```
+As explained in the previous section, each file with a `.sql` extension in the `sql/models` folder will be turned into an `autosql` task following our `models` group definition.
 
-Now the `modelling` preset has to dynamic properties:
-* `table`: defined like we did in the previous so that the create table contains the `user_prefix` in the name.
-* `file_name`: that uses the task name to point at the correct file in the sql folder.
+For example, the `dim_arenas.sql` file in the `sql/models` folder will be turned into a `dim_arenas` task. This is the SQL code of this file:
 
-In addition, `modelling` is defined so that tasks referencing it:
-* are `autosql` tasks.
-* Materialise as tables.
-* Have `load_data` as a parent task, so that models always run after our log generator.
+```sql
+SELECT l.arena_id
+     , l.arena_name
+  FROM logs_arenas l
+```
 
-When a task references a preset, we're not restricted to the values defined in the preset. A task can override those values. Take `f_rankings` for example:
+When executed, this task will create a table called `dim_arenas` using this SQL code. This is the `dim_arenas` you can find in the `dev.db` SQLite database at the root level of the project folder. You can execute this task only by running the command `sayn run -t dim_arenas`, where `dim_arenas` is our `task` name.
 
-!!! example "tasks/base.yaml"
-    ```yaml
-    tasks:
-      # ...
-      f_rankings:
-        preset: modelling
-        materialisation: view
-        parents:
-          - f_fighter_results
-    ```
+### A Model With Dependency
 
-Here we're overloading 2 properties:
-* `materialisation` which will make f_rankings a view rather than a table.
-* `parents` which will make `f_ranking` depend on `f_fighter_results` as well as `load_data` as defined in the preset.
+Now, let's have a look at a model which depends on another model. The file `f_battles.sql` is a good example and actually depends on multiple other models. This is how the SQL query is written:
 
-## Running Our New Project
+```sql
+SELECT t.tournament_name
+     , t.tournament_name || '-' || CAST(b.battle_id AS VARCHAR) AS battle_id
+     , a.arena_name
+     , f1.fighter_name AS fighter1_name
+     , f2.fighter_name AS fighter2_name
+     , w.fighter_name AS winner_name
 
-You can now test running `sayn run` or `sayn -p prod`. The two options will do the following:
+  FROM logs_battles b
 
-* `sayn run`:
-    * use our `dev` profile
-    * create all tables into a `dev.db` database
-    * prefix all tables with `up_` and read from `up_` prefixed tables
-* `sayn run -p prod`:
-    * use our `prod` profile
-    * create all tables into a `prod.db` database
-    * will not use a prefix when creating / reading tables
+  LEFT JOIN {{ src('dim_tournaments') }} t
+    ON b.tournament_id = t.tournament_id
+
+  LEFT JOIN {{ src('dim_arenas') }} a
+    ON b.arena_id = a.arena_id
+
+  LEFT JOIN {{ src('dim_fighters') }} f1
+    ON b.fighter1_id = f1.fighter_id
+
+  LEFT JOIN {{ src('dim_fighters') }} f2
+    ON b.fighter2_id = f2.fighter_id
+
+  LEFT JOIN {{ src('dim_fighters') }} w
+    ON b.winner_id = w.fighter_id
+```
+
+As you can see, this query uses another Jinja templating notation, the `src` function which is core to using SAYN efficiently. You pass this function the name of a table, and SAYN will automatically build the dependencies between your tasks! For example, this `f_battles` task sources the table `dim_tournaments` (amongst others) with the `src` function. As a result, SAYN will look for the task that produces this `dim_tournaments` table (which is the `dim_tournaments` task) and set this task as a parent of the `f_battles` task. Therefore, `dim_tournaments` will always execute before `f_battles`. From the above code, you can see that many tasks will be set as parents of the `f_battles` task.
+
+### Changing Your Model Materialisation
+
+You can easily amend the configuration of a single task when necessary with SAYN. For example, the task `f_rankings`, generated by `f_rankings.sql`, uses the following query:
+
+```sql
+{{ config(
+    materialisation='view'
+   )
+}}
+
+SELECT fr.fighter_name
+     , CAST(SUM(fr.is_winner) AS FLOAT) / COUNT(DISTINCT fr.battle_id) AS win_rate
+  FROM {{ src('f_fighter_results') }} fr
+ GROUP BY 1
+ ORDER BY 2 DESC
+```
+
+As you can see, this task uses the `config` function, which will in this case overwrite the materialisation of the task's output to a view instead of a table. This `config` function can be really useful when you want to overwrite some attributes of specific tasks within your group.
 
 ## What Next?
 
-This is it, you should now have a good understanding of the core ways of using SAYN. You can play further with this project and easily transfer it to a PostgreSQL database for example by:
-
-* changing the credentials in `settings.yaml`.
-* setting the `tmp_schema` and `schema` attributes of your `modelling` preset to `public`.
-
-Otherwise, you can learn more about the specific SAYN features by having a look at the specific sections of the documentation.
-
-Enjoy SAYN :)
+You now know how to build data models with SAYN. The [next section of this tutorial](tutorial_part3.md) will now go through how to use SAYN for Python processes. This will enable you to leverage SAYN for end-to-end ELT processes or data science tasks!

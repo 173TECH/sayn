@@ -217,6 +217,44 @@ class LogFormatter:
             level = "error"
             message = self.bad(error.details["error_message"])
 
+        elif error.kind == "dag" and error.code == "empty_dag":
+            level = "error"
+            message = self.bad("No tasks defined in this project")
+
+        elif error.kind == "dag" and error.code == "empty_group":
+            level = "error"
+            message = self.bad(
+                f'Group "{error.details["group"]}" contains no tasks. Please check the "file_name" property'
+            )
+
+        elif error.kind == "task_query" and error.code == "query_overlap":
+            level = "error"
+            message = self.bad(
+                f"{error.details['overlap']} specified both as include and exclude"
+            )
+
+        elif error.kind == "task_query" and error.code == "incorrect_syntax":
+            level = "error"
+            message = self.bad(f'Incorrect filter syntax "{error.details["query"]}"')
+
+        elif error.kind == "task_query" and error.code == "undefined_tag":
+            level = "error"
+            message = self.bad(
+                f'Tag not found in the project: "{error.details["tag"]}"'
+            )
+
+        elif error.kind == "task_query" and error.code == "undefined_group":
+            level = "error"
+            message = self.bad(
+                f'Group not found in the project: "{error.details["group"]}"'
+            )
+
+        elif error.kind == "task_query" and error.code == "undefined_task":
+            level = "error"
+            message = self.bad(
+                f'Task not found in the project: "{error.details["task"]}"'
+            )
+
         elif error.code == "wrong_credentials":
             level = "error"
             message = self.bad(
@@ -406,10 +444,9 @@ class LogFormatter:
         skipped = tasks.get("skipped", list())
         duration = human(details["duration"])
         totals_msg = (
-            f"Total tasks: {len(succeeded+failed+skipped)}. "
+            f"Total {'tasks' if details.get('test', False) is False else 'tests'}: {len(succeeded+failed+skipped)}. "
             f"Success: {len(succeeded)}. Failed {len(failed)}. Skipped {len(skipped)}."
         )
-
         if stage == "config":
             out = ["Finished project config:"]
             level = "info"
@@ -420,20 +457,25 @@ class LogFormatter:
             #     out.append(self.warn(f"Tasks to skip: {self.blist(skipped)}"))
             #     level = "error"
             if len(succeeded) > 0:
-                out.append(self.good(f"Tasks found: {self.blist(succeeded)}"))
+                out.append(
+                    self.good(
+                        f"{'Tasks' if details.get('test', False) is False else 'Tests'} found: {self.blist(succeeded)}"
+                    )
+                )
             return {"level": level, "message": out}
 
         elif stage == "setup":
             out = ["Finished setup:"]
             level = "info"
+            type = "Tasks" if details.get("test", False) is False else "Tests"
             if len(failed) > 0:
-                out.append(self.bad(f"Tasks failed: {self.blist(failed)}"))
+                out.append(self.bad(f"{type} failed: {self.blist(failed)}"))
                 level = "error"
             if len(skipped) > 0:
-                out.append(self.warn(f"Tasks to skip: {self.blist(skipped)}"))
+                out.append(self.warn(f"{type} to skip: {self.blist(skipped)}"))
                 level = "error"
             if len(succeeded) > 0:
-                out.append(self.good(f"Tasks to run: {self.blist(succeeded)}"))
+                out.append(self.good(f"{type} to run: {self.blist(succeeded)}"))
             return {"level": level, "message": out}
 
         elif stage in ("run", "compile", "test"):

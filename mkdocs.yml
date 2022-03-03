@@ -54,6 +54,7 @@ nav:
     - Installation: installation.md
     - Tutorial (Part 1): tutorials/tutorial_part1.md
     - Tutorial (Part 2): tutorials/tutorial_part2.md
+    - Tutorial (Part 3): tutorials/tutorial_part3.md
   - Core Concepts:
     - CLI: cli.md
     - Project Structure: project_structure.md
@@ -70,6 +71,10 @@ nav:
     - SQL: tasks/sql.md
     - Copy: tasks/copy.md
     - Dummy: tasks/dummy.md
+  - Data Tests:
+    - Overview: tests/overview.md
+    - Standard: tests/standard.md
+    - Custom: tests/custom.md
   - Databases:
     - Overview: databases/overview.md
     - BigQuery: databases/bigquery.md

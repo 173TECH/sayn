@@ -11,7 +11,7 @@ class FileLogger(Logger):
 
     def __init__(self, folder, format=None):
         if format is None:
-            format = ("%(asctime)s|%(levelname)s|%(message)s",)
+            format = "%(asctime)s|%(levelname)s|%(message)s"
 
         formatter = logging.Formatter(format)
 
