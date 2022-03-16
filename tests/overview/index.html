@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tests" class="md-skip">
+        <a href="#data_tests" class="md-skip">
           Skip to content
         </a>
       
@@ -942,12 +942,18 @@
               
                 
                 
-                <h1 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h1>
+                <h1 id="data_tests">Data Tests<a class="headerlink" href="#data_tests" title="Permanent link">&para;</a></h1>
 <h2 id="about">About<a class="headerlink" href="#about" title="Permanent link">&para;</a></h2>
 <p>SAYN provides an extension to the functionality of the <code>columns</code> field in task definitions that enables the user to make use of predefined (standard) or custom tests for their table data fields.</p>
 <p>Standard tests are implemented for the <code>autosql</code> and <code>copy</code> task types, while custom tests are not task bound and can be applied to any table in the warehouse. Custom tests work like SAYN <code>sql</code> tasks with a specific SQL query structure that only execute during the SAYN test suite.</p>
-<p>Running <code>sayn test</code> through the CLI will execute all and only the standard and custom tests for a given project.</p>
+<p>Running <code>sayn test</code> through the CLI will execute the standard and custom tests for a given project.</p>
 <p>All CLI usage for tasks applies to tests as well, with the major difference being that tests don't make use of a DAG to determine the order of execution (so attempting to execute tests on parents of children of a task is not supported).</p>
+<p>Examples:</p>
+<ul>
+<li><code>sayn test -t test_name</code>: run <code>task_name</code> only.</li>
+<li><code>sayn test -t test1 test2</code>: runs <code>task1</code> and <code>task2</code> only.</li>
+<li><code>sayn test -x test_name</code>: run all tests except <code>task_name</code>.</li>
+</ul>
 <h2 id="test_types">Test Types<a class="headerlink" href="#test_types" title="Permanent link">&para;</a></h2>
 <p>Please see below the available SAYN test types:</p>
 <ul>
@@ -986,6 +992,7 @@
 <div class="highlight"><pre><span></span><code>{{ config(columns=[ {&#39;name&#39;: &#39;id&#39;, &#39;tests&#39;:[&#39;unique&#39;, &#39;not_null&#39;]},
                     {&#39;name&#39;:&#39;alias&#39;, &#39;tests&#39;:[&#39;allowed_values&#39;:[&#39;first&#39;,&#39;second&#39;,&#39;third&#39;]}]) }}
 
+
 SELECT ...
 </code></pre></div>
 </div>
@@ -994,7 +1001,12 @@ SELECT ...
 <div class="admonition example">
 <p class="admonition-title">tests.yaml</p>
 <div class="highlight"><pre><span></span><code>tests:
-  file_name: test.sql
+  test_1:
+    file_name: test.sql
+
+tasks:
+  ...
+  ...
 </code></pre></div>
 </div>
 <div class="admonition example">

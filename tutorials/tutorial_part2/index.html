@@ -1043,13 +1043,18 @@
 <h3 id="a_simple_model">A Simple Model<a class="headerlink" href="#a_simple_model" title="Permanent link">&para;</a></h3>
 <p>As explained in the previous section, each file with a <code>.sql</code> extension in the <code>sql/models</code> folder will be turned into an <code>autosql</code> task following our <code>models</code> group definition.</p>
 <p>For example, the <code>dim_arenas.sql</code> file in the <code>sql/models</code> folder will be turned into a <code>dim_arenas</code> task. This is the SQL code of this file:</p>
+<div class="admonition example">
+<p class="admonition-title">sql/dim_arenas.sql</p>
 <div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">arena_id</span><span class="w"></span>
 <span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">arena_name</span><span class="w"></span>
 <span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="n">logs_arenas</span><span class="w"> </span><span class="n">l</span><span class="w"></span>
 </code></pre></div>
+</div>
 <p>When executed, this task will create a table called <code>dim_arenas</code> using this SQL code. This is the <code>dim_arenas</code> you can find in the <code>dev.db</code> SQLite database at the root level of the project folder. You can execute this task only by running the command <code>sayn run -t dim_arenas</code>, where <code>dim_arenas</code> is our <code>task</code> name.</p>
 <h3 id="a_model_with_dependency">A Model With Dependency<a class="headerlink" href="#a_model_with_dependency" title="Permanent link">&para;</a></h3>
 <p>Now, let's have a look at a model which depends on another model. The file <code>f_battles.sql</code> is a good example and actually depends on multiple other models. This is how the SQL query is written:</p>
+<div class="admonition example">
+<p class="admonition-title">sql/f_battles.sql</p>
 <div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">tournament_name</span><span class="w"></span>
 <span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">tournament_name</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">CAST</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">battle_id</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">battle_id</span><span class="w"></span>
 <span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">arena_name</span><span class="w"></span>
@@ -1074,9 +1079,12 @@
 <span class="w">  </span><span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="err">{{</span><span class="w"> </span><span class="n">src</span><span class="p">(</span><span class="s1">&#39;dim_fighters&#39;</span><span class="p">)</span><span class="w"> </span><span class="err">}}</span><span class="w"> </span><span class="n">w</span><span class="w"></span>
 <span class="w">    </span><span class="k">ON</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">winner_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w</span><span class="p">.</span><span class="n">fighter_id</span><span class="w"></span>
 </code></pre></div>
+</div>
 <p>As you can see, this query uses another Jinja templating notation, the <code>src</code> function which is core to using SAYN efficiently. You pass this function the name of a table, and SAYN will automatically build the dependencies between your tasks! For example, this <code>f_battles</code> task sources the table <code>dim_tournaments</code> (amongst others) with the <code>src</code> function. As a result, SAYN will look for the task that produces this <code>dim_tournaments</code> table (which is the <code>dim_tournaments</code> task) and set this task as a parent of the <code>f_battles</code> task. Therefore, <code>dim_tournaments</code> will always execute before <code>f_battles</code>. From the above code, you can see that many tasks will be set as parents of the <code>f_battles</code> task.</p>
 <h3 id="changing_your_model_materialisation">Changing Your Model Materialisation<a class="headerlink" href="#changing_your_model_materialisation" title="Permanent link">&para;</a></h3>
 <p>You can easily amend the configuration of a single task when necessary with SAYN. For example, the task <code>f_rankings</code>, generated by <code>f_rankings.sql</code>, uses the following query:</p>
+<div class="admonition example">
+<p class="admonition-title">sql/f_rankings.sql</p>
 <div class="highlight"><pre><span></span><code><span class="err">{{</span><span class="w"> </span><span class="n">config</span><span class="p">(</span><span class="w"></span>
 <span class="w">    </span><span class="n">materialisation</span><span class="o">=</span><span class="s1">&#39;view&#39;</span><span class="w"></span>
 <span class="w">   </span><span class="p">)</span><span class="w"></span>
@@ -1088,6 +1096,7 @@
 <span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="k">DESC</span><span class="w"></span>
 </code></pre></div>
+</div>
 <p>As you can see, this task uses the <code>config</code> function, which will in this case overwrite the materialisation of the task's output to a view instead of a table. This <code>config</code> function can be really useful when you want to overwrite some attributes of specific tasks within your group.</p>
 <h2 id="what_next">What Next?<a class="headerlink" href="#what_next" title="Permanent link">&para;</a></h2>
 <p>You now know how to build data models with SAYN. The <a href="../tutorial_part3/">next section of this tutorial</a> will now go through how to use SAYN for Python processes. This will enable you to leverage SAYN for end-to-end ELT processes or data science tasks!</p>

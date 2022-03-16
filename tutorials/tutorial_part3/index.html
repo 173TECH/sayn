@@ -1000,8 +1000,9 @@
 <p>The <a href="../tutorial_part2/">previous section of this tutorial</a> showed you how to use SAYN for data modelling purposes. We will now show you how to use Python with SAYN. This will therefore enable you to write end-to-end ELT processes and data science tasks with SAYN. Let's dive in!</p>
 <h2 id="adding_your_python_task_group">Adding Your Python Task Group<a class="headerlink" href="#adding_your_python_task_group" title="Permanent link">&para;</a></h2>
 <p>As we did for the <code>autosql</code> tasks, we will need to add a task group for our Python tasks. To do so, add the following to your <code>project.yaml</code>:</p>
-<p>!!! "project.yaml"
-  <div class="highlight"><pre><span></span><code><span class="nn">...</span><span class="w"></span>
+<div class="admonition example">
+<p class="admonition-title">project.yaml</p>
+<div class="highlight"><pre><span></span><code><span class="nn">...</span><span class="w"></span>
 
 <span class="nt">groups</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">models</span><span class="p">:</span><span class="w"></span>
@@ -1010,7 +1011,8 @@
 <span class="w">    </span><span class="nt">say_hello</span><span class="p">:</span><span class="w"></span>
 <span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python</span><span class="w"></span>
 <span class="w">      </span><span class="nt">module</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">say_hello</span><span class="w"></span>
-</code></pre></div></p>
+</code></pre></div>
+</div>
 <p>This will do the following:</p>
 <ul>
 <li>Create a task group called <code>say_hello</code>.</li>
@@ -1020,12 +1022,15 @@
 <h2 id="writing_your_python_tasks">Writing Your Python Tasks<a class="headerlink" href="#writing_your_python_tasks" title="Permanent link">&para;</a></h2>
 <h3 id="a_simple_python_task">A Simple Python Task<a class="headerlink" href="#a_simple_python_task" title="Permanent link">&para;</a></h3>
 <p>Our tutorial project has two <code>python</code> tasks. It starts with a simple Python task that interacts with the task's context. This is the <code>say_hello</code> task in the <code>python/say_hello.py</code> file, defined as follows:</p>
+<div class="admonition example">
+<p class="admonition-title">python/say_hello.py</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sayn</span> <span class="kn">import</span> <span class="n">task</span>
 
 <span class="nd">@task</span>
 <span class="k">def</span> <span class="nf">say_hello</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
     <span class="n">context</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Hello!&#39;</span><span class="p">)</span>
 </code></pre></div>
+</div>
 <p>Here are the core concepts to know for running Python tasks with SAYN:</p>
 <ul>
 <li>You should import the <code>task</code> decorator from <code>sayn</code> which you can then use to define your tasks. There is a more advanced way to define <code>python</code> tasks with classes using SAYN which you can find in the documentation related to <code>python</code> tasks.</li>
@@ -1034,8 +1039,9 @@
 </ul>
 <h3 id="creating_data_logs">Creating Data Logs<a class="headerlink" href="#creating_data_logs" title="Permanent link">&para;</a></h3>
 <p>The second task in the <code>python/load_data.py</code> module actually does something more interesting. It creates some random logs, which is the data you initially had in the logs table of <code>dev.db</code>. First, let's add this task to <code>project.yaml</code> by adding a task group:</p>
-<p>!!! "project.yaml"
-  <div class="highlight"><pre><span></span><code><span class="nn">...</span><span class="w"></span>
+<div class="admonition example">
+<p class="admonition-title">project.yaml</p>
+<div class="highlight"><pre><span></span><code><span class="nn">...</span><span class="w"></span>
 
 <span class="nt">groups</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="nt">models</span><span class="p">:</span><span class="w"></span>
@@ -1044,8 +1050,11 @@
 <span class="w">    </span><span class="nt">logs</span><span class="p">:</span><span class="w"></span>
 <span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python</span><span class="w"></span>
 <span class="w">      </span><span class="nt">module</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">load_data</span><span class="w"></span>
-</code></pre></div></p>
+</code></pre></div>
+</div>
 <p>Let's look at whole the code from the <code>python/load_data.py</code> file:</p>
+<div class="admonition example">
+<p class="admonition-title">python/load_data.py</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
 
@@ -1138,6 +1147,7 @@
         <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Load </span><span class="si">{</span><span class="n">log_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">):</span>
             <span class="n">warehouse</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;logs_</span><span class="si">{</span><span class="n">log_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">log_data</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
+</div>
 <p>The second task defined in this module is the <code>load_data</code> one. It uses some further features:</p>
 <ul>
 <li>The <code>load_data</code> task produces <code>outputs</code> which are defined in the decorator. This will enable you to refer to these outputs with the <code>src</code> function in <code>autosql</code> tasks and automatically set dependencies to the <code>load_data</code> task.</li>
@@ -1145,20 +1155,30 @@
 </ul>
 <h3 id="setting_dependencies_with_load_data">Setting Dependencies With <code>load_data</code><a class="headerlink" href="#setting_dependencies_with_load_data" title="Permanent link">&para;</a></h3>
 <p>As mentioned, we now have a <code>python</code> task which produces some logs which we want our <code>autosql</code> tasks to use for the data modelling process. As a result, we should ensure that the <code>load_data</code> task is always executed first. Because our <code>load_data</code> task produces <code>outputs</code>, we can refer to these with the <code>src</code> function in <code>autosql</code> tasks and automatically create dependencies. For example, the SQL query of the <code>dim_arenas</code> task should be changed from:</p>
+<div class="admonition example">
+<p class="admonition-title">sql/dim_arenas.sql</p>
 <div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">arena_id</span><span class="w"></span>
 <span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">arena_name</span><span class="w"></span>
 <span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="n">logs_arenas</span><span class="w"> </span><span class="n">l</span><span class="w"></span>
 </code></pre></div>
+</div>
 <p>To:</p>
+<div class="admonition example">
+<p class="admonition-title">sql/dim_arenas.sql amended</p>
 <div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">arena_id</span><span class="w"></span>
 <span class="w">     </span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">.</span><span class="n">arena_name</span><span class="w"></span>
 <span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="err">{{</span><span class="w"> </span><span class="n">src</span><span class="p">(</span><span class="s1">&#39;logs_arenas&#39;</span><span class="p">)</span><span class="w"> </span><span class="err">}}</span><span class="w"> </span><span class="n">l</span><span class="w"></span>
 </code></pre></div>
+</div>
 <p>This will now mention that the <code>dim_arenas</code> task sources the <code>logs_arenas</code> table which is an <code>output</code> of the <code>load_data</code> task. SAYN will automatically make <code>load_data</code> a parent of the <code>dim_arenas</code> task and therefore always execute it before. You can do the same for all the other logs tables used in the other <code>autosql</code> tasks.</p>
 <h2 id="what_next">What Next?<a class="headerlink" href="#what_next" title="Permanent link">&para;</a></h2>
-<p>This is it for our tutorial. You should now have a good understanding of the true power of SAYN! Our documentation has more extensive details about all the concepts we covered:</p>
+<p>This is it for our tutorial. You should now have a good understanding of the true power of SAYN! Our documentation has more extensive details about all the SAYN core concepts:</p>
 <ul>
-<li>ADD</li>
+<li><a href="../../tasks/overview/">Tasks</a></li>
+<li><a href="../../parameters/">Parameters</a></li>
+<li><a href="../../presets/">Presets</a></li>
+<li><a href="../../databases/overview/">Databases</a></li>
+<li><a href="../../tests/overview/">Data Tests</a></li>
 </ul>
 <p>Enjoy SAYN and happy ELT-ing! :)</p>
                 
