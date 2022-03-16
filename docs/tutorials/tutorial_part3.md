@@ -6,18 +6,18 @@ The [previous section of this tutorial](tutorial_part2.md) showed you how to use
 
 As we did for the `autosql` tasks, we will need to add a task group for our Python tasks. To do so, add the following to your `project.yaml`:
 
-!!! "project.yaml"
-  ```yaml
-  ...
+!!! example "project.yaml"
+    ```yaml
+    ...
 
-  groups:
-      models:
-        ...
+    groups:
+        models:
+          ...
 
-      say_hello:
-        type: python
-        module: say_hello
-  ```
+        say_hello:
+          type: python
+          module: say_hello
+    ```
 
 This will do the following:
 
@@ -31,13 +31,14 @@ This will do the following:
 
 Our tutorial project has two `python` tasks. It starts with a simple Python task that interacts with the task's context. This is the `say_hello` task in the `python/say_hello.py` file, defined as follows:
 
-```python
-from sayn import task
+!!! example "python/say_hello.py"
+    ```python
+    from sayn import task
 
-@task
-def say_hello(context):
-    context.info('Hello!')
-```
+    @task
+    def say_hello(context):
+        context.info('Hello!')
+    ```
 
 Here are the core concepts to know for running Python tasks with SAYN:
 
@@ -49,114 +50,115 @@ Here are the core concepts to know for running Python tasks with SAYN:
 
 The second task in the `python/load_data.py` module actually does something more interesting. It creates some random logs, which is the data you initially had in the logs table of `dev.db`. First, let's add this task to `project.yaml` by adding a task group:
 
-!!! "project.yaml"
-  ```yaml
-  ...
+!!! example "project.yaml"
+    ```yaml
+    ...
 
-  groups:
-      models:
-        ...
+    groups:
+        models:
+          ...
 
-      logs:
-        type: python
-        module: load_data
-  ```
+        logs:
+          type: python
+          module: load_data
+    ```
 
 Let's look at whole the code from the `python/load_data.py` file:
 
-```python
-import random
-from uuid import uuid4
+!!! example "python/load_data.py"
+    ```python
+    import random
+    from uuid import uuid4
 
-from sayn import task
+    from sayn import task
 
-@task()
-def say_hello(context):
-    context.info('Hello!')
+    @task()
+    def say_hello(context):
+        context.info('Hello!')
 
-@task(outputs=[
-        'logs_arenas',
-        'logs_tournaments',
-        'logs_battles',
-        'logs_fighters']
-     )
-def load_data(context, warehouse):
-    fighters = ["Son Goku", "John", "Lucy", "Dr. x", "Carlos", "Dr. y?"]
-    arenas = ["Earth Canyon", "World Edge", "Namek", "Volcanic Crater", "Underwater"]
-    tournaments = ["World Championships", "Tenka-ichi Budokai", "King of the Mountain"]
+    @task(outputs=[
+            'logs_arenas',
+            'logs_tournaments',
+            'logs_battles',
+            'logs_fighters']
+         )
+    def load_data(context, warehouse):
+        fighters = ["Son Goku", "John", "Lucy", "Dr. x", "Carlos", "Dr. y?"]
+        arenas = ["Earth Canyon", "World Edge", "Namek", "Volcanic Crater", "Underwater"]
+        tournaments = ["World Championships", "Tenka-ichi Budokai", "King of the Mountain"]
 
-    context.set_run_steps(
-        [
-            "Generate Dimensions",
-            "Generate Battles",
-            "Load fighters",
-            "Load arenas",
-            "Load tournaments",
-            "Load battles",
-        ]
-    )
+        context.set_run_steps(
+            [
+                "Generate Dimensions",
+                "Generate Battles",
+                "Load fighters",
+                "Load arenas",
+                "Load tournaments",
+                "Load battles",
+            ]
+        )
 
-    with context.step("Generate Dimensions"):
-        # Add ids to the dimensions
-        fighters = [
-            {"fighter_id": str(uuid4()), "fighter_name": val}
-            for id, val in enumerate(fighters)
-        ]
-        arenas = [
-            {"arena_id": str(uuid4()), "arena_name": val}
-            for id, val in enumerate(arenas)
-        ]
-        tournaments = [
-            {"tournament_id": str(uuid4()), "tournament_name": val}
-            for id, val in enumerate(tournaments)
-        ]
+        with context.step("Generate Dimensions"):
+            # Add ids to the dimensions
+            fighters = [
+                {"fighter_id": str(uuid4()), "fighter_name": val}
+                for id, val in enumerate(fighters)
+            ]
+            arenas = [
+                {"arena_id": str(uuid4()), "arena_name": val}
+                for id, val in enumerate(arenas)
+            ]
+            tournaments = [
+                {"tournament_id": str(uuid4()), "tournament_name": val}
+                for id, val in enumerate(tournaments)
+            ]
 
-    with context.step("Generate Battles"):
-        battles = list()
-        for tournament in tournaments:
-            tournament_id = tournament["tournament_id"]
-            # Randomly select a number of battles to generate for each tournament
-            n_battles = random.choice([10, 20, 30])
+        with context.step("Generate Battles"):
+            battles = list()
+            for tournament in tournaments:
+                tournament_id = tournament["tournament_id"]
+                # Randomly select a number of battles to generate for each tournament
+                n_battles = random.choice([10, 20, 30])
 
-            for _ in range(n_battles):
-                battle_id = str(uuid4())
+                for _ in range(n_battles):
+                    battle_id = str(uuid4())
 
-                # Randomly choose fighters and arena
-                fighter1_id = random.choice(fighters)["fighter_id"]
-                fighter2_id = random.choice(
-                    [f for f in fighters if f["fighter_id"] != fighter1_id]
-                )["fighter_id"]
-                arena_id = random.choice(arenas)["arena_id"]
+                    # Randomly choose fighters and arena
+                    fighter1_id = random.choice(fighters)["fighter_id"]
+                    fighter2_id = random.choice(
+                        [f for f in fighters if f["fighter_id"] != fighter1_id]
+                    )["fighter_id"]
+                    arena_id = random.choice(arenas)["arena_id"]
 
-                # Pick a winner
-                winner_id = (
-                    fighter1_id if random.uniform(0, 1) <= 0.5 else fighter2_id
-                )
+                    # Pick a winner
+                    winner_id = (
+                        fighter1_id if random.uniform(0, 1) <= 0.5 else fighter2_id
+                    )
 
-                battles.append(
-                    {
-                        "event_id": str(uuid4()),
-                        "tournament_id": tournament_id,
-                        "battle_id": battle_id,
-                        "arena_id": arena_id,
-                        "fighter1_id": fighter1_id,
-                        "fighter2_id": fighter2_id,
-                        "winner_id": winner_id,
-                    }
-                )
+                    battles.append(
+                        {
+                            "event_id": str(uuid4()),
+                            "tournament_id": tournament_id,
+                            "battle_id": battle_id,
+                            "arena_id": arena_id,
+                            "fighter1_id": fighter1_id,
+                            "fighter2_id": fighter2_id,
+                            "winner_id": winner_id,
+                        }
+                    )
 
-    data_to_load = {
-        "fighters": fighters,
-        "arenas": arenas,
-        "tournaments": tournaments,
-        "battles": battles,
-    }
+        data_to_load = {
+            "fighters": fighters,
+            "arenas": arenas,
+            "tournaments": tournaments,
+            "battles": battles,
+        }
 
-    # Load logs
-    for log_type, log_data in data_to_load.items():
-        with context.step(f"Load {log_type}"):
-            warehouse.load_data(f"logs_{log_type}", log_data, replace=True)
-```
+        # Load logs
+        for log_type, log_data in data_to_load.items():
+            with context.step(f"Load {log_type}"):
+                warehouse.load_data(f"logs_{log_type}", log_data, replace=True)
+    ```
 
 The second task defined in this module is the `load_data` one. It uses some further features:
 
@@ -167,26 +169,32 @@ The second task defined in this module is the `load_data` one. It uses some furt
 
 As mentioned, we now have a `python` task which produces some logs which we want our `autosql` tasks to use for the data modelling process. As a result, we should ensure that the `load_data` task is always executed first. Because our `load_data` task produces `outputs`, we can refer to these with the `src` function in `autosql` tasks and automatically create dependencies. For example, the SQL query of the `dim_arenas` task should be changed from:
 
-```sql
-SELECT l.arena_id
-     , l.arena_name
-  FROM logs_arenas l
-```
+!!! example "sql/dim_arenas.sql"
+    ```sql
+    SELECT l.arena_id
+         , l.arena_name
+      FROM logs_arenas l
+    ```
 
 To:
 
-```sql
-SELECT l.arena_id
-     , l.arena_name
-  FROM {{ src('logs_arenas') }} l
-```
+!!! example "sql/dim_arenas.sql amended"
+    ```sql
+    SELECT l.arena_id
+         , l.arena_name
+      FROM {{ src('logs_arenas') }} l
+    ```
 
 This will now mention that the `dim_arenas` task sources the `logs_arenas` table which is an `output` of the `load_data` task. SAYN will automatically make `load_data` a parent of the `dim_arenas` task and therefore always execute it before. You can do the same for all the other logs tables used in the other `autosql` tasks.
 
 ## What Next?
 
-This is it for our tutorial. You should now have a good understanding of the true power of SAYN! Our documentation has more extensive details about all the concepts we covered:
+This is it for our tutorial. You should now have a good understanding of the true power of SAYN! Our documentation has more extensive details about all the SAYN core concepts:
 
-* ADD
+* [Tasks](../tasks/overview.md)
+* [Parameters](../parameters.md)
+* [Presets](../presets.md)
+* [Databases](../databases/overview.md)
+* [Data Tests](../tests/overview.md)
 
 Enjoy SAYN and happy ELT-ing! :)
