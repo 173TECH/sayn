@@ -3,7 +3,6 @@ from typing import Any, Dict, Optional, List, Union
 
 from pydantic import BaseModel, Field, validator, Extra
 from sqlalchemy import or_, select, column
-from colorama import Fore, Style
 
 from ..core.errors import Err, Exc, Ok
 from ..database import Database
@@ -332,66 +331,9 @@ class CopyTask(SqlTask):
                             return Exc(e)
 
             if len(result) == 0:
-                skipped = [brk for brk in breakdown if brk[0] == "SKIPPED"]
-                executed = [brk for brk in breakdown if brk[0] == "EXECUTED"]
-
-                if skipped:
-                    self.info(
-                        f"{Fore.GREEN}{len(skipped)} Column test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
-                    )
-                self.info(
-                    f"{Fore.GREEN}{len(executed)} Column test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}, {len(executed)} succeeded."
-                )
-
-                return self.success()
+                return self.test_sucessful(breakdown)
             else:
-                skipped = []
-                executed = []
-                failed = []
-                for brk in breakdown:
-                    if any(brk[1] != res["type"] for res in result) or any(
-                        brk[2] != res["col"] for res in result
-                    ):
-                        if brk[0] == "SKIPPED":
-                            skipped.append(brk)
-                        if brk[0] == "EXECUTED":
-                            executed.append(brk)
-                    else:
-                        failed.append(brk)
-                if self.run_arguments["debug"]:
-
-                    fl_info = [f"{Fore.RED}FAILED: "]
-                    for info in failed:
-                        count = sum(
-                            [
-                                item["cnt"]
-                                for item in result
-                                if (item["type"] == info[1] and item["col"] == info[2])
-                            ]
-                        )
-                        fl_info.append(
-                            f"{Fore.RED}{Style.BRIGHT}{info[1]} test{Style.NORMAL} on {Style.BRIGHT}{info[2]} FAILED{Style.NORMAL}. {count} offending records."
-                        )
-                    if skipped:
-                        self.info(
-                            f"{Fore.GREEN}{len(skipped)} test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
-                        )
-                    self.info(
-                        f"{Fore.GREEN}{len(executed)+len(failed)} test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}, {len(executed)} succeeded."
-                    )
-                    for err in fl_info:
-                        self.info(err)
-
-                    errinfo = f"Test Failed. You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
-                    return self.fail(errinfo)
-                else:
-                    summary = f"{len(executed)+len(failed)} Column tests were ran, {len(executed)} succeeded, "
-                    if skipped:
-                        summary += f", {len(skipped)} were skipped, "
-                    summary += f"{len(failed)} failed."
-                    self.warning(summary)
-                    errout = ", ".join(list(set([res["type"] for res in result])))
-                    return self.fail(f"Failed test types: {errout}")
+                return self.test_failure(breakdown, result, self.run_arguments["debug"])
 
     def execute(self, execute, debug, is_full_load, limit=None):
         # Introspect target

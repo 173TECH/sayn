@@ -277,7 +277,7 @@ class Task:
                     executed.append(brk)
             else:
                 failed.append(brk)
-        if run_argument:  # self.run_arguments["debug"]:
+        if run_argument:
 
             fl_info = [f"{Fore.RED}FAILED: "]
             for info in failed:
