@@ -278,6 +278,10 @@ class Database:
 
         return Ok(properties)
 
+    def test_output():
+
+        return 0
+
     def _refresh_metadata(self, only=None, schema=None):
         """Refreshes the sqlalchemy metadata object.
 
