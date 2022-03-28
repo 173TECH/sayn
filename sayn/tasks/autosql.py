@@ -385,4 +385,15 @@ class AutoSqlTask(SqlTask):
             if len(result) == 0:
                 return self.test_sucessful(breakdown)
             else:
-                return self.test_failure(breakdown, result, self.run_arguments["debug"])
+                errout, failed = self.test_failure(
+                    breakdown, result, self.run_arguments["debug"]
+                )
+                proplematic_values_query = self.default_db.test_problematic_values(
+                    failed, self.table, self.schema
+                )
+
+                self.write_compilation_output(
+                    proplematic_values_query, "test_problematic_values"
+                )
+
+                return errout

@@ -231,9 +231,13 @@ class Task:
         data = []
         for brk in breakdown:
             if not brk["execute"]:
-                data.append(["SKIPPED", brk["type"], brk["column"]])
+                data.append(
+                    ["SKIPPED", brk["type"], brk["column"], brk["allowed_values"]]
+                )
             else:
-                data.append(["EXECUTED", brk["type"], brk["column"]])
+                data.append(
+                    ["EXECUTED", brk["type"], brk["column"], brk["allowed_values"]]
+                )
 
         return data
 
@@ -256,7 +260,7 @@ class Task:
 
         return self.success()
 
-    def test_failure(self, breakdown: list, result: dict, run_argument: str) -> Err:
+    def test_failure(self, breakdown: list, result: dict, run_argument: str) -> tuple:
         """CLI outputs on failed test execution.
 
         Args:
@@ -301,8 +305,9 @@ class Task:
             for err in fl_info:
                 self.info(err)
 
-            errinfo = f"Test Failed. You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
-            return self.fail(errinfo)
+            errinfo = f"Test Failed. You can find the compiled test query at compile/{self.group}/{self.name}_test.sql. You can find queries to retrieve the problematic values at compile/{self.group}/{self.name}_test_problematic_values.sql"
+
+            return (self.fail(errinfo), failed)
         else:
             summary = f"{len(executed)+len(failed)} Column tests were ran, {len(executed)} succeeded, "
             if skipped:
@@ -310,7 +315,8 @@ class Task:
             summary += f"{len(failed)} failed."
             self.warning(summary)
             errout = ", ".join(list(set([res["type"] for res in result])))
-            return self.fail(f"Failed test types: {errout}")
+
+            return (self.fail(f"Failed test types: {errout}"), failed)
 
     # Jinja methods
 

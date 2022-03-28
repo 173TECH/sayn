@@ -151,6 +151,9 @@ class Bigquery(Database):
                         else col["dst_name"],
                         "type": t["type"],
                         "execute": t["execute"],
+                        "allowed_values": ", ".join(
+                            f"'{c}'" for c in t["allowed_values"]
+                        ),
                     }
                 )
                 if t["execute"]:
@@ -202,6 +205,21 @@ class Bigquery(Database):
             properties["columns"] = columns
 
         return Ok(properties)
+
+    def test_problematic_values(self, failed: list, table: str, schema: str) -> str:
+        template = self._jinja_test.get_template("standard_test_output_bigquery.sql")
+        query = ""
+        for f in failed:
+            query += template.render(
+                **{
+                    "table": table,
+                    "schema": schema,
+                    "name": f[2],
+                    "type": f[1],
+                    "allowed_values": f[3],
+                },
+            )
+        return query
 
     def _introspect(self, to_introspect):
         for project, datasets in to_introspect.items():
@@ -394,4 +412,5 @@ class Bigquery(Database):
 
 
 def fully_qualify(name, schema=None):
+    return f"{schema+'.' if schema is not None else ''}{name}"
     return f"{schema+'.' if schema is not None else ''}{name}"

@@ -204,6 +204,9 @@ class Database:
                         else col["dst_name"],
                         "type": t["type"],
                         "execute": t["execute"],
+                        "allowed_values": ", ".join(
+                            f"'{c}'" for c in t["allowed_values"]
+                        ),
                     }
                 )
 
@@ -278,9 +281,20 @@ class Database:
 
         return Ok(properties)
 
-    def test_output():
-
-        return 0
+    def test_problematic_values(self, failed: list, table: str, schema: str) -> str:
+        template = self._jinja_test.get_template("standard_test_output.sql")
+        query = ""
+        for f in failed:
+            query += template.render(
+                **{
+                    "table": table,
+                    "schema": schema,
+                    "name": f[2],
+                    "type": f[1],
+                    "allowed_values": f[3],
+                },
+            )
+        return query
 
     def _refresh_metadata(self, only=None, schema=None):
         """Refreshes the sqlalchemy metadata object.
