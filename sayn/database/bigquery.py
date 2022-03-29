@@ -413,4 +413,3 @@ class Bigquery(Database):
 
 def fully_qualify(name, schema=None):
     return f"{schema+'.' if schema is not None else ''}{name}"
-    return f"{schema+'.' if schema is not None else ''}{name}"
