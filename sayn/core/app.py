@@ -469,6 +469,7 @@ class App:
         # Create the list of objects to be used in this execution
         exec_outputs = set()
         exec_sources = set()
+        exec_connections = set()
         for task_name in tasks_in_query:
             for output in self.tasks[task_name].outputs:
                 exec_outputs.add(output)
@@ -482,10 +483,8 @@ class App:
                 #     objects_used[source.connection] = set()
                 # objects_used[source.connection].add(source)
 
-        # We need to introspect the connections used
-        exec_connections = set()
-        exec_connections.update([o.connection_name for o in exec_outputs])
-        exec_connections.update([o.connection_name for o in exec_sources])
+            for connection in self.tasks[task_name].used_connections:
+                exec_connections.add(connection)
 
         # Now that we have done the config for all tasks and we know which
         # connections are required, check that we have them all
