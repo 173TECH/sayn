@@ -27,7 +27,7 @@ typing_extensions = "4.1.1"
 "ruamel.yaml.clib" = "0.2.6"
 
 # CLI
-Click = "8.0.4"
+Click = "8.1.2"
 
 halo = "0.0.31"
 colorama = "0.4.4"
