@@ -56,6 +56,8 @@ class DecoratorTask(PythonTask):
             out,
         )
 
+        self.compiler.update_globals(src=self.src, out=self.out)
+
         self._config_input["sources"].update(sources)
         self._config_input["outputs"].update(outputs)
         self._config_input["parents"].update(parents)
