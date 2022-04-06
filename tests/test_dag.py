@@ -77,74 +77,62 @@ def test_query00():
 
 def test_query01():
     test_dag = {"task1": ["task2", "task3"], "task2": ["task3"], "task3": []}
-    assert (
-        dag.query(
-            test_dag,
-            [
-                {
-                    "operation": "include",
-                    "task": "task3",
-                    "downstream": False,
-                    "upstream": False,
-                }
-            ],
-        ).value
-        == ["task3"]
-    )
+    assert dag.query(
+        test_dag,
+        [
+            {
+                "operation": "include",
+                "task": "task3",
+                "downstream": False,
+                "upstream": False,
+            }
+        ],
+    ).value == ["task3"]
 
 
 def test_query02():
     test_dag = {"task1": ["task2", "task3"], "task2": ["task3"], "task3": []}
-    assert (
-        dag.query(
-            test_dag,
-            [
-                {
-                    "operation": "include",
-                    "task": "task3",
-                    "downstream": True,
-                    "upstream": False,
-                }
-            ],
-        ).value
-        == ["task3", "task2", "task1"]
-    )
+    assert dag.query(
+        test_dag,
+        [
+            {
+                "operation": "include",
+                "task": "task3",
+                "downstream": True,
+                "upstream": False,
+            }
+        ],
+    ).value == ["task3", "task2", "task1"]
 
 
 def test_query03():
     test_dag = {"task1": ["task2", "task3"], "task2": ["task3"], "task3": []}
-    assert (
-        dag.query(
-            test_dag,
-            [
-                {
-                    "operation": "include",
-                    "task": "task3",
-                    "downstream": False,
-                    "upstream": True,
-                }
-            ],
-        ).value
-        == ["task3"]
-    )
+    assert dag.query(
+        test_dag,
+        [
+            {
+                "operation": "include",
+                "task": "task3",
+                "downstream": False,
+                "upstream": True,
+            }
+        ],
+    ).value == ["task3"]
 
 
 def test_query04():
     test_dag = {"task1": ["task2", "task3"], "task2": ["task3"], "task3": []}
-    assert (
-        dag.query(
-            test_dag,
-            [
-                {
-                    "operation": "include",
-                    "task": "task3",
-                    "downstream": True,
-                    "upstream": True,
-                }
-            ],
-        ).value
-        == ["task3", "task2", "task1"]
-    )
+    assert dag.query(
+        test_dag,
+        [
+            {
+                "operation": "include",
+                "task": "task3",
+                "downstream": True,
+                "upstream": True,
+            }
+        ],
+    ).value == ["task3", "task2", "task1"]
 
 
 def test_cycle05():
@@ -164,17 +152,14 @@ def test_cycle05():
 
 def test_query06():
     test_dag = {"task1": ["task2", "task3"], "task2": ["task3"], "task3": []}
-    assert (
-        dag.query(
-            test_dag,
-            [
-                {
-                    "operation": "exclude",
-                    "task": "task3",
-                    "downstream": False,
-                    "upstream": False,
-                }
-            ],
-        ).value
-        == ["task2", "task1"]
-    )
+    assert dag.query(
+        test_dag,
+        [
+            {
+                "operation": "exclude",
+                "task": "task3",
+                "downstream": False,
+                "upstream": False,
+            }
+        ],
+    ).value == ["task2", "task1"]
