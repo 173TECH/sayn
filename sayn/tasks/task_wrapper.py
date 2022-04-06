@@ -236,6 +236,7 @@ class TaskWrapper:
         )
 
         self.status = TaskStatus.READY_FOR_SETUP
+        print(self.name, self.tags)
 
         return Ok()
 

@@ -39,6 +39,7 @@ class DecoratorTask(PythonTask):
         sources,
         outputs,
         parents,
+        tags,
         func,
     ):
         super().__init__(
@@ -58,6 +59,7 @@ class DecoratorTask(PythonTask):
         self._config_input["sources"].update(sources)
         self._config_input["outputs"].update(outputs)
         self._config_input["parents"].update(parents)
+        self._config_input["tags"].update(tags)
         self._func = func
 
     def config(self):
@@ -183,6 +185,7 @@ class DecoratorTaskWrapper(Task):
             self.sources,
             self.outputs,
             self.parents,
+            self.tags,
             self.func,
         )
 
