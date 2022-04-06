@@ -426,16 +426,9 @@ class App:
             if result.is_err:
                 return result
 
-        if self.run_arguments.command == Command.TEST:
-            # TODO move this logic to the task config
-            self.dag = {
-                task.name: [] for task in task_objects.values() if task.has_tests()
-            }
-        else:
-            self.dag = {
-                task.name: [p.name for p in task.parents]
-                for task in task_objects.values()
-            }
+        self.dag = {
+            task.name: [p.name for p in task.parents] for task in task_objects.values()
+        }
 
         topo_sort = topological_sort(self.dag)
         if topo_sort.is_err:
@@ -466,6 +459,9 @@ class App:
             return result
         else:
             tasks_in_query = result.value
+
+        if self.run_arguments.command == Command.TEST:
+            tasks_in_query = [t for t in tasks_in_query if self.tasks[t].has_tests()]
 
         # Introspection
         #########

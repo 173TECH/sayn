@@ -7,6 +7,7 @@
 - Allows connections for decorator based python tasks to be missing from settings
   when the task is not in the current execution
 - Allows adding tags from decorator based python tasks
+- Adds src and out to jinja environment in python tasks
 
 
 ## [0.6.3] - 2022-03-02
