@@ -179,15 +179,6 @@ class App:
 
         self.check_abort(self.set_tasks(tasks_dict))
 
-        # Apply the task query
-        self.task_query = self.check_abort(
-            get_query(
-                tasks_dict,
-                include=self.run_arguments.include,
-                exclude=self.run_arguments.exclude,
-            )
-        )
-
         self.tracker.finish_current_stage(
             tasks={k: v.status for k, v in self.tasks.items()},
             test=True if self.run_arguments.command == Command.TEST else False,
@@ -435,16 +426,9 @@ class App:
             if result.is_err:
                 return result
 
-        if self.run_arguments.command == Command.TEST:
-            # TODO move this logic to the task config
-            self.dag = {
-                task.name: [] for task in task_objects.values() if task.has_tests()
-            }
-        else:
-            self.dag = {
-                task.name: [p.name for p in task.parents]
-                for task in task_objects.values()
-            }
+        self.dag = {
+            task.name: [p.name for p in task.parents] for task in task_objects.values()
+        }
 
         topo_sort = topological_sort(self.dag)
         if topo_sort.is_err:
@@ -457,11 +441,27 @@ class App:
         return Ok()
 
     def setup_execution(self):
+        # Apply the task query
+        tasks_dict = {
+            name: {"group": task.group, "tags": list(task.tags)}
+            for name, task in self.tasks.items()
+        }
+        self.task_query = self.check_abort(
+            get_query(
+                tasks_dict,
+                include=self.run_arguments.include,
+                exclude=self.run_arguments.exclude,
+            )
+        )
+
         result = dag_query(self.dag, self.task_query)
         if result.is_err:
             return result
         else:
             tasks_in_query = result.value
+
+        if self.run_arguments.command == Command.TEST:
+            tasks_in_query = [t for t in tasks_in_query if self.tasks[t].has_tests()]
 
         # Introspection
         #########
