@@ -50,6 +50,7 @@ class TaskWrapper:
     parent_names: Set[str]
     sources_yaml: Set[Any]
     outputs_yaml: Set[Any]
+    used_connections: Set[str]
     project_parameters: Dict[str, Any]
     task_parameters: Dict[str, Any]
     in_query: bool = False
@@ -82,6 +83,7 @@ class TaskWrapper:
         self.outputs_yaml = set(outputs or set())
         self.outputs = set()
         self.sources_from_prod = set()
+        self.used_connections = set()
         self.tracker = tracker
         self.runner = None
 
@@ -136,6 +138,12 @@ class TaskWrapper:
         except Exception as exc:
             self.status = TaskStatus.FAILED
             return Exc(exc, where="set_task_parameters")
+
+        # for decorator tasks
+        if hasattr(self.task_class, "func_arguments"):
+            for arg in self.task_class.func_arguments:
+                if arg in self.connections:
+                    self.used_connections.add(arg)
 
         try:
             runner = self.task_class(
@@ -413,6 +421,7 @@ class TaskWrapper:
 
         if self.status == TaskStatus.CONFIGURING:
             # During configuration we add to the list and use values based on settings
+            self.used_connections.add(obj.connection_name)
             self.sources.add(obj)
 
         return self.db_object_compiler.src_value(obj)
@@ -420,6 +429,7 @@ class TaskWrapper:
     def out(self, obj, connection=None):
         obj = self.db_object_compiler.from_string(obj, connection=connection)
         if self.status == TaskStatus.CONFIGURING:
+            self.used_connections.add(obj.connection_name)
             self.outputs.add(obj)
 
         return self.db_object_compiler.out_value(obj)

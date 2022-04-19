@@ -39,6 +39,7 @@ class DecoratorTask(PythonTask):
         sources,
         outputs,
         parents,
+        tags,
         func,
     ):
         super().__init__(
@@ -55,34 +56,16 @@ class DecoratorTask(PythonTask):
             out,
         )
 
+        self.compiler.update_globals(src=self.src, out=self.out)
+
         self._config_input["sources"].update(sources)
         self._config_input["outputs"].update(outputs)
         self._config_input["parents"].update(parents)
+        self._config_input["tags"].update(tags)
         self._func = func
 
     def config(self):
         self._has_tests = False
-
-        # Get the names of the arguments to the function
-        sig = inspect.signature(self._func)
-        self.wrapper_params = []
-        for param in sig.parameters:
-            if param == "context":
-                # Special parameter equivalent to self
-                self.wrapper_params.append(self)
-            elif param in self.connections:
-                if isinstance(self.connections[param], UnknownDb):
-                    return self.fail(f'Connection "{param}" missing from settings')
-                # The name of a connection makes it so that that argument
-                # is linked to the connection object itself
-                self.wrapper_params.append(self.connections[param])
-            else:
-                if param not in self.task_parameters:
-                    value = None
-                else:
-                    value = self.task_parameters[param]
-                # The rest are interpreted as task parameters
-                self.wrapper_params.append(value)
 
         while len(self._config_input["sources"]) > 0:
             self.src(self._config_input["sources"].pop())
@@ -97,7 +80,29 @@ class DecoratorTask(PythonTask):
         pass
 
     def run(self):
-        return self._func(*self.wrapper_params)
+        # Get the names of the arguments to the function
+        sig = inspect.signature(self._func)
+
+        wrapper_params = []
+        for param in sig.parameters:
+            if param == "context":
+                # Special parameter equivalent to self
+                wrapper_params.append(self)
+            elif param in self.connections:
+                if isinstance(self.connections[param], UnknownDb):
+                    return self.fail(f'Connection "{param}" missing from settings')
+                # The name of a connection makes it so that that argument
+                # is linked to the connection object itself
+                wrapper_params.append(self.connections[param])
+            else:
+                if param not in self.task_parameters:
+                    value = None
+                else:
+                    value = self.task_parameters[param]
+                # The rest are interpreted as task parameters
+                wrapper_params.append(value)
+
+        return self._func(*wrapper_params)
 
     def test(self):
         pass
@@ -110,10 +115,15 @@ class DecoratorTaskWrapper(Task):
         sources: Optional[Union[List[str], str]] = None,
         outputs: Optional[Union[List[str], str]] = None,
         parents: Optional[Union[List[str], str]] = None,
+        tags: Optional[Union[List[str], str]] = None,
     ):
         """The init method collects the information provided by the decorator itself"""
 
         self.func = func
+
+        # Get the names of the arguments to the function
+        sig = inspect.signature(func)
+        self.func_arguments = [p for p in sig.parameters]
 
         # Need to store these temporarily
         if sources is None:
@@ -139,6 +149,14 @@ class DecoratorTaskWrapper(Task):
             self.parents.add(parents)
         else:
             self.parents = parents
+
+        if tags is None:
+            self.tags = set()
+        elif isinstance(tags, str):
+            self.tags = set()
+            self.tags.add(tags)
+        else:
+            self.tags = set(tags)
 
     def __call__(
         self,
@@ -169,6 +187,7 @@ class DecoratorTaskWrapper(Task):
             self.sources,
             self.outputs,
             self.parents,
+            self.tags,
             self.func,
         )
 
@@ -188,14 +207,14 @@ def task_type(func=None, sources=None, outputs=None, parents=None):
         return wrapper
 
 
-def task(func=None, sources=None, outputs=None, parents=None):
+def task(func=None, sources=None, outputs=None, parents=None, tags=None):
     if func:
         return DecoratorTaskWrapper(func)
     else:
 
         def wrapper(func):
             return DecoratorTaskWrapper(
-                func, sources=sources, outputs=outputs, parents=parents
+                func, sources=sources, outputs=outputs, parents=parents, tags=tags
             )
 
         return wrapper
