@@ -55,7 +55,7 @@ class RunArguments:
         sql: str = str(Path("sql"))
         compile: str = str(Path("compile"))
         logs: str = str(Path("logs"))
-        tests: str = str(Path("sql") / Path("tests"))
+        tests: str = str(Path("sql"))
 
     folders: Folders
     full_load: bool = False

@@ -63,6 +63,7 @@ class TestTask(Task):
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]
 
+        print(self.run_arguments["folders"]["tests"])
         # set the target db for execution
         if config.get("db") is not None:
             if config["db"] not in conn_names_list:
@@ -78,6 +79,7 @@ class TestTask(Task):
         except Exception as e:
             return Exc(e)
 
+        print(self.task_config)
         self.compiler.update_globals(
             src=lambda x: self.src(x, connection=self._target_db),
             config=self.config_macro,
