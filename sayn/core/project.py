@@ -379,7 +379,7 @@ def get_tasks_dict(
                 task["file_name"] = str(file.relative_to(sql_folder))
 
                 result = get_task_dict(task, task_name, group_name, presets)
-                print(result)
+
                 if result.is_ok:
                     tests[task_name] = result.value
                 else:

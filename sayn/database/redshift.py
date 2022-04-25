@@ -87,12 +87,14 @@ class DDL(BaseModel):
             tests = []
             for t in c.tests:
                 if isinstance(t, str):
-                    tests.append({"type": t, "values": [], "execute": True})
+                    tests.append({"type": t, "allowed_values": [], "execute": True})
                 else:
                     tests.append(
                         {
-                            "type": t.name if t.name is not None else "values",
-                            "values": t.values if t.values is not None else [],
+                            "type": t.name if t.name is not None else "allowed_values",
+                            "allowed_values": t.allowed_values
+                            if t.allowed_values is not None
+                            else [],
                             "execute": t.execute,
                         }
                     )
@@ -107,7 +109,7 @@ class DDL(BaseModel):
             )
 
         res = {
-            "columns": self.columns,
+            "columns": columns,
             "properties": list(),
             "post_hook": [h.dict() for h in self.post_hook],
         }
