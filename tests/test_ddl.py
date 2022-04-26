@@ -1,11 +1,11 @@
 from sayn.database.creator import create as create_db
 
 
-def validate_ddl(ddl):
+def validate_ddl(ddl, target_db):
     db = create_db(
         "test",
         "test",
-        {"type": "sqlite", "database": ":memory:"},
+        target_db.copy(),
     )
 
     res = db._validate_ddl(ddl["columns"], ddl["table_properties"], ddl["post_hook"])
@@ -16,8 +16,11 @@ def validate_ddl(ddl):
     return db._format_properties(res.value)
 
 
-def test_ddl_empty():
-    result = validate_ddl({"columns": [], "table_properties": {}, "post_hook": []})
+def test_ddl_empty(target_db):
+    result = validate_ddl(
+        {"columns": [], "table_properties": {}, "post_hook": []}, target_db=target_db
+    )
+
     assert result.is_ok and result.value == {
         "columns": [],
         "properties": [],
@@ -25,13 +28,14 @@ def test_ddl_empty():
     }
 
 
-def test_ddl_cols01():
+def test_ddl_cols01(target_db):
     result = validate_ddl(
         {
             "columns": [{"name": "col1", "tests": []}],
             "table_properties": {},
             "post_hook": [],
-        }
+        },
+        target_db=target_db,
     )
     assert result.is_ok and result.value == {
         "columns": [
@@ -51,13 +55,14 @@ def test_ddl_cols01():
     }
 
 
-def test_ddl_cols02():
+def test_ddl_cols02(target_db):
     result = validate_ddl(
         {
             "columns": [{"name": "col1", "tests": []}, {"name": "col2", "tests": []}],
             "table_properties": {},
             "post_hook": [],
-        }
+        },
+        target_db=target_db,
     )
     assert result.is_ok and result.value == {
         "columns": [
@@ -87,7 +92,7 @@ def test_ddl_cols02():
     }
 
 
-def test_ddl_cols03():
+def test_ddl_cols03(target_db):
     result = validate_ddl(
         {
             "columns": [
@@ -96,7 +101,8 @@ def test_ddl_cols03():
             ],
             "table_properties": {},
             "post_hook": [],
-        }
+        },
+        target_db=target_db,
     )
     assert result.is_ok and result.value == {
         "columns": [
@@ -126,7 +132,7 @@ def test_ddl_cols03():
     }
 
 
-def test_ddl_cols04():
+def test_ddl_cols04(target_db):
     result = validate_ddl(
         {
             "columns": [
@@ -135,7 +141,8 @@ def test_ddl_cols04():
             ],
             "table_properties": {},
             "post_hook": [],
-        }
+        },
+        target_db=target_db,
     )
     assert result.is_ok and result.value == {
         "columns": [
@@ -165,7 +172,7 @@ def test_ddl_cols04():
     }
 
 
-def test_ddl_cols05():
+def test_ddl_cols05(target_db):
     result = validate_ddl(
         {
             "columns": [
@@ -174,7 +181,8 @@ def test_ddl_cols05():
             ],
             "table_properties": {},
             "post_hook": [],
-        }
+        },
+        target_db=target_db,
     )
     assert result.is_ok and result.value == {
         "columns": [
@@ -204,7 +212,7 @@ def test_ddl_cols05():
     }
 
 
-def test_ddl_cols06():
+def test_ddl_cols06(target_db):
     result = validate_ddl(
         {
             "columns": [
@@ -213,7 +221,8 @@ def test_ddl_cols06():
             ],
             "table_properties": {},
             "post_hook": [],
-        }
+        },
+        target_db=target_db,
     )
     assert result.is_ok and result.value == {
         "columns": [
@@ -246,20 +255,22 @@ def test_ddl_cols06():
     }
 
 
-def test_ddl_cols07():
+def test_ddl_cols07(target_db):
     result = validate_ddl(
-        {"columns": ["dupe_col", "dupe_col"], "table_properties": {}, "post_hook": []}
+        {"columns": ["dupe_col", "dupe_col"], "table_properties": {}, "post_hook": []},
+        target_db=target_db,
     )
     assert result.is_err
 
 
-def test_ddl_cols08():
+def test_ddl_cols08(target_db):
     result = validate_ddl(
         {
             "columns": ["dupe_col", {"name": "dupe_col"}],
             "table_properties": {},
             "post_hook": [],
-        }
+        },
+        target_db=target_db,
     )
     assert result.is_err
 
