@@ -352,6 +352,41 @@ def get_tasks_dict(
                 else:
                     errors[task_name] = result.error
 
+        elif group_definition.get("type") == "test":
+            if "file_name" not in group_definition:
+                return Err(
+                    "dag",
+                    "missing_file_name",
+                    group=group_name,
+                    type=group_definition.get("type"),
+                )
+            file_glob = compiler.compile(
+                group_definition["file_name"], task=TaskJinjaEnv(group=group_name)
+            )
+
+            found_file = False
+            for file in Path(sql_folder).glob(file_glob):
+                found_file = True
+                task_name = file.stem
+                if task_name in tasks:
+                    return Err(
+                        "dag",
+                        "duplicate_task",
+                        task_name=task_name,
+                        groups=(group_name, tasks[task_name]["group"]),
+                    )
+                task = deepcopy(group_definition)
+                task["file_name"] = str(file.relative_to(sql_folder))
+
+                result = get_task_dict(task, task_name, group_name, presets)
+
+                if result.is_ok:
+                    tests[task_name] = result.value
+                else:
+                    errors[task_name] = result.error
+
+                tests[task_name] = task
+
         # elif group_definition.get("type") == "python":
         #     group_definition["group"] = group_name
         #     group_tasks = group_definition.pop("tasks", dict())
