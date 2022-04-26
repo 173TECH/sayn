@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Any, Dict, Optional, List, Union
+import re
 
 from pydantic import BaseModel, Field, validator, Extra
 from sqlalchemy import or_, select, column
@@ -336,12 +337,29 @@ class CopyTask(SqlTask):
                 errout, failed = self.test_failure(
                     breakdown, result, self.run_arguments["debug"]
                 )
-                proplematic_values_query = self.default_db.test_problematic_values(
+                problematic_values_query = self.default_db.test_problematic_values(
                     failed, self.table, self.schema
                 )
 
+                for query in problematic_values_query.split(";"):
+                    if query.strip():
+                        header = re.search(r"--.*?--", query).group(0)
+                        self.info("")
+                        self.info(header)
+                        self.info(
+                            "===================================================================="
+                        )
+                        self.info(
+                            re.sub(r"--.*?--", "", query).replace("\n", " ").strip()
+                            + ";"
+                        )
+                        self.info(
+                            "===================================================================="
+                        )
+                        self.info("")
+
                 self.write_compilation_output(
-                    proplematic_values_query, "test_problematic_values"
+                    problematic_values_query, "test_problematic_values"
                 )
                 return errout
 
