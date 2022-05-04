@@ -7,11 +7,12 @@ This tutorial navigates you through your first SAYN run and explains the core co
 
 To get started, open a terminal, activate your virtual environment (`source sayn_venv/bin/activate`) and run the following:
 
-```bash
-sayn init sayn_tutorial
-cd sayn_tutorial
-sayn run
-```
+!!! example "getting started commands"
+    ```bash
+    sayn init sayn_tutorial
+    cd sayn_tutorial
+    sayn run
+    ```
 
 This will create a new project with the contents of this tutorial and execute it.
 

@@ -130,16 +130,9 @@ class TestTask(Task):
             return self.success()
         else:
             if self.run_arguments["debug"]:
-                errout = "Test failed. "
-                data = []
 
-                for res in result:
-                    for r in list(res.values()):
-                        data.append(r)
-                data = data[:5]
+                errinfo = f"Test failed. You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
 
-                errinfo = f"You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
-
-                return self.fail(errout + errinfo)
+                return self.fail(errinfo)
             else:
                 return self.fail("Failed test types: custom")
