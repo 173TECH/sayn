@@ -11,14 +11,14 @@ from pydantic import validator, Extra, BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.sql import sqltypes
 
-from . import Database, Columns, Hook
+from . import Database, Columns, Hook, BASE_DDL
 
 from ..core.errors import Ok
 
 db_parameters = ["project", "credentials_path", "location", "dataset"]
 
 
-class DDL(BaseModel):
+class DDL(BASE_DDL):
     class Properties(BaseModel):
         partition: Optional[str]
         cluster: Optional[List[str]]
@@ -61,49 +61,18 @@ class DDL(BaseModel):
         return v
 
     def get_ddl(self):
-        columns = list()
-        for c in self.columns:
-            tests = []
-            for t in c.tests:
-                if isinstance(t, str):
-                    tests.append({"type": t, "allowed_values": [], "execute": True})
-                else:
-                    tests.append(
-                        {
-                            "type": t.name if t.name is not None else "allowed_values",
-                            "allowed_values": t.allowed_values
-                            if t.allowed_values is not None
-                            else [],
-                            "execute": t.execute,
-                        }
-                    )
-            columns.append(
-                {
-                    "name": c.name,
-                    "description": c.description,
-                    "dst_name": c.dst_name,
-                    "type": c.type,
-                    "tests": tests,
-                }
-            )
-
-        res = {
-            "columns": columns,
-            "properties": list(),
-            "post_hook": [h.dict() for h in self.post_hook],
-        }
-
+        result = self.base_ddl()
         properties = list()
         if self.properties is not None:
             if self.properties.cluster is not None:
                 properties.append({"cluster": self.properties.cluster})
-                res["cluster"] = self.properties.cluster
+                result["cluster"] = self.properties.cluster
 
             if self.properties.partition is not None:
                 properties.append({"partition": self.properties.partition})
-                res["partition"] = self.properties.partition
+                result["partition"] = self.properties.partition
 
-        return res
+        return result
 
 
 class Bigquery(Database):
@@ -131,95 +100,18 @@ class Bigquery(Database):
         return create_engine(url, **settings)
 
     def _construct_tests(self, columns, table, schema=None):
-        query = """
-                   SELECT val
-                        , col
-                        , cnt
-                        , type
-                     FROM (
-                """
-        template = self._jinja_test.get_template("standard_tests_bigquery.sql")
-        count_tests = 0
-        breakdown = []
-        for col in columns:
-            tests = col["tests"]
-            for t in tests:
-                breakdown.append(
-                    {
-                        "column": col["name"]
-                        if not col["dst_name"]
-                        else col["dst_name"],
-                        "type": t["type"],
-                        "execute": t["execute"],
-                        "allowed_values": ", ".join(
-                            f"'{c}'" for c in t["allowed_values"]
-                        ),
-                    }
-                )
-                if t["execute"]:
-                    count_tests += 1
-                    query += template.render(
-                        **{
-                            "table": table,
-                            "schema": schema,
-                            "name": col["name"]
-                            if not col["dst_name"]
-                            else col["dst_name"],
-                            "type": t["type"],
-                            "allowed_values": ", ".join(
-                                f"'{c}'" for c in t["allowed_values"]
-                            ),
-                        },
-                    )
-
-        parts = query.splitlines()[:-2]
-        query = ""
-        for q in parts:
-            query += q.strip() + "\n"
-        query += ") AS t\n LIMIT 5;"
-
+        count_tests, query, breakdown = self._construct_tests_template(
+            columns, table, "standard_tests_bigquery.sql", schema=None
+        )
         if count_tests == 0:
             return Ok([None, breakdown])
 
         return Ok([query, breakdown])
 
-    def _format_properties(self, properties):
-        if properties["columns"]:
-            columns = []
-            for col in properties["columns"]:
-                entry = {
-                    "name": col["name"],
-                    "type": col["type"],
-                    "dst_name": col["dst_name"],
-                    "unique": False,
-                    "not_null": False,
-                    "allowed_values": False,
-                }
-                if "tests" in col:
-                    entry.update({"tests": col["tests"]})
-                    for t in col["tests"]:
-                        if t["type"] != "values" and col["type"]:
-                            entry.update({t["type"]: True})
-                columns.append(entry)
-
-            properties["columns"] = columns
-
-        return Ok(properties)
-
     def test_problematic_values(self, failed: list, table: str, schema: str) -> str:
-        template = self._jinja_test.get_template("standard_test_output_bigquery.sql")
-        query = ""
-        for f in failed:
-            query += template.render(
-                **{
-                    "table": table,
-                    "schema": schema,
-                    "name": f[2],
-                    "type": f[1],
-                    "allowed_values": f[3],
-                },
-            )
-        return query
+        return self.test_problematic_values_template(
+            failed, table, schema, "standard_test_output_bigquery.sql"
+        )
 
     def _introspect(self, to_introspect):
         for project, datasets in to_introspect.items():
