@@ -4,8 +4,8 @@ from .misc import reverse_dict
 def plot_dag(dag, tasks, folder=None, file_name=None):
     """Uses mermaid to plot the dag"""
 
-    # task_group = [[key, value.group] for key, value in tasks.items()]
-    # groups = list(set(val.group for val in tasks.values()))
+    task_group = [[key, value.group] for key, value in tasks.items()]
+    groups = list(set(val.group for val in tasks.values()))
     task_list = list(dag.keys())
     tasks_dag = reverse_dict(dag)
 
@@ -17,12 +17,12 @@ def plot_dag(dag, tasks, folder=None, file_name=None):
                 if b in task_list:
                     text += f"{a} --> {b}\n"
 
-    # for g in groups:
-    #     text += f"subgraph {g}\n"
-    #     for t in task_group:
-    #         if t[1] == g:
-    #             text += f"{t[0]}\n"
-    #     text += "end\n"
+    for g in groups:
+        text += f"subgraph {g}\n"
+        for t in task_group:
+            if t[1] == g:
+                text += f"{t[0]}\n"
+        text += "end\n"
 
     text += "```"
 
