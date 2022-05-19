@@ -438,6 +438,7 @@ class TaskWrapper:
     def verify_connections(self):
         if hasattr(self.runner, "_target_db"):
             self.used_connections.add(self.runner._target_db)
+
         if hasattr(self.runner, "_source_db"):
             self.used_connections.add(self.runner._source_db)
         return Ok()
