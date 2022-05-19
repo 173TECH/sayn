@@ -79,7 +79,6 @@ class SqlTask(Task):
 
         self.prepared_sql_query = self.compiler.prepare(self.task_config.file_name)
         self.sql_query = self.prepared_sql_query.compile()
-
         self.allow_config = False
 
         if self.run_arguments["command"] == "run":

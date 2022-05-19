@@ -237,6 +237,8 @@ class TaskWrapper:
 
         self.status = TaskStatus.READY_FOR_SETUP
 
+        self.verify_connections()
+
         return Ok()
 
     def set_parameters(
@@ -418,7 +420,6 @@ class TaskWrapper:
 
     def src(self, obj, connection=None):
         obj = self.db_object_compiler.from_string(obj, connection=connection)
-
         if self.status == TaskStatus.CONFIGURING:
             # During configuration we add to the list and use values based on settings
             self.used_connections.add(obj.connection_name)
@@ -433,6 +434,14 @@ class TaskWrapper:
             self.outputs.add(obj)
 
         return self.db_object_compiler.out_value(obj)
+
+    def verify_connections(self):
+        if hasattr(self.runner, "_target_db"):
+            self.used_connections.add(self.runner._target_db)
+
+        if hasattr(self.runner, "_source_db"):
+            self.used_connections.add(self.runner._source_db)
+        return Ok()
 
     def has_tests(self):
         if self.runner is not None and self.runner._has_tests:
