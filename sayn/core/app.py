@@ -538,11 +538,11 @@ class App:
                     db._activate_connection()  # This call creates the engine and tests the connection
                 except Exception as exc:
                     return Exc(exc, where="create_connection")
-
-                try:
-                    db._introspect(to_introspect[connection_name])
-                except Exception as exc:
-                    return Exc(exc, where="introspection")
+                if connection_name in to_introspect:
+                    try:
+                        db._introspect(to_introspect[connection_name])
+                    except Exception as exc:
+                        return Exc(exc, where="introspection")
 
         self.tracker.set_tasks(tasks_in_query)
 
