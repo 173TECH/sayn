@@ -436,21 +436,17 @@ class TaskWrapper:
         return self.db_object_compiler.out_value(obj)
 
     def verify_connections(self):
-        for key in self.connections.keys():
-            if key not in self.used_connections:
-                if (
-                    "_target_db" in self.runner.__dict__
-                    and key == self.runner.__dict__["_target_db"]
-                ):
-                    self.used_connections.add(key)
-                if (
-                    "_source_db" in self.runner.__dict__
-                    and key == self.runner.__dict__["_source_db"]
-                ):
-                    self.used_connections.add(key)
+        if hasattr(self.runner, "_target_db"):
+            self.used_connections.add(self.runner["_target_db"])
+        if hasattr(self.runner, "_source_db"):
+            self.used_connections.add(self.runner["_source_db"])
         return Ok()
 
     def has_tests(self):
+        if self.runner is not None and self.runner._has_tests:
+            return True
+
+        return False
         if self.runner is not None and self.runner._has_tests:
             return True
 
