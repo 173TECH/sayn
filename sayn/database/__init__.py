@@ -37,33 +37,10 @@ class Columns(BaseModel):
         extra = Extra.forbid
 
 
-class DDL(BaseModel):
-    columns: List[Union[str, Columns]] = list()
-    post_hook: List[Hook] = list()
-
-    class Config:
-        extra = Extra.forbid
-
-    @validator("columns", pre=True)
-    def transform_str_cols(cls, v):
-        if v is not None and isinstance(v, List):
-            return [{"name": c} if isinstance(c, str) else c for c in v]
-        else:
-            return v
-
-    @validator("columns")
-    def columns_unique(cls, v):
-        dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
-        if len(dupes) > 0:
-            raise ValueError(f"Duplicate columns: {','.join(dupes)}")
-        else:
-            return v
-
-    def get_ddl(self):
-        cols = self.columns
-
+class BaseDDL(BaseModel):
+    def base_ddl(self):
         columns = list()
-        for c in cols:
+        for c in self.columns:
             tests = list()
             for t in c.tests:
                 if isinstance(t, str):
@@ -93,6 +70,32 @@ class DDL(BaseModel):
             "properties": list(),
             "post_hook": [h.dict() for h in self.post_hook],
         }
+
+
+class DDL(BaseDDL):
+    columns: List[Union[str, Columns]] = list()
+    post_hook: List[Hook] = list()
+
+    class Config:
+        extra = Extra.forbid
+
+    @validator("columns", pre=True)
+    def transform_str_cols(cls, v):
+        if v is not None and isinstance(v, List):
+            return [{"name": c} if isinstance(c, str) else c for c in v]
+        else:
+            return v
+
+    @validator("columns")
+    def columns_unique(cls, v):
+        dupes = {k for k, v in Counter([e.name for e in v]).items() if v > 1}
+        if len(dupes) > 0:
+            raise ValueError(f"Duplicate columns: {','.join(dupes)}")
+        else:
+            return v
+
+    def get_ddl(self):
+        return self.base_ddl()
 
 
 class Database:
@@ -182,7 +185,7 @@ class Database:
             # Force a query to test the connection
             self.execute("select 1")
 
-    def _construct_tests(self, columns, table, schema=None):
+    def _construct_tests_template(self, columns, table, test_file_name, schema=None):
         query = """
                    SELECT val
                         , col
@@ -190,7 +193,7 @@ class Database:
                         , type
                      FROM (
                 """
-        template = self._jinja_test.get_template("standard_tests.sql")
+        template = self._jinja_test.get_template(test_file_name)
         count_tests = 0
         breakdown = []
 
@@ -232,6 +235,12 @@ class Database:
             query += q.strip() + "\n"
         query += ") AS t\n LIMIT 5;"
 
+        return count_tests, query, breakdown
+
+    def _construct_tests(self, columns, table, schema=None):
+        count_tests, query, breakdown = self._construct_tests_template(
+            columns, table, "standard_tests.sql", schema=None
+        )
         if count_tests == 0:
             return Ok([None, breakdown])
 
@@ -281,8 +290,10 @@ class Database:
 
         return Ok(properties)
 
-    def test_problematic_values(self, failed: list, table: str, schema: str) -> str:
-        template = self._jinja_test.get_template("standard_test_output.sql")
+    def test_problematic_values_template(
+        self, failed: list, table: str, schema: str, test_file_name: str
+    ) -> str:
+        template = self._jinja_test.get_template(test_file_name)
         query = ""
         for f in failed:
             query += template.render(
@@ -295,6 +306,11 @@ class Database:
                 },
             )
         return query
+
+    def test_problematic_values(self, failed: list, table: str, schema: str) -> str:
+        return self.test_problematic_values_template(
+            failed, table, schema, "standard_test_output.sql"
+        )
 
     def _refresh_metadata(self, only=None, schema=None):
         """Refreshes the sqlalchemy metadata object.

@@ -5,14 +5,14 @@ from pydantic import BaseModel, constr, validator, Extra
 from sqlalchemy import create_engine
 
 from ..core.errors import DBError
-from . import Database, Columns, Hook
+from . import Database, Columns, Hook, BaseDDL
 
 db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
 
 DistributionStr = constr(regex=r"even|all|key([^,]+)")
 
 
-class DDL(BaseModel):
+class DDL(BaseDDL):
     class Properties(BaseModel):
         class Sorting(BaseModel):
             type: Optional[str]
@@ -82,49 +82,18 @@ class DDL(BaseModel):
             return v
 
     def get_ddl(self):
-        columns = list()
-        for c in self.columns:
-            tests = []
-            for t in c.tests:
-                if isinstance(t, str):
-                    tests.append({"type": t, "allowed_values": [], "execute": True})
-                else:
-                    tests.append(
-                        {
-                            "type": t.name if t.name is not None else "allowed_values",
-                            "allowed_values": t.allowed_values
-                            if t.allowed_values is not None
-                            else [],
-                            "execute": t.execute,
-                        }
-                    )
-            columns.append(
-                {
-                    "name": c.name,
-                    "description": c.description,
-                    "dst_name": c.dst_name,
-                    "type": c.type,
-                    "tests": tests,
-                }
-            )
-
-        res = {
-            "columns": columns,
-            "properties": list(),
-            "post_hook": [h.dict() for h in self.post_hook],
-        }
-
+        result = self.base_ddl()
         properties = list()
         if self.properties is not None:
             if self.properties.distribution is not None:
                 properties.append({"distribution": self.properties.distribution})
-                res["distribution"] = self.properties.distribution
+                result["distribution"] = self.properties.distribution
 
             if self.properties.sorting is not None:
                 properties.append({"sorting": self.properties.sorting})
-                res["sorting"] = self.properties.sorting
+                result["sorting"] = self.properties.sorting
 
-        return res
+        return result
 
 
 class Redshift(Database):
