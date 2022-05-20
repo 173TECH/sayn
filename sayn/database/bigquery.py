@@ -11,14 +11,14 @@ from pydantic import validator, Extra, BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.sql import sqltypes
 
-from . import Database, Columns, Hook, BASE_DDL
+from . import Database, Columns, Hook, BaseDDL
 
 from ..core.errors import Ok
 
 db_parameters = ["project", "credentials_path", "location", "dataset"]
 
 
-class DDL(BASE_DDL):
+class DDL(BaseDDL):
     class Properties(BaseModel):
         partition: Optional[str]
         cluster: Optional[List[str]]

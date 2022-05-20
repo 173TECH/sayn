@@ -5,14 +5,14 @@ from pydantic import BaseModel, constr, validator, Extra
 from sqlalchemy import create_engine
 
 from ..core.errors import DBError
-from . import Database, Columns, Hook, BASE_DDL
+from . import Database, Columns, Hook, BaseDDL
 
 db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
 
 DistributionStr = constr(regex=r"even|all|key([^,]+)")
 
 
-class DDL(BASE_DDL):
+class DDL(BaseDDL):
     class Properties(BaseModel):
         class Sorting(BaseModel):
             type: Optional[str]
@@ -227,4 +227,5 @@ class Redshift(Database):
         if execute:
             self.execute(q)
 
+        return q
         return q

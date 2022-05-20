@@ -37,7 +37,7 @@ class Columns(BaseModel):
         extra = Extra.forbid
 
 
-class BASE_DDL(BaseModel):
+class BaseDDL(BaseModel):
     def base_ddl(self):
         columns = list()
         for c in self.columns:
@@ -72,7 +72,7 @@ class BASE_DDL(BaseModel):
         }
 
 
-class DDL(BASE_DDL):
+class DDL(BaseDDL):
     columns: List[Union[str, Columns]] = list()
     post_hook: List[Hook] = list()
 
