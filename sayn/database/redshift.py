@@ -228,4 +228,3 @@ class Redshift(Database):
             self.execute(q)
 
         return q
-        return q
