@@ -101,7 +101,7 @@ class Bigquery(Database):
 
     def _construct_tests(self, columns, table, schema=None):
         count_tests, query, breakdown = self._construct_tests_template(
-            columns, table, "standard_tests_bigquery.sql", schema=None
+            columns, table, "standard_tests_bigquery.sql", schema
         )
         if count_tests == 0:
             return Ok([None, breakdown])

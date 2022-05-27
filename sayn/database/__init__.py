@@ -185,7 +185,7 @@ class Database:
             # Force a query to test the connection
             self.execute("select 1")
 
-    def _construct_tests_template(self, columns, table, test_file_name, schema=None):
+    def _construct_tests_template(self, columns, table, test_file_name, schema):
         query = """
                    SELECT val
                         , col
@@ -196,7 +196,6 @@ class Database:
         template = self._jinja_test.get_template(test_file_name)
         count_tests = 0
         breakdown = []
-
         for col in columns:
             tests = col["tests"]
             for t in tests:
@@ -239,7 +238,7 @@ class Database:
 
     def _construct_tests(self, columns, table, schema=None):
         count_tests, query, breakdown = self._construct_tests_template(
-            columns, table, "standard_tests.sql", schema=None
+            columns, table, "standard_tests.sql", schema
         )
         if count_tests == 0:
             return Ok([None, breakdown])
