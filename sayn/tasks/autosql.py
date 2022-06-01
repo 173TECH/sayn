@@ -291,6 +291,21 @@ class AutoSqlTask(SqlTask):
         if self.needs_recompile:
             self.sql_query = self.prepared_sql_query.compile()
 
+            if self._has_tests:
+                schema = self.task_config.destination.db_schema
+                table = self.task_config.destination.table
+                obj = self.src(f"{schema}.{table}", self.target_db)
+                test_schema = obj.split(".")[0]
+                test_table = obj.split(".")[1]
+                result = self.target_db._construct_tests(
+                    self.ddl["columns"], test_table, test_schema
+                )
+                if result.is_err:
+                    return result
+                else:
+                    self.test_query = result.value[0]
+                    self.test_breakdown = result.value[1]
+
         return Ok()
 
     def execute(self, execute, debug):
