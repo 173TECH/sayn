@@ -26,14 +26,15 @@ from ..utils.compiler import Compiler
 from ..tasks.task import TaskStatus
 from ..tasks.dummy import DummyTask
 from ..tasks.sql import SqlTask
-from ..tasks.autosql import AutoSqlTask
+
+# from ..tasks.autosql import AutoSqlTask
 from ..tasks.copy import CopyTask
 from ..tasks.test import TestTask
 
 _creators = {
     "dummy": DummyTask,
     "sql": SqlTask,
-    "autosql": AutoSqlTask,
+    # "autosql": AutoSqlTask,
     "copy": CopyTask,
     "test": TestTask,
 }
