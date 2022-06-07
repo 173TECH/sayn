@@ -41,11 +41,19 @@ class Destination(BaseModel):
 
 
 class Config(BaseModel):
+    supports_schemas: bool
+    db_type: str
+
     sql_folder: Path
     file_name: FilePath
     delete_key: Optional[str]
     materialisation: str
-    destination: Destination
+    # destination: Destination
+    # src: str
+    out: str
+    db: Optional[str]
+    tmp_schema: Optional[str]
+
     columns: Optional[List[Union[str, Mapping[str, Any]]]] = list()
     table_properties: Mapping[str, Any] = dict()
     post_hook: List[Mapping[str, Any]] = list()
@@ -144,25 +152,22 @@ class SqlTask(Task):
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]
-
+        print(config)
         # set the target db for execution
         # this check needs to happen here so we can pass db_features and db_type to the validator
-        if (
-            isinstance(config.get("destination"), dict)
-            and config["destination"].get("db") is not None
-        ):
-            if config["destination"]["db"] not in conn_names_list:
+        if isinstance(config.get("db"), str):
+            if config["db"] not in conn_names_list:
                 return Err(
                     "task_definition",
                     "destination_db_not_in_settings",
-                    db=config["destination"]["db"],
+                    db=config["db"],
                 )
-            self._target_db = config["destination"]["db"]
+            self._target_db = config["db"]
         else:
             self._target_db = self._default_db
 
-        if isinstance(config.get("destination"), dict):
-            config["destination"].update(
+        if isinstance(config.get("out"), str):
+            config.update(
                 {
                     "supports_schemas": not self.target_db.feature("NO SCHEMA SUPPORT"),
                     "db_type": self.target_db.db_type,
@@ -191,15 +196,17 @@ class SqlTask(Task):
         # After the first compilation, config shouldn't be executed again
         self.allow_config = False
 
+        db_schema = self.task_config.out.split(".")[0]
+        base_table_name = self.task_config.out.split(".")[1]
         # Output calculation
-        db_schema = self.task_config.destination.db_schema
+        # db_schema = self.task_config.destination.db_schema
 
-        if self.task_config.destination.tmp_schema is not None:
-            tmp_db_schema = self.task_config.destination.tmp_schema
+        if self.task_config.tmp_schema is not None:
+            tmp_db_schema = self.task_config.tmp_schema
         else:
             tmp_db_schema = db_schema
 
-        base_table_name = self.task_config.destination.table
+        # base_table_name = self.task_config.destination.table
 
         if db_schema is None:
             self.schema = None
@@ -249,6 +256,7 @@ class SqlTask(Task):
         return Ok()
 
     def config_macro(self, **config):
+        print(self.task_config)
         if self.allow_config:
             config.update(
                 {
@@ -261,16 +269,16 @@ class SqlTask(Task):
             self.task_config.materialisation = (
                 task_config_override.materialisation or self.task_config.materialisation
             )
-            self.task_config.destination.db_schema = (
-                task_config_override.db_schema or self.task_config.destination.db_schema
+            # self.task_config.destination.db_schema = (
+            #     task_config_override.db_schema or self.task_config.out.split(".")[
+            #         0]
+            # )
+            self.task_config.tmp_schema = (
+                task_config_override.tmp_schema or self.task_config.tmp_schema
             )
-            self.task_config.destination.tmp_schema = (
-                task_config_override.tmp_schema
-                or self.task_config.destination.tmp_schema
-            )
-            self.task_config.destination.table = (
-                task_config_override.table or self.task_config.destination.table
-            )
+            out = f"{task_config_override.db_schema}.{task_config_override.table}"
+            out = None if "None" in out else out
+            self.task_config.out = out or self.task_config.out
             self.task_config.columns = (
                 task_config_override.columns or self.task_config.columns
             )
@@ -299,18 +307,19 @@ class SqlTask(Task):
 
             if task_config_override.parents is not None:
                 self._config_input["parents"] = task_config_override.parents
-
+        print(self.task_config)
         # Returns an empty string to avoid productin incorrect sql
         return ""
 
     def setup(self):
+        print(self.task_config)
         if self.needs_recompile:
             self.sql_query = self.prepared_sql_query.compile()
 
             if self._has_tests:
-                schema = self.task_config.destination.db_schema
-                table = self.task_config.destination.table
-                obj = self.src(f"{schema}.{table}", self.target_db)
+                # schema = self.task_config.destination.db_schema
+                # table = self.task_config.destination.table
+                obj = self.src(f"{self.task_config.out}", self.target_db)
                 test_schema = obj.split(".")[0]
                 test_table = obj.split(".")[1]
                 result = self.target_db._construct_tests(
