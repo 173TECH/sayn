@@ -9,7 +9,7 @@ from .task_wrapper import TaskWrapper
 from .dummy import DummyTask
 from .sql import SqlTask
 
-# from .autosql import AutoSqlTask
+from .autosql import AutoSqlTask
 from .copy import CopyTask
 
 # _excluded_properties = (
@@ -65,8 +65,8 @@ class TaskBuilder:
             runner_class = DummyTask
         elif config.type == "sql":
             runner_class = SqlTask
-        # elif config.type == "autosql":
-        #     runner_class = AutoSqlTask
+        elif config.type == "autosql":
+            runner_class = AutoSqlTask
         elif config.type == "copy":
             runner_class = CopyTask
         elif config.type == "python":
