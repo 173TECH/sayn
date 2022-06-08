@@ -10,13 +10,20 @@ from ..database import Database
 from .task import Task
 
 
-class Destination(BaseModel):
+class BaseConfig(BaseModel):
     supports_schemas: bool
     db_type: str
+
+    delete_key: Optional[str]
+    materialisation: Optional[str]
+    out: Optional[str]
     db: Optional[str]
     tmp_schema: Optional[str]
-    db_schema: Optional[str] = Field(None, alias="schema")
-    table: str
+    db_schema: Optional[str]
+
+    columns: Optional[List[Union[str, Mapping[str, Any]]]] = list()
+    table_properties: Mapping[str, Any] = dict()
+    post_hook: List[Mapping[str, Any]] = list()
 
     class Config:
         extra = Extra.forbid
@@ -30,33 +37,40 @@ class Destination(BaseModel):
 
         return v
 
-    @validator("db_schema")
-    def can_use_schema(cls, v, values):
-        if v is not None and not values["supports_schemas"]:
-            raise ValueError(
-                f'schema not supported for database of type {values["db_type"]}'
-            )
 
-        return v
+# class Destination(BaseModel):
+#     supports_schemas: bool
+#     db_type: str
+#     db: Optional[str]
+#     tmp_schema: Optional[str]
+#     db_schema: Optional[str] = Field(None, alias="schema")
+#     table: str
+#
+#     class Config:
+#         extra = Extra.forbid
+#
+#     @validator("tmp_schema")
+#     def can_use_tmp_schema(cls, v, values):
+#         if v is not None and not values["supports_schemas"]:
+#             raise ValueError(
+#                 f'tmp_schema not supported for database of type {values["db_type"]}'
+#             )
+#
+#         return v
+#
+#     @validator("db_schema")
+#     def can_use_schema(cls, v, values):
+#         if v is not None and not values["supports_schemas"]:
+#             raise ValueError(
+#                 f'schema not supported for database of type {values["db_type"]}'
+#             )
+#
+#         return v
 
 
-class Config(BaseModel):
-    supports_schemas: bool
-    db_type: str
-
+class Config(BaseConfig):
     sql_folder: Path
     file_name: FilePath
-    delete_key: Optional[str]
-    materialisation: str
-    # destination: Destination
-    # src: str
-    out: str
-    db: Optional[str]
-    tmp_schema: Optional[str]
-
-    columns: Optional[List[Union[str, Mapping[str, Any]]]] = list()
-    table_properties: Mapping[str, Any] = dict()
-    post_hook: List[Mapping[str, Any]] = list()
 
     class Config:
         extra = Extra.forbid
@@ -84,18 +98,7 @@ class OnFailValue(str, Enum):
     no_skip = "no_skip"
 
 
-class CompileConfig(BaseModel):
-    supports_schemas: bool
-    db_type: str
-
-    delete_key: Optional[str]
-    materialisation: Optional[str]
-    tmp_schema: Optional[str]
-    db_schema: Optional[str] = Field(None, alias="schema")
-    table: Optional[str]
-    columns: Optional[List[Union[str, Mapping[str, Any]]]] = list()
-    table_properties: Mapping[str, Any] = dict()
-    post_hook: List[Mapping[str, Any]] = list()
+class CompileConfig(BaseConfig):
     tags: Optional[List[str]]
     sources: Optional[List[str]]
     outputs: Optional[List[str]]
@@ -105,36 +108,37 @@ class CompileConfig(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    @validator("materialisation")
-    def incremental_has_delete_key(cls, v, values):
-        if v not in ("table", "view", "incremental", "script"):
-            raise ValueError(
-                f'"{v}". Valid materialisations: table, view, incremental, script'
-            )
-        elif v != "incremental" and values.get("delete_key") is not None:
-            raise ValueError('"delete_key" is invalid in non-incremental loads')
-        elif v == "incremental" and values.get("delete_key") is None:
-            raise ValueError('"delete_key" is required for incremental loads')
-        else:
-            return v
-
-    @validator("tmp_schema")
-    def can_use_tmp_schema(cls, v, values):
-        if v is not None and not values["supports_schemas"]:
-            raise ValueError(
-                f'tmp_schema not supported for database of type {values["db_type"]}'
-            )
-
-        return v
-
-    @validator("db_schema")
-    def can_use_schema(cls, v, values):
-        if v is not None and not values["supports_schemas"]:
-            raise ValueError(
-                f'schema not supported for database of type {values["db_type"]}'
-            )
-
-        return v
+    # @validator("materialisation")
+    # def incremental_has_delete_key(cls, v, values):
+    #     if v not in ("table", "view", "incremental", "script"):
+    #         raise ValueError(
+    #             f'"{v}". Valid materialisations: table, view, incremental, script'
+    #         )
+    #     elif v != "incremental" and values.get("delete_key") is not None:
+    #         raise ValueError(
+    #             '"delete_key" is invalid in non-incremental loads')
+    #     elif v == "incremental" and values.get("delete_key") is None:
+    #         raise ValueError('"delete_key" is required for incremental loads')
+    #     else:
+    #         return v
+    #
+    # @validator("tmp_schema")
+    # def can_use_tmp_schema(cls, v, values):
+    #     if v is not None and not values["supports_schemas"]:
+    #         raise ValueError(
+    #             f'tmp_schema not supported for database of type {values["db_type"]}'
+    #         )
+    #
+    #     return v
+    #
+    # @validator("db_schema")
+    # def can_use_schema(cls, v, values):
+    #     if v is not None and not values["supports_schemas"]:
+    #         raise ValueError(
+    #             f'schema not supported for database of type {values["db_type"]}'
+    #         )
+    #
+    #     return v
 
 
 class SqlTask(Task):
@@ -276,9 +280,9 @@ class SqlTask(Task):
             self.task_config.tmp_schema = (
                 task_config_override.tmp_schema or self.task_config.tmp_schema
             )
-            out = f"{task_config_override.db_schema}.{task_config_override.table}"
-            out = None if "None" in out else out
-            self.task_config.out = out or self.task_config.out
+            # out = f"{task_config_override.db_schema}.{task_config_override.table}"
+            # out = None if "None" in out else out
+            self.task_config.out = task_config_override.out or self.task_config.out
             self.task_config.columns = (
                 task_config_override.columns or self.task_config.columns
             )
@@ -454,6 +458,11 @@ class SqlTask(Task):
                         )
                         self.info("")
 
+                self.write_compilation_output(
+                    problematic_values_query, "test_problematic_values"
+                )
+
+                return errout
                 self.write_compilation_output(
                     problematic_values_query, "test_problematic_values"
                 )
