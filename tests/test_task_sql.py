@@ -37,7 +37,7 @@ def test_sql_task_table(tmp_path, target_db):
         result = task.config(
             file_name="test.sql",
             materialisation="table",
-            destination={"table": "test_sql_task"},
+            destination="test_sql_task",
         )
         assert result.is_ok or result is None
 
@@ -56,7 +56,7 @@ def test_sql_task_view(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="view",
-            destination={"table": "test_sql_task"},
+            destination="test_sql_task",
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
@@ -93,7 +93,7 @@ def test_sql_task_incremental(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="incremental",
-            destination={"table": "test_sql_task"},
+            destination="test_sql_task",
             delete_key="id",
         ).is_ok
 
@@ -125,7 +125,7 @@ def test_sql_script_task(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="script",
-            destination={"table": "test_sql_task"},
+            # destination="test_sql_task",
         ).is_ok
         assert task.setup().is_ok
 
@@ -147,7 +147,7 @@ def test_sql_script_task_compile(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="script",
-            destination={"table": "test_sql_task"},
+            # destination={"table": "test_sql_task"}
         ).is_ok
         assert task.setup().is_ok
 
@@ -168,7 +168,7 @@ def test_sql_script_task_param(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="script",
-            destination={"table": "test_sql_task"},
+            # destination={"table": "test_sql_task"},
         ).is_ok
         assert task.setup().is_ok
 
@@ -189,8 +189,8 @@ def test_sql_script_task_param_err(tmp_path, target_db):
         target_db,
         "CREATE TABLE {{user_prefix}}test_sql_task AS SELECT 1 AS x",
     ) as task:
-        # with pytest.raises(Exception):
-        assert task.config(file_name="test.sql", materialisation="script").is_err
+        with pytest.raises(Exception):
+            assert task.config(file_name="test.sql", materialisation="script")
 
 
 def test_sql_script_task_run_err(tmp_path, target_db):
@@ -202,7 +202,7 @@ def test_sql_script_task_run_err(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="script",
-            destination={"table": "test_sql_task"},
+            # destination={"table": "test_sql_task"},
         ).is_ok
         assert task.setup().is_ok
 
@@ -222,7 +222,7 @@ def test_sql_script_task_run_multi_statements(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="script",
-            destination={"table": "test_sql_task"},
+            # destination={"table": "test_sql_task"},
         ).is_ok
         assert task.setup().is_ok
 
@@ -284,7 +284,7 @@ def test_sql_task_compile(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="table",
-            destination={"table": "test_sql_task"},
+            destination="test_sql_task",
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
@@ -305,7 +305,7 @@ def test_sql_task_param(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="table",
-            destination={"table": "test_sql_task"},
+            destination="test_sql_task",
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
@@ -325,7 +325,7 @@ def test_sql_task_config_error1(tmp_path, target_db):
         assert task.config(
             file_nam="test.sql",
             materialisation="table",
-            destination={"table": "test_sql_task"},
+            destination="test_sql_task",
         ).is_err
 
 
@@ -335,7 +335,7 @@ def test_sql_task_config_error2(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="wrong",
-            destination={"table": "test_sql_task"},
+            destination="test_sql_task",
         ).is_err
 
 
@@ -352,7 +352,7 @@ def test_sql_task_config_error3(tmp_path, target_db):
             task.config(
                 file_name="test.sql",
                 materialisation="table",
-                destination={"table": "test_sql_task"},
+                destination="test_sql_task",
             )
 
 
@@ -368,7 +368,7 @@ def test_sql_task_run_error(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="table",
-            destination={"table": "test_sql_task"},
+            destination="test_sql_task",
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
@@ -387,7 +387,8 @@ def test_sql_task_table_db_dst(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="table",
-            destination={"db": "target_db", "table": "test_sql_task"},
+            db="target_db",
+            destination="test_sql_task",
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
@@ -408,7 +409,8 @@ def test_sql_task_table_wrong_db_dst(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="table",
-            destination={"db": "wrong_dst", "table": "test_sql_task"},
+            db="wrong_dst",
+            destination="test_sql_task",
         ).is_err
 
 
@@ -422,7 +424,7 @@ def test_sql_task_run_ddl_columns(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="table",
-            destination={"table": "test_sql_task"},
+            destination="test_sql_task",
             columns=[{"name": "x", "type": "integer"}],
         ).is_ok
 
@@ -498,7 +500,7 @@ def test_sql_task_run_ddl_diff_col_order(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="table",
-            destination={"table": "test_sql_task"},
+            destination="test_sql_task",
             columns=[
                 {"name": "x", "type": "text"},
                 {"name": "y", "type": "int"},
@@ -533,7 +535,7 @@ def test_sql_task_run_ddl_diff_col_order_bq(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="table",
-            destination={"table": "test_sql_task"},
+            destination="test_sql_task",
             ddl=[
                 {"name": "x", "type": "string"},
                 {"name": "y", "type": "int64"},
@@ -567,7 +569,7 @@ def test_sql_schemas01(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="table",
-            destination={"schema": "test2", "table": "test_sql_task"},
+            destination="test2.test_sql_task",
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
@@ -594,7 +596,7 @@ def test_sql_schemas_error01(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="table",
-            destination={"schema": "test2", "table": "test_sql_task"},
+            destination="test2.test_sql_task",
         ).is_err
 
 
@@ -611,11 +613,8 @@ def test_sql_schemas02(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="table",
-            destination={
-                "tmp_schema": "test2",
-                "schema": "test",
-                "table": "test_sql_task",
-            },
+            tmp_schema="test2",
+            destination="test.test_sql_task",
         ).is_ok
 
         task.connections["target_db"]._introspect(used_objects["target_db"])
@@ -642,11 +641,8 @@ def test_sql_schemas_error02(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="table",
-            destination={
-                "tmp_schema": "test2",
-                "schema": "test",
-                "table": "test_sql_task",
-            },
+            tmp_schema="test2",
+            destination="test.test_sql_task",
         ).is_err
 
 
@@ -665,7 +661,7 @@ def test_sql_test_names(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="table",
-            destination={"table": "test_sql_task"},
+            destination="test_sql_task",
             columns=[{"name": "x", "tests": ["unique", "not_null"]}],
         ).is_ok
 
@@ -687,7 +683,7 @@ def test_sql_test_lists(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="table",
-            destination={"table": "test_sql_task"},
+            destination="test_sql_task",
             columns=[
                 {"name": "x", "tests": [{"name": "unique"}, {"name": "not_null"}]}
             ],
@@ -713,7 +709,7 @@ def test_sql_test_values(tmp_path, target_db):
         assert task.config(
             file_name="test.sql",
             materialisation="table",
-            destination={"table": "test_sql_task"},
+            destination="test_sql_task",
             columns=[
                 {
                     "name": "x",

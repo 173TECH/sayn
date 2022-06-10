@@ -3,7 +3,7 @@ from typing import Any, List, Mapping, Optional, Union
 from enum import Enum
 import re
 
-from pydantic import BaseModel, Field, FilePath, validator, Extra
+from pydantic import BaseModel, FilePath, validator, Extra
 
 from ..core.errors import Exc, Ok, Err
 from ..database import Database
@@ -15,11 +15,10 @@ class BaseConfig(BaseModel):
     db_type: str
 
     delete_key: Optional[str]
+    destination: Optional[str]
     materialisation: Optional[str]
-    out: Optional[str]
     db: Optional[str]
     tmp_schema: Optional[str]
-    db_schema: Optional[str]
 
     columns: Optional[List[Union[str, Mapping[str, Any]]]] = list()
     table_properties: Mapping[str, Any] = dict()
@@ -27,45 +26,6 @@ class BaseConfig(BaseModel):
 
     class Config:
         extra = Extra.forbid
-
-    @validator("tmp_schema")
-    def can_use_tmp_schema(cls, v, values):
-        if v is not None and not values["supports_schemas"]:
-            raise ValueError(
-                f'tmp_schema not supported for database of type {values["db_type"]}'
-            )
-
-        return v
-
-
-# class Destination(BaseModel):
-#     supports_schemas: bool
-#     db_type: str
-#     db: Optional[str]
-#     tmp_schema: Optional[str]
-#     db_schema: Optional[str] = Field(None, alias="schema")
-#     table: str
-#
-#     class Config:
-#         extra = Extra.forbid
-#
-#     @validator("tmp_schema")
-#     def can_use_tmp_schema(cls, v, values):
-#         if v is not None and not values["supports_schemas"]:
-#             raise ValueError(
-#                 f'tmp_schema not supported for database of type {values["db_type"]}'
-#             )
-#
-#         return v
-#
-#     @validator("db_schema")
-#     def can_use_schema(cls, v, values):
-#         if v is not None and not values["supports_schemas"]:
-#             raise ValueError(
-#                 f'schema not supported for database of type {values["db_type"]}'
-#             )
-#
-#         return v
 
 
 class Config(BaseConfig):
@@ -79,6 +39,15 @@ class Config(BaseConfig):
     def file_name_plus_folder(cls, v, values):
         return Path(values["sql_folder"], v)
 
+    @validator("tmp_schema")
+    def can_use_tmp_schema(cls, v, values):
+        if v is not None and not values["supports_schemas"]:
+            raise ValueError(
+                f'tmp_schema not supported for database of type {values["db_type"]}'
+            )
+
+        return v
+
     @validator("materialisation")
     def incremental_has_delete_key(cls, v, values):
         if v not in ("table", "view", "incremental", "script"):
@@ -89,8 +58,22 @@ class Config(BaseConfig):
             raise ValueError('"delete_key" is invalid in non-incremental loads')
         elif v == "incremental" and values.get("delete_key") is None:
             raise ValueError('"delete_key" is required for incremental loads')
+        elif v != "script" and values.get("destination") is None:
+            raise ValueError('"destination" field is required')
+        elif v == "script" and values.get("destination") is not None:
+            raise ValueError('"destination" is invalid for script materialisation')
         else:
             return v
+
+    @validator("destination")
+    def can_use_schema(cls, v, values):
+        match = re.match(r"(.*)\.(.*)|(\w+)", v)
+        if match.group(1) is not None and not values["supports_schemas"]:
+            raise ValueError(
+                f'schema not supported for database of type {values["db_type"]}'
+            )
+
+        return v
 
 
 class OnFailValue(str, Enum):
@@ -108,38 +91,6 @@ class CompileConfig(BaseConfig):
     class Config:
         extra = Extra.forbid
 
-    # @validator("materialisation")
-    # def incremental_has_delete_key(cls, v, values):
-    #     if v not in ("table", "view", "incremental", "script"):
-    #         raise ValueError(
-    #             f'"{v}". Valid materialisations: table, view, incremental, script'
-    #         )
-    #     elif v != "incremental" and values.get("delete_key") is not None:
-    #         raise ValueError(
-    #             '"delete_key" is invalid in non-incremental loads')
-    #     elif v == "incremental" and values.get("delete_key") is None:
-    #         raise ValueError('"delete_key" is required for incremental loads')
-    #     else:
-    #         return v
-    #
-    # @validator("tmp_schema")
-    # def can_use_tmp_schema(cls, v, values):
-    #     if v is not None and not values["supports_schemas"]:
-    #         raise ValueError(
-    #             f'tmp_schema not supported for database of type {values["db_type"]}'
-    #         )
-    #
-    #     return v
-    #
-    # @validator("db_schema")
-    # def can_use_schema(cls, v, values):
-    #     if v is not None and not values["supports_schemas"]:
-    #         raise ValueError(
-    #             f'schema not supported for database of type {values["db_type"]}'
-    #         )
-    #
-    #     return v
-
 
 class SqlTask(Task):
     @property
@@ -156,7 +107,6 @@ class SqlTask(Task):
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]
-        print(config)
         # set the target db for execution
         # this check needs to happen here so we can pass db_features and db_type to the validator
         if isinstance(config.get("db"), str):
@@ -170,13 +120,12 @@ class SqlTask(Task):
         else:
             self._target_db = self._default_db
 
-        if isinstance(config.get("out"), str):
-            config.update(
-                {
-                    "supports_schemas": not self.target_db.feature("NO SCHEMA SUPPORT"),
-                    "db_type": self.target_db.db_type,
-                }
-            )
+        config.update(
+            {
+                "supports_schemas": not self.target_db.feature("NO SCHEMA SUPPORT"),
+                "db_type": self.target_db.db_type,
+            }
+        )
 
         try:
             self.task_config = Config(
@@ -200,35 +149,38 @@ class SqlTask(Task):
         # After the first compilation, config shouldn't be executed again
         self.allow_config = False
 
-        db_schema = self.task_config.out.split(".")[0]
-        base_table_name = self.task_config.out.split(".")[1]
-        # Output calculation
-        # db_schema = self.task_config.destination.db_schema
+        if isinstance(config.get("destination"), str):
+            match = re.match(r"(.*)\.(.*)|(\w+)", self.task_config.destination)
 
-        if self.task_config.tmp_schema is not None:
-            tmp_db_schema = self.task_config.tmp_schema
-        else:
-            tmp_db_schema = db_schema
+            if match.group(3):
+                db_schema = None
+                base_table_name = match.group(3)
+            else:
+                db_schema = match.group(1)
+                base_table_name = match.group(2)
+            # Output calculation
+            if self.task_config.tmp_schema is not None:
+                tmp_db_schema = self.task_config.tmp_schema
+            else:
+                tmp_db_schema = db_schema
 
-        # base_table_name = self.task_config.destination.table
+            if db_schema is None:
+                self.schema = None
+                self.table = self.out(base_table_name, self.target_db)
+            else:
+                obj = self.out(f"{db_schema}.{base_table_name}", self.target_db)
+                self.schema = obj.split(".")[0]
+                self.table = obj.split(".")[1]
 
-        if db_schema is None:
-            self.schema = None
-            self.table = self.out(base_table_name, self.target_db)
-        else:
-            obj = self.out(f"{db_schema}.{base_table_name}", self.target_db)
-            self.schema = obj.split(".")[0]
-            self.table = obj.split(".")[1]
-
-        if tmp_db_schema is None:
-            self.tmp_schema = None
-            self.tmp_table = self.out(f"sayn_tmp_{base_table_name}", self.target_db)
-        else:
-            obj = self.out(
-                f"{tmp_db_schema}.sayn_tmp_{base_table_name}", self.target_db
-            )
-            self.tmp_schema = obj.split(".")[0]
-            self.tmp_table = obj.split(".")[1]
+            if tmp_db_schema is None:
+                self.tmp_schema = None
+                self.tmp_table = self.out(f"sayn_tmp_{base_table_name}", self.target_db)
+            else:
+                obj = self.out(
+                    f"{tmp_db_schema}.sayn_tmp_{base_table_name}", self.target_db
+                )
+                self.tmp_schema = obj.split(".")[0]
+                self.tmp_table = obj.split(".")[1]
 
         self.materialisation = self.task_config.materialisation
         self.delete_key = self.task_config.delete_key
@@ -260,7 +212,6 @@ class SqlTask(Task):
         return Ok()
 
     def config_macro(self, **config):
-        print(self.task_config)
         if self.allow_config:
             config.update(
                 {
@@ -273,16 +224,15 @@ class SqlTask(Task):
             self.task_config.materialisation = (
                 task_config_override.materialisation or self.task_config.materialisation
             )
-            # self.task_config.destination.db_schema = (
-            #     task_config_override.db_schema or self.task_config.out.split(".")[
-            #         0]
-            # )
+
             self.task_config.tmp_schema = (
                 task_config_override.tmp_schema or self.task_config.tmp_schema
             )
-            # out = f"{task_config_override.db_schema}.{task_config_override.table}"
-            # out = None if "None" in out else out
-            self.task_config.out = task_config_override.out or self.task_config.out
+
+            self.task_config.destination = (
+                task_config_override.destination or self.task_config.destination
+            )
+
             self.task_config.columns = (
                 task_config_override.columns or self.task_config.columns
             )
@@ -311,19 +261,15 @@ class SqlTask(Task):
 
             if task_config_override.parents is not None:
                 self._config_input["parents"] = task_config_override.parents
-        print(self.task_config)
         # Returns an empty string to avoid productin incorrect sql
         return ""
 
     def setup(self):
-        print(self.task_config)
         if self.needs_recompile:
             self.sql_query = self.prepared_sql_query.compile()
 
             if self._has_tests:
-                # schema = self.task_config.destination.db_schema
-                # table = self.task_config.destination.table
-                obj = self.src(f"{self.task_config.out}", self.target_db)
+                obj = self.src(f"{self.task_config.destination}", self.target_db)
                 test_schema = obj.split(".")[0]
                 test_table = obj.split(".")[1]
                 result = self.target_db._construct_tests(
@@ -343,7 +289,6 @@ class SqlTask(Task):
         else:
             self.write_compilation_output(self.sql_query)
 
-        print(self.target_db._requested_objects)
         if self.materialisation == "view":
             # View
             step_queries = self.target_db.replace_view(
@@ -353,12 +298,7 @@ class SqlTask(Task):
                 **self.ddl,
             )
 
-        elif (
-            self.materialisation == "table"
-            or self.run_arguments["full_load"]
-            # or self.target_db._requested_objects[self.schema][self.table].get("type")
-            # is None
-        ):
+        elif self.materialisation == "table" or self.run_arguments["full_load"]:
             # Full load or target table missing
             if self.target_db.feature("CANNOT CHANGE SCHEMA"):
                 # Use destination schema if the db doesn't support schema changes
@@ -463,8 +403,6 @@ class SqlTask(Task):
                 )
 
                 return errout
-                self.write_compilation_output(
-                    problematic_values_query, "test_problematic_values"
-                )
 
+                return errout
                 return errout
