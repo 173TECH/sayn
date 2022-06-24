@@ -225,6 +225,8 @@ class SqlTask(Task):
                 task_config_override.materialisation or self.task_config.materialisation
             )
 
+            self.task_config.db = task_config_override.db or self.task_config.db
+
             self.task_config.tmp_schema = (
                 task_config_override.tmp_schema or self.task_config.tmp_schema
             )
@@ -402,7 +404,4 @@ class SqlTask(Task):
                     problematic_values_query, "test_problematic_values"
                 )
 
-                return errout
-
-                return errout
                 return errout
