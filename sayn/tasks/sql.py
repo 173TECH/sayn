@@ -100,6 +100,18 @@ class SqlTask(Task):
         return self.connections[self._target_db]
 
     def config(self, **config):
+
+        def_connections_src = []
+        def_connections_out = []
+
+        def def_src(obj):
+            def_connections_src.append(obj)
+            return ""
+
+        def def_out(obj):
+            def_connections_out.append(obj)
+            return ""
+
         if "task_name" in self._config_input:
             del self._config_input["task_name"]
 
@@ -140,8 +152,8 @@ class SqlTask(Task):
         # We compile first to allow changes to the config
         # Template compilation
         self.compiler.update_globals(
-            src=lambda x: "",
-            out=lambda x: "",
+            src=lambda x: def_src(x),
+            out=lambda x: def_out(x),
             config=self.config_macro,
         )
         self.allow_config = True
@@ -196,11 +208,17 @@ class SqlTask(Task):
                 out=lambda x: self.out(x, connection=self._target_db),
                 config=self.config_macro,
             )
+
+            for o in def_connections_out:
+                self.out(o, connection=self._target_db)
         else:
             self.compiler.update_globals(
                 src=lambda x: self.src(x, connection=self._target_db),
                 config=self.config_macro,
             )
+
+            for s in def_connections_src:
+                self.src(s, connection=self._target_db)
 
         # DDL validation
         result = self.target_db._validate_ddl(
