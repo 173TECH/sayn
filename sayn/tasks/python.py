@@ -1,8 +1,15 @@
 import inspect
 from typing import Optional, List, Union
+from enum import Enum
+
 
 from ..database.unknown import UnknownDb
 from .task import Task
+
+
+class OnFailValue(str, Enum):
+    skip = "skip"
+    no_skip = "no_skip"
 
 
 class PythonTask(Task):
@@ -40,6 +47,7 @@ class DecoratorTask(PythonTask):
         outputs,
         parents,
         tags,
+        on_fail,
         func,
     ):
         super().__init__(
@@ -62,6 +70,7 @@ class DecoratorTask(PythonTask):
         self._config_input["outputs"].update(outputs)
         self._config_input["parents"].update(parents)
         self._config_input["tags"].update(tags)
+        self._config_input["on_fail"].update(on_fail)
         self._func = func
 
     def config(self):
@@ -116,6 +125,7 @@ class DecoratorTaskWrapper(Task):
         outputs: Optional[Union[List[str], str]] = None,
         parents: Optional[Union[List[str], str]] = None,
         tags: Optional[Union[List[str], str]] = None,
+        on_fail: Optional[OnFailValue] = None,
     ):
         """The init method collects the information provided by the decorator itself"""
 
@@ -158,6 +168,11 @@ class DecoratorTaskWrapper(Task):
         else:
             self.tags = set(tags)
 
+        if on_fail is None:
+            self.on_fail = OnFailValue()
+        else:
+            self.on_fail = OnFailValue[f"{on_fail}"]
+
     def __call__(
         self,
         name,
@@ -188,33 +203,43 @@ class DecoratorTaskWrapper(Task):
             self.outputs,
             self.parents,
             self.tags,
+            self.on_fail,
             self.func,
         )
 
         return task
 
 
-def task_type(func=None, sources=None, outputs=None, parents=None):
+def task_type(func=None, sources=None, outputs=None, parents=None, on_fail=None):
     if func:
         return DecoratorTaskWrapper(func)
     else:
 
         def wrapper(func):
             return DecoratorTaskWrapper(
-                func, sources=sources, outputs=outputs, parents=parents
+                func,
+                sources=sources,
+                outputs=outputs,
+                parents=parents,
+                on_fail=on_fail,
             )
 
         return wrapper
 
 
-def task(func=None, sources=None, outputs=None, parents=None, tags=None):
+def task(func=None, sources=None, outputs=None, parents=None, tags=None, on_fail=None):
     if func:
         return DecoratorTaskWrapper(func)
     else:
 
         def wrapper(func):
             return DecoratorTaskWrapper(
-                func, sources=sources, outputs=outputs, parents=parents, tags=tags
+                func,
+                sources=sources,
+                outputs=outputs,
+                parents=parents,
+                tags=tags,
+                on_fail=on_fail,
             )
 
         return wrapper

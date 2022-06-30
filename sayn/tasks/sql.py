@@ -50,7 +50,7 @@ class Config(BaseConfig):
 
     @validator("materialisation")
     def incremental_has_delete_key(cls, v, values):
-        if v not in ("table", "view", "incremental", "script"):
+        if v not in ("table", "view", "incremental", "script", ""):
             raise ValueError(
                 f'"{v}". Valid materialisations: table, view, incremental, script'
             )
@@ -62,6 +62,8 @@ class Config(BaseConfig):
             raise ValueError('"destination" field is required')
         elif v == "script" and values.get("destination") is not None:
             raise ValueError('"destination" is invalid for script materialisation')
+        elif v == "":
+            return "script"
         else:
             return v
 
@@ -107,6 +109,7 @@ class SqlTask(Task):
         conn_names_list = [
             n for n, c in self.connections.items() if isinstance(c, Database)
         ]
+
         # set the target db for execution
         # this check needs to happen here so we can pass db_features and db_type to the validator
         if isinstance(config.get("db"), str):
@@ -137,10 +140,10 @@ class SqlTask(Task):
         # We compile first to allow changes to the config
         # Template compilation
         self.compiler.update_globals(
-            src=lambda x: self.src(x, connection=self._target_db),
+            src=lambda x: "",
+            out=lambda x: "",
             config=self.config_macro,
         )
-
         self.allow_config = True
 
         self.prepared_sql_query = self.compiler.prepare(self.task_config.file_name)
@@ -185,6 +188,20 @@ class SqlTask(Task):
         self.materialisation = self.task_config.materialisation
         self.delete_key = self.task_config.delete_key
 
+        # apply out in jinja only for script
+        if self.materialisation == "script":
+
+            self.compiler.update_globals(
+                src=lambda x: self.src(x, connection=self._target_db),
+                out=lambda x: self.out(x, connection=self._target_db),
+                config=self.config_macro,
+            )
+        else:
+            self.compiler.update_globals(
+                src=lambda x: self.src(x, connection=self._target_db),
+                config=self.config_macro,
+            )
+
         # DDL validation
         result = self.target_db._validate_ddl(
             self.task_config.columns,
@@ -225,7 +242,9 @@ class SqlTask(Task):
                 task_config_override.materialisation or self.task_config.materialisation
             )
 
-            self.task_config.db = task_config_override.db or self.task_config.db
+            self._target_db = self.task_config.db = (
+                task_config_override.db or self.task_config.db
+            )
 
             self.task_config.tmp_schema = (
                 task_config_override.tmp_schema or self.task_config.tmp_schema
@@ -267,21 +286,22 @@ class SqlTask(Task):
         return ""
 
     def setup(self):
-        if self.needs_recompile:
-            self.sql_query = self.prepared_sql_query.compile()
+        # recompile regardless
+        self.sql_query = self.prepared_sql_query.compile()
 
-            if self._has_tests:
-                obj = self.src(f"{self.task_config.destination}", self.target_db)
-                test_schema = obj.split(".")[0]
-                test_table = obj.split(".")[1]
-                result = self.target_db._construct_tests(
-                    self.ddl["columns"], test_table, test_schema
-                )
-                if result.is_err:
-                    return result
-                else:
-                    self.test_query = result.value[0]
-                    self.test_breakdown = result.value[1]
+        if self._has_tests and self._needs_recompile:
+            obj = self.src(f"{self.task_config.destination}", self.target_db)
+            print(obj)
+            test_schema = obj.split(".")[0]
+            test_table = obj.split(".")[1]
+            result = self.target_db._construct_tests(
+                self.ddl["columns"], test_table, test_schema
+            )
+            if result.is_err:
+                return result
+            else:
+                self.test_query = result.value[0]
+                self.test_breakdown = result.value[1]
 
         return Ok()
 
