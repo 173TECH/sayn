@@ -209,6 +209,9 @@ class SqlTask(Task):
                 config=self.config_macro,
             )
 
+            for s in def_connections_src:
+                self.src(s, connection=self._target_db)
+
             for o in def_connections_out:
                 self.out(o, connection=self._target_db)
         else:
