@@ -291,7 +291,6 @@ class SqlTask(Task):
 
         if self._has_tests and self._needs_recompile:
             obj = self.src(f"{self.task_config.destination}", self.target_db)
-            print(obj)
             test_schema = obj.split(".")[0]
             test_table = obj.split(".")[1]
             result = self.target_db._construct_tests(
