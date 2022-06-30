@@ -242,9 +242,20 @@ class SqlTask(Task):
                 task_config_override.materialisation or self.task_config.materialisation
             )
 
-            self._target_db = self.task_config.db = (
-                task_config_override.db or self.task_config.db
-            )
+            self.task_config.db = task_config_override.db or self.task_config.db
+
+            conn_names_list = [
+                n for n, c in self.connections.items() if isinstance(c, Database)
+            ]
+
+            if self.task_config.db not in conn_names_list:
+                return Err(
+                    "task_definition",
+                    "destination_db_not_in_settings",
+                    db=config["db"],
+                )
+            else:
+                self._target_db = self.task_config.db
 
             self.task_config.tmp_schema = (
                 task_config_override.tmp_schema or self.task_config.tmp_schema
