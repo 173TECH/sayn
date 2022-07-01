@@ -5,12 +5,12 @@ CREATE OR REPLACE FILE FORMAT {{ file_format }}
   TYPE = 'CSV'
   FIELD_DELIMITER = '\t'
   SKIP_HEADER = 1
-  NULL_IF = ('NaN', '0000-00-00 00:00:00')
+  NULL_IF = ('NaN', '0000-00-00 00:00:00', '0000-00-00')
   EMPTY_FIELD_AS_NULL = true
   FIELD_OPTIONALLY_ENCLOSED_BY = '"'
   ESCAPE_UNENCLOSED_FIELD = '\\'
   ;
-  
+
 CREATE OR REPLACE stage {{ stage }}
   file_format = {{ file_format }};
 
