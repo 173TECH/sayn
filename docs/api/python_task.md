@@ -1,4 +1,4 @@
-::: sayn.tasks
+::: sayn.tasks.task
     selection:
       members:
         - Task
