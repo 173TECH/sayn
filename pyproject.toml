@@ -25,6 +25,7 @@ typing_extensions = "4.1.1"
 
 "ruamel.yaml" = "0.17.21"
 "ruamel.yaml.clib" = "0.2.6"
+orjson = "3.7.7"
 
 # CLI
 Click = "8.0.4"
