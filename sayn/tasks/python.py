@@ -169,9 +169,11 @@ class DecoratorTaskWrapper(Task):
             self.tags = set(tags)
 
         if on_fail is None:
-            self.on_fail = OnFailValue.no_skip
-        else:
+            self.on_fail = OnFailValue.skip
+        elif on_fail in ("skip", "no_skip"):
             self.on_fail = OnFailValue[f"{on_fail}"]
+        else:
+            raise ValueError(f"{on_fail} not a valid value for on_fail field")
 
     def __call__(
         self,

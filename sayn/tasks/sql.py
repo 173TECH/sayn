@@ -369,10 +369,7 @@ class SqlTask(Task):
                 **self.ddl,
             )
 
-        elif self.materialisation == "script":
-            step_queries = {"Execute Query": self.sql_query}
-
-        else:
+        elif self.materialisation == "incremental":
             # Incremental load
             step_queries = self.target_db.merge_query(
                 self.table,
@@ -382,6 +379,9 @@ class SqlTask(Task):
                 tmp_schema=self.tmp_schema,
                 **self.ddl,
             )
+        else:
+            # script
+            step_queries = {"Execute Query": self.sql_query}
 
         self.set_run_steps(list(step_queries.keys()))
 
