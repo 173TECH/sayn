@@ -328,14 +328,13 @@ class SqlTask(Task):
         return Ok()
 
     def execute(self, execute, debug):
-        if self.run_arguments["debug"]:
-            self.write_compilation_output(
-                self.sql_query,
-                "select"
-                if self.materialisation in ("table", "view", "incremental")
-                else None,
-            )
-        else:
+        if self.run_arguments["debug"] and self.materialisation in (
+            "table",
+            "view",
+            "incremental",
+        ):
+            self.write_compilation_output(self.sql_query, "select")
+        elif self.materialisation in ("table", "view", "incremental"):
             self.write_compilation_output(self.sql_query)
 
         if self.materialisation == "view":
@@ -375,15 +374,15 @@ class SqlTask(Task):
             )
         else:
             # script
-            step_queries = {"Execute Query": self.sql_query}
+            step_queries = {"Write Query": None, "Execute Query": self.sql_query}
 
         self.set_run_steps(list(step_queries.keys()))
 
         for step, query in step_queries.items():
             with self.step(step):
-                if debug:
+                if debug and query:
                     self.write_compilation_output(query, step.replace(" ", "_").lower())
-                if execute:
+                if execute and query:
                     try:
                         self.target_db.execute(query)
                     except Exception as e:
