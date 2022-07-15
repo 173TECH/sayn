@@ -263,7 +263,9 @@ class SqlTask(Task):
                 task_config_override.materialisation or self.task_config.materialisation
             )
 
-            self.task_config.db = task_config_override.db or self.task_config.db
+            self.task_config.db = (
+                task_config_override.db or self.task_config.db or self._default_db
+            )
 
             conn_names_list = [
                 n for n, c in self.connections.items() if isinstance(c, Database)

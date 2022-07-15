@@ -65,12 +65,12 @@ class DecoratorTask(PythonTask):
         )
 
         self.compiler.update_globals(src=self.src, out=self.out)
-
+        print(self._config_input)
         self._config_input["sources"].update(sources)
         self._config_input["outputs"].update(outputs)
         self._config_input["parents"].update(parents)
         self._config_input["tags"].update(tags)
-        self._config_input["on_fail"].update(on_fail)
+        self._config_input["on_fail"] = on_fail
         self._func = func
 
     def config(self):
@@ -169,7 +169,7 @@ class DecoratorTaskWrapper(Task):
             self.tags = set(tags)
 
         if on_fail is None:
-            self.on_fail = OnFailValue()
+            self.on_fail = OnFailValue.no_skip
         else:
             self.on_fail = OnFailValue[f"{on_fail}"]
 
@@ -210,7 +210,7 @@ class DecoratorTaskWrapper(Task):
         return task
 
 
-def task_type(func=None, sources=None, outputs=None, parents=None, on_fail=None):
+def task_type(func=None, sources=None, outputs=None, parents=None):
     if func:
         return DecoratorTaskWrapper(func)
     else:
@@ -221,7 +221,6 @@ def task_type(func=None, sources=None, outputs=None, parents=None, on_fail=None)
                 sources=sources,
                 outputs=outputs,
                 parents=parents,
-                on_fail=on_fail,
             )
 
         return wrapper
