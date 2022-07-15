@@ -200,28 +200,17 @@ class SqlTask(Task):
         self.materialisation = self.task_config.materialisation
         self.delete_key = self.task_config.delete_key
 
-        # apply out in jinja only for script
-        if self.materialisation == "script":
+        self.compiler.update_globals(
+            src=lambda x: self.src(x, connection=self._target_db),
+            out=lambda x: self.out(x, connection=self._target_db),
+            config=self.config_macro,
+        )
 
-            self.compiler.update_globals(
-                src=lambda x: self.src(x, connection=self._target_db),
-                out=lambda x: self.out(x, connection=self._target_db),
-                config=self.config_macro,
-            )
+        for s in def_connections_src:
+            self.src(s, connection=self._target_db)
 
-            for s in def_connections_src:
-                self.src(s, connection=self._target_db)
-
-            for o in def_connections_out:
-                self.out(o, connection=self._target_db)
-        else:
-            self.compiler.update_globals(
-                src=lambda x: self.src(x, connection=self._target_db),
-                config=self.config_macro,
-            )
-
-            for s in def_connections_src:
-                self.src(s, connection=self._target_db)
+        for o in def_connections_out:
+            self.out(o, connection=self._target_db)
 
         # DDL validation
         result = self.target_db._validate_ddl(
@@ -340,7 +329,12 @@ class SqlTask(Task):
 
     def execute(self, execute, debug):
         if self.run_arguments["debug"]:
-            self.write_compilation_output(self.sql_query, "select")
+            self.write_compilation_output(
+                self.sql_query,
+                "select"
+                if self.materialisation in ("table", "view", "incremental")
+                else None,
+            )
         else:
             self.write_compilation_output(self.sql_query)
 
