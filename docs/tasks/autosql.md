@@ -1,4 +1,4 @@
-# `autosql` Task
+# `autosql` Task **[SUNSETTED]**
 
 ## About
 

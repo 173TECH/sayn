@@ -37,7 +37,7 @@ Now all tasks defined in `python/decorator_tasks.py` will be added to the DAG. T
 The above example showcases the key elements to a python task:
 
   * `task`: we import SAYN's `task` decorator which is used to turn functions into SAYN tasks added to the DAG.
-  * parameters to `task`: we can pass parameters `sources`, `outputs` and `parents` which are either lists of table names or a single table name. This allows SAYN define the task dependencies.
+  * parameters to `task`: we can pass parameters `sources`, `outputs` and `parents` which are either lists of table names or a single table name. This allows SAYN define the task dependencies. We can also pass a value for `on_fail` and `tags`.
   * function name: the name of the function (`example_task` here) will be the name of the task. We can use this name with `-t` to execute this task only for example.
   * function parameters: arguments to the function have special meaning and so the names need to be respected:
     * `context`: is an object granting access to some functionality like project parameters, connections and other functions as seen further down.
