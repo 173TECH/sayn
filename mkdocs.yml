@@ -66,7 +66,7 @@ nav:
     - Database objects: database_objects.md
   - Tasks:
     - Overview: tasks/overview.md
-    - AutoSQL: tasks/autosql.md
+    - AutoSQL[SUNSETTED]: tasks/autosql.md
     - Python: tasks/python.md
     - SQL: tasks/sql.md
     - Copy: tasks/copy.md

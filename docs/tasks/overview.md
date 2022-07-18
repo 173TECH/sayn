@@ -23,21 +23,21 @@ Through tasks, SAYN provides a lot of automation under the hood, so make sure yo
 
 Please see below the available SAYN task types:
 
-- [`autosql`](autosql.md): simply write a `SELECT` statement and SAYN automates the data processing (i.e. table or view creation, incremental load, etc.) for you.
+- [`autosql`](autosql.md): **[SUNSETTED]** simply write a `SELECT` statement and SAYN automates the data processing (i.e. table or view creation, incremental load, etc.) for you.
 - [`python`](python.md): enables you to write a Python process. Can be used for a wide range of cases from data extraction to data science models - anything Python lets you do.
 - [`copy`](copy.md): enables to automatically copy data from one database to another.
-- [`sql`](sql.md): executes any SQL statement. There can be multiple statements within the SQL file.
+- [`sql`](sql.md): executes any SQL statement. There can be multiple statements within the SQL file. **OR** simply write a `SELECT` statement and SAYN automates the data processing (i.e. table or view creation, incremental load, etc.) for you.
 - [`dummy`](dummy.md): those tasks do not do anything. They can be used as connectors between tasks.
 
 ## Defining Tasks
 
-Tasks in SAYN are defined into `groups` which we describe in the `project.yaml` file in your project. Task `groups` define a set of tasks which share the same attributes. For example we can define a group formed of `autosql` tasks called `core` like this:
+Tasks in SAYN are defined into `groups` which we describe in the `project.yaml` file in your project. Task `groups` define a set of tasks which share the same attributes. For example we can define a group formed of `sql` tasks called `core` like this:
 
 !!! example "project.yaml"
     ```
     groups:
       core:
-        type: autosql
+        type: sql
         file_name: "core/*.sql"
         materialisation: table
         destination:
@@ -46,8 +46,8 @@ Tasks in SAYN are defined into `groups` which we describe in the `project.yaml` 
 
 The properties defined in the group tell SAYN how to generate tasks:
 
-  * `type`: this tells SAYN to create tasks of type [autosql](autosql.md)
-  * `file_name`: this property tells SAYN what files to use to generate tasks. The files for autosql tasks are stored under the `sql` folder, so this expression is telling us to create a task per file with the extension `sql` found in the `sql/core` folder
+  * `type`: this tells SAYN to create tasks of type [sql](sql.md)
+  * `file_name`: this property tells SAYN what files to use to generate tasks. The files for sql tasks are stored under the `sql` folder, so this expression is telling us to create a task per file with the extension `sql` found in the `sql/core` folder
   * `materialisation`: describes what database object to create in the database
   * `destination`: defines where to create the database object, in this case we're just using the name, which will simply be the name of the task
 
@@ -67,14 +67,14 @@ This definition of `groups` in the `project.yaml` file is available for `autosql
     ```
     groups:
       core:
-        type: autosql
+        type: sql
         file_name: "core/*.sql"
         materialisation: table
         destination:
           table: "{{ task.name }}"
     ```
 
-As you saw in the example above, task attributes can be defined in a dynamic way. This example shows how to use the task name to dynamically define a task. This will effectively tell the task to create the outputs of the `core` tasks into tables based on the `task` name, which is the name of the file without the `.sql` extension for `autosql` tasks.
+As you saw in the example above, task attributes can be defined in a dynamic way. This example shows how to use the task name to dynamically define a task. This will effectively tell the task to create the outputs of the `core` tasks into tables based on the `task` name, which is the name of the file without the `.sql` extension for `sql` tasks.
 
 !!! tip
     You can also reference to `{{ task.group }}` dynamically.
