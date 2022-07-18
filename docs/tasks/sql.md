@@ -38,7 +38,7 @@ An `sql` task is defined by the following attributes:
 
 * `type`: `sql`.
 * `file_name`: the path to a file **within the sql folder of the project's root**. When defining `sql` groups in `project.yaml` this property needs to be a glob expression, for example `group/*.sql`.
-* `materialisation`: this should be either `script`, `table`, `view` or `incremental`. `script` will execute a SQL script, `table` will create a table, `view` will create a view. `incremental` will create a table and will load the data incrementally based on a delete key (see more detail on `incremental` below).
+* `materialisation`: this should be either `script`, `table`, `view` or `incremental`. `script` will execute the code unmodified (after jinja compilation), `table` will create a table, `view` will create a view. `incremental` will create a table and will load the data incrementally based on a delete key (see more detail on `incremental` below).
 * `destination`: is the name of the object that will be created. It is defined like so `schema.table` (similarly to the `src` macro; look bellow). The schema part of the parameter is optional. The final compiled value is affected by `schema_prefix`, `schema_suffix` and `schema_override` as specified in [database objects](../database_objects.md).
 * `tmp_schema`: the (optional) schema which will be used to store any necessary temporary object created in the process. The final compiled value is affected by `schema_prefix`, `schema_suffix` and `schema_override` as specified in [database objects](../database_objects.md).
 * `schema`:
@@ -75,7 +75,7 @@ With `sql` tasks, you should use the `src` and `out` macro in your `SELECT` stat
     ```
 
 By using the `{{ src('my_table') }}` in your `FROM` clause, you are effectively telling SAYN that your task depends on the `my_table` table (or view). As a result, SAYN will look for the task that produces `my_table` and set it as a parent of this `sql` task automatically.
-Similarly, by using `{{ out('table') }}` anywhere in the script you can retrieve the proper name of the table to be created. In this way, you also tell SAYN the output of the SQL script.
+Similarly, by using `{{ out('table') }}` anywhere in the script you can retrieve the full name of the table to be created. In this way, you also tell SAYN the output of the SQL script.
 
 !!! info
     The `out` macro is only applicable to the `script` materialisation, as in the other cases you won't need to access the output table as SAYN handles table creation for you.
