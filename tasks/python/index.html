@@ -468,7 +468,7 @@
   
     <li class="md-nav__item">
       <a href="../autosql/" class="md-nav__link">
-        AutoSQL
+        AutoSQL[SUNSETTED]
       </a>
     </li>
   
@@ -1002,7 +1002,7 @@ def example_task(context, warehouse, param1):
 <p>The above example showcases the key elements to a python task:</p>
 <ul>
 <li><code>task</code>: we import SAYN's <code>task</code> decorator which is used to turn functions into SAYN tasks added to the DAG.</li>
-<li>parameters to <code>task</code>: we can pass parameters <code>sources</code>, <code>outputs</code> and <code>parents</code> which are either lists of table names or a single table name. This allows SAYN define the task dependencies.</li>
+<li>parameters to <code>task</code>: we can pass parameters <code>sources</code>, <code>outputs</code> and <code>parents</code> which are either lists of table names or a single table name. This allows SAYN define the task dependencies. We can also pass a value for <code>on_fail</code> and <code>tags</code>.</li>
 <li>function name: the name of the function (<code>example_task</code> here) will be the name of the task. We can use this name with <code>-t</code> to execute this task only for example.</li>
 <li>function parameters: arguments to the function have special meaning and so the names need to be respected:<ul>
 <li><code>context</code>: is an object granting access to some functionality like project parameters, connections and other functions as seen further down.</li>
@@ -1192,7 +1192,7 @@ is an optional message string that will be showed on the screen.</p>
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                AutoSQL
+                AutoSQL[SUNSETTED]
               </div>
             </div>
           </a>
