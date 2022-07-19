@@ -1,5 +1,21 @@
 # Change Log
 
+## [0.6.5] - 2022-07-19
+
+### Changed
+
+- sql tasks replace autosql with new materialisation "script"
+- Allows custom tests to be defined from project.yaml as a group with the type: test
+- Root for custom tests changed to the sql folder, rather than sql/tests
+
+### Fixed
+
+- UUID support for copy to BigQuery
+- Adds support for missing task properties to config macro and python task decorator
+- Fixes to introspection with missing connections
+- Upstream prod and from_prod are recognised with sayn test
+
+
 ## [0.6.4] - 2022-04-06
 
 ### Changed
