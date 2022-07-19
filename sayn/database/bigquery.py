@@ -4,9 +4,10 @@ import csv
 import datetime
 import decimal
 import io
-import json
 from typing import List, Optional, Union
+from uuid import UUID
 
+import orjson
 from pydantic import validator, Extra, BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.sql import sqltypes
@@ -182,6 +183,7 @@ class Bigquery(Database):
             datetime.timedelta: sqltypes.Interval,
             list: sqltypes.ARRAY,
             dict: sqltypes.JSON,
+            UUID: sqltypes.String,
         }
 
         if from_type not in python_types:
@@ -219,17 +221,9 @@ class Bigquery(Database):
         )
         client = self.engine.raw_connection()._client
 
-        def default(o):
-            if isinstance(o, (datetime.date, datetime.datetime)):
-                return o.isoformat()
-            elif isinstance(o, decimal.Decimal):
-                return f"{o}"
-            else:
-                raise ValueError("Unsuported type")
-
-        data_str = "\n".join([json.dumps(d, default=default) for d in data])
+        data_bytes = b"\n".join([orjson.dumps(d) for d in data])
         job = client.load_table_from_file(
-            io.StringIO(data_str), full_table_name, job_config=job_config
+            io.BytesIO(data_bytes), full_table_name, job_config=job_config
         )
         job.result()
 
