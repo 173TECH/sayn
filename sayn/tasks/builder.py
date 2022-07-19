@@ -8,6 +8,7 @@ from ..logging.task_event_tracker import TaskEventTracker
 from .task_wrapper import TaskWrapper
 from .dummy import DummyTask
 from .sql import SqlTask
+
 from .autosql import AutoSqlTask
 from .copy import CopyTask
 
