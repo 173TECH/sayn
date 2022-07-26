@@ -408,7 +408,7 @@ class Database:
         else:
             res = self.engine.execute(query)
 
-        return [dict(zip(res.keys(), r)) for r in res.fetchall()]
+        return [dict(zip([str(k) for k in res.keys()], r)) for r in res.fetchall()]
 
     def _read_data_stream(self, query, **params):
         """Executes the query and returns an iterator dictionaries with the data.
@@ -427,7 +427,7 @@ class Database:
         """
         with self.engine.connect().execution_options(stream_results=True) as connection:
             res = connection.execute(query, **params)
-            fields = res.keys()
+            fields = [str(k) for k in res.keys()]
 
             for record in res:
                 yield dict(zip(fields, record))

@@ -196,25 +196,7 @@ class Bigquery(Database):
             f"{self.project}.{self.dataset if schema is None else schema}.{table}"
         )
 
-        buffer = io.StringIO()
-        writer = csv.DictWriter(buffer, fieldnames=data[0].keys())
-        writer.writeheader()
-        writer.writerows(data)
-        buffer = io.BytesIO(buffer.getvalue().encode("utf-8"))
-
         from google.cloud import bigquery
-
-        # job_config = bigquery.LoadJobConfig(
-        #     source_format=bigquery.SourceFormat.CSV,
-        #     skip_leading_rows=1,
-        #     # autodect=True,
-        # )
-
-        # client = self.engine.raw_connection()._client
-        # job = client.load_table_from_file(
-        #     buffer, full_table_name, job_config=job_config
-        # )
-        # job.result()
 
         job_config = bigquery.LoadJobConfig(
             source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,

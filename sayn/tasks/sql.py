@@ -328,13 +328,12 @@ class SqlTask(Task):
         return Ok()
 
     def execute(self, execute, debug):
-        if self.run_arguments["debug"] and self.materialisation in (
-            "table",
-            "view",
-            "incremental",
-        ):
-            self.write_compilation_output(self.sql_query, "select")
-        elif self.materialisation in ("table", "view", "incremental"):
+        if self.materialisation in ("table", "view", "incremental"):
+            if self.run_arguments["debug"]:
+                self.write_compilation_output(self.sql_query, "select")
+            else:
+                self.write_compilation_output(self.sql_query)
+        elif self.materialisation in ("script",):
             self.write_compilation_output(self.sql_query)
 
         if self.materialisation == "view":
