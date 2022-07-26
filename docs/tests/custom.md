@@ -5,21 +5,31 @@
 Custom tests are defined in their own task group `tests`. In the test definition you provide an SQL query that comprises the test and during execution that query will get executed.
 
 !!! info
-    Defining normal tasks in the `tests` group will cause SAYN to fail. The SQL queries provided to the `custom` test, needs to live in a `tests` folder in the `sql` folder of the project.
+    Defining normal tasks in the `tests` group will cause SAYN to fail. The SQL queries provided to the `custom` test, needs to live in a folder in the `sql` folder of the project.
 
 ## Defining Tests
 
-Defining `custom` tests is quite straight-forward. You only need to provide a `file_name`:
+Defining `custom` tests is quite straight-forward. You only need to provide a `folder_name/file_name`:
 
 !!! example "tests.yaml"
     ```
     tests:
       test_1:
-        file_name: test.sql
+        file_name: *folder_in_sql*/test.sql
 
     tasks:
       ...
       ...
+    ```
+
+Custom tests can also be defined as groups (just like with `sql` tasks). The syntax is the same as in the `sql` tasks, like so:
+
+!!! example "project.yaml"
+    ```
+    groups:
+      tests:
+        type: test
+        file_name: "{{ task.group }}/*.sql"
     ```
 
 
