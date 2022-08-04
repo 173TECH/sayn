@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.6.6] - 2022-09-03
+
+### Fixed
+
+- Fixes serialisation to json preventing copy tasks to work on BigQuery
+- Fixes character encoding issue on windows
+
 ## [0.6.5] - 2022-07-19
 
 ### Changed
