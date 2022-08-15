@@ -49,6 +49,7 @@ class Compiler(BaseCompiler):
             loader=FileSystemLoader(Path(".")),
             undefined=StrictUndefined,
             keep_trailing_newline=True,
+            cache_size=0,
         )
 
     def _get_template(
