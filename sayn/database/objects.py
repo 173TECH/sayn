@@ -233,6 +233,11 @@ class DbObjectCompiler:
             # static analysis errors
             raise ValueError("Error interpreting object string")
 
+        if components["schema"] is None:
+            # If a user forgets to add a schema, the execution fails
+            # without a descriptive error.
+            raise ValueError(f"No schema for database object {obj}")
+
         return DbObject(
             self,
             connection_name,
