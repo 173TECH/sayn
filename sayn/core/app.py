@@ -639,20 +639,28 @@ class App:
 
     def finish_app(self, error=None):
         duration = datetime.now() - self.app_start_ts
-        if error is None:
-            self.tracker.report_event(
-                event="finish_app",
-                duration=duration,
-                tasks={k: v.status for k, v in self.tasks.items()},
-            )
-            sys.exit(0)
-        else:
+        if error is not None:
             self.tracker.report_event(
                 event="finish_app",
                 duration=duration,
                 error=error,
             )
             sys.exit(-1)
+        else:
+            self.tracker.report_event(
+                event="finish_app",
+                duration=duration,
+                tasks={k: v.status for k, v in self.tasks.items()},
+            )
+            if any(
+                [
+                    t.status in (TaskStatus.SETUP_FAILED, TaskStatus.FAILED)
+                    for _, t in self.tasks.items()
+                ]
+            ):
+                sys.exit(-1)
+            else:
+                sys.exit()
 
     def cleanup_compilation(self):
         folder = self.run_arguments.folders.compile
