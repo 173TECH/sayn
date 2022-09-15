@@ -526,7 +526,12 @@ class App:
             for conn, g in groupby(
                 sorted(
                     to_introspect,
-                    key=lambda x: (x.connection_name, x.database, x.schema, x.table),
+                    key=lambda x: (
+                        x.connection_name,
+                        x.database,
+                        x.schema or "",
+                        x.table,
+                    ),
                 ),
                 key=lambda x: x.connection_name,
             )

@@ -490,7 +490,7 @@ class Database:
                 self.name,
                 self.db_type,
                 "Incorrect ddl provided",
-                errors=result.error["errors"],
+                errors=result.error.details["errors"],
             )
         else:
             ddl = result.value
