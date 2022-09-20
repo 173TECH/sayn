@@ -1,5 +1,19 @@
 # Change Log
 
+## [0.6.7] - 2022-09-20
+
+### Changed
+
+- Drop support for Python 3.7
+- Upgrades numpy version
+- Improved messaging upon load_data errors
+- Removed Jinja caching to allow more code reusability
+
+### Fixed
+
+- CLI command status code changed to error when tasks fail
+- Fixed error in src or out to allow for missing schema
+
 ## [0.6.6] - 2022-09-03
 
 ### Fixed
