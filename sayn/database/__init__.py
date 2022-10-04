@@ -25,7 +25,7 @@ class Columns(BaseModel):
 
     class Tests(BaseModel):
         name: Optional[str]
-        allowed_values: Optional[List[str]]
+        allowed_values: Optional[List[Union[int, float, bool, str]]]
         execute: bool = True
 
         class Config:
@@ -185,6 +185,12 @@ class Database:
             # Force a query to test the connection
             self.execute("select 1")
 
+    def format_type(value):
+        if isinstance(value, str):
+            return f"'{value}'"
+        else:
+            return value
+
     def _construct_tests_template(self, columns, table, test_file_name, schema):
         query = """
                    SELECT val
@@ -207,7 +213,7 @@ class Database:
                         "type": t["type"],
                         "execute": t["execute"],
                         "allowed_values": ", ".join(
-                            f"'{c}'" for c in t["allowed_values"]
+                            f"{format_type(c)}" for c in t["allowed_values"]
                         ),
                     }
                 )
@@ -223,7 +229,7 @@ class Database:
                             else col["dst_name"],
                             "type": t["type"],
                             "allowed_values": ", ".join(
-                                f"'{c}'" for c in t["allowed_values"]
+                                f"{format_type(c)}" for c in t["allowed_values"]
                             ),
                         },
                     )
@@ -734,3 +740,10 @@ def fully_qualify(name, schema=None):
 
 def tmp_name(name):
     return f"sayn_tmp_{name}"
+
+
+def format_type(value):
+    if isinstance(value, str):
+        return f"'{value}'"
+    else:
+        return value
