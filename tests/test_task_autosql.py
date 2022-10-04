@@ -543,7 +543,7 @@ def test_autosql_test_values(tmp_path, target_db):
         tmp_path,
         used_objects,
         target_db,
-        "SELECT '1' AS x",
+        "SELECT 1 AS x",
         run_arguments={"command": "test"},
     ) as task:
         assert task.config(
@@ -556,7 +556,7 @@ def test_autosql_test_values(tmp_path, target_db):
                     "tests": [
                         {"name": "unique"},
                         {"name": "not_null"},
-                        {"name": "allowed_values", "allowed_values": ["1"]},
+                        {"name": "allowed_values", "allowed_values": [1]},
                     ],
                 }
             ],
