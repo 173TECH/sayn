@@ -185,12 +185,6 @@ class Database:
             # Force a query to test the connection
             self.execute("select 1")
 
-    def format_type(value):
-        if isinstance(value, str):
-            return f"'{value}'"
-        else:
-            return value
-
     def _construct_tests_template(self, columns, table, test_file_name, schema):
         query = """
                    SELECT val
