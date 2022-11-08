@@ -41,7 +41,6 @@ An `sql` task is defined by the following attributes:
 * `materialisation`: this should be either `script`, `table`, `view` or `incremental`. `script` will execute the code unmodified (after jinja compilation), `table` will create a table, `view` will create a view. `incremental` will create a table and will load the data incrementally based on a delete key (see more detail on `incremental` below).
 * `destination`: is the name of the object that will be created. It is defined like so `schema.table` (similarly to the `src` macro; look bellow). The schema part of the parameter is optional. The final compiled value is affected by `schema_prefix`, `schema_suffix` and `schema_override` as specified in [database objects](../database_objects.md).
 * `tmp_schema`: the (optional) schema which will be used to store any necessary temporary object created in the process. The final compiled value is affected by `schema_prefix`, `schema_suffix` and `schema_override` as specified in [database objects](../database_objects.md).
-* `schema`:
 * `table`:  The final compiled value is affected by `table_prefix`, `table_suffix` and `table_override` as specified in [database objects](../database_objects.md).
 * `db`: the (optional) destination database.
 * `delete_key`: specifies the incremental process delete key. This is for `incremental` `materialisation` only.
@@ -172,8 +171,8 @@ SAYN also lets you control the CREATE TABLE statement if you need more specifica
   - allowed_values: list allowed values for the column.
 
 `table_properties` can define the following attributes (database specific):
-* indexes:
-* sorting: specify the sorting for the table
+* indexes: specify the indexing for the table.
+* sorting: specify the sorting for the table.
 * distribution_key: specify the type of distribution.
 * partitioning: specify the partitioning model for the table.
 * clustering: specify the clustering for the table.
