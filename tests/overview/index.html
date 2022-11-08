@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://173tech.github.io/sayn/tests/overview/">
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
+      <meta name="generator" content="mkdocs-1.4.0, mkdocs-material-6.2.8">
     
     
       
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#data_tests" class="md-skip">
+        <a href="#tests" class="md-skip">
           Skip to content
         </a>
       
@@ -942,25 +942,19 @@
               
                 
                 
-                <h1 id="data_tests">Data Tests<a class="headerlink" href="#data_tests" title="Permanent link">&para;</a></h1>
+                <h1 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h1>
 <h2 id="about">About<a class="headerlink" href="#about" title="Permanent link">&para;</a></h2>
 <p>SAYN provides an extension to the functionality of the <code>columns</code> field in task definitions that enables the user to make use of predefined (standard) or custom tests for their table data fields.</p>
-<p>Standard tests are implemented for the <code>autosql</code> and <code>copy</code> task types, while custom tests are not task bound and can be applied to any table in the warehouse. Custom tests work like SAYN <code>sql</code> tasks with a specific SQL query structure that only execute during the SAYN test suite.</p>
-<p>Running <code>sayn test</code> through the CLI will execute the standard and custom tests for a given project.</p>
+<p>Standard tests are implemented for the <code>sql</code> and <code>copy</code> task types, while custom tests are not task bound and can be applied to any table in the warehouse. Custom tests work like SAYN <code>sql</code> script tasks with a specific SQL query structure that only execute during the SAYN test suite.</p>
+<p>Running <code>sayn test</code> through the CLI will execute all and only the standard and custom tests for a given project.</p>
 <p>All CLI usage for tasks applies to tests as well, with the major difference being that tests don't make use of a DAG to determine the order of execution (so attempting to execute tests on parents of children of a task is not supported).</p>
-<p>Examples:</p>
-<ul>
-<li><code>sayn test -t test_name</code>: run <code>task_name</code> only.</li>
-<li><code>sayn test -t test1 test2</code>: runs <code>task1</code> and <code>task2</code> only.</li>
-<li><code>sayn test -x test_name</code>: run all tests except <code>task_name</code>.</li>
-</ul>
 <h2 id="test_types">Test Types<a class="headerlink" href="#test_types" title="Permanent link">&para;</a></h2>
 <p>Please see below the available SAYN test types:</p>
 <ul>
 <li><a href="../standard/"><code>unique</code></a>: is applied on any number of columns of a given table and is responsible for validating uniqueness. This will also define constraints during the table creation where applicable.</li>
 <li><a href="../standard/"><code>not_null</code></a>: is applied on any number of columns of a given table and is responsible for validating nullity (or rather the lack of it). This will also define constraints during the table creation where applicable.</li>
 <li><a href="../standard/"><code>allowed_values</code></a>: is applied on any number of columns of a given table and is responsible for validating accepted values. This will also define constraints during the table creation where applicable.</li>
-<li><a href="../custom/"><code>custom</code></a>: is a specifically formated SQL query whose output is used to validate a successful or failed test.</li>
+<li><a href="../custom/"><code>custom</code></a>: is a specifically formatted SQL query whose output is used to validate a successful or failed test.</li>
 </ul>
 <h2 id="defining_tests">Defining Tests<a class="headerlink" href="#defining_tests" title="Permanent link">&para;</a></h2>
 <p>Tests are defined in a list format using the <code>tests</code> subfield for each entry in <code>columns</code>. For <code>unique</code> and <code>not_null</code> you need to include these keywords in the list, while for <code>allowed_values</code> we define another list that is populated by the allowed string values for that data field.</p>
@@ -992,21 +986,24 @@
 <div class="highlight"><pre><span></span><code>{{ config(columns=[ {&#39;name&#39;: &#39;id&#39;, &#39;tests&#39;:[&#39;unique&#39;, &#39;not_null&#39;]},
                     {&#39;name&#39;:&#39;alias&#39;, &#39;tests&#39;:[&#39;allowed_values&#39;:[&#39;first&#39;,&#39;second&#39;,&#39;third&#39;]}]) }}
 
-
 SELECT ...
 </code></pre></div>
 </div>
-<p>Custom tests are defined in their own task group called <code>tests</code> (defining tasks in an arbitrary <code>test</code> group will cause SAYN to fail). <code>custom</code> tests are provided with an SQL file that needs to exist in a <code>tests</code> folder in the <code>sql</code> project folder.</p>
+<p>Custom tests can be defined as groups (just like with <code>sql</code> tasks). The syntax is the same as in the <code>sql</code> tasks, like so:</p>
+<div class="admonition example">
+<p class="admonition-title">project.yaml</p>
+<div class="highlight"><pre><span></span><code>groups:
+  tests:
+    type: test
+    file_name: &quot;{{ task.group }}/*.sql&quot;
+</code></pre></div>
+</div>
+<p>We can also define custom tests in their own task group called <code>tests</code> (defining tasks in an arbitrary <code>test</code> group will cause SAYN to fail). <code>custom</code> tests are provided with the path to an SQL file that needs to exist in a folder in the <code>sql</code> project folder.</p>
 <p>For example, we can define a custom tests that executes the test query presented bellow:</p>
 <div class="admonition example">
 <p class="admonition-title">tests.yaml</p>
 <div class="highlight"><pre><span></span><code>tests:
-  test_1:
-    file_name: test.sql
-
-tasks:
-  ...
-  ...
+  file_name: *folder_in_sql*/test.sql
 </code></pre></div>
 </div>
 <div class="admonition example">
@@ -1017,6 +1014,10 @@ WHERE l.arena_id IS NULL
 GROUP BY l.arena_id
 HAVING COUNT(*) &gt; 0
 </code></pre></div>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>This is a breaking change from <code>0.6.4</code> as you could not define custom tests as groups. Custom tests using the yaml definition now need to include a longer path (including the folder name that houses them in the <code>sql</code> folder).</p>
 </div>
 <p>You can read more about test types by heading to the corresponding pages.</p>
                 
@@ -1099,7 +1100,7 @@ HAVING COUNT(*) &gt; 0
     </div>
     
       <script src="../../assets/javascripts/vendor.18f0862e.min.js"></script>
-      <script src="../../assets/javascripts/bundle.994580cf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      <script src="../../assets/javascripts/bundle.994580cf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing"}</script>
       
       <script>
         app = initialize({

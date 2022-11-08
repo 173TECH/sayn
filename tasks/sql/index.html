@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://173tech.github.io/sayn/tasks/sql/">
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
+      <meta name="generator" content="mkdocs-1.4.0, mkdocs-material-6.2.8">
     
     
       
@@ -1050,7 +1050,6 @@ groups:
 <li><code>materialisation</code>: this should be either <code>script</code>, <code>table</code>, <code>view</code> or <code>incremental</code>. <code>script</code> will execute the code unmodified (after jinja compilation), <code>table</code> will create a table, <code>view</code> will create a view. <code>incremental</code> will create a table and will load the data incrementally based on a delete key (see more detail on <code>incremental</code> below).</li>
 <li><code>destination</code>: is the name of the object that will be created. It is defined like so <code>schema.table</code> (similarly to the <code>src</code> macro; look bellow). The schema part of the parameter is optional. The final compiled value is affected by <code>schema_prefix</code>, <code>schema_suffix</code> and <code>schema_override</code> as specified in <a href="../../database_objects/">database objects</a>.</li>
 <li><code>tmp_schema</code>: the (optional) schema which will be used to store any necessary temporary object created in the process. The final compiled value is affected by <code>schema_prefix</code>, <code>schema_suffix</code> and <code>schema_override</code> as specified in <a href="../../database_objects/">database objects</a>.</li>
-<li><code>schema</code>:</li>
 <li><code>table</code>:  The final compiled value is affected by <code>table_prefix</code>, <code>table_suffix</code> and <code>table_override</code> as specified in <a href="../../database_objects/">database objects</a>.</li>
 <li><code>db</code>: the (optional) destination database.</li>
 <li><code>delete_key</code>: specifies the incremental process delete key. This is for <code>incremental</code> <code>materialisation</code> only.</li>
@@ -1174,8 +1173,8 @@ refresh (<code>materialisation: table</code>) would be infeasible.</p>
 <li>allowed_values: list allowed values for the column.</li>
 </ul>
 <p><code>table_properties</code> can define the following attributes (database specific):
-* indexes:
-* sorting: specify the sorting for the table
+* indexes: specify the indexing for the table.
+* sorting: specify the sorting for the table.
 * distribution_key: specify the type of distribution.
 * partitioning: specify the partitioning model for the table.
 * clustering: specify the clustering for the table.</p>
@@ -1292,7 +1291,7 @@ refresh (<code>materialisation: table</code>) would be infeasible.</p>
     </div>
     
       <script src="../../assets/javascripts/vendor.18f0862e.min.js"></script>
-      <script src="../../assets/javascripts/bundle.994580cf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      <script src="../../assets/javascripts/bundle.994580cf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing"}</script>
       
       <script>
         app = initialize({

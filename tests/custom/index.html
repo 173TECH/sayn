@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://173tech.github.io/sayn/tests/custom/">
       
       <link rel="shortcut icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-6.2.8">
+      <meta name="generator" content="mkdocs-1.4.0, mkdocs-material-6.2.8">
     
     
       
@@ -947,19 +947,28 @@
 <p>Custom tests are defined in their own task group <code>tests</code>. In the test definition you provide an SQL query that comprises the test and during execution that query will get executed.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>Defining normal tasks in the <code>tests</code> group will cause SAYN to fail. The SQL queries provided to the <code>custom</code> test, needs to live in a <code>tests</code> folder in the <code>sql</code> folder of the project.</p>
+<p>Defining normal tasks in the <code>tests</code> group will cause SAYN to fail. The SQL queries provided to the <code>custom</code> test, needs to live in a folder in the <code>sql</code> folder of the project.</p>
 </div>
 <h2 id="defining_tests">Defining Tests<a class="headerlink" href="#defining_tests" title="Permanent link">&para;</a></h2>
-<p>Defining <code>custom</code> tests is quite straight-forward. You only need to provide a <code>file_name</code>:</p>
+<p>Defining <code>custom</code> tests is quite straight-forward. You only need to provide a <code>folder_name/file_name</code>:</p>
 <div class="admonition example">
 <p class="admonition-title">tests.yaml</p>
 <div class="highlight"><pre><span></span><code>tests:
   test_1:
-    file_name: test.sql
+    file_name: *folder_in_sql*/test.sql
 
 tasks:
   ...
   ...
+</code></pre></div>
+</div>
+<p>Custom tests can also be defined as groups (just like with <code>sql</code> tasks). The syntax is the same as in the <code>sql</code> tasks, like so:</p>
+<div class="admonition example">
+<p class="admonition-title">project.yaml</p>
+<div class="highlight"><pre><span></span><code>groups:
+  tests:
+    type: test
+    file_name: &quot;{{ task.group }}/*.sql&quot;
 </code></pre></div>
 </div>
 <h2 id="writing_custom_test_queries">Writing <code>custom</code> test queries<a class="headerlink" href="#writing_custom_test_queries" title="Permanent link">&para;</a></h2>
@@ -1063,7 +1072,7 @@ HAVING COUNT(*) &gt; 1
     </div>
     
       <script src="../../assets/javascripts/vendor.18f0862e.min.js"></script>
-      <script src="../../assets/javascripts/bundle.994580cf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      <script src="../../assets/javascripts/bundle.994580cf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing"}</script>
       
       <script>
         app = initialize({
