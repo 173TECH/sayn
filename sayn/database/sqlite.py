@@ -39,6 +39,7 @@ class Sqlite(Database):
         self, database: Optional[str], schema: Optional[str], table: str
     ) -> str:
         if schema is not None:
+            print(schema)
             raise ValueError("Sqlite doesn't support schemas")
 
         return (

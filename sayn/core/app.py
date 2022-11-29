@@ -201,9 +201,9 @@ class App:
 
         # Temporarily store the raw stringify strings
         self.input_prod_stringify = {
-            "database_prefix": None,  # project.database_prefix,
-            "database_suffix": None,  # project.database_suffix,
-            "database_override": None,  # project.database_override,
+            "database_prefix": project.database_prefix,
+            "database_suffix": project.database_suffix,
+            "database_override": project.database_override,
             "schema_prefix": project.schema_prefix,
             "schema_suffix": project.schema_suffix,
             "schema_override": project.schema_override,
@@ -212,9 +212,9 @@ class App:
             "table_override": project.table_override,
         }
         self.input_stringify = {
-            "database_prefix": None,  # project.database_prefix,
-            "database_suffix": None,  # project.database_suffix,
-            "database_override": None,  # project.database_override,
+            "database_prefix": project.database_prefix,
+            "database_suffix": project.database_suffix,
+            "database_override": project.database_override,
             "schema_prefix": project.schema_prefix,
             "schema_suffix": project.schema_suffix,
             "schema_override": project.schema_override,
@@ -303,7 +303,6 @@ class App:
             return result
         else:
             self.connections = result.value
-
         # Object compilation objects
         self.input_stringify.update(stringify)
         self.db_object_compiler = DbObjectCompiler(
@@ -528,7 +527,7 @@ class App:
                     to_introspect,
                     key=lambda x: (
                         x.connection_name,
-                        x.database,
+                        x.database or "",
                         x.schema or "",
                         x.table,
                     ),

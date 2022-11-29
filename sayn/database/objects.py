@@ -50,11 +50,11 @@ class DbObject:
 
 class DbObjectCompiler:
     # 3 levels is not fully supported
-    # regex_obj = re.compile(
-    #     r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?((?P<c2>.+)\.)?(?P<c3>[^.]+)"
-    # )
-
-    regex_obj = re.compile(r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?(?P<c2>[^.]+)")
+    regex_obj = re.compile(
+        r"((?P<connection>[^:]+):)?((?P<c1>[^.]+)\.)?((?P<c2>[^.]+)\.)?(?P<c3>[^.]+)"
+    )
+    # ((?P<connection>[^:]+):)?((?P<c1>.+)\.)?((?P<c2>.+)\.)(?P<c3>[^.]+)
+    # regex_obj = re.compile(r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?(?P<c2>[^.]+)")
 
     def __init__(
         self,
@@ -112,7 +112,6 @@ class DbObjectCompiler:
 
             if suffix is not None and len(suffix) > 0:
                 stringify = stringify + "_" + suffix
-
         return stringify
 
     def set_sources_from_prod(self, sources_from_prod: Set[DbObject]) -> None:

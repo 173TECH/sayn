@@ -325,9 +325,9 @@ class Database:
         out = dict()
 
         for database, schemas in to_introspect.items():
-            if database != "":
-                # We currently don't support 3 levels of db object specification.
-                raise ValueError("3 level db objects are not currently supported")
+            # if database != "":
+            #     # We currently don't support 3 levels of db object specification.
+            #     raise ValueError("3 level db objects are not currently supported")
 
             for schema, req_objs in schemas.items():
                 if schema == "":
