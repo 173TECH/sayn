@@ -50,8 +50,11 @@ class DbObject:
 
 class DbObjectCompiler:
     # 3 levels is not fully supported
+    # regex_obj = re.compile(
+    #     r"((?P<connection>[^:]+):)?((?P<c1>[^.]+)\.)?((?P<c2>[^.]+)\.)?(?P<c3>[^.]+)"
+    # )
     regex_obj = re.compile(
-        r"((?P<connection>[^:]+):)?((?P<c1>[^.]+)\.)?((?P<c2>[^.]+)\.)?(?P<c3>[^.]+)"
+        r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?((?P<c2>.+)\.)(?P<c3>[^.]+)"
     )
     # ((?P<connection>[^:]+):)?((?P<c1>.+)\.)?((?P<c2>.+)\.)(?P<c3>[^.]+)
     # regex_obj = re.compile(r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?(?P<c2>[^.]+)")
@@ -197,6 +200,7 @@ class DbObjectCompiler:
             in_connection_name = connection
 
         groups = match.groupdict()
+        print(groups)
         if groups["connection"] is None:
             if connection is None:
                 connection_name = self.default_db
