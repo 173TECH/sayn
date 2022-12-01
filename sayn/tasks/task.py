@@ -112,6 +112,7 @@ class Task:
         compiler,
         src,
         out,
+        on_fail,
     ):
         self.name = name
         self.group = group
@@ -124,6 +125,7 @@ class Task:
         self.compiler = compiler
         self.src = src
         self.out = out
+        self.on_fail = on_fail
 
         # This is a dictionary of configuration that can be passed from the runner to the wrapper
         self._config_input = {
@@ -131,7 +133,7 @@ class Task:
             "outputs": set(),
             "parents": set(),
             "tags": set(),
-            "on_fail": None,
+            "on_fail": on_fail,
             "task_name": None,
         }
 

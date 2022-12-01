@@ -22,6 +22,7 @@ _excluded_properties = (
     "class",
     "preset",
     "on_fail",
+    "module",
 )
 
 
@@ -75,12 +76,13 @@ class TaskWrapper:
         compiler,
         db_object_compiler,
     ):
+
         self.tags = set(tags or set())
         self.parent_names = set(parent_names or set())
         self.parents = list()
-        self.sources_yaml = set(sources or set())
+        self.sources_yaml = set([sources] if sources else set())
         self.sources = set()
-        self.outputs_yaml = set(outputs or set())
+        self.outputs_yaml = set([outputs] if outputs else set())
         self.outputs = set()
         self.sources_from_prod = set()
         self.used_connections = set()
@@ -158,11 +160,16 @@ class TaskWrapper:
                 self.compiler,
                 self.src,
                 self.out,
+                self.on_fail,
             )
         except Exception as exc:
             self.status = TaskStatus.FAILED
             return Exc(exc, where="create_task_runner")
 
+        # compile Outputs YAML and Sources YAML
+        self.outputs_yaml = (self.compiler.compile(o) for o in self.outputs_yaml)
+
+        self.sources_yaml = (self.compiler.compile(o) for o in self.sources_yaml)
         # convert sources and outputs from strings in yaml
         # Now we can compile the other properties
         runner_config = {

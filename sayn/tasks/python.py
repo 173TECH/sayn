@@ -62,6 +62,7 @@ class DecoratorTask(PythonTask):
             compiler,
             src,
             out,
+            on_fail,
         )
 
         self.compiler.update_globals(src=self.src, out=self.out)
@@ -125,7 +126,7 @@ class DecoratorTaskWrapper(Task):
         outputs: Optional[Union[List[str], str]] = None,
         parents: Optional[Union[List[str], str]] = None,
         tags: Optional[Union[List[str], str]] = None,
-        on_fail: Optional[OnFailValue] = None,
+        on_fail: Optional[str] = None,
     ):
         """The init method collects the information provided by the decorator itself"""
 
@@ -188,6 +189,7 @@ class DecoratorTaskWrapper(Task):
         compiler,
         src,
         out,
+        on_fail,
     ):
         task = DecoratorTask(
             name,
