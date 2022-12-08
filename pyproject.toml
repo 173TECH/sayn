@@ -87,7 +87,7 @@ typing-inspect = { version = "0.7.1", optional = true }
 
 # Shared by BigQuery and Snowflake
 charset-normalizer = { version = "2.0.12", optional = true }
-certifi = { version = "2021.10.8", optional = true }
+certifi = { version = "2022.12.7", optional = true }
 idna = { version = "3.3", optional = true }
 requests = { version = "2.27.1", optional = true }
 urllib3 = { version = "1.26.8", optional = true }
