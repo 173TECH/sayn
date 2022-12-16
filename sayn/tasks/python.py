@@ -126,7 +126,7 @@ class DecoratorTaskWrapper(Task):
         outputs: Optional[Union[List[str], str]] = None,
         parents: Optional[Union[List[str], str]] = None,
         tags: Optional[Union[List[str], str]] = None,
-        on_fail: Optional[str] = None,
+        on_fail: Optional[OnFailValue] = None,
     ):
         """The init method collects the information provided by the decorator itself"""
 
@@ -189,7 +189,6 @@ class DecoratorTaskWrapper(Task):
         compiler,
         src,
         out,
-        on_fail,
     ):
         task = DecoratorTask(
             name,

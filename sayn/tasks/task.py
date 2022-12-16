@@ -133,7 +133,7 @@ class Task:
             "outputs": set(),
             "parents": set(),
             "tags": set(),
-            "on_fail": on_fail,
+            "on_fail": None,
             "task_name": None,
         }
 
