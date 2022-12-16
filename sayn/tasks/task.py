@@ -112,7 +112,6 @@ class Task:
         compiler,
         src,
         out,
-        on_fail,
     ):
         self.name = name
         self.group = group
@@ -125,7 +124,6 @@ class Task:
         self.compiler = compiler
         self.src = src
         self.out = out
-        self.on_fail = on_fail
 
         # This is a dictionary of configuration that can be passed from the runner to the wrapper
         self._config_input = {
@@ -348,5 +346,7 @@ class Task:
         path.parent.mkdir(parents=True, exist_ok=True)
         if path.exists():
             path.unlink()
+
+        path.write_text(str(content))
 
         path.write_text(str(content))

@@ -62,7 +62,6 @@ class DecoratorTask(PythonTask):
             compiler,
             src,
             out,
-            on_fail,
         )
 
         self.compiler.update_globals(src=self.src, out=self.out)
