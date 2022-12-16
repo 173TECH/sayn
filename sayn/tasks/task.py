@@ -348,5 +348,3 @@ class Task:
             path.unlink()
 
         path.write_text(str(content))
-
-        path.write_text(str(content))
