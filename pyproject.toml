@@ -22,7 +22,7 @@ SQLAlchemy = ">=1.4.25,<2.0.0"
 pydantic = ">=1.9.0,<1.10.0"
 
 "ruamel.yaml" = "0.17.21"
-"ruamel.yaml.clib" = "0.2.6"
+"ruamel.yaml.clib" = "0.2.7"
 orjson = ">=3.7.7"
 
 # CLI
