@@ -2153,7 +2153,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 
 [extras]
 all = ["graphviz", "psycopg2", "PyMySQL", "snowflake-sqlalchemy", "sqlalchemy-bigquery", "graphviz"]
-bigquery = ["sqlalchemy-bigquery"]
+bigquery = ["sqlalchemy-bigquery", "google-cloud-bigquery-storage"]
 graphviz = ["graphviz"]
 mysql = ["PyMySQL"]
 postgresql = ["psycopg2"]
@@ -2162,4 +2162,4 @@ snowflake = ["snowflake-sqlalchemy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.8.1, <= 4.0"
-content-hash = "e5ddb9059bd96217b688666623afe027ffbb9d036589b73e9e9dbf2c491db2ba"
+content-hash = "c036e20411dd30e90d235495e819f5f91b479295e03493c914d4112c811acf40"

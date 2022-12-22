@@ -56,7 +56,7 @@ all = ["graphviz", "psycopg2", "pymysql", "snowflake-sqlalchemy", "sqlalchemy-bi
 postgresql = ["psycopg2"]
 mysql = ["pymysql"]
 snowflake = ["snowflake-sqlalchemy"]
-bigquery = ["sqlalchemy-bigquery"]
+bigquery = ["sqlalchemy-bigquery", "google-cloud-bigquery-storage"]
 graphviz = ["graphviz"]
 
 [tool.poetry.scripts]
