@@ -12,6 +12,9 @@ pip install "sayn[bigquery]"
     [sqlalchemy-bigquery](https://github.com/googleapis/python-bigquery-sqlalchemy). When upgrading, pybigquery
     should be uninstalled with `pip uninstall pybigquery`.
 
+!!! warning
+    The current version of [sqlalchemy-bigquery](https://github.com/googleapis/python-bigquery-sqlalchemy) doesn't
+    support Python 3.11 and so SAYN doesn't support for BigQuery on 3.11.
 
 The [Bigquery](https://cloud.google.com/bigquery){target="\_blank"} connector looks for the following parameters:
 
