@@ -335,7 +335,10 @@ def get_tasks_dict(
             group_definition["type"] = "python_module"
             if "module" not in group_definition:
                 return Err("task", "missing_module", group=group_name)
-            module_path = group_definition.pop("module", None)
+            module_path = compiler.compile(
+                group_definition.pop("module", None),
+                task=TaskJinjaEnv(group=group_name),
+            )
             result = python_loader.get_objects(
                 "python_tasks", module_path, DecoratorTaskWrapper
             )

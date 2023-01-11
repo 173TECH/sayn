@@ -191,6 +191,7 @@ class DbObjectCompiler:
         2 or 3 components is specified here.
         """
         match = self.regex_obj.match(obj)
+
         if match is None:
             raise ValueError(f'Incorrect format for database object "{obj}"')
 

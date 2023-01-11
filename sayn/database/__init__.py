@@ -8,6 +8,7 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from pydantic import BaseModel, validator, Extra
 from sqlalchemy import MetaData, Table
 from sqlalchemy.sql import sqltypes
+from sqlalchemy import text
 import sqlalchemy
 
 from ..core.errors import DBError, Exc, Ok
@@ -389,7 +390,7 @@ class Database:
             script (sql): The SQL script to execute
         """
         with self.engine.connect().execution_options(autocommit=True) as connection:
-            connection.execute(script)
+            connection.execute(text(script))
 
     def read_data(self, query, **params):
         """Executes the query and returns a list of dictionaries with the data.
