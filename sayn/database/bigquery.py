@@ -120,35 +120,44 @@ class Bigquery(Database):
             #     # We currently don't support 3 levels of db object specification.
             #     raise ValueError("3 level db objects are not currently supported")
 
-            print(project)
-            print(datasets)
-
             if project is None or project == "":
                 proj_name = self.project
             else:
                 proj_name = project
 
             for dataset, objects in datasets.items():
-                if dataset is None or dataset == "":
-                    ds_name = self.dataset
-                else:
-                    ds_name = dataset
 
-                query = f"""SELECT t.table_name AS name
-                                  , t.table_type AS type
-                                  , array_agg(STRUCT(c.column_name, c.is_partitioning_column = 'YES' AS is_partition, c.clustering_ordinal_position)
-                                              ORDER BY clustering_ordinal_position) AS columns
-                               FROM {proj_name}.{ds_name}.INFORMATION_SCHEMA.TABLES t
-                               JOIN {proj_name}.{ds_name}.INFORMATION_SCHEMA.COLUMNS c
-                                 ON c.table_name = t.table_name
-                              WHERE t.table_name IN ({', '.join(f"'{ts}'" for ts in objects)})
-                              GROUP BY 1,2
-                        """
-                print(query)
-                db_objects = {
-                    o["name"]: {"type": o["type"], "columns": o["columns"]}
-                    for o in self.read_data(query)
-                }
+                # get datasets in the warehouse
+                schemas_query = f"""
+                                SELECT schema_name
+                                FROM {proj_name}.INFORMATION_SCHEMA.SCHEMATA
+                                """
+                warehouse_schemas = [
+                    o["schema_name"] for o in self.read_data(schemas_query)
+                ]
+                if dataset in warehouse_schemas:
+                    if dataset is None or dataset == "":
+                        ds_name = self.dataset
+                    else:
+                        ds_name = dataset
+
+                    query = f"""SELECT t.table_name AS name
+                                      , t.table_type AS type
+                                      , array_agg(STRUCT(c.column_name, c.is_partitioning_column = 'YES' AS is_partition, c.clustering_ordinal_position)
+                                                  ORDER BY clustering_ordinal_position) AS columns
+                                   FROM {proj_name}.{ds_name}.INFORMATION_SCHEMA.TABLES t
+                                   JOIN {proj_name}.{ds_name}.INFORMATION_SCHEMA.COLUMNS c
+                                     ON c.table_name = t.table_name
+                                  WHERE t.table_name IN ({', '.join(f"'{ts}'" for ts in objects)})
+                                  GROUP BY 1,2
+                            """
+
+                    db_objects = {
+                        o["name"]: {"type": o["type"], "columns": o["columns"]}
+                        for o in self.read_data(query)
+                    }
+                else:
+                    db_objects = dict()
 
                 if dataset not in self._requested_objects:
                     self._requested_objects[dataset] = dict()

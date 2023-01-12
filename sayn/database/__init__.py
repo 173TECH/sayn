@@ -331,19 +331,24 @@ class Database:
             #     raise ValueError("3 level db objects are not currently supported")
 
             for schema, req_objs in schemas.items():
-                if schema == "":
-                    schema = None
+                # get schemas in the warehouse
+                warehouse_schemas = insp.get_schema_names()
+                if schema in warehouse_schemas:
+                    if schema == "":
+                        schema = None
 
-                if schema is None:
-                    db_objects = [
-                        ("table", insp.get_table_names()),
-                        ("view", insp.get_view_names()),
-                    ]
+                    if schema is None:
+                        db_objects = [
+                            ("table", insp.get_table_names()),
+                            ("view", insp.get_view_names()),
+                        ]
+                    else:
+                        db_objects = [
+                            ("table", insp.get_table_names(schema)),
+                            ("view", insp.get_view_names(schema)),
+                        ]
                 else:
-                    db_objects = [
-                        ("table", insp.get_table_names(schema)),
-                        ("view", insp.get_view_names(schema)),
-                    ]
+                    db_objects = list()
 
                 # flatten the results
                 db_objects = {o: t for t, obs in db_objects for o in obs}
@@ -359,6 +364,7 @@ class Database:
                         out[schema][obj_name] = {"type": None}
 
         self._requested_objects = out
+        print(f"here: {out}")
 
     def _py2sqa(self, from_type):
         python_types = {
