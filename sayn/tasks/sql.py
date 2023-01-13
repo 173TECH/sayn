@@ -104,11 +104,11 @@ class SqlTask(Task):
         def_connections_src = []
         def_connections_out = []
 
-        def def_src(obj):
+        def def_src(obj, level=None):
             def_connections_src.append(obj)
             return ""
 
-        def def_out(obj):
+        def def_out(obj, level=None):
             def_connections_out.append(obj)
             return ""
 
@@ -152,8 +152,8 @@ class SqlTask(Task):
         # We compile first to allow changes to the config
         # Template compilation
         self.compiler.update_globals(
-            src=lambda x: def_src(x),
-            out=lambda x: def_out(x),
+            src=lambda x, level=None: def_src(x),
+            out=lambda x, level=None: def_out(x),
             config=self.config_macro,
         )
         self.allow_config = True
@@ -201,8 +201,12 @@ class SqlTask(Task):
         self.delete_key = self.task_config.delete_key
 
         self.compiler.update_globals(
-            src=lambda x: self.src(x, connection=self._target_db),
-            out=lambda x: self.out(x, connection=self._target_db),
+            src=lambda x, level=None: self.src(
+                x, connection=self._target_db, level=level
+            ),
+            out=lambda x, level=None: self.out(
+                x, connection=self._target_db, level=level
+            ),
             config=self.config_macro,
         )
 

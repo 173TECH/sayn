@@ -39,13 +39,14 @@ class Sqlite(Database):
         self, database: Optional[str], schema: Optional[str], table: str
     ) -> str:
         if schema is not None:
-            print(schema)
             raise ValueError("Sqlite doesn't support schemas")
 
         return (
-            f"{database + '.' if database is not None else ''}"
-            f"{schema + '.' if schema is not None else ''}"
-            f"{table}"
+            f"{database if database is not None else ''}"
+            f"{'.' if database is not None and schema is not None else ''}"
+            f"{schema if schema is not None else ''}"
+            f"{'.' if schema is not None and table is not None else ''}"
+            f"{table if table is not None else ''}"
         )
 
     def _fully_qualify(

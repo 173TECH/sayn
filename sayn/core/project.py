@@ -300,11 +300,8 @@ def get_tasks_dict(
             file_glob = compiler.compile(
                 group_definition["file_name"], task=TaskJinjaEnv(group=group_name)
             )
-            print(group_definition)
             found_file = False
-            print(sql_folder)
-            print(file_glob)
-            print(type(file_glob))
+
             for file in Path(sql_folder).glob(file_glob):
                 found_file = True
                 task_name = file.stem

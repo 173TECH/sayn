@@ -1,9 +1,33 @@
 from __future__ import annotations
 
 import re
+from collections import deque
+from enum import Enum
 from typing import Mapping, Optional, Set
 
 from . import Database
+
+
+class ReferenceLevel(Enum):
+    database = -2, "db"
+    schema = -1, "schema"
+    table = -0, None
+
+    def __new__(cls, *values):
+        obj = object.__new__(cls)
+        # first value is canonical value
+        obj._value_ = values[0]
+        for other_value in values[1:]:
+            cls._value2member_map_[other_value] = obj
+        obj._all_values = values
+        return obj
+
+    def __repr__(self):
+        return "<%s.%s: %s>" % (
+            self.__class__.__name__,
+            self._name_,
+            ", ".join([repr(v) for v in self._all_values]),
+        )
 
 
 class DbObject:
@@ -29,7 +53,8 @@ class DbObject:
         if self.schema is not None:
             self.raw += self.schema + "."
 
-        self.raw += self.table
+        if self.table is not None:
+            self.raw += self.table
 
         # The key is prefixed with the connection name to make objects
         # unique across all databases
@@ -54,8 +79,10 @@ class DbObjectCompiler:
     #     r"((?P<connection>[^:]+):)?((?P<c1>[^.]+)\.)?((?P<c2>[^.]+)\.)?(?P<c3>[^.]+)"
     # )
     regex_obj = re.compile(
-        r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?((?P<c2>.+)\.)(?P<c3>[^.]+)"
+        r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)*?((?P<c2>.+)\.)?(?P<c3>[^.]+)"
     )
+    #    r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?((?P<c2>.+)\.)(?P<c3>[^.]+)"
+    # )
     # ((?P<connection>[^:]+):)?((?P<c1>.+)\.)?((?P<c2>.+)\.)(?P<c3>[^.]+)
     # regex_obj = re.compile(r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?(?P<c2>[^.]+)")
 
@@ -186,7 +213,9 @@ class DbObjectCompiler:
     def out_value(self, obj: DbObject) -> str:
         return self._common_value(obj, False)
 
-    def from_string(self, obj: str, connection: str | Database = None) -> DbObject:
+    def from_string(
+        self, obj: str, connection: str | Database = None, level: str = None
+    ) -> DbObject:
         """This is the entry point to db objects from a SAYN project. Accepting
         2 or 3 components is specified here.
         """
@@ -201,7 +230,6 @@ class DbObjectCompiler:
             in_connection_name = connection
 
         groups = match.groupdict()
-        print(groups)
         if groups["connection"] is None:
             if connection is None:
                 connection_name = self.default_db
@@ -216,27 +244,22 @@ class DbObjectCompiler:
                 else:
                     connection_name = in_connection_name
 
+        component_elements = deque([v for k, v in groups.items() if k != "connection"])
+        component_elements.rotate(ReferenceLevel(level).value)
         components = dict(
             {"table": None, "schema": None, "database": None},
             **dict(
                 zip(
                     ("table", "schema", "database"),
-                    reversed(
-                        [
-                            v
-                            for k, v in groups.items()
-                            if k != "connection" and v is not None
-                        ]
-                    ),
+                    reversed(component_elements),
                 )
             ),
         )
 
-        if components["table"] is None:
-            # This can't happen given the regexp, but this case avoids
-            # static analysis errors
-            raise ValueError("Error interpreting object string")
-
+        # if components["table"] is None:
+        #     # This can't happen given the regexp, but this case avoids
+        #     # static analysis errors
+        #     raise ValueError("Error interpreting object string")
         return DbObject(
             self,
             connection_name,
