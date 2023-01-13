@@ -335,6 +335,7 @@ class Database:
             for schema, req_objs in schemas.items():
                 # get schemas in the warehouse
                 warehouse_schemas = insp.get_schema_names()
+
                 if schema in warehouse_schemas:
                     if schema == "":
                         schema = None
@@ -350,8 +351,12 @@ class Database:
                             ("view", insp.get_view_names(schema)),
                         ]
                 else:
-                    db_objects = list()
-
+                    if schema == "":
+                        schema = None
+                    db_objects = [
+                        ("table", insp.get_table_names()),
+                        ("view", insp.get_view_names()),
+                    ]
                 # flatten the results
                 db_objects = {o: t for t, obs in db_objects for o in obs}
 
@@ -366,6 +371,7 @@ class Database:
                         out[schema][obj_name] = {"type": None}
 
         self._requested_objects = out
+        print(out)
 
     def _py2sqa(self, from_type):
         python_types = {
