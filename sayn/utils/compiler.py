@@ -1,9 +1,11 @@
-from jinja2 import Environment, FileSystemLoader, StrictUndefined, Template
-from ..core.errors import SaynCompileError, SaynMissingFileError
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from pathlib import Path
 from typing import Union
+
+from jinja2 import Environment, FileSystemLoader, StrictUndefined, Template
+
+from ..core.errors import SaynCompileError, SaynMissingFileError
 
 
 class TaskJinjaEnv:
@@ -74,7 +76,6 @@ class Compiler(BaseCompiler):
 
     def _compile_template(self, template: Template, **kwargs) -> str:
         out = template.render(**kwargs)
-
         if out is None:
             return ""
         else:

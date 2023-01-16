@@ -371,7 +371,6 @@ class Database:
                         out[schema][obj_name] = {"type": None}
 
         self._requested_objects = out
-        print(out)
 
     def _py2sqa(self, from_type):
         python_types = {

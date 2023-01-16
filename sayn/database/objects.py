@@ -11,7 +11,7 @@ from . import Database
 class ReferenceLevel(Enum):
     database = -2, "db"
     schema = -1, "schema"
-    table = -0, None
+    table = 0, None
 
     def __new__(cls, *values):
         obj = object.__new__(cls)
@@ -74,17 +74,10 @@ class DbObject:
 
 
 class DbObjectCompiler:
-    # 3 levels is not fully supported
-    # regex_obj = re.compile(
-    #     r"((?P<connection>[^:]+):)?((?P<c1>[^.]+)\.)?((?P<c2>[^.]+)\.)?(?P<c3>[^.]+)"
-    # )
+
     regex_obj = re.compile(
-        r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)*?((?P<c2>.+)\.)?(?P<c3>[^.]+)"
+        r"((?P<connection>[^:]+):)?((?P<c1>[^.]+)\.)?((?P<c2>[^.]+)\.)?(?P<c3>[^.]+)(?P<dots>\.{0,2})"
     )
-    #    r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?((?P<c2>.+)\.)(?P<c3>[^.]+)"
-    # )
-    # ((?P<connection>[^:]+):)?((?P<c1>.+)\.)?((?P<c2>.+)\.)(?P<c3>[^.]+)
-    # regex_obj = re.compile(r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?(?P<c2>[^.]+)")
 
     def __init__(
         self,
@@ -244,8 +237,19 @@ class DbObjectCompiler:
                 else:
                     connection_name = in_connection_name
 
-        component_elements = deque([v for k, v in groups.items() if k != "connection"])
-        component_elements.rotate(ReferenceLevel(level).value)
+        if groups["c1"] and not groups["c2"]:
+            groups["c2"] = groups["c1"]
+            groups["c1"] = None
+
+        provided_level = level or -1 * (groups["dots"].count("."))
+        reference_level = ReferenceLevel(provided_level)
+
+        component_elements = deque(
+            [v for k, v in groups.items() if k != "connection" and k != "dots"]
+        )
+
+        component_elements.rotate(reference_level.value)
+
         components = dict(
             {"table": None, "schema": None, "database": None},
             **dict(
@@ -256,10 +260,11 @@ class DbObjectCompiler:
             ),
         )
 
-        # if components["table"] is None:
-        #     # This can't happen given the regexp, but this case avoids
-        #     # static analysis errors
-        #     raise ValueError("Error interpreting object string")
+        if components["table"] is None and reference_level.value == 0:
+            # This can't happen given the regexp, but this case avoids
+            # static analysis errors
+            raise ValueError("Error interpreting object string")
+
         return DbObject(
             self,
             connection_name,
