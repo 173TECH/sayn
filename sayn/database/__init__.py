@@ -147,9 +147,9 @@ class Database:
     ) -> str:
         return (
             f"{database if database is not None else ''}"
-            f"{'.' if database is not None and schema is not None else ''}"
+            f"{'.' if database is not None else ''}"
             f"{schema if schema is not None else ''}"
-            f"{'.' if schema is not None and table is not None else ''}"
+            f"{'.' if database is not None or (schema is not None and table is not None) else ''}"
             f"{table if table is not None else ''}"
         )
 
@@ -187,6 +187,9 @@ class Database:
             self.metadata = MetaData(self.engine)
             # Force a query to test the connection
             self.execute("select 1")
+
+    def _check_database_exists(self, database):
+        raise NotADirectoryError()
 
     def _construct_tests_template(self, columns, table, test_file_name, schema):
         query = """
@@ -328,9 +331,15 @@ class Database:
         out = dict()
 
         for database, schemas in to_introspect.items():
-            # if database != "":
-            #     # We currently don't support 3 levels of db object specification.
-            #     raise ValueError("3 level db objects are not currently supported")
+            print(f"INTROSPECT ITEMS: {to_introspect.items()}")
+            print(f"DATABASE NAME: {database}")
+            if database != "":
+                if not self._check_database_exists(database):
+                    raise DBError(
+                        self.name,
+                        self.db_type,
+                        f"Database {database} does not exists",
+                    )
 
             for schema, req_objs in schemas.items():
                 # get schemas in the warehouse

@@ -25,6 +25,13 @@ class Postgresql(Database):
 
         return create_engine("postgresql://", **settings)
 
+    def _check_database_exists(self, database):
+        report = self.read_data("SELECT datname FROM pg_database;")
+        dbs = list()
+        for db in report:
+            dbs.append(db)
+        return database in dbs
+
     def _load_data_batch(self, table, data, schema):
         full_table_name = f"{'' if schema is None else schema + '.'}{table}"
         copy_sql = f"COPY {full_table_name} FROM STDIN " "CSV DELIMITER ',' QUOTE '\"'"

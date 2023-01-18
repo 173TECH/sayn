@@ -37,7 +37,7 @@ class DbObject:
         connection_name: str,
         database: Optional[str],
         schema: Optional[str],
-        table: str,
+        table: Optional[str],
     ) -> None:
         self.compiler = compiler
         self.connection_name = connection_name
@@ -52,6 +52,9 @@ class DbObject:
 
         if self.schema is not None:
             self.raw += self.schema + "."
+
+        if self.database is not None and self.schema is None:
+            self.raw += "."
 
         if self.table is not None:
             self.raw += self.table
@@ -76,7 +79,7 @@ class DbObject:
 class DbObjectCompiler:
 
     regex_obj = re.compile(
-        r"((?P<connection>[^:]+):)?((?P<c1>[^.]+)\.)?((?P<c2>[^.]+)\.)?(?P<c3>[^.]+)(?P<dots>\.{0,2})"
+        r"^\s*((?P<connection>[^:]+):)?((?P<c1>[^.]+)\.)?((?P<c2>[^.]+)\.)?(?P<c3>[^.]+)(?P<dots>\.{0,2})\s*$"
     )
 
     def __init__(
@@ -162,6 +165,8 @@ class DbObjectCompiler:
         schema = obj.schema
         table = obj.table
 
+        print(f"Database: {database}")
+
         if obj.connection_name == self.default_db:
             if run_sensitive:
                 is_prod = self.is_from_prod(obj)
@@ -243,6 +248,7 @@ class DbObjectCompiler:
 
         provided_level = level or -1 * (groups["dots"].count("."))
         reference_level = ReferenceLevel(provided_level)
+        # check for invalid input in level.
 
         component_elements = deque(
             [v for k, v in groups.items() if k != "connection" and k != "dots"]
@@ -264,7 +270,7 @@ class DbObjectCompiler:
             # This can't happen given the regexp, but this case avoids
             # static analysis errors
             raise ValueError("Error interpreting object string")
-
+        print(f"Components: {components}")
         return DbObject(
             self,
             connection_name,

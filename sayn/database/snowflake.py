@@ -38,6 +38,14 @@ class Snowflake(Database):
         conn.connection.commit()
         conn.connection.close()
 
+    def _check_database_exists(self, database):
+        report = self.read_data("SHOW DATABASES;")
+        dbs = list()
+        for db in report:
+            dbs.append(db["name"])
+
+        return database.upper() in dbs
+
     def _load_data_batch(self, table, data, schema):
         """Implements the load of a single data batch for `load_data`.
 
