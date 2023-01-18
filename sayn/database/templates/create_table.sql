@@ -19,8 +19,10 @@ DROP VIEW IF EXISTS {{ full_name }}{{ ' CASCADE' if needs_cascade else ''}};
 CREATE TABLE {{ full_name }}
 {%- endif %}
 
+{%- if select is undefined or select is none %}
 {%- if columns is defined and columns|length > 0 and all_columns_have_type %}
 (
+
 {%- for col_def in columns %}
     {{ col_def['name'] }} {{ col_def['type'] }}
     {{- ' UNIQUE' if col_def.get('unique')}}
@@ -28,6 +30,7 @@ CREATE TABLE {{ full_name }}
     {{- ',' if not loop.last else ''}}
 {%- endfor %}
 )
+{%- endif %}
 {%- endif %}
 
 {%- block table_attributes %}
@@ -50,19 +53,10 @@ DISTSTYLE {{ distribution['type'] }}
 {% endblock -%}
 
 {%- if select is defined and select is not none %}
-{%- if cannot_specify_ddl_select and columns is defined and columns|length > 0 and all_columns_have_type %}
-;
 
-INSERT INTO {{ full_name }}
-{% else %}
 AS
-{% endif %}
-  {%- if columns is defined and columns|length > 0 and all_columns_have_type %}
-SELECT {{ columns|join('\n     , ', attribute='name') }}
-  FROM ({{ select }}) t
-  {%- else %}
 {{ select }}
-  {%- endif %}
+
 {% endif -%}
 ;
 
