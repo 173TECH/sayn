@@ -105,11 +105,11 @@ class SqlTask(Task):
         def_connections_out = []
 
         def def_src(obj, level=None):
-            def_connections_src.append(obj)
+            def_connections_src.append((obj, level))
             return ""
 
         def def_out(obj, level=None):
-            def_connections_out.append(obj)
+            def_connections_out.append((obj, level))
             return ""
 
         if "task_name" in self._config_input:
@@ -211,10 +211,10 @@ class SqlTask(Task):
         )
 
         for s in def_connections_src:
-            self.src(s, connection=self._target_db)
+            self.src(s[0], connection=self._target_db, level=s[1])
 
         for o in def_connections_out:
-            self.out(o, connection=self._target_db)
+            self.out(o[0], connection=self._target_db, level=o[1])
 
         # DDL validation
         result = self.target_db._validate_ddl(
