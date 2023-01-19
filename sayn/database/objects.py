@@ -2,32 +2,9 @@ from __future__ import annotations
 
 import re
 from collections import deque
-from enum import Enum
 from typing import Mapping, Optional, Set
 
 from . import Database
-
-
-class ReferenceLevel(Enum):
-    database = -2, "db"
-    schema = -1, "schema"
-    table = 0, None
-
-    def __new__(cls, *values):
-        obj = object.__new__(cls)
-        # first value is canonical value
-        obj._value_ = values[0]
-        for other_value in values[1:]:
-            cls._value2member_map_[other_value] = obj
-        obj._all_values = values
-        return obj
-
-    def __repr__(self):
-        return "<%s.%s: %s>" % (
-            self.__class__.__name__,
-            self._name_,
-            ", ".join([repr(v) for v in self._all_values]),
-        )
 
 
 class DbObject:
@@ -81,6 +58,8 @@ class DbObjectCompiler:
     regex_obj = re.compile(
         r"^\s*((?P<connection>[^:]+):)?((?P<c1>[^.]+)\.)?((?P<c2>[^.]+)\.)?(?P<c3>[^.]+)(?P<dots>\.{0,2})\s*$"
     )
+
+    reference_level = {None: 0, "schema": -1, "db": -2}
 
     def __init__(
         self,
@@ -165,8 +144,6 @@ class DbObjectCompiler:
         schema = obj.schema
         table = obj.table
 
-        print(f"Database: {database}")
-
         if obj.connection_name == self.default_db:
             if run_sensitive:
                 is_prod = self.is_from_prod(obj)
@@ -222,12 +199,16 @@ class DbObjectCompiler:
         if match is None:
             raise ValueError(f'Incorrect format for database object "{obj}"')
 
+        if level not in self.reference_level.keys():
+            raise ValueError(f'Incorrect format for reference level "{level}"')
+
         if isinstance(connection, Database):
             in_connection_name = connection.name
         else:
             in_connection_name = connection
 
         groups = match.groupdict()
+
         if groups["connection"] is None:
             if connection is None:
                 connection_name = self.default_db
@@ -242,19 +223,27 @@ class DbObjectCompiler:
                 else:
                     connection_name = in_connection_name
 
-        if groups["c1"] and not groups["c2"]:
+        if groups["c1"] is not None and groups["c2"] is None:
             groups["c2"] = groups["c1"]
             groups["c1"] = None
 
-        provided_level = level or -1 * (groups["dots"].count("."))
-        reference_level = ReferenceLevel(provided_level)
-        # check for invalid input in level.
+        if self.reference_level[level] == 0:
+            period_count = groups["dots"].count(".")
+
+            if period_count > 2:
+                raise ValueError(
+                    f'Invalid number of periods (".") in database object {obj}'
+                )
+
+            provided_level = -1 * period_count
+        else:
+            provided_level = self.reference_level[level]
 
         component_elements = deque(
             [v for k, v in groups.items() if k != "connection" and k != "dots"]
         )
 
-        component_elements.rotate(reference_level.value)
+        component_elements.rotate(provided_level)
 
         components = dict(
             {"table": None, "schema": None, "database": None},
@@ -266,11 +255,11 @@ class DbObjectCompiler:
             ),
         )
 
-        if components["table"] is None and reference_level.value == 0:
+        if components["table"] is None and provided_level == 0:
             # This can't happen given the regexp, but this case avoids
             # static analysis errors
             raise ValueError("Error interpreting object string")
-        print(f"Components: {components}")
+
         return DbObject(
             self,
             connection_name,

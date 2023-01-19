@@ -220,14 +220,12 @@ class TaskWrapper:
         else:
             target_connection = self.connections[self.default_db]
 
-        print(self.outputs)
         self.outputs.update(
             {
                 self.db_object_compiler.from_string(o, connection=target_connection)
                 for o in self.outputs_yaml
             }
         )
-        print(f"WRAPPER OUTPUTS: {self.outputs}")
 
         if "_source_db" in runner.__dict__:
             source_connection = self.connections[runner._source_db]
@@ -441,11 +439,10 @@ class TaskWrapper:
         obj = self.db_object_compiler.from_string(
             obj, connection=connection, level=level
         )
-        print(obj)
         if self.status == TaskStatus.CONFIGURING:
             self.used_connections.add(obj.connection_name)
             self.outputs.add(obj)
-        print(f"Check here {self.outputs}")
+
         return self.db_object_compiler.out_value(obj)
 
     def verify_connections(self):

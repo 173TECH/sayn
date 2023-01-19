@@ -189,7 +189,7 @@ class Database:
             self.execute("select 1")
 
     def _check_database_exists(self, database):
-        raise NotADirectoryError()
+        raise NotImplementedError()
 
     def _construct_tests_template(self, columns, table, test_file_name, schema):
         query = """
@@ -331,8 +331,6 @@ class Database:
         out = dict()
 
         for database, schemas in to_introspect.items():
-            print(f"INTROSPECT ITEMS: {to_introspect.items()}")
-            print(f"DATABASE NAME: {database}")
             if database != "":
                 if not self._check_database_exists(database):
                     raise DBError(

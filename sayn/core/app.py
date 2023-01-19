@@ -305,6 +305,7 @@ class App:
             self.connections = result.value
         # Object compilation objects
         self.input_stringify.update(stringify)
+
         self.db_object_compiler = DbObjectCompiler(
             self.connections,
             self.default_db,
@@ -345,7 +346,7 @@ class App:
 
         if len(tasks) == 0:
             self.finish_app(Err("dag", "empty_dag"))
-        print(f"Tasks: {tasks.items()}")
+
         for task_name, task in tasks.items():
             task_tracker = self.tracker.get_task_tracker(task_name)
             task_tracker._report_event("start_stage")
@@ -391,7 +392,6 @@ class App:
                     self.project_parameters,
                     task.get("parameters"),
                 )
-                print(f"Result {task_objects[task_name].outputs}")
 
                 if result.is_err:
                     failed_tasks.append(task_name)
@@ -411,8 +411,6 @@ class App:
 
         # Now that all tasks are configured, we set the relationships so that we
         # can calculate the dag
-        for task_name, task in task_objects.items():
-            print(f"Task OUTPUTS: {task.outputs}")
         output_to_task = [
             (output, task_name)
             for task_name, task in task_objects.items()
@@ -472,10 +470,8 @@ class App:
         exec_outputs = set()
         exec_sources = set()
         exec_connections = set()
-        print(f"Tasks: {self.tasks}")
         for task_name in tasks_in_query:
             for output in self.tasks[task_name].outputs:
-                print(f"OUTPUTS: {output}")
                 exec_outputs.add(output)
                 # if output.connection not in objects_used:
                 #     objects_used[output.connection] = set()
@@ -509,7 +505,6 @@ class App:
             s for s in exec_sources if self.db_object_compiler.is_from_prod(s)
         }
 
-        print(f"EXEC OUTPUTS: {exec_outputs}")
         # Get the objects to introspect
         # We create new DbObjects simply because it's simpler to convert to the correct
         # specification depending on whether it's from_prod or not, but these new objects
@@ -517,9 +512,6 @@ class App:
         to_introspect = {self.db_object_compiler.src_obj(s) for s in exec_sources}
         to_introspect.update({self.db_object_compiler.out_obj(o) for o in exec_outputs})
 
-        for t in to_introspect:
-            print(t.database)
-        print(f"INTROSPECT: {to_introspect}")
         # Reshape the list into dictionaries of connection > database > schema > set of objects
         to_introspect = {
             conn: {

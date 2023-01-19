@@ -14,7 +14,7 @@ from sqlalchemy.sql import sqltypes
 
 from . import Database, Columns, Hook, BaseDDL
 
-from ..core.errors import Ok
+from ..core.errors import DBError, Ok
 
 db_parameters = ["project", "credentials_path", "location", "dataset"]
 
@@ -114,11 +114,24 @@ class Bigquery(Database):
             failed, table, schema, "standard_test_output_bigquery.sql"
         )
 
+    def _check_database_exists(self, database):
+        from google.cloud import bigquery
+
+        client = self.engine.raw_connection()._client
+
+        dbs = [project.project_id for project in client.list_projects()]
+
+        return database in dbs
+
     def _introspect(self, to_introspect):
         for project, datasets in to_introspect.items():
-            # if project != "":
-            #     # We currently don't support 3 levels of db object specification.
-            #     raise ValueError("3 level db objects are not currently supported")
+            if project != "":
+                if not self._check_database_exists(project):
+                    raise DBError(
+                        self.name,
+                        self.db_type,
+                        f"Project {project} does not exist",
+                    )
 
             if project is None or project == "":
                 proj_name = self.project
