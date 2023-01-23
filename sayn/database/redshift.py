@@ -19,6 +19,8 @@ db_parameters = [
     "dbname",
     "cluster_id",
     "bucket",
+    "bucket_region",
+    "role",
     "profile",
 ]
 
@@ -112,6 +114,8 @@ class DDL(BaseDDL):
 class Redshift(Database):
     DDL = DDL
     _boto_session = None
+    bucket = None
+    bucket_region = None
 
     def feature(self, feature):
         return feature in (
@@ -135,6 +139,9 @@ class Redshift(Database):
             # User is required
             user = settings.pop("user")
             profile = settings.pop("profile")
+            self.bucket = settings.pop("bucket")
+            self.bucket_region = settings.pop("bucket_region")
+            self.role = settings.pop("role")
 
             import boto3
 
@@ -266,8 +273,8 @@ class Redshift(Database):
         template = self._jinja_env.get_template("redshift_load_batch.sql")
         fname = "batch.csv"
 
-        sts_client = self._boto_session.client("sts")
-        arn = sts_client.get_caller_identity()["Arn"]
+        iam_client = self._boto_session.client("iam")
+        arn = iam_client.get_role(RoleName=self.role)["Role"]["Arn"]
 
         s3_client = self._boto_session.client("s3")
 
@@ -280,7 +287,7 @@ class Redshift(Database):
                 writer.writerows(data)
 
             with (Path(tmpdirname) / fname).open("rb") as f:
-                s3_client.upload_file(f, self.bucket)
+                s3_client.upload_fileobj(f, self.bucket, fname)
 
             self.execute(
                 template.render(
@@ -288,5 +295,7 @@ class Redshift(Database):
                     temp_file_directory=tmpdirname,
                     temp_file_name=fname,
                     arn=arn,
+                    bucket=self.bucket,
+                    region=self.bucket_region,
                 )
             )
