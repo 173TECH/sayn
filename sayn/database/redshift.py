@@ -1,4 +1,7 @@
 from collections import Counter
+import csv
+from pathlib import Path
+import tempfile
 from typing import List, Optional, Union
 
 from pydantic import BaseModel, constr, validator, Extra
@@ -7,7 +10,17 @@ from sqlalchemy import create_engine
 from ..core.errors import DBError
 from . import Database, Columns, Hook, BaseDDL
 
-db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
+
+db_parameters = [
+    "host",
+    "user",
+    "password",
+    "port",
+    "dbname",
+    "cluster_id",
+    "bucket",
+    "profile",
+]
 
 DistributionStr = constr(regex=r"even|all|key([^,]+)")
 
@@ -98,6 +111,7 @@ class DDL(BaseDDL):
 
 class Redshift(Database):
     DDL = DDL
+    _boto_session = None
 
     def feature(self, feature):
         return feature in (
@@ -120,18 +134,26 @@ class Redshift(Database):
             port = settings.pop("port", None)
             # User is required
             user = settings.pop("user")
+            profile = settings.pop("profile")
 
             import boto3
 
-            boto_session = boto3.Session()
+            self._boto_session = boto3.Session(profile_name=profile)
 
-            redshift_client = boto_session.client("redshift")
+            redshift_client = self._boto_session.client("redshift")
 
             # Get the address when not provided
             if host is None or port is None:
-                cluster_info = redshift_client.describe_clusters(
-                    ClusterIdentifier=cluster_id
-                )["Clusters"][0]
+                try:
+                    cluster_info = redshift_client.describe_clusters(
+                        ClusterIdentifier=cluster_id
+                    )["Clusters"][0]
+                except:
+                    raise DBError(
+                        self.name,
+                        self.db_type,
+                        f"Error retrieving information for cluster: {cluster_id}",
+                    )
 
                 settings["connect_args"]["host"] = (
                     host or cluster_info["Endpoint"]["Address"]
@@ -228,3 +250,43 @@ class Redshift(Database):
             self.execute(q)
 
         return q
+
+    def _load_data_batch(self, table, data, schema):
+        """Implements the load of a single data batch for `load_data`.
+
+        Defaults to an insert many statement, but it's overloaded for specific
+        database connector for more efficient methods.
+
+        Args:
+            table (str): The name of the target table
+            data (list): A list of dictionaries to load
+            schema (str): An optional schema to reference the table
+        """
+        full_table_name = f"{'' if schema is None else schema + '.'}{table}"
+        template = self._jinja_env.get_template("redshift_load_batch.sql")
+        fname = "batch.csv"
+
+        sts_client = self._boto_session.client("sts")
+        arn = sts_client.get_caller_identity()["Arn"]
+
+        s3_client = self._boto_session.client("s3")
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            with (Path(tmpdirname) / fname).open("w") as f:
+                writer = csv.DictWriter(
+                    f, fieldnames=data[0].keys(), delimiter="|", escapechar="\\"
+                )
+                writer.writeheader()
+                writer.writerows(data)
+
+            with (Path(tmpdirname) / fname).open("rb") as f:
+                s3_client.upload_file(f, self.bucket)
+
+            self.execute(
+                template.render(
+                    full_table_name=full_table_name,
+                    temp_file_directory=tmpdirname,
+                    temp_file_name=fname,
+                    arn=arn,
+                )
+            )
