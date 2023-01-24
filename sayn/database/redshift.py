@@ -5,7 +5,7 @@ import tempfile
 from typing import List, Optional, Union
 
 from pydantic import BaseModel, constr, validator, Extra
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 
 from ..core.errors import DBError
 from . import Database, Columns, Hook, BaseDDL
