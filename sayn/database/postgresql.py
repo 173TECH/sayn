@@ -25,12 +25,10 @@ class Postgresql(Database):
 
         return create_engine("postgresql://", **settings)
 
-    def _check_database_exists(self, database):
+    def _list_databases(self):
         report = self.read_data("SELECT datname FROM pg_database;")
-        dbs = list()
-        for db in report:
-            dbs.append(db)
-        return database in dbs
+        dbs = [re["datname"] for re in report]
+        return dbs
 
     def _load_data_batch(self, table, data, schema):
         full_table_name = f"{'' if schema is None else schema + '.'}{table}"

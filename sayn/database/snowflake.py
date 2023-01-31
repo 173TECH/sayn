@@ -46,6 +46,18 @@ class Snowflake(Database):
 
         return database.upper() in dbs
 
+    def _list_databases(self):
+        """List the accessible databases for this connection."""
+        databases = self.read_data("SHOW DATABASES;")
+        databases = [db["name"].lower() for db in databases] + [""]
+        return databases
+
+    def _get_table_type(self, type):
+        if type == "BASE TABLE":
+            return "table"
+        elif type == "VIEW":
+            return "view"
+
     def _load_data_batch(self, table, data, schema):
         """Implements the load of a single data batch for `load_data`.
 

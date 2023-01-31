@@ -326,7 +326,9 @@ class AutoSqlTask(SqlTask):
         elif (
             self.materialisation == "table"
             or self.run_arguments["full_load"]
-            or self.target_db._requested_objects[self.schema][self.table].get("type")
+            or self.target_db._requested_objects[""][self.schema or ""][self.table].get(
+                "type"
+            )
             is None
         ):
             # Full load or target table missing

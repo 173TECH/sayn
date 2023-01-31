@@ -6,29 +6,22 @@ from sayn.database import Database
 
 connetions = {"warehouse": Database("test", "test", "dummy", dict(), dict())}
 
-input_prod_stringify = {
-    "database_prefix": None,
-    "database_suffix": None,
-    "database_override": None,
-    "schema_prefix": None,
-    "schema_suffix": None,
-    "schema_override": None,
-    "table_prefix": None,
-    "table_suffix": None,
-    "table_override": None,
-}
 
-input_stringify = {
-    "database_prefix": None,
-    "database_suffix": None,
-    "database_override": None,
-    "schema_prefix": None,
-    "schema_suffix": None,
-    "schema_override": None,
-    "table_prefix": None,
-    "table_suffix": None,
-    "table_override": None,
-}
+def get_stringify(input: dict() = dict()):
+    input_stringify = {
+        "database_prefix": None,
+        "database_suffix": None,
+        "database_override": None,
+        "schema_prefix": None,
+        "schema_suffix": None,
+        "schema_override": None,
+        "table_prefix": None,
+        "table_suffix": None,
+        "table_override": None,
+    }
+    input_stringify.update(input)
+    return input_stringify
+
 
 default_db = "warehouse"
 
@@ -37,7 +30,7 @@ from_prod = list()
 
 def test_object_init():
     compiler = DbObjectCompiler(
-        connetions, default_db, input_stringify, input_prod_stringify, from_prod
+        connetions, default_db, get_stringify(), get_stringify(), from_prod
     )
 
     object = DbObject(compiler, "warehouse", "db", "schema", "table")
@@ -46,11 +39,13 @@ def test_object_init():
 
 
 def test_object_database_input_stringify():
-    db_input_stringify = input_stringify.copy()
-    db_input_stringify.update({"database_prefix": "pre", "database_suffix": "suf"})
-
+    input_stringify = {"database_prefix": "pre", "database_suffix": "suf"}
     compiler = DbObjectCompiler(
-        connetions, default_db, db_input_stringify, input_prod_stringify, from_prod
+        connetions,
+        default_db,
+        get_stringify(input_stringify),
+        get_stringify(),
+        from_prod,
     )
 
     object = DbObject(compiler, "warehouse", "db", "schema", "table")
@@ -61,10 +56,13 @@ def test_object_database_input_stringify():
 
 
 def test_object_schema_input_stringify():
-    schema_input_stringify = input_stringify.copy()
-    schema_input_stringify.update({"schema_prefix": "pre", "schema_suffix": "suf"})
+    input_stringify = {"schema_prefix": "pre", "schema_suffix": "suf"}
     compiler = DbObjectCompiler(
-        connetions, default_db, schema_input_stringify, input_prod_stringify, from_prod
+        connetions,
+        default_db,
+        get_stringify(input_stringify),
+        get_stringify(),
+        from_prod,
     )
 
     object = DbObject(compiler, "warehouse", "db", "schema", "table")
@@ -75,11 +73,14 @@ def test_object_schema_input_stringify():
 
 
 def test_object_table_input_stringify():
-    table_input_stringify = input_stringify.copy()
-    table_input_stringify.update({"table_prefix": "pre", "table_suffix": "suf"})
+    input_stringify = {"table_prefix": "pre", "table_suffix": "suf"}
 
     compiler = DbObjectCompiler(
-        connetions, default_db, table_input_stringify, input_prod_stringify, from_prod
+        connetions,
+        default_db,
+        get_stringify(input_stringify),
+        get_stringify(),
+        from_prod,
     )
 
     object = DbObject(compiler, "warehouse", "db", "schema", "table")
@@ -90,21 +91,97 @@ def test_object_table_input_stringify():
 
 
 def test_object_override():
-    override_input_stringify = input_stringify.copy()
-    override_input_stringify.update(
-        {
-            "database_override": "over_db",
-            "schema_override": "over_schema",
-            "table_override": "over_table",
-        }
-    )
+    input_stringify = {
+        "database_override": "over_db",
+        "schema_override": "over_schema",
+        "table_override": "over_table",
+    }
 
     compiler = DbObjectCompiler(
         connetions,
         default_db,
-        override_input_stringify,
-        input_prod_stringify,
+        get_stringify(input_stringify),
+        get_stringify(),
         from_prod,
+    )
+
+    object = DbObject(compiler, "warehouse", "db", "schema", "table")
+
+    stringify_object = object.compiler._common_value(object, False)
+
+    assert stringify_object == "over_db.over_schema.over_table"
+
+
+def test_object_from_prod_database_input_stringify():
+    input_stringify = {"database_prefix": "pre", "database_suffix": "suf"}
+    prod_sources = set(["db.schema.table"])
+    compiler = DbObjectCompiler(
+        connetions,
+        default_db,
+        get_stringify(),
+        get_stringify(input_stringify),
+        prod_sources,
+    )
+
+    object = DbObject(compiler, "warehouse", "db", "schema", "table")
+
+    stringify_object = object.compiler._common_value(object, False)
+
+    assert stringify_object == "pre_db_suf.schema.table"
+
+
+def test_object_from_prod_schema_input_stringify():
+    input_stringify = {"schema_prefix": "pre", "schema_suffix": "suf"}
+    prod_sources = set(["db.schema.table"])
+
+    compiler = DbObjectCompiler(
+        connetions,
+        default_db,
+        get_stringify(),
+        get_stringify(input_stringify),
+        prod_sources,
+    )
+
+    object = DbObject(compiler, "warehouse", "db", "schema", "table")
+
+    stringify_object = object.compiler._common_value(object, False)
+
+    assert stringify_object == "db.pre_schema_suf.table"
+
+
+def test_object_from_prod_table_input_stringify():
+    input_stringify = {"table_prefix": "pre", "table_suffix": "suf"}
+    prod_sources = set(["db.schema.table"])
+
+    compiler = DbObjectCompiler(
+        connetions,
+        default_db,
+        get_stringify(),
+        get_stringify(input_stringify),
+        prod_sources,
+    )
+
+    object = DbObject(compiler, "warehouse", "db", "schema", "table")
+
+    stringify_object = object.compiler._common_value(object, False)
+
+    assert stringify_object == "db.schema.pre_table_suf"
+
+
+def test_object_from_prod_override():
+    input_stringify = {
+        "database_override": "over_db",
+        "schema_override": "over_schema",
+        "table_override": "over_table",
+    }
+    prod_sources = set(["db.schema.table"])
+
+    compiler = DbObjectCompiler(
+        connetions,
+        default_db,
+        get_stringify(),
+        get_stringify(input_stringify),
+        prod_sources,
     )
 
     object = DbObject(compiler, "warehouse", "db", "schema", "table")
@@ -116,7 +193,7 @@ def test_object_override():
 
 def test_object_from_string():
     compiler = DbObjectCompiler(
-        connetions, default_db, input_stringify, input_prod_stringify, from_prod
+        connetions, default_db, get_stringify(), get_stringify(), from_prod
     )
 
     base_object = DbObject(compiler, "warehouse", "db", "schema", "table")
@@ -129,7 +206,7 @@ def test_object_from_string():
 
 def test_object_from_string_reference_level_schema():
     compiler = DbObjectCompiler(
-        connetions, default_db, input_stringify, input_prod_stringify, from_prod
+        connetions, default_db, get_stringify(), get_stringify(), from_prod
     )
 
     base_object = DbObject(compiler, "warehouse", "db", "schema", None)
@@ -151,7 +228,7 @@ def test_object_from_string_reference_level_schema():
 
 def test_object_from_string_reference_level_database():
     compiler = DbObjectCompiler(
-        connetions, default_db, input_stringify, input_prod_stringify, from_prod
+        connetions, default_db, get_stringify(), get_stringify(), from_prod
     )
 
     base_object = DbObject(compiler, "warehouse", "db", None, None)
@@ -165,7 +242,7 @@ def test_object_from_string_reference_level_database():
 
 def test_object_from_string_level_error():
     compiler = DbObjectCompiler(
-        connetions, default_db, input_stringify, input_prod_stringify, from_prod
+        connetions, default_db, get_stringify(), get_stringify(), from_prod
     )
 
     with pytest.raises(ValueError):

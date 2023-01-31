@@ -619,23 +619,23 @@ def test_sql_schema_reference_level_periods(tmp_path, target_db):
         assert used_objects["target_db"] == {"": {"test": {""}}}
 
 
-# def test_sql_database_reference_level_periods(tmp_path, target_db):
-#     """Sql task with schema reference level"""
-#     used_objects = dict()
-#     with sql_task(
-#         tmp_path,
-#         used_objects,
-#         target_db,
-#         "CREATE SCHEMA {{ out('test..') }}",
-#     ) as task:
-#         assert task.config(
-#             file_name="test.sql",
-#             materialisation="script",
-#         ).is_ok
-#
-#         task.connections["target_db"]._introspect(used_objects["target_db"])
-#         assert task.setup().is_ok
-#         assert used_objects['target_db'] == {'test': {'': {''}}}
+def test_sql_database_reference_level_periods(tmp_path, target_db):
+    """Sql task with schema reference level"""
+    used_objects = dict()
+    with sql_task(
+        tmp_path,
+        used_objects,
+        target_db,
+        "{{ out('test..') }}",
+    ) as task:
+        assert task.config(
+            file_name="test.sql",
+            materialisation="script",
+        ).is_ok
+
+        task.connections["target_db"]._introspect(used_objects["target_db"])
+        assert task.setup().is_ok
+        assert used_objects["target_db"] == {"test": {"": {""}}}
 
 
 @pytest.mark.target_dbs(["bigquery", "mysql", "postgresql", "redshift", "snowflake"])
