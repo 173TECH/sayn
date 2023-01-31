@@ -189,9 +189,6 @@ class Database:
             # Force a query to test the connection
             self.execute("select 1")
 
-    def _check_database_exists(self, database):
-        raise NotImplementedError()
-
     def _list_databases(self):
         raise NotImplementedError()
 

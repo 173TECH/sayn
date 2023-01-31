@@ -38,14 +38,6 @@ class Snowflake(Database):
         conn.connection.commit()
         conn.connection.close()
 
-    def _check_database_exists(self, database):
-        report = self.read_data("SHOW DATABASES;")
-        dbs = list()
-        for db in report:
-            dbs.append(db["name"])
-
-        return database.upper() in dbs
-
     def _list_databases(self):
         """List the accessible databases for this connection."""
         databases = self.read_data("SHOW DATABASES;")

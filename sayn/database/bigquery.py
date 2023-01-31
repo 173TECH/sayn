@@ -115,13 +115,6 @@ class Bigquery(Database):
             failed, table, schema, "standard_test_output_bigquery.sql"
         )
 
-    def _check_database_exists(self):
-        client = self.engine.raw_connection()._client
-
-        projects = [project.project_id for project in client.list_projects()]
-
-        return projects
-
     def _list_databases(self):
         """List the accessible databases for this connection."""
         client = self.engine.raw_connection()._client
