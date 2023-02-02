@@ -5,7 +5,7 @@ import tempfile
 from typing import List, Optional, Union
 
 from pydantic import BaseModel, constr, validator, Extra
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 
 from ..core.errors import DBError
 from . import Database, Columns, Hook, BaseDDL
@@ -16,12 +16,16 @@ db_parameters = [
     "user",
     "password",
     "port",
-    "dbname",
+    "database",
     "cluster_id",
     "bucket",
     "bucket_region",
     "role",
     "profile",
+    "aws_access_key_id",
+    "aws_secret_access_key",
+    "aws_session_token",
+    "region",
 ]
 
 DistributionStr = constr(regex=r"even|all|key([^,]+)")
@@ -84,12 +88,6 @@ class DDL(BaseDDL):
                 }
                 if distribution["type"] == "KEY":
                     distribution["column"] = v.distribution[len("key(") : -1]
-                    if len(values.get("columns")) > 0 and distribution[
-                        "column"
-                    ] not in values.get("columns"):
-                        raise ValueError(
-                            f'Distribution key "{distribution["column"]}" is not declared in columns'
-                        )
                 v.distribution = distribution
 
             return v
@@ -130,6 +128,11 @@ class Redshift(Database):
         if "connect_args" not in settings:
             settings["connect_args"] = dict()
 
+        if "bucket" in settings and "role" in settings:
+            self.bucket = settings.pop("bucket")
+            self.bucket_region = settings.pop("bucket_region", None)
+            self.role = settings.pop("role")
+
         if "cluster_id" in settings and "password" not in settings:
             # if a cluster_id is given and no password, we use boto to complete the credentials
             cluster_id = settings.pop("cluster_id")
@@ -138,10 +141,8 @@ class Redshift(Database):
             port = settings.pop("port", None)
             # User is required
             user = settings.pop("user")
-            profile = settings.pop("profile")
-            self.bucket = settings.pop("bucket")
-            self.bucket_region = settings.pop("bucket_region")
-            self.role = settings.pop("role")
+            # if not provided, the default profile will be used
+            profile = settings.pop("profile", None)
 
             import boto3
 
@@ -177,11 +178,42 @@ class Redshift(Database):
             settings["connect_args"]["user"] = credentials["DbUser"]
             settings["connect_args"]["password"] = credentials["DbPassword"]
 
+        elif "aws_access_key_id" in settings:
+            access_key_id = settings.pop("aws_access_key_id", None)
+            secret_access_key = settings.pop("aws_secret_access_key", None)
+            session_token = settings.pop("aws_session_token", None)
+
+            if (
+                access_key_id is None
+                or secret_access_key is None
+                or session_token is None
+            ):
+                raise DBError(
+                    self.name,
+                    self.db_type,
+                    f"Error retrieving AWS access key credentials: {access_key_id}",
+                )
+            self._boto_session = boto3.Session(
+                aws_access_key_id=access_key_id,
+                aws_secret_access_key=secret_access_key,
+                aws_session_token=session_token,
+            )
+
+        else:
+            self._boto_session = boto3.Session()
+
         for param in db_parameters:
             if param in settings:
                 settings["connect_args"][param] = settings.pop(param)
 
-        return create_engine("postgresql://", **settings)
+        return create_engine("redshift+redshift_connector://", **settings)
+
+    def execute(self, script):
+        conn = self.engine.raw_connection()
+        with conn.cursor() as cursor:
+            for s in script.split(";"):
+                if len(s.strip()) > 0:
+                    cursor.execute(s)
 
     def _get_table_attributes(self, ddl):
 
@@ -299,3 +331,28 @@ class Redshift(Database):
                     region=self.bucket_region,
                 )
             )
+
+    def merge_tables(
+        self,
+        src_table,
+        dst_table,
+        delete_key,
+        cleanup=True,
+        src_schema=None,
+        dst_schema=None,
+        **ddl,
+    ):
+        src_table = fully_qualify(src_table, src_schema)
+        dst_table = fully_qualify(dst_table, dst_schema)
+
+        template = self._jinja_env.get_template("redshift_merge_tables.sql")
+        return template.render(
+            dst_table=dst_table,
+            src_table=src_table,
+            cleanup=True,
+            delete_key=delete_key,
+        )
+
+
+def fully_qualify(name, schema=None):
+    return f"{schema+'.' if schema is not None else ''}{name}"
