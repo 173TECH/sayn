@@ -215,6 +215,11 @@ class Redshift(Database):
                 if len(s.strip()) > 0:
                     cursor.execute(s)
 
+    def _list_databases(self):
+        report = self.read_data("SELECT datname FROM pg_database_info;")
+        dbs = [re["datname"] for re in report]
+        return dbs
+
     def _get_table_attributes(self, ddl):
 
         if ddl["sorting"] is None and ddl["distribution"] is None:

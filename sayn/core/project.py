@@ -19,9 +19,9 @@ class Project(BaseModel):
     presets: Optional[Mapping[str, Mapping[str, Any]]]
     autogroups: Mapping[str, Any] = Field(dict(), alias="groups")
 
-    # database_prefix: Optional[str]
-    # database_suffix: Optional[str]
-    # database_override: Optional[str]
+    database_prefix: Optional[str]
+    database_suffix: Optional[str]
+    database_override: Optional[str]
     schema_prefix: Optional[str]
     schema_suffix: Optional[str]
     schema_override: Optional[str]
@@ -301,6 +301,7 @@ def get_tasks_dict(
                 group_definition["file_name"], task=TaskJinjaEnv(group=group_name)
             )
             found_file = False
+
             for file in Path(sql_folder).glob(file_glob):
                 found_file = True
                 task_name = file.stem

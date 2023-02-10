@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from collections import deque
 from typing import Mapping, Optional, Set
 
 from . import Database
@@ -13,7 +14,7 @@ class DbObject:
         connection_name: str,
         database: Optional[str],
         schema: Optional[str],
-        table: str,
+        table: Optional[str],
     ) -> None:
         self.compiler = compiler
         self.connection_name = connection_name
@@ -29,7 +30,11 @@ class DbObject:
         if self.schema is not None:
             self.raw += self.schema + "."
 
-        self.raw += self.table
+        if self.database is not None and self.schema is None:
+            self.raw += "."
+
+        if self.table is not None:
+            self.raw += self.table
 
         # The key is prefixed with the connection name to make objects
         # unique across all databases
@@ -49,12 +54,12 @@ class DbObject:
 
 
 class DbObjectCompiler:
-    # 3 levels is not fully supported
-    # regex_obj = re.compile(
-    #     r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?((?P<c2>.+)\.)?(?P<c3>[^.]+)"
-    # )
 
-    regex_obj = re.compile(r"((?P<connection>[^:]+):)?((?P<c1>.+)\.)?(?P<c2>[^.]+)")
+    regex_obj = re.compile(
+        r"^\s*((?P<connection>[^:]+):)?((?P<c1>[^.]+)\.)?((?P<c2>[^.]+)\.)?(?P<c3>[^.]+)(?P<dots>\.{0,2})\s*$"
+    )
+
+    reference_level = {None: 0, "schema": -1, "db": -2}
 
     def __init__(
         self,
@@ -112,7 +117,6 @@ class DbObjectCompiler:
 
             if suffix is not None and len(suffix) > 0:
                 stringify = stringify + "_" + suffix
-
         return stringify
 
     def set_sources_from_prod(self, sources_from_prod: Set[DbObject]) -> None:
@@ -184,7 +188,9 @@ class DbObjectCompiler:
     def out_value(self, obj: DbObject) -> str:
         return self._common_value(obj, False)
 
-    def from_string(self, obj: str, connection: str | Database = None) -> DbObject:
+    def from_string(
+        self, obj: str, connection: str | Database = None, level: str = None
+    ) -> DbObject:
         """This is the entry point to db objects from a SAYN project. Accepting
         2 or 3 components is specified here.
         """
@@ -193,12 +199,16 @@ class DbObjectCompiler:
         if match is None:
             raise ValueError(f'Incorrect format for database object "{obj}"')
 
+        if level not in self.reference_level.keys():
+            raise ValueError(f'Incorrect format for reference level "{level}"')
+
         if isinstance(connection, Database):
             in_connection_name = connection.name
         else:
             in_connection_name = connection
 
         groups = match.groupdict()
+
         if groups["connection"] is None:
             if connection is None:
                 connection_name = self.default_db
@@ -213,23 +223,39 @@ class DbObjectCompiler:
                 else:
                     connection_name = in_connection_name
 
+        if groups["c1"] is not None and groups["c2"] is None:
+            groups["c2"] = groups["c1"]
+            groups["c1"] = None
+
+        if self.reference_level[level] == 0:
+            period_count = groups["dots"].count(".")
+
+            if period_count > 2:
+                raise ValueError(
+                    f'Invalid number of periods (".") in database object {obj}'
+                )
+
+            provided_level = -1 * period_count
+        else:
+            provided_level = self.reference_level[level]
+
+        component_elements = deque(
+            [v for k, v in groups.items() if k != "connection" and k != "dots"]
+        )
+
+        component_elements.rotate(provided_level)
+
         components = dict(
             {"table": None, "schema": None, "database": None},
             **dict(
                 zip(
                     ("table", "schema", "database"),
-                    reversed(
-                        [
-                            v
-                            for k, v in groups.items()
-                            if k != "connection" and v is not None
-                        ]
-                    ),
+                    reversed(component_elements),
                 )
             ),
         )
 
-        if components["table"] is None:
+        if components["table"] is None and provided_level == 0:
             # This can't happen given the regexp, but this case avoids
             # static analysis errors
             raise ValueError("Error interpreting object string")

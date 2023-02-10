@@ -31,6 +31,12 @@ class Mysql(Database):
 
         return create_engine("mysql+pymysql://", **settings)
 
+    def _list_databases(self):
+        """List the accessible databases for this connection."""
+        databases = self.read_data("SHOW DATABASES;")
+        databases = [db["name"].lower() for db in databases] + [""]
+        return databases
+
     def execute(self, script):
         for s in script.split(";"):
             if len(s.strip()) > 0:

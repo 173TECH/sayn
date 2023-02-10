@@ -1,6 +1,7 @@
 from collections import Counter
 import datetime
 import decimal
+from itertools import groupby
 from pathlib import Path
 from typing import List, Optional, Union
 
@@ -146,9 +147,11 @@ class Database:
         self, database: Optional[str], schema: Optional[str], table: str
     ) -> str:
         return (
-            f"{database + '.' if database is not None else ''}"
-            f"{schema + '.' if schema is not None else ''}"
-            f"{table}"
+            f"{database if database is not None else ''}"
+            f"{'.' if database is not None else ''}"
+            f"{schema if schema is not None else ''}"
+            f"{'.' if database is not None or (schema is not None) else ''}"
+            f"{table if table is not None else ''}"
         )
 
     def _fully_qualify(
@@ -185,6 +188,47 @@ class Database:
             self.metadata = MetaData(self.engine)
             # Force a query to test the connection
             self.execute("select 1")
+
+    def _list_databases(self):
+        raise NotImplementedError()
+
+    def _list_objects(self, databases):
+        """List the accessible databases for this connection."""
+        objects = list()
+        queries = ""
+        for database in databases:
+            if database != "":
+                queries += f"""SELECT table_catalog, table_schema, table_name, table_type FROM {database}.INFORMATION_SCHEMA.TABLES"""
+            else:
+                queries += "SELECT '' AS table_catalog, table_schema, table_name, table_type FROM INFORMATION_SCHEMA.TABLES"
+            queries += "\nUNION ALL\n"
+
+        queries = "\n".join(queries.split("\n")[:-2])
+
+        objects = {
+            db.lower(): {
+                schema.lower(): {
+                    table.lower(): {
+                        "type": self._get_table_type(type["table_type"]) for type in ggg
+                    }
+                    for table, ggg in groupby(gg, lambda x: x["table_name"])
+                }
+                for schema, gg in groupby(g, lambda x: x["table_schema"])
+            }
+            for db, g in groupby(
+                sorted(
+                    self.read_data(queries),
+                    key=lambda x: (
+                        x["table_catalog"],
+                        x["table_schema"],
+                        x["table_name"],
+                    ),
+                ),
+                key=lambda x: x["table_catalog"],
+            )
+        }
+
+        return objects
 
     def _construct_tests_template(self, columns, table, test_file_name, schema):
         query = """
@@ -322,41 +366,41 @@ class Database:
         self.metadata.reflect(only=only, schema=schema, extend_existing=True)
 
     def _introspect(self, to_introspect):
-        insp = sqlalchemy.inspect(self.engine)
         out = dict()
+        introspect_databases = set(to_introspect.keys())
+        databases = set(self._list_databases())
+        schemata_list = [
+            (db, schem)
+            for db, schs in to_introspect.items()
+            for schem in list(schs.keys())
+        ]
+        introspect_schemata = set(schemata_list)
+        databases_intersection = introspect_databases.intersection(databases)
 
-        for database, schemas in to_introspect.items():
-            if database != "":
-                # We currently don't support 3 levels of db object specification.
-                raise ValueError("3 level db objects are not currently supported")
+        if len(databases_intersection) > 0:
+            dbobjects = self._list_objects(databases_intersection)
+            schemata = [
+                (database, schema)
+                for database, schemas in dbobjects.items()
+                for schema in list(schemas.keys())
+            ]
+            schemata = set(schemata)
+            schemata_intersection = introspect_schemata.intersection(schemata)
 
-            for schema, req_objs in schemas.items():
-                if schema == "":
-                    schema = None
+            if len(schemata_intersection) > 0:
 
-                if schema is None:
-                    db_objects = [
-                        ("table", insp.get_table_names()),
-                        ("view", insp.get_view_names()),
-                    ]
-                else:
-                    db_objects = [
-                        ("table", insp.get_table_names(schema)),
-                        ("view", insp.get_view_names(schema)),
-                    ]
+                for db, schema in schemata_intersection:
+                    if db not in out:
+                        out[db] = dict()
+                    if schema not in out[db]:
+                        out[db][schema] = dict()
 
-                # flatten the results
-                db_objects = {o: t for t, obs in db_objects for o in obs}
-
-                if schema not in self._requested_objects:
-                    self._requested_objects[schema] = dict()
-
-                out[schema] = dict()
-                for obj_name in req_objs:
-                    if obj_name in db_objects:
-                        out[schema][obj_name] = {"type": db_objects[obj_name]}
-                    else:
-                        out[schema][obj_name] = {"type": None}
+                    tables = dbobjects.get(db).get(schema)
+                    for table_name in to_introspect[db][schema]:
+                        if table_name in tables:
+                            out[db][schema][table_name] = tables[table_name]
+                        else:
+                            out[db][schema][table_name] = {"type": None}
 
         self._requested_objects = out
 
@@ -539,7 +583,6 @@ class Database:
         Returns:
             sqlalchemy.Table: A table object from sqlalchemy
         """
-
         table_def = Table(table, self.metadata, schema=schema, extend_existing=True)
 
         if table_def.exists():
@@ -561,16 +604,22 @@ class Database:
         self,
         table,
         schema=None,
+        db=None,
         select=None,
         replace=False,
         **ddl,
     ):
-        full_name = fully_qualify(table, schema)
+        db_name = db or ""
+        schema_name = schema or ""
+        full_name = fully_qualify(table, schema, db)
         if (
-            schema in self._requested_objects
-            and table in self._requested_objects[schema]
+            db_name in self._requested_objects
+            and schema_name in self._requested_objects[db_name]
+            and table in self._requested_objects[db_name][schema_name]
         ):
-            object_type = self._requested_objects[schema][table].get("type")
+            object_type = self._requested_objects[db_name][schema_name][table].get(
+                "type"
+            )
             table_exists = object_type == "table"
             view_exists = object_type == "view"
         else:
@@ -603,10 +652,12 @@ class Database:
         cleanup=True,
         src_schema=None,
         dst_schema=None,
+        src_db=None,
+        dst_db=None,
         **ddl,
     ):
-        src_table = fully_qualify(src_table, src_schema)
-        dst_table = fully_qualify(dst_table, dst_schema)
+        src_table = fully_qualify(src_table, src_schema, src_db)
+        dst_table = fully_qualify(dst_table, dst_schema, dst_db)
 
         template = self._jinja_env.get_template("merge_tables.sql")
         return template.render(
@@ -616,14 +667,28 @@ class Database:
             delete_key=delete_key,
         )
 
-    def move_table(self, src_table, dst_table, src_schema=None, dst_schema=None, **ddl):
+    def move_table(
+        self,
+        src_table,
+        dst_table,
+        src_schema=None,
+        dst_schema=None,
+        src_db=None,
+        dst_db=None,
+        **ddl,
+    ):
         template = self._jinja_env.get_template("move_table.sql")
+        dst_dbs = dst_db or ""
+        dst_schemas = dst_schema or ""
 
         if (
-            dst_schema in self._requested_objects
-            and dst_table in self._requested_objects[dst_schema]
+            dst_dbs in self._requested_objects
+            and dst_schemas in self._requested_objects[dst_dbs]
+            and dst_table in self._requested_objects[dst_dbs][dst_schemas]
         ):
-            object_type = self._requested_objects[dst_schema][dst_table].get("type")
+            object_type = self._requested_objects[dst_dbs][dst_schemas][dst_table].get(
+                "type"
+            )
 
             table_exists = bool(object_type == "table")
             view_exists = bool(object_type == "view")
@@ -634,8 +699,10 @@ class Database:
         return template.render(
             table_exists=table_exists,
             view_exists=view_exists,
+            src_db=src_db,
             src_schema=src_schema,
             src_table=src_table,
+            dst_db=dst_db,
             dst_schema=dst_schema,
             dst_table=dst_table,
             cannot_alter_indexes=self.feature("CANNOT ALTER INDEXES"),
@@ -651,7 +718,9 @@ class Database:
         table,
         select,
         schema=None,
+        db=None,
         tmp_schema=None,
+        tmp_db=None,
         **ddl,
     ):
 
@@ -660,17 +729,18 @@ class Database:
 
         tmp_table = tmp_name(table)
         tmp_schema = tmp_schema or schema
+        tmp_db = tmp_db or db
 
         if can_replace_table:
             create_or_replace = self.create_table(
-                table, schema, select=select, replace=True, **ddl
+                table, schema, db, select=select, replace=True, **ddl
             )
 
             return {"Create Or Replace Table": create_or_replace}
 
         else:
             create_or_replace = self.create_table(
-                tmp_table, tmp_schema, select=select, replace=True, **ddl
+                tmp_table, tmp_schema, tmp_db, select=select, replace=True, **ddl
             )
 
             # Move the table to its final location
@@ -684,11 +754,21 @@ class Database:
 
             return {"Create Table": create_or_replace, "Move table": move}
 
-    def replace_view(self, view, select, schema=None, **ddl):
-        view_name = fully_qualify(view, schema)
-        object_type = self._requested_objects[schema][view].get("type")
-        table_exists = object_type == "table"
-        view_exists = object_type == "view"
+    def replace_view(self, view, select, schema=None, db=None, **ddl):
+        view_name = fully_qualify(view, schema, db)
+        dbs = db or ""
+        schemas = schema or ""
+        if (
+            dbs in self._requested_objects
+            and schemas in self._requested_objects[dbs]
+            and view in self._requested_objects[dbs][schemas]
+        ):
+            object_type = self._requested_objects[dbs][schemas][view].get("type")
+            table_exists = object_type == "table"
+            view_exists = object_type == "view"
+        else:
+            table_exists = True
+            view_exists = True
 
         # ddl = self._format_properties(ddl).value
 
@@ -705,13 +785,14 @@ class Database:
         return {"Create View": create}
 
     def merge_query(
-        self, table, select, delete_key, schema=None, tmp_schema=None, **ddl
+        self, table, select, delete_key, schema=None, db=None, tmp_schema=None, **ddl
     ):
         tmp_table = tmp_name(table)
         tmp_schema = tmp_schema or schema
+        tmp_db = db
 
         create_or_replace = self.create_table(
-            tmp_table, tmp_schema, select=select, replace=True
+            tmp_table, tmp_schema, tmp_db, select=select, replace=True
         )
 
         merge = self.merge_tables(
@@ -721,6 +802,8 @@ class Database:
             cleanup=True,
             src_schema=tmp_schema,
             dst_schema=schema,
+            src_db=db,
+            dst_db=db,
         )
 
         return {"Create Table": create_or_replace, "Merge Tables": merge}
@@ -729,8 +812,8 @@ class Database:
         return self._object_builder.from_components(database, schema, object)
 
 
-def fully_qualify(name, schema=None):
-    return f"{schema+'.' if schema is not None else ''}{name}"
+def fully_qualify(name, schema=None, db=None):
+    return f"{db+'.' if db is not None else ''}{schema+'.' if schema is not None else ''}{name}"
 
 
 def tmp_name(name):
