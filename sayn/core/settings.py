@@ -53,9 +53,9 @@ class TableGlob(str):
 
 class Environment(BaseModel):
     class Stringify(BaseModel):
-        # database_prefix: Optional[str]
-        # database_suffix: Optional[str]
-        # database_stringify: Optional[str]
+        database_prefix: Optional[str]
+        database_suffix: Optional[str]
+        database_stringify: Optional[str]
         schema_prefix: Optional[str]
         schema_suffix: Optional[str]
         schema_override: Optional[str]
@@ -107,9 +107,9 @@ class SettingsYaml(BaseModel):
         parameters: Optional[Mapping[str, Any]]
         credentials: Mapping[str, str]
 
-        # database_prefix: Optional[str]
-        # database_suffix: Optional[str]
-        # database_stringify: Optional[str]
+        database_prefix: Optional[str]
+        database_suffix: Optional[str]
+        database_stringify: Optional[str]
         schema_prefix: Optional[str]
         schema_suffix: Optional[str]
         schema_override: Optional[str]

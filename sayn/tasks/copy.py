@@ -19,6 +19,7 @@ class Source(BaseModel):
     db_schema: Optional[str] = Field(None, alias="schema")
     table: str
     db: str
+    db_name: Optional[str]
 
     class Config:
         extra = Extra.forbid
@@ -41,6 +42,7 @@ class Destination(BaseModel):
     db_schema: Optional[str] = Field(None, alias="schema")
     table: str
     db: Optional[str]
+    db_name: Optional[str]
 
     class Config:
         extra = Extra.forbid
@@ -169,35 +171,59 @@ class CopyTask(SqlTask):
 
         # Setup sources
         self.source_db = self.connections[self.task_config.source.db]
-        if self.task_config.source.db_schema is None:
+        if (self.task_config.source.db_name is None) and (
+            self.task_config.source.db_schema is None
+        ):
+            self.source_name = None
             self.source_schema = None
             self.source_table = self.src(
                 self.task_config.source.table, connection=self.source_db
             )
-        else:
+        elif (self.task_config.source.db_name is None) and (
+            self.task_config.source.db_schema is not None
+        ):
+            self.source_name = None
             obj = self.src(
                 f"{self.task_config.source.db_schema}.{self.task_config.source.table}",
                 connection=self.source_db,
             )
             self.source_schema = obj.split(".")[0]
             self.source_table = obj.split(".")[1]
+        else:
+            obj = self.src(
+                f"{self.task_config.source.db_name}.{self.task_config.source.db_schema}.{self.task_config.source.table}",
+                connection=self.source_db,
+            )
+            self.source_name = obj.split(".")[0]
+            self.source_schema = obj.split(".")[1]
+            self.source_table = obj.split(".")[2]
 
         # Setup outputs
         self.config_tmp_schema = (
             self.task_config.destination.tmp_schema
             or self.task_config.destination.db_schema
         )
+        config_db = self.task_config.destination.db_name
         config_schema = self.task_config.destination.db_schema
         config_table = self.task_config.destination.table
         config_tmp_table = f"sayn_tmp_{config_table}"
 
-        if config_schema is None:
+        if (config_db is None) or (config_schema is None):
+            self.database = None
             self.schema = None
             self.table = self.out(config_table, connection=self.target_db)
-        else:
+        elif (config_db is None) and (config_schema is not None):
             obj = self.out(f"{config_schema}.{config_table}", connection=self.target_db)
+            self.database = None
             self.schema = obj.split(".")[0]
             self.table = obj.split(".")[1]
+        else:
+            obj = self.out(
+                f"{config_db}.{config_schema}.{config_table}", connection=self.target_db
+            )
+            self.database = obj.split(".")[0]
+            self.schema = obj.split(".")[1]
+            self.table = obj.split(".")[2]
 
         if self.config_tmp_schema is None:
             self.tmp_schema = None
@@ -263,18 +289,32 @@ class CopyTask(SqlTask):
 
     def setup(self):
         if self.needs_recompile:
-            if self.task_config.source.db_schema is None:
+            if (self.task_config.source.db_name is None) and (
+                self.task_config.source.db_schema is None
+            ):
+                self.source_name = None
                 self.source_schema = None
                 self.source_table = self.src(
                     self.task_config.source.table, connection=self.source_db
                 )
-            else:
+            elif (self.task_config.source.db_name is None) and (
+                self.task_config.source.db_schema is not None
+            ):
+                self.source_name = None
                 obj = self.src(
                     f"{self.task_config.source.db_schema}.{self.task_config.source.table}",
                     connection=self.source_db,
                 )
                 self.source_schema = obj.split(".")[0]
                 self.source_table = obj.split(".")[1]
+            else:
+                obj = self.src(
+                    f"{self.task_config.source.db_name}.{self.task_config.source.db_schema}.{self.task_config.source.table}",
+                    connection=self.source_db,
+                )
+                self.source_name = obj.split(".")[0]
+                self.source_schema = obj.split(".")[1]
+                self.source_table = obj.split(".")[2]
 
             if self._has_tests:
                 schema = self.task_config.destination.db_schema
@@ -384,6 +424,7 @@ class CopyTask(SqlTask):
 
         steps = ["Prepare Load", "Load Data"]
         if self.target_table_exists:
+            load_db = self.database
             load_table = self.tmp_table
             load_schema = self.tmp_schema
             if is_full_load or self.mode == "full":
@@ -391,6 +432,7 @@ class CopyTask(SqlTask):
             else:
                 steps.append("Merge Tables")
         else:
+            load_db = self.database
             load_table = self.table
             load_schema = self.schema
 
@@ -413,7 +455,7 @@ class CopyTask(SqlTask):
                 create_ddl["columns"] = [c for c in self.columns["columns"]]
 
             query = self.target_db.create_table(
-                load_table, schema=load_schema, replace=True, **create_ddl
+                load_table, schema=load_schema, db=load_db, replace=True, **create_ddl
             )
             if debug:
                 self.write_compilation_output(query, "create_table")
@@ -445,7 +487,6 @@ class CopyTask(SqlTask):
                     schema=load_schema,
                     batch_size=self.max_batch_rows,
                 )
-
         # Final step
         final_step = steps[-1]
         if final_step == "Move Table":
@@ -454,6 +495,8 @@ class CopyTask(SqlTask):
                 self.table,
                 src_schema=load_schema,
                 dst_schema=self.schema,
+                src_db=self.source_name,
+                dst_db=self.database,
                 **self.columns,
             )
         elif final_step == "Merge Tables":
@@ -463,6 +506,8 @@ class CopyTask(SqlTask):
                 self.delete_key,
                 src_schema=load_schema,
                 dst_schema=self.schema,
+                src_db=self.source_name,
+                dst_db=self.database,
                 **self.columns,
             )
         else:

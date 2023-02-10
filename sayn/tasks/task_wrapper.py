@@ -424,8 +424,10 @@ class TaskWrapper:
 
         return Ok()
 
-    def src(self, obj, connection=None):
-        obj = self.db_object_compiler.from_string(obj, connection=connection)
+    def src(self, obj, connection=None, level=None):
+        obj = self.db_object_compiler.from_string(
+            obj, connection=connection, level=level
+        )
         if self.status == TaskStatus.CONFIGURING:
             # During configuration we add to the list and use values based on settings
             self.used_connections.add(obj.connection_name)
@@ -433,8 +435,10 @@ class TaskWrapper:
 
         return self.db_object_compiler.src_value(obj)
 
-    def out(self, obj, connection=None):
-        obj = self.db_object_compiler.from_string(obj, connection=connection)
+    def out(self, obj, connection=None, level=None):
+        obj = self.db_object_compiler.from_string(
+            obj, connection=connection, level=level
+        )
         if self.status == TaskStatus.CONFIGURING:
             self.used_connections.add(obj.connection_name)
             self.outputs.add(obj)

@@ -18,6 +18,7 @@ class BaseConfig(BaseModel):
     destination: Optional[str]
     materialisation: Optional[str]
     db: Optional[str]
+    tmp_db: Optional[str]
     tmp_schema: Optional[str]
 
     columns: Optional[List[Union[str, Mapping[str, Any]]]] = list()
@@ -104,12 +105,12 @@ class SqlTask(Task):
         def_connections_src = []
         def_connections_out = []
 
-        def def_src(obj):
-            def_connections_src.append(obj)
+        def def_src(obj, level=None):
+            def_connections_src.append((obj, level))
             return ""
 
-        def def_out(obj):
-            def_connections_out.append(obj)
+        def def_out(obj, level=None):
+            def_connections_out.append((obj, level))
             return ""
 
         if "task_name" in self._config_input:
@@ -152,8 +153,8 @@ class SqlTask(Task):
         # We compile first to allow changes to the config
         # Template compilation
         self.compiler.update_globals(
-            src=lambda x: def_src(x),
-            out=lambda x: def_out(x),
+            src=lambda x, level=None: def_src(x, level=level),
+            out=lambda x, level=None: def_out(x, level=level),
             config=self.config_macro,
         )
         self.allow_config = True
@@ -165,52 +166,87 @@ class SqlTask(Task):
         self.allow_config = False
 
         if isinstance(config.get("destination"), str):
-            match = re.match(r"(.*)\.(.*)|(\w+)", self.task_config.destination)
+            match = re.match(
+                r"(.*)\.(.*)\.(.*)|(.*)\.(.*)|(\w+)", self.task_config.destination
+            )
 
-            if match.group(3):
-                db_schema = None
+            if match.group(1):
+                database_name = match.group(1)
+                db_schema = match.group(2)
                 base_table_name = match.group(3)
+            elif match.group(4):
+                database_name = None
+                db_schema = match.group(4)
+                base_table_name = match.group(5)
             else:
-                db_schema = match.group(1)
-                base_table_name = match.group(2)
+                database_name = None
+                db_schema = None
+                base_table_name = match.group(6)
             # Output calculation
             if self.task_config.tmp_schema is not None:
                 tmp_db_schema = self.task_config.tmp_schema
             else:
                 tmp_db_schema = db_schema
 
-            if db_schema is None:
+            if self.task_config.tmp_db is not None:
+                tmp_db = self.task_config.tmp_db
+            else:
+                tmp_db = database_name
+
+            if (database_name is None) and (db_schema is None):
+                self.database = None
                 self.schema = None
                 self.table = self.out(base_table_name, self.target_db)
-            else:
+            elif (database_name is None) and (db_schema is not None):
                 obj = self.out(f"{db_schema}.{base_table_name}", self.target_db)
+                self.database = None
                 self.schema = obj.split(".")[0]
                 self.table = obj.split(".")[1]
+            else:
+                obj = self.out(
+                    f"{database_name}.{db_schema}.{base_table_name}", self.target_db
+                )
+                self.database = obj.split(".")[0]
+                self.schema = obj.split(".")[1]
+                self.table = obj.split(".")[2]
 
-            if tmp_db_schema is None:
+            if (tmp_db is None) and (tmp_db_schema is None):
+                self.tmp_db = None
                 self.tmp_schema = None
                 self.tmp_table = self.out(f"sayn_tmp_{base_table_name}", self.target_db)
-            else:
+            elif (tmp_db is None) and (tmp_db_schema is not None):
                 obj = self.out(
                     f"{tmp_db_schema}.sayn_tmp_{base_table_name}", self.target_db
                 )
                 self.tmp_schema = obj.split(".")[0]
                 self.tmp_table = obj.split(".")[1]
+            else:
+                obj = self.out(
+                    f"{tmp_db}.{tmp_db_schema}.sayn_tmp_{base_table_name}",
+                    self.target_db,
+                )
+                self.tmp_db = obj.split(".")[0]
+                self.tmp_schema = obj.split(".")[1]
+                self.tmp_table = obj.split(".")[2]
 
         self.materialisation = self.task_config.materialisation
         self.delete_key = self.task_config.delete_key
 
         self.compiler.update_globals(
-            src=lambda x: self.src(x, connection=self._target_db),
-            out=lambda x: self.out(x, connection=self._target_db),
+            src=lambda x, level=None: self.src(
+                x, connection=self._target_db, level=level
+            ),
+            out=lambda x, level=None: self.out(
+                x, connection=self._target_db, level=level
+            ),
             config=self.config_macro,
         )
 
         for s in def_connections_src:
-            self.src(s, connection=self._target_db)
+            self.src(s[0], connection=self._target_db, level=s[1])
 
         for o in def_connections_out:
-            self.out(o, connection=self._target_db)
+            self.out(o[0], connection=self._target_db, level=o[1])
 
         # DDL validation
         result = self.target_db._validate_ddl(
@@ -342,6 +378,7 @@ class SqlTask(Task):
                 self.table,
                 self.sql_query,
                 schema=self.schema,
+                db=self.database,
                 **self.ddl,
             )
 
@@ -350,14 +387,18 @@ class SqlTask(Task):
             if self.target_db.feature("CANNOT CHANGE SCHEMA"):
                 # Use destination schema if the db doesn't support schema changes
                 tmp_schema = self.schema
+                tmp_db = self.database
             else:
                 tmp_schema = self.tmp_schema
+                tmp_db = self.tmp_db
 
             step_queries = self.target_db.replace_table(
                 self.table,
                 self.sql_query,
                 schema=self.schema,
+                db=self.database,
                 tmp_schema=tmp_schema,
+                tmp_db=tmp_db,
                 **self.ddl,
             )
 
@@ -368,6 +409,7 @@ class SqlTask(Task):
                 self.sql_query,
                 self.delete_key,
                 schema=self.schema,
+                db=self.database,
                 tmp_schema=self.tmp_schema,
                 **self.ddl,
             )

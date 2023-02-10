@@ -154,6 +154,11 @@ class Redshift(Database):
 
         return create_engine("postgresql://", **settings)
 
+    def _list_databases(self):
+        report = self.read_data("SELECT datname FROM pg_database_info;")
+        dbs = [re["datname"] for re in report]
+        return dbs
+
     def _get_table_attributes(self, ddl):
 
         if ddl["sorting"] is None and ddl["distribution"] is None:

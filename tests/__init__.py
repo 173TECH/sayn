@@ -131,16 +131,30 @@ def simulate_task(
     base_compiler = Compiler(obj_run_arguments, dict(), task_params)
 
     class DBObjectUtil:
+        reference_level = {"db": 2, "schema": 1, None: 0}
+
         def __init__(self, used_objects):
             self.to_introspect = used_objects
 
-        def src_out(self, obj, connection=None):
-            if "." in obj:
-                schema = obj.split(".")[0]
-                table = obj.split(".")[1]
+        def src_out(self, obj, connection=None, level=None):
+            if level is not None:
+                level_value = self.reference_level[level]
+                obj += "." * level_value
             else:
+                level_value = obj.count(".")
+
+            if level_value == 0:
+                database = ""
                 schema = ""
                 table = obj
+            elif level_value == 1:
+                database = ""
+                schema = obj.split(".")[0]
+                table = obj.split(".")[1]
+            elif level_value == 2:
+                database = obj.split(".")[0]
+                schema = obj.split(".")[1]
+                table = obj.split(".")[2]
 
             if isinstance(connection, str):
                 connection_name = connection
@@ -148,12 +162,15 @@ def simulate_task(
                 connection_name = connection.name
 
             if connection_name not in self.to_introspect:
-                self.to_introspect[connection_name] = {"": dict()}
+                self.to_introspect[connection_name] = {database: dict()}
 
-            if schema not in self.to_introspect[connection_name][""]:
-                self.to_introspect[connection_name][""][schema] = set()
+            if database not in self.to_introspect[connection_name]:
+                self.to_introspect[connection_name][database] = dict()
 
-            self.to_introspect[connection_name][""][schema].add(table)
+            if schema not in self.to_introspect[connection_name][database]:
+                self.to_introspect[connection_name][database][schema] = set()
+
+            self.to_introspect[connection_name][database][schema].add(table)
 
             return obj
 
