@@ -328,5 +328,5 @@ class Bigquery(Database):
         return query
 
 
-def fully_qualify(name, schema=None):
-    return f"{schema+'.' if schema is not None else ''}{name}"
+def fully_qualify(name, schema=None, db=None):
+    return f"{db+'.' if db is not None else ''}{schema+'.' if schema is not None else ''}{name}"
