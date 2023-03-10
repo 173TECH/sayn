@@ -133,6 +133,8 @@ class Redshift(Database):
             self.bucket_region = settings.pop("bucket_region", None)
             self.role = settings.pop("role")
 
+        import boto3
+
         if "cluster_id" in settings and "password" not in settings:
             # if a cluster_id is given and no password, we use boto to complete the credentials
             cluster_id = settings.pop("cluster_id")
@@ -143,8 +145,6 @@ class Redshift(Database):
             user = settings.pop("user")
             # if not provided, the default profile will be used
             profile = settings.pop("profile", None)
-
-            import boto3
 
             self._boto_session = boto3.Session(profile_name=profile)
 
@@ -193,6 +193,7 @@ class Redshift(Database):
                     self.db_type,
                     f"Error retrieving AWS access key credentials: {access_key_id}",
                 )
+
             self._boto_session = boto3.Session(
                 aws_access_key_id=access_key_id,
                 aws_secret_access_key=secret_access_key,
@@ -220,81 +221,6 @@ class Redshift(Database):
         dbs = [re["datname"] for re in report]
         return dbs
 
-    def _get_table_attributes(self, ddl):
-
-        if ddl["sorting"] is None and ddl["distribution"] is None:
-            return ""
-
-        table_attributes = ""
-
-        if ddl["sorting"] is not None:
-            sorting_type = (
-                f"{ddl['sorting']['type']} "
-                if ddl["sorting"]["type"] is not None
-                else ""
-            )
-            columns = ", ".join(ddl["sorting"]["columns"])
-            table_attributes += f"\n{sorting_type}SORTKEY ({columns})"
-
-        if ddl["distribution"] is not None:
-            if ddl["distribution"] in ("EVEN", "ALL"):
-                table_attributes += f"\nDISTSTYLE {ddl['distribution']['type']}"
-            else:
-                table_attributes += (
-                    f"\nDISTSTYLE KEY\nDISTKEY ({ddl['distribution']['column']})"
-                )
-
-        return table_attributes + "\n"
-
-    def _create_table_select(
-        self, table, schema, select, view=False, ddl=dict(), execute=True
-    ):
-        """Returns SQL code for a create table from a select statement"""
-        table = f"{schema+'.' if schema else ''}{table}"
-        table_or_view = "VIEW" if view else "TABLE"
-
-        q = ""
-
-        q += f"CREATE {table_or_view} {table} "
-        if not view:
-            q += self._get_table_attributes(ddl)
-        q += f" AS (\n{select}\n);"
-
-        if execute:
-            self.execute(q)
-
-        return q
-
-    def _create_table_ddl(self, table, schema, ddl, execute=False):
-        """Returns SQL code for a create table from a select statement"""
-        if len(ddl["columns"]) == 0:
-            raise DBError(
-                self.name, self.db_type, "DDL is missing columns specification"
-            )
-        table_name = table
-        table = f"{schema+'.' if schema else ''}{table_name}"
-
-        columns = "\n    , ".join(
-            [
-                (
-                    f'{c["name"]} {c["type"]}'
-                    f'{" NOT NULL" if c.get("not_null", False) else ""}'
-                )
-                for c in ddl["columns"]
-            ]
-        )
-
-        q = ""
-
-        q += f"CREATE TABLE {table} "
-        q += self._get_table_attributes(ddl)
-        q += f" AS (\n      {columns}\n);"
-
-        if execute:
-            self.execute(q)
-
-        return q
-
     def _load_data_batch(self, table, data, schema):
         """Implements the load of a single data batch for `load_data`.
 
@@ -306,6 +232,10 @@ class Redshift(Database):
             data (list): A list of dictionaries to load
             schema (str): An optional schema to reference the table
         """
+        # if no bucket is supplied, the old _load_data_batch function is used
+        if self.bucket is None:
+            return super(Database, self)._load_data_batch(table, data, schema)
+
         full_table_name = f"{'' if schema is None else schema + '.'}{table}"
         template = self._jinja_env.get_template("redshift_load_batch.sql")
         fname = "batch.csv"
@@ -345,10 +275,12 @@ class Redshift(Database):
         cleanup=True,
         src_schema=None,
         dst_schema=None,
+        src_db=None,
+        dst_db=None,
         **ddl,
     ):
-        src_table = fully_qualify(src_table, src_schema)
-        dst_table = fully_qualify(dst_table, dst_schema)
+        src_table = fully_qualify(src_table, src_schema, src_db)
+        dst_table = fully_qualify(dst_table, dst_schema, dst_db)
 
         template = self._jinja_env.get_template("redshift_merge_tables.sql")
         return template.render(
@@ -359,5 +291,5 @@ class Redshift(Database):
         )
 
 
-def fully_qualify(name, schema=None):
-    return f"{schema+'.' if schema is not None else ''}{name}"
+def fully_qualify(name, schema=None, db=None):
+    return f"{db+'.' if db is not None else ''}{schema+'.' if schema is not None else ''}{name}"

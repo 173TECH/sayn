@@ -254,16 +254,23 @@ class Bigquery(Database):
         )
         job.result()
 
-    def move_table(self, src_table, dst_table, src_schema=None, dst_schema=None, **ddl):
+    def move_table(
+        self,
+        src_table,
+        dst_table,
+        src_schema=None,
+        dst_schema=None,
+        src_db=None,
+        dst_db=None,
+        **ddl,
+    ):
 
         # ddl = self._format_properties(ddl).value
 
-        full_src_table = (
-            f"{src_schema + '.' if src_schema is not None else ''}{src_table}"
-        )
+        full_src_table = f"{src_db + '.' if src_schema is not None else ''}{src_schema + '.' if src_schema is not None else ''}{src_table}"
         select = f"SELECT * FROM {full_src_table}"
         create_or_replace = self.create_table(
-            dst_table, dst_schema, select=select, replace=True, **ddl
+            dst_table, dst_schema, dst_db, select=select, replace=True, **ddl
         )
 
         return "\n\n".join((create_or_replace, f"DROP TABLE {full_src_table}"))
@@ -328,5 +335,5 @@ class Bigquery(Database):
         return query
 
 
-def fully_qualify(name, schema=None):
-    return f"{schema+'.' if schema is not None else ''}{name}"
+def fully_qualify(name, schema=None, db=None):
+    return f"{db+'.' if db is not None else ''}{schema+'.' if schema is not None else ''}{name}"
