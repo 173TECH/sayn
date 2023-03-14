@@ -218,6 +218,7 @@ class SqlTask(Task):
                 obj = self.out(
                     f"{tmp_db_schema}.sayn_tmp_{base_table_name}", self.target_db
                 )
+                self.tmp_db = None
                 self.tmp_schema = obj.split(".")[0]
                 self.tmp_table = obj.split(".")[1]
             else:
