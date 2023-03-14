@@ -204,25 +204,20 @@ class CopyTask(SqlTask):
             or self.task_config.destination.db_schema
         )
         config_db = self.task_config.destination.db_name
-        print(config_db)
         config_schema = self.task_config.destination.db_schema
-        print(config_schema)
         config_table = self.task_config.destination.table
         config_tmp_table = f"sayn_tmp_{config_table}"
 
         if (config_db is None) and (config_schema is None):
-            print("here?")
             self.database = None
             self.schema = None
             self.table = self.out(config_table, connection=self.target_db)
         elif (config_db is None) and (config_schema is not None):
-            print("here")
             obj = self.out(f"{config_schema}.{config_table}", connection=self.target_db)
             self.database = None
             self.schema = obj.split(".")[0]
             self.table = obj.split(".")[1]
         else:
-            print("actually here")
             obj = self.out(
                 f"{config_db}.{config_schema}.{config_table}", connection=self.target_db
             )
