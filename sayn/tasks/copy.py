@@ -484,6 +484,7 @@ class CopyTask(SqlTask):
                 n_records = self.target_db.load_data(
                     load_table,
                     read_iter(data_iter),
+                    db=load_db,
                     schema=load_schema,
                     batch_size=self.max_batch_rows,
                 )

@@ -9,14 +9,21 @@ pip install "sayn[redshift]"
 
 The [Redshift](https://aws.amazon.com/redshift/){target="\_blank"} connector looks for the following parameters:
 
-Parameter  | Description                           | Default
----------  | ------------------------------------- | ---------------------------------------------
-host       | Host name or public IP of the cluster | Required on standard user/password connection
-port       | Connection port                       | 5439
-user       | User name used to connect             | Required
-password   | Password for that user                | Required on standard user/password connection
-cluster_id | Cluster id as registered in AWS       |
-dbname     | Database in use upon connection       | Required
+Parameter         | Description                           | Default
+----------------- | ------------------------------------- | ---------------------------------------------
+host              | Host name or public IP of the cluster | Required on standard user/password connection
+port              | Connection port                       | 5439
+user              | User name used to connect             | Required
+password          | Password for that user                | Required on standard user/password connection
+cluster_id        | Cluster id as registered in AWS       |
+database          | Database in use upon connection       | Required
+profile           | AWS CLI profile                       | Optional on IAM connection (`default` if left empty)
+access_key_id     | AWS Access Key ID                     | Required on Access Key IAM connections
+secret_access_key | AWS Secret Access Key                 | Required on Access Key IAM connections
+session_token     | AWS Sessions Token                    | Required on Access Key IAM connections
+bucket            | S3 Bucket                             | Required on S3 Copy Loads
+bucket_region     | S3 Bucket Region                      | Required if the Bucket is in a different region
+
 
 For advanced configurations, SAYN will pass other parameters to `create_engine`, so check the
 sqlalchemy [psycopg2](https://docs.sqlalchemy.org/en/13/dialects/postgresql.html#module-sqlalchemy.dialects.postgresql.psycopg2){target="\_blank"}
@@ -24,7 +31,7 @@ dialect for extra parameters.
 
 ## Connection Types
 
-SAYN supports 2 connection models for Redshift: standard user/password connection and IAM based.
+SAYN supports 3 connection models for Redshift: one standard user/password connection and two IAM based.
 
 ### Standard User/Password Connection
 
@@ -46,7 +53,7 @@ are specified.
 ### Connecting With IAM
 
 With an IAM based connection SAYN uses the AWS API to obtain a temporary password to stablish the
-connection, so only user, dbname and cluster_id are required.
+connection, so only `user`, `dbname` and `cluster_id` are required. AWS CLI `profile` can optionally be provided. It will use the `default` profile if not specified.
 
 !!! example "settings.yaml"
     ```yaml
@@ -55,6 +62,7 @@ connection, so only user, dbname and cluster_id are required.
         type: redshift
         cluster_id: my-redshift-cluster
         user: awsuser
+        profile: default
         dbname: models
     ```
 
@@ -62,6 +70,28 @@ For this connection type to work:
 
 * `boto3` needs to be installed in the project virtual environment `pip install boto3`.
 * The AWS cli need to be [setup](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html#configuration){target="\_blank"}.
+* The `user` and `dbname` still need to be specified (use the database user, not the `IAM:user`).
+* `host` and `port` can be skipped and these values will be obtained using boto3's `redshift describe-clusters`.
+
+### Connecting With Access Keys
+
+If the AWS CLI is not configured, access_key_id, secret_access_key and session_token can be provided to allow for the IAM connection. As with the method above, `user`, `dbname` and `cluster_id` are required.
+
+!!! example "settings.yaml"
+    ```yaml
+    credentials:
+      redshift-conn:
+        type: redshift
+        cluster_id: my-redshift-cluster
+        user: awsuser
+        access_key_id: ###
+        secret_access_key: ###
+        session_token: ###
+        dbname: models
+    ```
+For this connection type to work:
+
+* `boto3` needs to be installed in the project virtual environment `pip install boto3`.
 * The `user` and `dbname` still need to be specified (use the database user, not the `IAM:user`).
 * `host` and `port` can be skipped and these values will be obtained using boto3's `redshift describe-clusters`.
 

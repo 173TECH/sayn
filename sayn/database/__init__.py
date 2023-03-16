@@ -477,7 +477,7 @@ class Database:
             for record in res:
                 yield dict(zip(fields, record))
 
-    def _load_data_batch(self, table, data, schema):
+    def _load_data_batch(self, table, data, schema, db):
         """Implements the load of a single data batch for `load_data`.
 
         Defaults to an insert many statement, but it's overloaded for specific
@@ -500,7 +500,7 @@ class Database:
             connection.execute(table_def.insert().values(data))
 
     def load_data(
-        self, table, data, schema=None, batch_size=None, replace=False, **ddl
+        self, table, data, db=None, schema=None, batch_size=None, replace=False, **ddl
     ):
         """Loads a list of values into the database
 
@@ -556,19 +556,21 @@ class Database:
                     ]
                     ddl = dict(ddl, columns=columns)
 
-                query = self.create_table(table, schema=schema, replace=replace, **ddl)
+                query = self.create_table(
+                    table, db=db, schema=schema, replace=replace, **ddl
+                )
                 self.execute(query)
                 check_create = False
 
             if i % batch_size == 0 and len(buffer) > 0:
-                self._load_data_batch(table, buffer, schema)
+                self._load_data_batch(table, buffer, schema, db)
                 records_loaded += len(buffer)
                 buffer = list()
 
             buffer.append(record)
 
         if len(buffer) > 0:
-            self._load_data_batch(table, buffer, schema)
+            self._load_data_batch(table, buffer, schema, db)
             records_loaded += len(buffer)
 
         return records_loaded

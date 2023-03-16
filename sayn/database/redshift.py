@@ -20,7 +20,7 @@ db_parameters = [
     "cluster_id",
     "bucket",
     "bucket_region",
-    "role",
+    "bucket_role",
     "profile",
     "aws_access_key_id",
     "aws_secret_access_key",
@@ -128,12 +128,9 @@ class Redshift(Database):
         if "connect_args" not in settings:
             settings["connect_args"] = dict()
 
-        if "bucket" in settings and "role" in settings:
+        if "bucket" in settings:
             self.bucket = settings.pop("bucket")
             self.bucket_region = settings.pop("bucket_region", None)
-            self.role = settings.pop("role")
-
-        import boto3
 
         if "cluster_id" in settings and "password" not in settings:
             # if a cluster_id is given and no password, we use boto to complete the credentials
@@ -146,7 +143,32 @@ class Redshift(Database):
             # if not provided, the default profile will be used
             profile = settings.pop("profile", None)
 
-            self._boto_session = boto3.Session(profile_name=profile)
+            import boto3
+
+            if "aws_access_key_id" in settings:
+                access_key_id = settings.pop("aws_access_key_id", None)
+                secret_access_key = settings.pop("aws_secret_access_key", None)
+                session_token = settings.pop("aws_session_token", None)
+
+                if (
+                    access_key_id is None
+                    or secret_access_key is None
+                    or session_token is None
+                ):
+                    raise DBError(
+                        self.name,
+                        self.db_type,
+                        f"Error retrieving AWS access key credentials: {access_key_id}",
+                    )
+
+                self._boto_session = boto3.Session(
+                    aws_access_key_id=access_key_id,
+                    aws_secret_access_key=secret_access_key,
+                    aws_session_token=session_token,
+                )
+
+            else:
+                self._boto_session = boto3.Session(profile_name=profile)
 
             redshift_client = self._boto_session.client("redshift")
 
@@ -178,31 +200,6 @@ class Redshift(Database):
             settings["connect_args"]["user"] = credentials["DbUser"]
             settings["connect_args"]["password"] = credentials["DbPassword"]
 
-        elif "aws_access_key_id" in settings:
-            access_key_id = settings.pop("aws_access_key_id", None)
-            secret_access_key = settings.pop("aws_secret_access_key", None)
-            session_token = settings.pop("aws_session_token", None)
-
-            if (
-                access_key_id is None
-                or secret_access_key is None
-                or session_token is None
-            ):
-                raise DBError(
-                    self.name,
-                    self.db_type,
-                    f"Error retrieving AWS access key credentials: {access_key_id}",
-                )
-
-            self._boto_session = boto3.Session(
-                aws_access_key_id=access_key_id,
-                aws_secret_access_key=secret_access_key,
-                aws_session_token=session_token,
-            )
-
-        else:
-            self._boto_session = boto3.Session()
-
         for param in db_parameters:
             if param in settings:
                 settings["connect_args"][param] = settings.pop(param)
@@ -215,13 +212,14 @@ class Redshift(Database):
             for s in script.split(";"):
                 if len(s.strip()) > 0:
                     cursor.execute(s)
+                    cursor.execute("COMMIT")
 
     def _list_databases(self):
         report = self.read_data("SELECT datname FROM pg_database_info;")
         dbs = [re["datname"] for re in report]
         return dbs
 
-    def _load_data_batch(self, table, data, schema):
+    def _load_data_batch(self, table, data, schema, db):
         """Implements the load of a single data batch for `load_data`.
 
         Defaults to an insert many statement, but it's overloaded for specific
@@ -234,14 +232,11 @@ class Redshift(Database):
         """
         # if no bucket is supplied, the old _load_data_batch function is used
         if self.bucket is None:
-            return super(Database, self)._load_data_batch(table, data, schema)
+            return super(Database, self)._load_data_batch(table, data, schema, db)
 
-        full_table_name = f"{'' if schema is None else schema + '.'}{table}"
+        full_table_name = f"{'' if db is None else db + '.'}{'' if schema is None else schema + '.'}{table}"
         template = self._jinja_env.get_template("redshift_load_batch.sql")
         fname = "batch.csv"
-
-        iam_client = self._boto_session.client("iam")
-        arn = iam_client.get_role(RoleName=self.role)["Role"]["Arn"]
 
         s3_client = self._boto_session.client("s3")
 
@@ -250,7 +245,7 @@ class Redshift(Database):
                 writer = csv.DictWriter(
                     f, fieldnames=data[0].keys(), delimiter="|", escapechar="\\"
                 )
-                writer.writeheader()
+
                 writer.writerows(data)
 
             with (Path(tmpdirname) / fname).open("rb") as f:
@@ -261,7 +256,6 @@ class Redshift(Database):
                     full_table_name=full_table_name,
                     temp_file_directory=tmpdirname,
                     temp_file_name=fname,
-                    arn=arn,
                     bucket=self.bucket,
                     region=self.bucket_region,
                 )

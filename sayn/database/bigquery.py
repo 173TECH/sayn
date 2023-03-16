@@ -236,10 +236,8 @@ class Bigquery(Database):
         else:
             return python_types[from_type]().compile(dialect=self.engine.dialect)
 
-    def _load_data_batch(self, table, data, schema):
-        full_table_name = (
-            f"{self.project}.{self.dataset if schema is None else schema}.{table}"
-        )
+    def _load_data_batch(self, table, data, schema, db):
+        full_table_name = f"{self.project if db is None else db}.{self.dataset if schema is None else schema}.{table}"
 
         from google.cloud import bigquery
 
