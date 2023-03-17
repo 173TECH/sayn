@@ -50,7 +50,7 @@ class Snowflake(Database):
         elif type == "VIEW":
             return "view"
 
-    def _load_data_batch(self, table, data, schema):
+    def _load_data_batch(self, table, data, schema, db):
         """Implements the load of a single data batch for `load_data`.
 
         Defaults to an insert many statement, but it's overloaded for specific
@@ -61,7 +61,7 @@ class Snowflake(Database):
             data (list): A list of dictionaries to load
             schema (str): An optional schema to reference the table
         """
-        full_table_name = f"{'' if schema is None else schema + '.'}{table}"
+        full_table_name = f"{'' if db is None else db + '.'}{'' if schema is None else schema + '.'}{table}"
         template = self._jinja_env.get_template("snowflake_load_batch.sql")
         fname = "batch.csv"
 

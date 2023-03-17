@@ -4,8 +4,8 @@
 {% set src_prefix_schema = src_schema+'.' if src_schema else ''-%}
 {% set dst_prefix_schema = dst_schema+'.' if dst_schema else '' %}
 
-{% set src_prefix = src_db+src_schema if src_db and src_schema else '' -%}
-{% set dst_prefix = dst_db+dst_schema if dst_db and dst_schema else '' %}
+{% set src_prefix = src_prefix_db+src_prefix_schema -%}
+{% set dst_prefix = dst_prefix_db+dst_prefix_schema -%}
 
 {% if view_exists %}
 DROP VIEW IF EXISTS {{ dst_prefix }}{{ dst_table }}{{ ' CASCADE' if needs_cascade else ''}};

@@ -30,8 +30,8 @@ class Postgresql(Database):
         dbs = [re["datname"] for re in report]
         return dbs
 
-    def _load_data_batch(self, table, data, schema):
-        full_table_name = f"{'' if schema is None else schema + '.'}{table}"
+    def _load_data_batch(self, table, data, schema, db):
+        full_table_name = f"{'' if db is None else db + '.'}{'' if schema is None else schema + '.'}{table}"
         copy_sql = f"COPY {full_table_name} FROM STDIN " "CSV DELIMITER ',' QUOTE '\"'"
 
         buffer = io.StringIO()

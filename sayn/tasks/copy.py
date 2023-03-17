@@ -208,7 +208,7 @@ class CopyTask(SqlTask):
         config_table = self.task_config.destination.table
         config_tmp_table = f"sayn_tmp_{config_table}"
 
-        if (config_db is None) or (config_schema is None):
+        if (config_db is None) and (config_schema is None):
             self.database = None
             self.schema = None
             self.table = self.out(config_table, connection=self.target_db)
@@ -484,6 +484,7 @@ class CopyTask(SqlTask):
                 n_records = self.target_db.load_data(
                     load_table,
                     read_iter(data_iter),
+                    db=load_db,
                     schema=load_schema,
                     batch_size=self.max_batch_rows,
                 )

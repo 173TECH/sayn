@@ -1,4 +1,7 @@
 from collections import Counter
+import csv
+from pathlib import Path
+import tempfile
 from typing import List, Optional, Union
 
 from pydantic import BaseModel, constr, validator, Extra
@@ -7,7 +10,23 @@ from sqlalchemy import create_engine
 from ..core.errors import DBError
 from . import Database, Columns, Hook, BaseDDL
 
-db_parameters = ["host", "user", "password", "port", "dbname", "cluster_id"]
+
+db_parameters = [
+    "host",
+    "user",
+    "password",
+    "port",
+    "database",
+    "cluster_id",
+    "bucket",
+    "bucket_region",
+    "bucket_role",
+    "profile",
+    "aws_access_key_id",
+    "aws_secret_access_key",
+    "aws_session_token",
+    "region",
+]
 
 DistributionStr = constr(regex=r"even|all|key([^,]+)")
 
@@ -69,12 +88,6 @@ class DDL(BaseDDL):
                 }
                 if distribution["type"] == "KEY":
                     distribution["column"] = v.distribution[len("key(") : -1]
-                    if len(values.get("columns")) > 0 and distribution[
-                        "column"
-                    ] not in values.get("columns"):
-                        raise ValueError(
-                            f'Distribution key "{distribution["column"]}" is not declared in columns'
-                        )
                 v.distribution = distribution
 
             return v
@@ -98,6 +111,9 @@ class DDL(BaseDDL):
 
 class Redshift(Database):
     DDL = DDL
+    _boto_session = None
+    bucket = None
+    bucket_region = None
 
     def feature(self, feature):
         return feature in (
@@ -112,6 +128,10 @@ class Redshift(Database):
         if "connect_args" not in settings:
             settings["connect_args"] = dict()
 
+        if "bucket" in settings:
+            self.bucket = settings.pop("bucket")
+            self.bucket_region = settings.pop("bucket_region", None)
+
         if "cluster_id" in settings and "password" not in settings:
             # if a cluster_id is given and no password, we use boto to complete the credentials
             cluster_id = settings.pop("cluster_id")
@@ -120,18 +140,50 @@ class Redshift(Database):
             port = settings.pop("port", None)
             # User is required
             user = settings.pop("user")
+            # if not provided, the default profile will be used
+            profile = settings.pop("profile", None)
 
             import boto3
 
-            boto_session = boto3.Session()
+            if "aws_access_key_id" in settings:
+                access_key_id = settings.pop("aws_access_key_id", None)
+                secret_access_key = settings.pop("aws_secret_access_key", None)
+                session_token = settings.pop("aws_session_token", None)
 
-            redshift_client = boto_session.client("redshift")
+                if (
+                    access_key_id is None
+                    or secret_access_key is None
+                    or session_token is None
+                ):
+                    raise DBError(
+                        self.name,
+                        self.db_type,
+                        f"Error retrieving AWS access key credentials: {access_key_id}",
+                    )
+
+                self._boto_session = boto3.Session(
+                    aws_access_key_id=access_key_id,
+                    aws_secret_access_key=secret_access_key,
+                    aws_session_token=session_token,
+                )
+
+            else:
+                self._boto_session = boto3.Session(profile_name=profile)
+
+            redshift_client = self._boto_session.client("redshift")
 
             # Get the address when not provided
             if host is None or port is None:
-                cluster_info = redshift_client.describe_clusters(
-                    ClusterIdentifier=cluster_id
-                )["Clusters"][0]
+                try:
+                    cluster_info = redshift_client.describe_clusters(
+                        ClusterIdentifier=cluster_id
+                    )["Clusters"][0]
+                except:
+                    raise DBError(
+                        self.name,
+                        self.db_type,
+                        f"Error retrieving information for cluster: {cluster_id}",
+                    )
 
                 settings["connect_args"]["host"] = (
                     host or cluster_info["Endpoint"]["Address"]
@@ -152,84 +204,86 @@ class Redshift(Database):
             if param in settings:
                 settings["connect_args"][param] = settings.pop(param)
 
-        return create_engine("postgresql://", **settings)
+        return create_engine("redshift+redshift_connector://", **settings)
+
+    def execute(self, script):
+        conn = self.engine.raw_connection()
+        with conn.cursor() as cursor:
+            for s in script.split(";"):
+                if len(s.strip()) > 0:
+                    cursor.execute(s)
+                    cursor.execute("COMMIT")
 
     def _list_databases(self):
         report = self.read_data("SELECT datname FROM pg_database_info;")
         dbs = [re["datname"] for re in report]
         return dbs
 
-    def _get_table_attributes(self, ddl):
+    def _load_data_batch(self, table, data, schema, db):
+        """Implements the load of a single data batch for `load_data`.
 
-        if ddl["sorting"] is None and ddl["distribution"] is None:
-            return ""
+        Defaults to an insert many statement, but it's overloaded for specific
+        database connector for more efficient methods.
 
-        table_attributes = ""
+        Args:
+            table (str): The name of the target table
+            data (list): A list of dictionaries to load
+            schema (str): An optional schema to reference the table
+        """
+        # if no bucket is supplied, the old _load_data_batch function is used
+        if self.bucket is None:
+            return super(Database, self)._load_data_batch(table, data, schema, db)
 
-        if ddl["sorting"] is not None:
-            sorting_type = (
-                f"{ddl['sorting']['type']} "
-                if ddl["sorting"]["type"] is not None
-                else ""
-            )
-            columns = ", ".join(ddl["sorting"]["columns"])
-            table_attributes += f"\n{sorting_type}SORTKEY ({columns})"
+        full_table_name = f"{'' if db is None else db + '.'}{'' if schema is None else schema + '.'}{table}"
+        template = self._jinja_env.get_template("redshift_load_batch.sql")
+        fname = "batch.csv"
 
-        if ddl["distribution"] is not None:
-            if ddl["distribution"] in ("EVEN", "ALL"):
-                table_attributes += f"\nDISTSTYLE {ddl['distribution']['type']}"
-            else:
-                table_attributes += (
-                    f"\nDISTSTYLE KEY\nDISTKEY ({ddl['distribution']['column']})"
+        s3_client = self._boto_session.client("s3")
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            with (Path(tmpdirname) / fname).open("w") as f:
+                writer = csv.DictWriter(
+                    f, fieldnames=data[0].keys(), delimiter="|", escapechar="\\"
                 )
 
-        return table_attributes + "\n"
+                writer.writerows(data)
 
-    def _create_table_select(
-        self, table, schema, select, view=False, ddl=dict(), execute=True
+            with (Path(tmpdirname) / fname).open("rb") as f:
+                s3_client.upload_fileobj(f, self.bucket, fname)
+
+            self.execute(
+                template.render(
+                    full_table_name=full_table_name,
+                    temp_file_directory=tmpdirname,
+                    temp_file_name=fname,
+                    bucket=self.bucket,
+                    region=self.bucket_region,
+                )
+            )
+
+    def merge_tables(
+        self,
+        src_table,
+        dst_table,
+        delete_key,
+        cleanup=True,
+        src_schema=None,
+        dst_schema=None,
+        src_db=None,
+        dst_db=None,
+        **ddl,
     ):
-        """Returns SQL code for a create table from a select statement"""
-        table = f"{schema+'.' if schema else ''}{table}"
-        table_or_view = "VIEW" if view else "TABLE"
+        src_table = fully_qualify(src_table, src_schema, src_db)
+        dst_table = fully_qualify(dst_table, dst_schema, dst_db)
 
-        q = ""
-
-        q += f"CREATE {table_or_view} {table} "
-        if not view:
-            q += self._get_table_attributes(ddl)
-        q += f" AS (\n{select}\n);"
-
-        if execute:
-            self.execute(q)
-
-        return q
-
-    def _create_table_ddl(self, table, schema, ddl, execute=False):
-        """Returns SQL code for a create table from a select statement"""
-        if len(ddl["columns"]) == 0:
-            raise DBError(
-                self.name, self.db_type, "DDL is missing columns specification"
-            )
-        table_name = table
-        table = f"{schema+'.' if schema else ''}{table_name}"
-
-        columns = "\n    , ".join(
-            [
-                (
-                    f'{c["name"]} {c["type"]}'
-                    f'{" NOT NULL" if c.get("not_null", False) else ""}'
-                )
-                for c in ddl["columns"]
-            ]
+        template = self._jinja_env.get_template("redshift_merge_tables.sql")
+        return template.render(
+            dst_table=dst_table,
+            src_table=src_table,
+            cleanup=True,
+            delete_key=delete_key,
         )
 
-        q = ""
 
-        q += f"CREATE TABLE {table} "
-        q += self._get_table_attributes(ddl)
-        q += f" AS (\n      {columns}\n);"
-
-        if execute:
-            self.execute(q)
-
-        return q
+def fully_qualify(name, schema=None, db=None):
+    return f"{db+'.' if db is not None else ''}{schema+'.' if schema is not None else ''}{name}"

@@ -236,10 +236,8 @@ class Bigquery(Database):
         else:
             return python_types[from_type]().compile(dialect=self.engine.dialect)
 
-    def _load_data_batch(self, table, data, schema):
-        full_table_name = (
-            f"{self.project}.{self.dataset if schema is None else schema}.{table}"
-        )
+    def _load_data_batch(self, table, data, schema, db):
+        full_table_name = f"{self.project if db is None else db}.{self.dataset if schema is None else schema}.{table}"
 
         from google.cloud import bigquery
 
@@ -254,16 +252,23 @@ class Bigquery(Database):
         )
         job.result()
 
-    def move_table(self, src_table, dst_table, src_schema=None, dst_schema=None, **ddl):
+    def move_table(
+        self,
+        src_table,
+        dst_table,
+        src_schema=None,
+        dst_schema=None,
+        src_db=None,
+        dst_db=None,
+        **ddl,
+    ):
 
         # ddl = self._format_properties(ddl).value
 
-        full_src_table = (
-            f"{src_schema + '.' if src_schema is not None else ''}{src_table}"
-        )
+        full_src_table = f"{src_db + '.' if src_schema is not None else ''}{src_schema + '.' if src_schema is not None else ''}{src_table}"
         select = f"SELECT * FROM {full_src_table}"
         create_or_replace = self.create_table(
-            dst_table, dst_schema, select=select, replace=True, **ddl
+            dst_table, dst_schema, dst_db, select=select, replace=True, **ddl
         )
 
         return "\n\n".join((create_or_replace, f"DROP TABLE {full_src_table}"))
