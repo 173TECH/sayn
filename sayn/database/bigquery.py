@@ -82,6 +82,7 @@ class Bigquery(Database):
 
     project = None
     dataset = None
+    client = None
 
     def feature(self, feature):
         return feature in (
@@ -99,7 +100,10 @@ class Bigquery(Database):
             self.dataset = settings.pop("dataset")
             url += "/" + self.dataset
 
-        return create_engine(url, **settings)
+        engine = create_engine(url, **settings)
+        self.client = engine.raw_connection()._client
+
+        return engine
 
     def _construct_tests(self, columns, table, schema=None):
         count_tests, query, breakdown = self._construct_tests_template(
@@ -147,44 +151,46 @@ class Bigquery(Database):
         return dict(zip(out_key, out_value))
 
     def _get_schemata(self, databases):
-        queries = ""
+        datasets = list()
         for database in databases:
-            if database == "":
-                queries += """
-                SELECT catalog_name, schema_name FROM INFORMATION_SCHEMA.SCHEMATA
-                """
+            if database is None or database == "":
+                datasets.extend(
+                    [
+                        {"catalog_name": self.project, "schema_name": d.dataset_id}
+                        for d in self.client.list_datasets()
+                    ]
+                )
             else:
-                queries += f"""
-                SELECT catalog_name, schema_name FROM {database}.INFORMATION_SCHEMA.SCHEMATA
-                """
-            queries += "\nUNION ALL\n"
+                datasets.extend(
+                    [
+                        {"catalog_name": database, "schema_name": d.dataset_id}
+                        for d in self.client.list_datasets(project=database)
+                    ]
+                )
 
-        queries = "\n".join(queries.split("\n")[:-2])
-        result = self.read_data(queries)
-        return result
+        return datasets
 
     def _list_objects(self, databases):
         """List the accessible databases for this connection."""
         schemata = self._get_schemata(databases)
         objects = list()
-        queries = ""
+        queries = list()
         for schema in schemata:
-            queries += f"""SELECT '{schema['catalog_name']}' AS table_catalog
+            queries.append(
+                f"""SELECT '{schema['catalog_name']}' AS table_catalog
                                   , t.table_schema
                                   , t.table_name
                                   , t.table_type
                                   , array_agg(STRUCT(c.column_name, c.is_partitioning_column = 'YES' AS is_partition, c.clustering_ordinal_position)
                                               ORDER BY clustering_ordinal_position) AS columns
-                               FROM {schema['catalog_name']}.{schema['schema_name']}.INFORMATION_SCHEMA.TABLES t
-                               JOIN {schema['catalog_name']}.{schema['schema_name']}.INFORMATION_SCHEMA.COLUMNS c
+                               FROM `{schema['catalog_name']}`.{schema['schema_name']}.INFORMATION_SCHEMA.TABLES t
+                               JOIN `{schema['catalog_name']}`.{schema['schema_name']}.INFORMATION_SCHEMA.COLUMNS c
                                  ON c.table_name = t.table_name
                               GROUP BY 1,2,3,4
                         """
-            queries += "\nUNION ALL\n"
+            )
 
-        queries = "\n".join(queries.split("\n")[:-2])
-
-        result = self.read_data(queries)
+        result = self.read_data("\nUNION ALL\n".join(queries))
 
         objects = {
             db: {
@@ -262,7 +268,6 @@ class Bigquery(Database):
         dst_db=None,
         **ddl,
     ):
-
         # ddl = self._format_properties(ddl).value
 
         full_src_table = f"{src_db + '.' if src_schema is not None else ''}{src_schema + '.' if src_schema is not None else ''}{src_table}"
