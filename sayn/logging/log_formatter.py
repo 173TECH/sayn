@@ -318,6 +318,17 @@ class LogFormatter:
             level = "error"
             message = self.bad(error.details["error_message"])
 
+        elif error.kind == "database" and error.code == "introspection":
+            level = "error"
+            if "_message" in error.details["exception"].__dict__:
+                message = self.bad(
+                    f"Error during introspection: {error.details['exception']._message()}"
+                )
+            else:
+                message = self.bad(
+                    f"Error during introspection: {error.details['exception']}"
+                )
+
         elif error.kind == "parsing" and "filename" in error.details:
             level = "error"
             if "error" in error.details:

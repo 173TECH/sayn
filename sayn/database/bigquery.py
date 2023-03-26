@@ -119,15 +119,74 @@ class Bigquery(Database):
             failed, table, schema, "standard_test_output_bigquery.sql"
         )
 
-    def _list_databases(self):
-        """List the accessible databases for this connection."""
-        client = self.engine.raw_connection()._client
-        projects = [
-            "" if project.project_id == self.project else project.project_id
-            for project in client.list_projects()
-        ]
+    def _introspect(self, objects_to_introspect):
+        objects = list()
 
-        return projects + [""]
+        def get_project_key(x):
+            return "" if x == self.project else x
+
+        def get_dataset_key(x):
+            return "" if x == self.dataset else x
+
+        # List all project we have access to that are
+        # in use in the project
+        objects = {
+            project.project_id: {
+                "is_default_project": project.project_id == self.project,
+                "datasets": dict(),
+            }
+            for project in self.client.list_projects()
+            if project.project_id in objects_to_introspect
+            or project.project_id == self.project
+        }
+
+        for project_id in objects.keys():
+            project = objects[project_id]
+
+            if get_project_key(project_id) not in objects_to_introspect:
+                continue
+
+            requested_datasets = list(
+                objects_to_introspect[get_project_key(project_id)].keys()
+            )
+            objects[project_id]["datasets"] = {
+                dataset.dataset_id: {
+                    "is_default_dataset": project["is_default_project"]
+                    and dataset.dataset_id == self.dataset,
+                    "objects": dict(),
+                }
+                for dataset in self.client.list_datasets(project=project_id)
+                if dataset.dataset_id in requested_datasets
+                or (
+                    project["is_default_project"] and dataset.dataset_id == self.dataset
+                )
+            }
+
+            for dataset_id in project["datasets"].keys():
+                dataset = project["datasets"][dataset_id]
+                query = f"""SELECT t.table_name
+                                 , t.table_type
+                                 , array_agg(STRUCT(c.column_name, c.is_partitioning_column = 'YES' AS is_partition, c.clustering_ordinal_position)
+                                              ORDER BY clustering_ordinal_position) AS columns
+                              FROM `{project_id}`.{dataset_id}.INFORMATION_SCHEMA.TABLES t
+                              JOIN `{project_id}`.{dataset_id}.INFORMATION_SCHEMA.COLUMNS c
+                                ON c.table_name = t.table_name
+                             GROUP BY 1,2
+                            """
+
+                result = self.read_data(query)
+
+                dataset["objects"] = {
+                    table["table_name"]: self._get_table_type(table) for table in result
+                }
+
+        self._requested_objects = {
+            get_project_key(project): {
+                get_dataset_key(dataset): dataset_details["objects"]
+                for dataset, dataset_details in project_details["datasets"].items()
+            }
+            for project, project_details in objects.items()
+        }
 
     def _get_table_type(self, type):
         out_key = list()
@@ -152,80 +211,6 @@ class Bigquery(Database):
             out_value.append(cluster_cols)
 
         return dict(zip(out_key, out_value))
-
-    def _get_schemata(self, databases):
-        datasets = list()
-        for database in databases:
-            if database is None or database == "":
-                datasets.extend(
-                    [
-                        {"catalog_name": "", "schema_name": d.dataset_id}
-                        for d in self.client.list_datasets()
-                    ]
-                )
-            else:
-                datasets.extend(
-                    [
-                        {"catalog_name": database, "schema_name": d.dataset_id}
-                        for d in self.client.list_datasets(project=database)
-                    ]
-                )
-
-        return datasets
-
-    def _list_objects(self, databases):
-        """List the accessible databases for this connection."""
-        schemata = self._get_schemata(databases)
-        objects = list()
-        queries = list()
-        for schema in schemata:
-            project = schema["catalog_name"]
-            if project == "":
-                project = self.project
-
-            queries.append(
-                f"""SELECT '{schema['catalog_name']}' AS table_catalog
-                                  , t.table_schema
-                                  , t.table_name
-                                  , t.table_type
-                                  , array_agg(STRUCT(c.column_name, c.is_partitioning_column = 'YES' AS is_partition, c.clustering_ordinal_position)
-                                              ORDER BY clustering_ordinal_position) AS columns
-                               FROM `{project}`.{schema['schema_name']}.INFORMATION_SCHEMA.TABLES t
-                               JOIN `{project}`.{schema['schema_name']}.INFORMATION_SCHEMA.COLUMNS c
-                                 ON c.table_name = t.table_name
-                              GROUP BY 1,2,3,4
-                        """
-            )
-
-        result = self.read_data("\nUNION ALL\n".join(queries))
-
-        objects = {
-            db: {
-                schema: {
-                    table: {"result": self._get_table_type(type) for type in ggg}.get(
-                        "result"
-                    )
-                    for table, ggg in groupby(
-                        gg,
-                        lambda x: x["table_name"],
-                    )
-                }
-                for schema, gg in groupby(g, lambda x: x["table_schema"])
-            }
-            for db, g in groupby(
-                sorted(
-                    result,
-                    key=lambda x: (
-                        x["table_catalog"],
-                        x["table_schema"],
-                        x["table_name"],
-                    ),
-                ),
-                key=lambda x: x["table_catalog"],
-            )
-        }
-
-        return objects
 
     def _py2sqa(self, from_type):
         python_types = {
@@ -300,9 +285,9 @@ class Bigquery(Database):
         if (
             db_name in self._requested_objects
             and schema_name in self._requested_objects[db_name]
-            and table in self._requested_objects[db_name][schema]
+            and table in self._requested_objects[db_name][schema_name]
         ):
-            db_info = self._requested_objects[db_name][schema][table]
+            db_info = self._requested_objects[db_name][schema_name][table]
             object_type = db_info.get("type")
             table_exists = bool(object_type == "table")
             view_exists = bool(object_type == "view")

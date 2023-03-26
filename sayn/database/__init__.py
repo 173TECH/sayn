@@ -365,13 +365,13 @@ class Database:
         """
         self.metadata.reflect(only=only, schema=schema, extend_existing=True)
 
-    def _introspect(self, to_introspect):
+    def _introspect(self, objects_to_introspect):
         out = dict()
-        introspect_databases = set(to_introspect.keys())
+        introspect_databases = set(objects_to_introspect.keys())
         databases = set(self._list_databases())
         schemata_list = [
             (db, schem)
-            for db, schs in to_introspect.items()
+            for db, schs in objects_to_introspect.items()
             for schem in list(schs.keys())
         ]
         introspect_schemata = set(schemata_list)
@@ -395,7 +395,7 @@ class Database:
                         out[db][schema] = dict()
 
                     tables = dbobjects.get(db).get(schema)
-                    for table_name in to_introspect[db][schema]:
+                    for table_name in objects_to_introspect[db][schema]:
                         if table_name in tables:
                             out[db][schema][table_name] = tables[table_name]
                         else:
