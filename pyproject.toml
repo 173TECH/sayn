@@ -32,7 +32,7 @@ halo = "0.0.31"
 colorama = ">=0.4.4"
 
 # DB drivers (optional)
-# Postgresql and Redshift
+# Postgresql
 psycopg2 = { version = ">=2.9.3", optional = true }
 
 # MySQL
@@ -48,12 +48,17 @@ sqlalchemy-bigquery = { version = ">=1.5.0", python = "<3.11", optional = true }
 # BigQuery dependencies for the storage client
 google-cloud-bigquery-storage = { version = ">=2.0.0,<3.0.0dev", optional = true }
 
+# Redshift
+redshift-connector = "^2.0.910"
+sqlalchemy-redshift = "^0.8.12"
+
 # DAG visualisation
 graphviz = { version = ">=0.19.1", optional = true }
 
 [tool.poetry.extras]
 all = ["graphviz", "psycopg2", "pymysql", "snowflake-sqlalchemy", "sqlalchemy-bigquery", "graphviz"]
 postgresql = ["psycopg2"]
+redshift = ["redshift-connector", "sqlalchemy-redshift"]
 mysql = ["pymysql"]
 snowflake = ["snowflake-sqlalchemy"]
 bigquery = ["sqlalchemy-bigquery", "google-cloud-bigquery-storage"]
