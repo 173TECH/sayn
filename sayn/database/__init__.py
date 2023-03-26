@@ -388,7 +388,6 @@ class Database:
             schemata_intersection = introspect_schemata.intersection(schemata)
 
             if len(schemata_intersection) > 0:
-
                 for db, schema in schemata_intersection:
                     if db not in out:
                         out[db] = dict()

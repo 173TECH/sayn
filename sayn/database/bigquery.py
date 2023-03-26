@@ -122,7 +122,10 @@ class Bigquery(Database):
     def _list_databases(self):
         """List the accessible databases for this connection."""
         client = self.engine.raw_connection()._client
-        projects = [project.project_id for project in client.list_projects()]
+        projects = [
+            "" if project.project_id == self.project else project.project_id
+            for project in client.list_projects()
+        ]
 
         return projects + [""]
 
@@ -156,7 +159,7 @@ class Bigquery(Database):
             if database is None or database == "":
                 datasets.extend(
                     [
-                        {"catalog_name": self.project, "schema_name": d.dataset_id}
+                        {"catalog_name": "", "schema_name": d.dataset_id}
                         for d in self.client.list_datasets()
                     ]
                 )
@@ -176,6 +179,10 @@ class Bigquery(Database):
         objects = list()
         queries = list()
         for schema in schemata:
+            project = schema["catalog_name"]
+            if project == "":
+                project = self.project
+
             queries.append(
                 f"""SELECT '{schema['catalog_name']}' AS table_catalog
                                   , t.table_schema
@@ -183,8 +190,8 @@ class Bigquery(Database):
                                   , t.table_type
                                   , array_agg(STRUCT(c.column_name, c.is_partitioning_column = 'YES' AS is_partition, c.clustering_ordinal_position)
                                               ORDER BY clustering_ordinal_position) AS columns
-                               FROM `{schema['catalog_name']}`.{schema['schema_name']}.INFORMATION_SCHEMA.TABLES t
-                               JOIN `{schema['catalog_name']}`.{schema['schema_name']}.INFORMATION_SCHEMA.COLUMNS c
+                               FROM `{project}`.{schema['schema_name']}.INFORMATION_SCHEMA.TABLES t
+                               JOIN `{project}`.{schema['schema_name']}.INFORMATION_SCHEMA.COLUMNS c
                                  ON c.table_name = t.table_name
                               GROUP BY 1,2,3,4
                         """
