@@ -2406,9 +2406,10 @@ bigquery = ["sqlalchemy-bigquery", "google-cloud-bigquery-storage"]
 graphviz = ["graphviz"]
 mysql = ["PyMySQL"]
 postgresql = ["psycopg2"]
+redshift = ["redshift-connector", "sqlalchemy-redshift"]
 snowflake = ["snowflake-sqlalchemy"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.8.1, <= 4.0"
-content-hash = "04ebfacd102e16ae994a515b43e762d268b37e9847cd8a8cef0bf56a711536ab"
+content-hash = "cf35250c5dc272d171570410bd65c6c960f94c705acb3b081997f6d1e280e77b"
