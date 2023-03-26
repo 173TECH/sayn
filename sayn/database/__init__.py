@@ -10,7 +10,6 @@ from pydantic import BaseModel, validator, Extra
 from sqlalchemy import MetaData, Table
 from sqlalchemy.sql import sqltypes
 from sqlalchemy import text
-import sqlalchemy
 
 from ..core.errors import DBError, Exc, Ok
 
