@@ -11,23 +11,6 @@ from ..core.errors import DBError
 from . import Database, Columns, Hook, BaseDDL
 
 
-db_parameters = [
-    "host",
-    "user",
-    "password",
-    "port",
-    "database",
-    "cluster_id",
-    "bucket",
-    "bucket_region",
-    "bucket_role",
-    "profile",
-    "aws_access_key_id",
-    "aws_secret_access_key",
-    "aws_session_token",
-    "region",
-]
-
 DistributionStr = constr(regex=r"even|all|key([^,]+)")
 
 
@@ -78,7 +61,7 @@ class DDL(BaseDDL):
             return v
 
     @validator("properties")
-    def validate_distribution(cls, v, values):
+    def validate_distribution(cls, v):
         if v is not None:
             if v.distribution is not None:
                 distribution = {
@@ -87,7 +70,7 @@ class DDL(BaseDDL):
                     else "KEY"
                 }
                 if distribution["type"] == "KEY":
-                    distribution["column"] = v.distribution[len("key(") : -1]
+                    distribution["column"] = v.distribution[len("key") + 1 : -1]
                 v.distribution = distribution
 
             return v
@@ -113,7 +96,10 @@ class Redshift(Database):
     DDL = DDL
     _boto_session = None
     bucket = None
-    bucket_region = None
+    access_key_id = None
+    secret_access_key = None
+    session_token = None
+    profile = None
 
     def feature(self, feature):
         return feature in (
@@ -128,83 +114,82 @@ class Redshift(Database):
         if "connect_args" not in settings:
             settings["connect_args"] = dict()
 
-        if "bucket" in settings:
-            self.bucket = settings.pop("bucket")
-            self.bucket_region = settings.pop("bucket_region", None)
+        region = settings.pop("region", None)
 
         if "cluster_id" in settings and "password" not in settings:
-            # if a cluster_id is given and no password, we use boto to complete the credentials
-            cluster_id = settings.pop("cluster_id")
+            # if a cluster_id is given and no password, we use boto to
+            # complete the credentials
+            settings["connect_args"]["iam"] = True
+            settings["connect_args"]["db_user"] = settings.pop("user")
 
-            host = settings.pop("host", None)
-            port = settings.pop("port", None)
-            # User is required
-            user = settings.pop("user")
-            # if not provided, the default profile will be used
-            profile = settings.pop("profile", None)
+            settings["connect_args"]["cluster_identifier"] = settings.pop("cluster_id")
 
+            if "aws_access_key_id" in settings or "aws_secret_access_key" in settings:
+                self.access_key_id = settings.pop("aws_access_key_id", None)
+                self.secret_access_key = settings.pop("aws_secret_access_key", None)
+                self.session_token = settings.pop("aws_session_token", None)
+
+                if self.access_key_id is None or self.secret_access_key is None:
+                    raise DBError(
+                        self.name,
+                        self.db_type,
+                        "Error retrieving AWS access key credentials",
+                    )
+            elif "profile" in settings:
+                self.profile = settings.pop("profile")
+
+        if "bucket" in settings:
+            self.bucket = {"name": None, "region": None, "role": None}
+            bucket = settings.pop("bucket")
+            if isinstance(bucket, str):
+                self.bucket["name"] = bucket
+            elif isinstance(bucket, dict):
+                if "name" in bucket:
+                    self.bucket["name"] = bucket["name"]
+
+                if "region" in bucket:
+                    self.bucket["region"] = bucket["region"]
+
+                if "role" in bucket:
+                    self.bucket["role"] = bucket["role"]
+
+            # Setup the boto3 session
             import boto3
 
-            if "aws_access_key_id" in settings:
-                access_key_id = settings.pop("aws_access_key_id", None)
-                secret_access_key = settings.pop("aws_secret_access_key", None)
-                session_token = settings.pop("aws_session_token", None)
-
-                if (
-                    access_key_id is None
-                    or secret_access_key is None
-                    or session_token is None
-                ):
-                    raise DBError(
-                        self.name,
-                        self.db_type,
-                        f"Error retrieving AWS access key credentials: {access_key_id}",
-                    )
-
-                self._boto_session = boto3.Session(
-                    aws_access_key_id=access_key_id,
-                    aws_secret_access_key=secret_access_key,
-                    aws_session_token=session_token,
-                )
-
-            else:
-                self._boto_session = boto3.Session(profile_name=profile)
-
-            redshift_client = self._boto_session.client("redshift")
-
-            # Get the address when not provided
-            if host is None or port is None:
-                try:
-                    cluster_info = redshift_client.describe_clusters(
-                        ClusterIdentifier=cluster_id
-                    )["Clusters"][0]
-                except:
-                    raise DBError(
-                        self.name,
-                        self.db_type,
-                        f"Error retrieving information for cluster: {cluster_id}",
-                    )
-
-                settings["connect_args"]["host"] = (
-                    host or cluster_info["Endpoint"]["Address"]
-                )
-                settings["connect_args"]["port"] = (
-                    port or cluster_info["Endpoint"]["Port"]
-                )
-
-            # Get the password and user
-            credentials = redshift_client.get_cluster_credentials(
-                ClusterIdentifier=cluster_id, DbUser=user
+            self._boto_session = boto3.Session(
+                profile_name=self.profile,
+                region_name=region,
+                aws_access_key_id=self.access_key_id,
+                aws_secret_access_key=self.secret_access_key,
+                aws_session_token=self.session_token,
             )
 
-            settings["connect_args"]["user"] = credentials["DbUser"]
-            settings["connect_args"]["password"] = credentials["DbPassword"]
+        dbname = settings.pop("dbname")
+
+        db_parameters = [
+            "host",
+            "user",
+            "password",
+            "port",
+        ]
 
         for param in db_parameters:
             if param in settings:
                 settings["connect_args"][param] = settings.pop(param)
 
-        return create_engine("redshift+redshift_connector://", **settings)
+        if self.access_key_id is not None:
+            settings["connect_args"]["access_key_id"] = self.access_key_id
+
+        if self.secret_access_key is not None:
+            settings["connect_args"]["secret_access_key"] = self.secret_access_key
+
+        if self.session_token is not None:
+            settings["connect_args"]["session_token"] = self.session_token
+
+        if self.profile is not None:
+            settings["connect_args"]["profile"] = self.profile
+
+        return create_engine(f"redshift+redshift_connector:///{dbname}", **settings)
 
     def execute(self, script):
         conn = self.engine.raw_connection()
@@ -215,7 +200,7 @@ class Redshift(Database):
                     cursor.execute("COMMIT")
 
     def _list_databases(self):
-        report = self.read_data("SELECT datname FROM pg_database_info;")
+        report = self.read_data("SELECT datname FROM pg_database")
         dbs = [re["datname"] for re in report]
         return dbs
 

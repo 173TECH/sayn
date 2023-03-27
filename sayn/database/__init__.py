@@ -10,7 +10,6 @@ from pydantic import BaseModel, validator, Extra
 from sqlalchemy import MetaData, Table
 from sqlalchemy.sql import sqltypes
 from sqlalchemy import text
-import sqlalchemy
 
 from ..core.errors import DBError, Exc, Ok
 
@@ -230,6 +229,14 @@ class Database:
 
         return objects
 
+    def _get_table_type(self, type):
+        if type.lower() == "table":
+            return "table"
+        elif type.lower() == "base table":
+            return "table"
+        elif type.lower() == "view":
+            return "view"
+
     def _construct_tests_template(self, columns, table, test_file_name, schema):
         query = """
                    SELECT val
@@ -376,6 +383,7 @@ class Database:
         ]
         introspect_schemata = set(schemata_list)
         databases_intersection = introspect_databases.intersection(databases)
+        databases_intersection.add("")  # Always introspect the default db
 
         if len(databases_intersection) > 0:
             dbobjects = self._list_objects(databases_intersection)
@@ -391,10 +399,15 @@ class Database:
                 for db, schema in schemata_intersection:
                     if db not in out:
                         out[db] = dict()
+
                     if schema not in out[db]:
                         out[db][schema] = dict()
 
-                    tables = dbobjects.get(db).get(schema)
+                    if db not in dbobjects or schema not in dbobjects[db]:
+                        continue
+
+                    tables = dbobjects[db][schema]
+
                     for table_name in objects_to_introspect[db][schema]:
                         if table_name in tables:
                             out[db][schema][table_name] = tables[table_name]
@@ -724,7 +737,6 @@ class Database:
         tmp_db=None,
         **ddl,
     ):
-
         # Create the temporary table
         can_replace_table = self.feature("CAN REPLACE TABLE")
 
