@@ -547,7 +547,7 @@ class App:
                     try:
                         db._introspect(to_introspect[connection_name])
                     except Exception as exc:
-                        return Exc(exc, where="introspection")
+                        return Err("database", "introspection", exception=exc)
 
         self.tracker.set_tasks(tasks_in_query)
 
