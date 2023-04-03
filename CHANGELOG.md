@@ -1,5 +1,20 @@
 # Change Log
 
+## [0.6.8] - 2023-04-03
+
+### Changed
+
+- Add support for 3rd level (eg: projects in BigQuery or databases in Snowflake)
+  when referencing database objects with `src` and `out`
+- Add support for python 3.11
+- Switch Redshift driver to use AWS' redshift-connector
+- Improve support for Redshift IAM authentications
+
+### Fixed
+
+- Allow data types other than strings in `allowed_values` data test
+- Fixes to ddl parsing for view materialisations
+
 ## [0.6.7] - 2022-09-20
 
 ### Changed
