@@ -104,7 +104,6 @@ class Redshift(Database):
     def feature(self, feature):
         return feature in (
             "NEEDS CASCADE",
-            "CAN REPLACE VIEW",
             "CANNOT CHANGE SCHEMA",
             "CANNOT SPECIFY DDL IN SELECT",
         )
