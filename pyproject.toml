@@ -34,6 +34,7 @@ colorama = ">=0.4.4"
 # DB drivers (optional)
 # Postgresql
 psycopg2 = { version = ">=2.9.3", optional = true }
+psycopg2-binary = { version = ">=2.9.3", optional = true }
 
 # MySQL
 PyMySQL = { version = ">=1.0.2", optional = true }
@@ -49,8 +50,8 @@ sqlalchemy-bigquery = { version = ">=1.6.0", python = ">=3.8.1,<3.12", optional 
 google-cloud-bigquery-storage = { version = ">=2.0.0,<3.0.0dev", optional = true }
 
 # Redshift
-redshift-connector = "^2.0.910"
-sqlalchemy-redshift = "^0.8.12"
+redshift-connector = { version = ">=2.0.909", optional = true }
+sqlalchemy-redshift = { version = ">=0.8.12", optional = true }
 
 # DAG visualisation
 graphviz = { version = ">=0.19.1", optional = true }
@@ -58,6 +59,7 @@ graphviz = { version = ">=0.19.1", optional = true }
 [tool.poetry.extras]
 all = ["graphviz", "psycopg2", "pymysql", "snowflake-sqlalchemy", "sqlalchemy-bigquery", "graphviz"]
 postgresql = ["psycopg2"]
+postgresql-binary = ["psycopg2-binary"]
 redshift = ["redshift-connector", "sqlalchemy-redshift"]
 mysql = ["pymysql"]
 snowflake = ["snowflake-sqlalchemy"]
@@ -78,7 +80,7 @@ mkdocstrings = "^0.19.1"
 livereload = "^2.6.3"
 
 [build-system]
-requires = ["poetry>=1.3.1"]
+requires = ["poetry>=1.3.2"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
