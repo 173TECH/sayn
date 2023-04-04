@@ -34,6 +34,7 @@ colorama = ">=0.4.4"
 # DB drivers (optional)
 # Postgresql
 psycopg2 = { version = ">=2.9.3", optional = true }
+psycopg2-binary = { version = ">=2.9.3", optional = true }
 
 # MySQL
 PyMySQL = { version = ">=1.0.2", optional = true }
@@ -58,6 +59,7 @@ graphviz = { version = ">=0.19.1", optional = true }
 [tool.poetry.extras]
 all = ["graphviz", "psycopg2", "pymysql", "snowflake-sqlalchemy", "sqlalchemy-bigquery", "graphviz"]
 postgresql = ["psycopg2"]
+postgresql-binary = ["psycopg2-binary"]
 redshift = ["redshift-connector", "sqlalchemy-redshift"]
 mysql = ["pymysql"]
 snowflake = ["snowflake-sqlalchemy"]
