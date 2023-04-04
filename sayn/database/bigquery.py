@@ -262,7 +262,11 @@ class Bigquery(Database):
     ):
         # ddl = self._format_properties(ddl).value
 
-        full_src_table = f"{src_db + '.' if src_schema is not None else ''}{src_schema + '.' if src_schema is not None else ''}{src_table}"
+        full_src_table = (
+            f"{src_db + '.' if src_db is not None else ''}"
+            f"{src_schema + '.' if src_schema is not None else ''}"
+            f"{src_table}"
+        )
         select = f"SELECT * FROM {full_src_table}"
         create_or_replace = self.create_table(
             dst_table, dst_schema, dst_db, select=select, replace=True, **ddl
