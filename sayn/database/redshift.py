@@ -1,9 +1,11 @@
 from collections import Counter
 import csv
+from io import BytesIO
+import gzip
 from pathlib import Path
-import tempfile
 from typing import List, Optional, Union
 
+import orjson
 from pydantic import BaseModel, constr, validator, Extra
 from sqlalchemy import create_engine
 
@@ -220,30 +222,25 @@ class Redshift(Database):
 
         full_table_name = f"{'' if db is None else db + '.'}{'' if schema is None else schema + '.'}{table}"
         template = self._jinja_env.get_template("redshift_load_batch.sql")
-        fname = "batch.csv"
 
-        s3_client = self._boto_session.client("s3")
+        s3_client = self._boto_session.client("s3", region_name=self.bucket["region"])
 
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            with (Path(tmpdirname) / fname).open("w") as f:
-                writer = csv.DictWriter(
-                    f, fieldnames=data[0].keys(), delimiter="|", escapechar="\\"
-                )
+        buf = BytesIO()
+        with gzip.GzipFile(fileobj=buf, mode="w") as gf:
+            gf.write(b"\n".join([orjson.dumps(r, default=str) for r in data]))
 
-                writer.writerows(data)
+        buf.seek(0)
+        fname = "batch.json.gz"
+        s3_client.upload_fileobj(buf, self.bucket["name"], fname)
 
-            with (Path(tmpdirname) / fname).open("rb") as f:
-                s3_client.upload_fileobj(f, self.bucket, fname)
-
-            self.execute(
-                template.render(
-                    full_table_name=full_table_name,
-                    temp_file_directory=tmpdirname,
-                    temp_file_name=fname,
-                    bucket=self.bucket,
-                    region=self.bucket_region,
-                )
+        self.execute(
+            template.render(
+                full_table_name=full_table_name,
+                temp_file_name=fname,
+                bucket=self.bucket["name"],
+                region=self.bucket["region"],
             )
+        )
 
     def merge_tables(
         self,
