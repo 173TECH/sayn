@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.6.9] - 2023-04-05
+
+### Fixed
+
+- Colon (:) in SQL is not interpreted as bind parameters
+- Update Redshift dependencies
+- Fixes to Redshift load_data when using an S3 bucket
+
 ## [0.6.8] - 2023-04-03
 
 ### Changed
