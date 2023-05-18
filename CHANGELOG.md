@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.6.10] - 2023-05-18
+
+### Fixed
+
+- Issue with incremental sql models on first load not creating the table
+
 ## [0.6.9] - 2023-04-05
 
 ### Fixed
