@@ -617,7 +617,10 @@ class Database:
         if db in self._requested_objects:
             if schema in self._requested_objects[db]:
                 if object_name in self._requested_objects[db][schema]:
-                    return True
+                    return (
+                        self._requested_objects[db][schema][object_name]["type"]
+                        is not None
+                    )
 
         return False
 
