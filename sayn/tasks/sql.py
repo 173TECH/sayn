@@ -383,7 +383,14 @@ class SqlTask(Task):
                 **self.ddl,
             )
 
-        elif self.materialisation == "table":
+        elif (
+            self.materialisation == "table"
+            or self.run_arguments["full_load"]
+            or self.target_db._requested_objects[""][self.schema or ""][self.table].get(
+                "type"
+            )
+            is None
+        ):
             # Full load or target table missing
             if self.target_db.feature("CANNOT CHANGE SCHEMA"):
                 # Use destination schema if the db doesn't support schema changes
