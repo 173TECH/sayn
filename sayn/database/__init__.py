@@ -552,7 +552,7 @@ class Database:
             ddl = result.value
 
         check_create = True
-        table_exists_prior_load = self._table_exists(table, schema)
+        table_exists_prior_load = self._object_exists(table, schema, db)
 
         records_loaded = 0
         for i, record in enumerate(data):
@@ -605,7 +605,21 @@ class Database:
             return table_def
 
     def _table_exists(self, table, schema):
+        """Checks if the table exists introspecting on the fly"""
         return self._get_table(table, schema) is not None
+
+    def _object_exists(
+        self, object_name: str, schema: Optional[str] = None, db: Optional[str] = None
+    ) -> bool:
+        schema = schema or ""
+        db = db or ""
+
+        if db in self._requested_objects:
+            if schema in self._requested_objects[db]:
+                if object_name in self._requested_objects[db][schema]:
+                    return True
+
+        return False
 
     # =========
     # ETL steps
