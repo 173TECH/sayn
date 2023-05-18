@@ -372,7 +372,11 @@ class SqlTask(Task):
         elif self.materialisation in ("script",):
             self.write_compilation_output(self.sql_query)
 
-        if self.materialisation == "view":
+        if self.materialisation == "script":
+            # script
+            step_queries = {"Write Query": None, "Execute Query": self.sql_query}
+
+        elif self.materialisation == "view":
             # View
             step_queries = self.target_db.replace_view(
                 self.table,
@@ -418,8 +422,7 @@ class SqlTask(Task):
                 **self.ddl,
             )
         else:
-            # script
-            step_queries = {"Write Query": None, "Execute Query": self.sql_query}
+            raise ValueError(f"Materialisation {self.materialisation} not supported")
 
         self.set_run_steps(list(step_queries.keys()))
 
