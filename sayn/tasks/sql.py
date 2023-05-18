@@ -101,7 +101,6 @@ class SqlTask(Task):
         return self.connections[self._target_db]
 
     def config(self, **config):
-
         def_connections_src = []
         def_connections_out = []
 
@@ -386,10 +385,7 @@ class SqlTask(Task):
         elif (
             self.materialisation == "table"
             or self.run_arguments["full_load"]
-            or self.target_db._requested_objects[""][self.schema or ""][self.table].get(
-                "type"
-            )
-            is None
+            or not self.target_db._object_exists(self.table, self.schema, self.database)
         ):
             # Full load or target table missing
             if self.target_db.feature("CANNOT CHANGE SCHEMA"):
