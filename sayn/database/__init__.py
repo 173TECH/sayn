@@ -552,7 +552,7 @@ class Database:
             ddl = result.value
 
         check_create = True
-        table_exists_prior_load = self._object_exists(table, schema, db)
+        table_exists_prior_load = self._table_exists(table, schema)
 
         records_loaded = 0
         for i, record in enumerate(data):
@@ -617,7 +617,10 @@ class Database:
         if db in self._requested_objects:
             if schema in self._requested_objects[db]:
                 if object_name in self._requested_objects[db][schema]:
-                    return True
+                    return (
+                        self._requested_objects[db][schema][object_name]["type"]
+                        is not None
+                    )
 
         return False
 
