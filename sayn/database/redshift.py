@@ -190,6 +190,9 @@ class Redshift(Database):
         if self.profile is not None:
             settings["connect_args"]["profile"] = self.profile
 
+        if region is not None:
+            settings["connect_args"]["region"] = region
+
         return create_engine(f"redshift+redshift_connector:///{dbname}", **settings)
 
     def execute(self, script):
