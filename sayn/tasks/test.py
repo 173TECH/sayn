@@ -31,6 +31,8 @@ class Config(BaseModel):
     test_folder: Path
     file_name: FilePath
 
+    db: Optional[str]
+
     class Config:
         extra = Extra.forbid
 
@@ -46,6 +48,7 @@ class OnFailValue(str, Enum):
 
 class CompileConfig(BaseModel):
     tags: Optional[List[str]]
+    db: Optional[str]  # need to make a BaseConfig class instead
     # sources: Optional[List[str]]
     # outputs: Optional[List[str]]
     # parents: Optional[List[str]]
@@ -82,6 +85,8 @@ class TestTask(Task):
         except Exception as e:
             return Exc(e)
 
+        self.allow_config = True
+
         self.compiler.update_globals(
             src=lambda x: self.src(x, connection=self._target_db),
             config=self.config_macro,
@@ -89,6 +94,8 @@ class TestTask(Task):
 
         self.test_query = self.compiler.compile(self.task_config.file_name)
         self.test_query += " LIMIT 5\n"
+
+        self.allow_config = False
 
         return Ok()
 
@@ -102,6 +109,23 @@ class TestTask(Task):
 
             if task_config_override.tags is not None:
                 self._config_input["tags"] = task_config_override.tags
+
+            self.task_config.db = (
+                task_config_override.db or self.task_config.db or self._default_db
+            )
+
+            conn_names_list = [
+                n for n, c in self.connections.items() if isinstance(c, Database)
+            ]
+
+            if self.task_config.db not in conn_names_list:
+                return Err(
+                    "task_definition",
+                    "destination_db_not_in_settings",
+                    db=config["db"],
+                )
+            else:
+                self._target_db = self.task_config.db
 
             # if task_config_override.parents is not None:
             #     self._config_input["parents"] = task_config_override.parents
