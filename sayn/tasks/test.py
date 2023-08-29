@@ -56,6 +56,10 @@ class CompileConfig(BaseModel):
 
 
 class TestTask(Task):
+    @property
+    def target_db(self):
+        return self.connections[self._target_db]
+
     def config(self, **config):
         self._has_tests = True
 
@@ -125,7 +129,7 @@ class TestTask(Task):
                     self.write_compilation_output(query, "test")
                 if "Execute" in step:
                     try:
-                        result = self.default_db.read_data(query)
+                        result = self.target_db.read_data(query)
                     except Exception as e:
                         return Exc(e)
 
@@ -133,7 +137,6 @@ class TestTask(Task):
             return self.success()
         else:
             if self.run_arguments["debug"]:
-
                 errinfo = f"Test failed. You can find the compiled test query at compile/{self.group}/{self.name}_test.sql"
 
                 return self.fail(errinfo)
