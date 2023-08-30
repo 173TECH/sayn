@@ -382,7 +382,7 @@ class CopyTask(SqlTask):
                         self.write_compilation_output(query, "test")
                     if "Execute" in step:
                         try:
-                            result = self.default_db.read_data(query)
+                            result = self.target_db.read_data(query)
                         except Exception as e:
                             return Exc(e)
 
@@ -392,7 +392,7 @@ class CopyTask(SqlTask):
                 errout, failed = self.test_failure(
                     breakdown, result, self.run_arguments["debug"]
                 )
-                problematic_values_query = self.default_db.test_problematic_values(
+                problematic_values_query = self.target_db.test_problematic_values(
                     failed, self.table, self.schema
                 )
 
