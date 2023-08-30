@@ -1,5 +1,17 @@
 # Change Log
 
+## [0.6.11] - 2023-08-30
+
+### Fixed
+
+- Allow changing the target database for tests
+- Fixes load_data code when checking if the table exists
+- Fixes issue with Redshift region setting for IAM connections
+
+### Changed
+
+- Update driver versions for Redshift, Snowflake and BigQuery
+
 ## [0.6.10] - 2023-05-18
 
 ### Fixed
