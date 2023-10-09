@@ -13,7 +13,7 @@ executing `UPDATE` statements for example. It also lets you write a `SELECT` sta
 An `sql` task group is defined as follows:
 
 !!! example "project.yaml"
-    ```
+    ```yaml
     ...
 
     groups:
@@ -56,15 +56,15 @@ An `sql` task is defined by the following attributes:
 
 With `sql` tasks, you should use the `src` and `out` macro in your `SELECT` statements to implicitly create task dependencies.
 
-!!! example "src in sql query"
-    ```
+!!! example "`src` in sql query"
+    ```sql
     SELECT field1
          , field2
       FROM {{ src('my_table') }} l
     ```
 
-!!! example "out in sql query"
-    ```
+!!! example "`out` in sql query"
+    ```sql
     CREATE OR REPLACE {{ out('my_table') }} AS
     (
       SELECT field1
@@ -86,8 +86,8 @@ Similarly, by using `{{ out('table') }}` anywhere in the script you can retrieve
 
 If you need to amend the configuration (e.g. materialisation) of a specific `sql` task within a `group`, you can overload the values specified in the YAML group definition. To do this, we simply call `config` from a Jinja tag within the sql file of the task:
 
-!!! example "sql with config"
-    ```
+!!! example "sql with `config`"
+    ```sql
     {{ config(materialisation='view') }}
 
     SELECT ...
@@ -103,6 +103,7 @@ properties are available for overloading for advanced use cases: `parents`, `out
 refresh (`materialisation: table`) would be infeasible.
 
 We set an `sql` task as incremental by:
+
 1. Setting `materialisation` to `incremental`
 2. Defining a `delete_key`
 
@@ -157,25 +158,26 @@ Sql tasks accept a `columns` field in the task definition that affects the table
 
 SAYN also lets you control the CREATE TABLE statement if you need more specification. This is done with:
 
-* columns: the list of columns including their definitions.
-* table_properties: database specific properties that affect table creation (indexes, cluster, sorting, etc.).
-* post_hook: SQL statements executed right after the table/view creation.
+* `columns`: the list of columns including their definitions.
+* `table_properties`: database specific properties that affect table creation (indexes, cluster, sorting, etc.).
+* `post_hook`: SQL statements executed right after the table/view creation.
 
 `columns` can define the following attributes:
 
-* name: the column name.
-* type: the column type.
-* tests: list of keywords that constraint a specific column
-  - unique: enforces a unique constraint on the column.
-  - not_null: enforces a non null constraint on the column.
-  - allowed_values: list allowed values for the column.
+* `name`: the column name.
+* `type`: the column type.
+* `tests`: list of keywords that constraint a specific column
+  - `unique`: enforces a unique constraint on the column.
+  - `not_null`: enforces a non null constraint on the column.
+  - `allowed_values`: list allowed values for the column.
 
 `table_properties` can define the following attributes (database specific):
-* indexes: specify the indexing for the table.
-* sorting: specify the sorting for the table.
-* distribution_key: specify the type of distribution.
-* partitioning: specify the partitioning model for the table.
-* clustering: specify the clustering for the table.
+
+* `indexes`: specify the indexing for the table,
+* `sorting`: specify the sorting for the table,
+* `distribution_key`: specify the type of distribution,
+* `partitioning`: specify the partitioning model for the table,
+* `clustering`: specify the clustering for the table.
 
 !!! attention
       Each supported database might have specific `table_properties` related to it; see the database-specific pages for further details and examples.
@@ -183,7 +185,7 @@ SAYN also lets you control the CREATE TABLE statement if you need more specifica
 !!! Attention
     If the a primary key is defined in both the `columns` and `indexes` DDL entries, the primary key will be set as part of the `CREATE TABLE` statement only.
 
-!!! example "sql with columns"
+!!! example "sql with `columns`"
     ```yaml
     ...
 

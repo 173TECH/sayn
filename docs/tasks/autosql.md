@@ -9,7 +9,7 @@ The `autosql` task lets you write a `SELECT` statement and SAYN then automates t
 An `autosql` task group is defined as follows:
 
 !!! example "project.yaml"
-    ```
+    ```yaml
     ...
 
     groups:
@@ -46,12 +46,12 @@ An `autosql` task is defined by the following attributes:
 
 With `autosql` tasks, you should use the `src` macro in your `SELECT` statements to implicitly create task dependencies.
 
-!!! example `autosql` query
-  ```
-  SELECT field1
-       , field2
-    FROM {{ src('my_table') }} l
-  ```
+!!! example "`autosql` query"
+    ```sql
+    SELECT field1
+        , field2
+      FROM {{ src('my_table') }} l
+    ```
 
 By using the `{{ src('my_table') }}` in your `FROM` clause, you are effectively telling SAYN that your task depends on the `my_table` table (or view). As a result, SAYN will look for the task that produces `my_table` and set it as a parent of this `autosql` task automatically.
 
@@ -63,7 +63,7 @@ By using the `{{ src('my_table') }}` in your `FROM` clause, you are effectively 
 If you need to amend the configuration (e.g. materialisation) of a specific `autosql` task within a `group`, you can overload the values specified in the YAML group definition. To do this, we simply call `config` from a Jinja tag within the sql file of the task:
 
 !!! example "autosql with config"
-    ```
+    ```sql
     {{ config(materialisation='view') }}
 
     SELECT ...
@@ -132,31 +132,32 @@ Autosql tasks accept a `columns` field in the task definition that affects the t
 
 SAYN also lets you control the CREATE TABLE statement if you need more specification. This is done with:
 
-* columns: the list of columns including their definitions.
-* table_properties: database specific properties that affect table creation (indexes, cluster, sorting, etc.).
-* post_hook: SQL statments executed right after the table/view creation.
+* `columns`: the list of columns including their definitions.
+* `table_properties`: database specific properties that affect table creation (indexes, cluster, sorting, etc.).
+* `post_hook`: SQL statments executed right after the table/view creation.
 
 `columns` can define the following attributes:
 
-* name: the column name.
-* type: the column type.
-* tests: list of keywords that constraint a specific column
-  - unique: enforces a unique constraint on the column.
-  - not_null: enforces a non null constraint on the column.
-  - allowed_values: list allowed values for the column.
+* `name`: the column name.
+* `type`: the column type.
+* `tests`: list of keywords that constraint a specific column
+  - `unique`: enforces a unique constraint on the column.
+  - `not_null`: enforces a non null constraint on the column.
+  - `allowed_values`: list allowed values for the column.
 
 `table_properties` can define the following attributes (database specific):
-* indexes:
-* sorting: specify the sorting for the table
-* distribution_key: specify the type of distribution.
-* partitioning: specify the partitioning model for the table.
-* clustering: specify the clustering for the table.
+
+* `indexes`: specify the indexes for the table,
+* `sorting`: specify the sorting for the table,
+* `distribution_key`: specify the type of distribution,
+* `partitioning`: specify the partitioning model for the table,
+* `clustering`: specify the clustering for the table.
 
 !!! attention
       Each supported database might have specific `table_properties` related to it; see the database-specific pages for further details and examples.
 
 !!! Attention
-    If the a primary key is defined in both the `columns` and `indexes` DDL entries, the primary key will be set as part of the `CREATE TABLE` statement only.
+    If a primary key is defined in both the `columns` and `indexes` DDL entries, the primary key will be set as part of the `CREATE TABLE` statement only.
 
 !!! example "autosql with columns"
     ```yaml

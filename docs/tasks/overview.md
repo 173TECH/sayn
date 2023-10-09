@@ -34,7 +34,7 @@ Please see below the available SAYN task types:
 Tasks in SAYN are defined into `groups` which we describe in the `project.yaml` file in your project. Task `groups` define a set of tasks which share the same attributes. For example we can define a group formed of `sql` tasks called `core` like this:
 
 !!! example "project.yaml"
-    ```
+    ```yaml
     groups:
       core:
         type: sql
@@ -64,7 +64,7 @@ This definition of `groups` in the `project.yaml` file is available for `autosql
 ## Task Attributes
 
 !!! example "project.yaml"
-    ```
+    ```yaml
     groups:
       core:
         type: sql
