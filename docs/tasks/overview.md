@@ -40,8 +40,7 @@ Tasks in SAYN are defined into `groups` which we describe in the `project.yaml` 
         type: sql
         file_name: "core/*.sql"
         materialisation: table
-        destination:
-          table: "{{ task.name }}"
+        destination: "{{ task.name }}"
     ```
 
 The properties defined in the group tell SAYN how to generate tasks:
@@ -70,8 +69,7 @@ This definition of `groups` in the `project.yaml` file is available for `autosql
         type: sql
         file_name: "core/*.sql"
         materialisation: table
-        destination:
-          table: "{{ task.name }}"
+        destination: "{{ task.name }}"
     ```
 
 As you saw in the example above, task attributes can be defined in a dynamic way. This example shows how to use the task name to dynamically define a task. This will effectively tell the task to create the outputs of the `core` tasks into tables based on the `task` name, which is the name of the file without the `.sql` extension for `sql` tasks.
