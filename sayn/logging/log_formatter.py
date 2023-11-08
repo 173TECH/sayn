@@ -545,10 +545,17 @@ class LogFormatter:
         duration = human(details["duration"])
 
         if details.get("result") is None or details["result"].is_ok:
-            return {
-                "level": "info",
-                "message": self.good(f"Took ({duration})"),
-            }
+            if stage == "test":
+                success_message = details.get("result").value
+                return {
+                    "level": "info",
+                    "message": self.good(f"Took ({duration}) - {success_message}"),
+                }
+            else:
+                return {
+                    "level": "info",
+                    "message": self.good(f"Took ({duration})"),
+                }
         else:
             return self.error_result(details["duration"], details["result"].error)
 
