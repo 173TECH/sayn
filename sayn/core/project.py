@@ -56,7 +56,7 @@ class Project(BaseModel):
     @validator(
         *[
             f"{o}_{t}"
-            for o in ("table", "schema")
+            for o in ("database", "table", "schema")
             for t in ("prefix", "suffix", "override")
         ],
         allow_reuse=True,
