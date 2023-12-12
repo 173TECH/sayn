@@ -1,14 +1,16 @@
-{%- if not replace %}
+{%- if temporary %}
+CREATE TEMP TABLE {{ full_name }}
+{%- elif not replace %}
 CREATE TABLE IF NOT EXISTS {{ full_name }}
 {%- elif replace and can_replace_table %}
-{%- if table_exists %}
+  {%- if table_exists %}
 CREATE OR REPLACE TABLE {{ full_name }}
-{%- elif view_exists %}
+  {%- elif view_exists %}
 DROP VIEW IF EXISTS {{ full_name }}{{ ' CASCADE' if needs_cascade else ''}};
 CREATE TABLE {{ full_name }}
-{%- else %}
+  {%- else %}
 CREATE OR REPLACE TABLE {{ full_name }}
-{%- endif %}
+  {%- endif %}
 {%- elif replace and not can_replace_table %}
   {% if table_exists %}
 DROP TABLE IF EXISTS {{ full_name }}{{ ' CASCADE' if needs_cascade else ''}};
@@ -51,6 +53,10 @@ DISTSTYLE {{ distribution['type'] }}
 {{ sorting['type']+' ' if sorting['type']  else '' }}SORTKEY({{ sorting['columns']|join(', ') }})
 {% endif %}
 {% endblock -%}
+
+{%- if temporary %}
+DATA_RETENTION_TIME_IN_DAYS = 0
+{% endif -%}
 
 {%- if select is defined and select is not none %}
 

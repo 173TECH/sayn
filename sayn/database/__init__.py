@@ -637,6 +637,7 @@ class Database:
         db=None,
         select=None,
         replace=False,
+        temporary=False,
         **ddl,
     ):
         db_name = db or ""
@@ -665,6 +666,7 @@ class Database:
             table_exists=table_exists,
             select=select,
             replace=True,
+            temporary=(self.feature("CAN CREATE TEMP TABLE") and temporary),
             can_replace_table=self.feature("CAN REPLACE TABLE"),
             needs_cascade=self.feature("NEEDS CASCADE"),
             cannot_specify_ddl_select=self.feature("CANNOT SPECIFY DDL IN SELECT"),
@@ -821,7 +823,12 @@ class Database:
         tmp_db = db
 
         create_or_replace = self.create_table(
-            tmp_table, tmp_schema, tmp_db, select=select, replace=True
+            tmp_table,
+            tmp_schema,
+            tmp_db,
+            select=select,
+            replace=True,
+            temporary=True,
         )
 
         merge = self.merge_tables(

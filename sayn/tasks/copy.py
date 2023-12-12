@@ -250,6 +250,7 @@ class CopyTask(SqlTask):
             self.mode = "inc"
 
         self.is_full_load = self.run_arguments["full_load"] or self.mode == "full"
+        self.is_temporary = self.mode in ("append", "inc")
 
         result = self.target_db._validate_ddl(
             self.task_config.columns,
@@ -455,7 +456,12 @@ class CopyTask(SqlTask):
                 create_ddl["columns"] = [c for c in self.columns["columns"]]
 
             query = self.target_db.create_table(
-                load_table, schema=load_schema, db=load_db, replace=True, **create_ddl
+                load_table,
+                schema=load_schema,
+                db=load_db,
+                replace=True,
+                temporary=self.is_temporary,
+                **create_ddl,
             )
             if debug:
                 self.write_compilation_output(query, "create_table")

@@ -20,7 +20,7 @@ db_parameters = [
 
 class Snowflake(Database):
     def feature(self, feature):
-        return feature in ("TABLE RENAME CHANGES SCHEMA",)
+        return feature in ("TABLE RENAME CHANGES SCHEMA", "CAN CREATE TEMP TABLE")
 
     def create_engine(self, settings):
         from snowflake.sqlalchemy import URL
