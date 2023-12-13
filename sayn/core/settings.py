@@ -280,7 +280,6 @@ def read_settings():
     if len(environment) == 0:
         environment = None
 
-    print(settings_yaml)
     return Ok({"yaml": settings_yaml, "env": settings_env})
 
 
