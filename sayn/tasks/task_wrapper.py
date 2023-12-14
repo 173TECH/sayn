@@ -374,7 +374,6 @@ class TaskWrapper:
             self.status = TaskStatus.NOT_IN_QUERY
             return Err("execution", "task_not_in_query")
         elif self.status not in (TaskStatus.SETTING_UP, TaskStatus.READY):
-            print("Are we here?")
             return Err("execution", "setup_error", status=self.status)
         else:
             try:
