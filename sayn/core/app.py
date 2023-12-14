@@ -653,7 +653,12 @@ class App:
             self.tracker.report_event(
                 event="finish_stage",
                 duration=duration,
-                tasks={k: v.status for k, v in self.tasks.items()},
+                tasks={
+                    k: v.status
+                    if v.status in (TaskStatus.SUCCEEDED, TaskStatus.FAILED)
+                    else TaskStatus.SKIPPED
+                    for k, v in self.tasks.items()
+                },
             )
             sys.exit(-1)
         elif error is not None:
