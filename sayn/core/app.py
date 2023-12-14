@@ -612,10 +612,14 @@ class App:
         self.tracker.start_stage(
             self.run_arguments.command.value, tasks=list(tasks_in_query.keys())
         )
+        interrupt_flag = False
 
         for task in self.tasks.values():
             if not task.in_query:
                 continue
+
+            if interrupt_flag:
+                task.is_interrupted = True
 
             # We force the run/compile so that the skipped status can be calculated,
             # but we only report if the task is in the query
@@ -638,7 +642,7 @@ class App:
                 )
 
             if self.run_arguments.interrupt and result.is_err:
-                self.check_abort(result)
+                interrupt_flag = True
 
         self.tracker.finish_current_stage(
             tasks={k: v.status for k, v in tasks_in_query.items()},
