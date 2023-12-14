@@ -68,6 +68,7 @@ class RunArguments:
     command: Command = Command.UNDEFINED
     upstream_prod: bool = False
     is_prod: bool = False
+    interrupt: bool = False
 
     include: Set[str]
     exclude: Set[str]
@@ -589,6 +590,8 @@ class App:
         """
         if result is None or not isinstance(result, Result):
             self.finish_app(error=Err("app_setup", "unhandled_error", result=result))
+        elif result.is_err and self.run_arguments.interrupt:
+            self.finish_app(result)
         elif result.is_err:
             self.finish_app(result)
         else:
@@ -634,6 +637,9 @@ class App:
                     "finish_stage", duration=datetime.now() - start_ts, result=result
                 )
 
+            if self.run_arguments.interrupt and result.is_err:
+                self.check_abort(result)
+
         self.tracker.finish_current_stage(
             tasks={k: v.status for k, v in tasks_in_query.items()},
             test=True if self.run_arguments.command == Command.TEST else False,
@@ -643,7 +649,14 @@ class App:
 
     def finish_app(self, error=None):
         duration = datetime.now() - self.app_start_ts
-        if error is not None:
+        if self.run_arguments.interrupt and error is not None:
+            self.tracker.report_event(
+                event="finish_stage",
+                duration=duration,
+                tasks={k: v.status for k, v in self.tasks.items()},
+            )
+            sys.exit(-1)
+        elif error is not None:
             self.tracker.report_event(
                 event="finish_app",
                 duration=duration,
