@@ -76,7 +76,6 @@ class TaskWrapper:
         compiler,
         db_object_compiler,
     ):
-
         self.tags = set(tags or set())
         self.parent_names = set(parent_names or set())
         self.parents = list()
@@ -109,6 +108,9 @@ class TaskWrapper:
 
             self.run_arguments = {
                 "debug": run_arguments.debug,
+                "include_tests": (
+                    run_arguments.command.value == "test" or run_arguments.include_tests
+                ),
                 "full_load": run_arguments.full_load,
                 "start_dt": run_arguments.start_dt,
                 "end_dt": run_arguments.end_dt,
@@ -372,6 +374,7 @@ class TaskWrapper:
             self.status = TaskStatus.NOT_IN_QUERY
             return Err("execution", "task_not_in_query")
         elif self.status not in (TaskStatus.SETTING_UP, TaskStatus.READY):
+            print("Are we here?")
             return Err("execution", "setup_error", status=self.status)
         else:
             try:
