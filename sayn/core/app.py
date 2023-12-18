@@ -590,8 +590,6 @@ class App:
         """
         if result is None or not isinstance(result, Result):
             self.finish_app(error=Err("app_setup", "unhandled_error", result=result))
-        elif result.is_err and self.run_arguments.interrupt:
-            self.finish_app(result)
         elif result.is_err:
             self.finish_app(result)
         else:
