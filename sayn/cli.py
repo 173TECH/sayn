@@ -179,7 +179,6 @@ def click_incremental(func):
 
 def click_run_options(func):
     func = click_debug(func)
-    # func = click_include_tests(func)
     func = click.option("--profile", "-p", help="Profile from settings to use")(func)
     func = click_incremental(func)
     func = click_filter(func)
