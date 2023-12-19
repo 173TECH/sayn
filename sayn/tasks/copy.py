@@ -437,6 +437,7 @@ class CopyTask(SqlTask):
             load_db = self.database
             load_table = self.table
             load_schema = self.schema
+            is_temporary = False
 
         self.set_run_steps(steps)
 
