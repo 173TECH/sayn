@@ -108,9 +108,7 @@ class TaskWrapper:
 
             self.run_arguments = {
                 "debug": run_arguments.debug,
-                "include_tests": (
-                    run_arguments.command.value == "test" or run_arguments.include_tests
-                ),
+                "run_tests": run_arguments.run_tests,
                 "full_load": run_arguments.full_load,
                 "start_dt": run_arguments.start_dt,
                 "end_dt": run_arguments.end_dt,
@@ -379,8 +377,12 @@ class TaskWrapper:
             try:
                 if command == "run":
                     result = self.runner.run()
+                    if self.run_arguments["run_tests"]:
+                        result = self.runner.test()
                 elif command == "compile":
                     result = self.runner.compile()
+                    if self.run_arguments["run_tests"]:
+                        result = self.runner.test()
                 else:
                     result = self.runner.test()
 

@@ -68,7 +68,7 @@ class RunArguments:
     command: Command = Command.UNDEFINED
     upstream_prod: bool = False
     is_prod: bool = False
-    include_tests: bool = False
+    run_tests: bool = False
 
     include: Set[str]
     exclude: Set[str]
@@ -623,12 +623,6 @@ class App:
 
             if self.run_arguments.command == Command.RUN:
                 result = task.run()
-                if not result.is_err and self.run_arguments.include_tests:
-                    # Force Task to be Ready
-                    task.status = TaskStatus.READY
-                    test_result = task.test()
-                    if test_result.is_err:
-                        result = test_result
             elif self.run_arguments.command == Command.COMPILE:
                 result = task.compile()
             elif self.run_arguments.command == Command.TEST:

@@ -17,7 +17,6 @@ class CliApp(App):
         self,
         command,
         debug=False,
-        include_tests=False,
         include=None,
         exclude=None,
         upstream_prod=False,
@@ -25,6 +24,7 @@ class CliApp(App):
         full_load=False,
         start_dt=None,
         end_dt=None,
+        run_tests=False,
     ):
         super().__init__()
 
@@ -69,8 +69,8 @@ class CliApp(App):
         if upstream_prod is not None:
             self.run_arguments.upstream_prod = upstream_prod
 
-        if include_tests is not None:
-            self.run_arguments.include_tests = include_tests
+        if run_tests is not None:
+            self.run_arguments.run_tests = run_tests
 
         self.start_app()
 
@@ -122,11 +122,10 @@ click_debug = click.option(
 )
 
 click_include_tests = click.option(
-    "--include-tests",
-    "-it",
+    "--run-tests",
     is_flag=True,
     default=False,
-    help="Include Tests in task Run.",
+    help="Include Tests in task execution - after task run.",
 )
 
 
@@ -180,7 +179,7 @@ def click_incremental(func):
 
 def click_run_options(func):
     func = click_debug(func)
-    func = click_include_tests(func)
+    # func = click_include_tests(func)
     func = click.option("--profile", "-p", help="Profile from settings to use")(func)
     func = click_incremental(func)
     func = click_filter(func)
@@ -205,7 +204,6 @@ def init(sayn_project_name):
 @click_run_options
 def compile(
     debug,
-    include_tests,
     tasks,
     exclude,
     upstream_prod,
@@ -213,6 +211,7 @@ def compile(
     full_load,
     start_dt,
     end_dt,
+    run_tests,
 ):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
@@ -220,7 +219,6 @@ def compile(
     app = CliApp(
         Command.COMPILE,
         debug,
-        include_tests,
         tasks,
         exclude,
         upstream_prod,
@@ -238,10 +236,10 @@ def compile(
 
 
 @cli.command(help="Run SAYN tasks.")
+@click_include_tests
 @click_run_options
 def run(
     debug,
-    include_tests,
     tasks,
     exclude,
     upstream_prod,
@@ -249,6 +247,7 @@ def run(
     full_load,
     start_dt,
     end_dt,
+    run_tests,
 ):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
@@ -256,7 +255,6 @@ def run(
     app = CliApp(
         Command.RUN,
         debug,
-        include_tests,
         tasks,
         exclude,
         upstream_prod,
@@ -264,6 +262,7 @@ def run(
         full_load,
         start_dt,
         end_dt,
+        run_tests,
     )
 
     app.run()
@@ -277,7 +276,6 @@ def run(
 @click_run_options
 def test(
     debug,
-    include_tests,
     tasks,
     exclude,
     upstream_prod,
@@ -292,7 +290,6 @@ def test(
     app = CliApp(
         Command.TEST,
         debug,
-        include_tests,
         tasks,
         exclude,
         upstream_prod,

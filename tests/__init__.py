@@ -115,8 +115,7 @@ def simulate_task(
 
     run_arguments = {
         "debug": obj_run_arguments.debug,
-        "include_tests": obj_run_arguments.include_tests
-        or obj_run_arguments.command.value == "test",
+        "run_tests": obj_run_arguments.run_tests,
         "full_load": obj_run_arguments.full_load,
         "start_dt": obj_run_arguments.start_dt,
         "end_dt": obj_run_arguments.end_dt,
