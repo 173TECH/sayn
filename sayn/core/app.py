@@ -68,7 +68,7 @@ class RunArguments:
     command: Command = Command.UNDEFINED
     upstream_prod: bool = False
     is_prod: bool = False
-    interrupt: bool = False
+    fail_fast: bool = False
 
     include: Set[str]
     exclude: Set[str]
@@ -617,7 +617,7 @@ class App:
                 continue
 
             if interrupt_flag:
-                task.is_interrupted = True
+                task.fail_fast = True
 
             # We force the run/compile so that the skipped status can be calculated,
             # but we only report if the task is in the query
@@ -639,7 +639,7 @@ class App:
                     "finish_stage", duration=datetime.now() - start_ts, result=result
                 )
 
-            if self.run_arguments.interrupt and result.is_err:
+            if self.run_arguments.fail_fast and result.is_err:
                 interrupt_flag = True
 
         self.tracker.finish_current_stage(
@@ -651,7 +651,7 @@ class App:
 
     def finish_app(self, error=None):
         duration = datetime.now() - self.app_start_ts
-        if self.run_arguments.interrupt and error is not None:
+        if self.run_arguments.fail_fast and error is not None:
             self.tracker.report_event(
                 event="finish_stage",
                 duration=duration,

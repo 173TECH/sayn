@@ -17,7 +17,6 @@ class CliApp(App):
         self,
         command,
         debug=False,
-        interrupt=False,
         include=None,
         exclude=None,
         upstream_prod=False,
@@ -25,6 +24,7 @@ class CliApp(App):
         full_load=False,
         start_dt=None,
         end_dt=None,
+        fail_fast=False,
     ):
         super().__init__()
 
@@ -69,8 +69,8 @@ class CliApp(App):
         if upstream_prod is not None:
             self.run_arguments.upstream_prod = upstream_prod
 
-        if interrupt is not None:
-            self.run_arguments.interrupt = interrupt
+        if fail_fast is not None:
+            self.run_arguments.fail_fast = fail_fast
 
         self.start_app()
 
@@ -121,7 +121,7 @@ click_debug = click.option(
     "--debug", "-d", is_flag=True, default=False, help="Include debug messages"
 )
 
-click_interrupt = click.option(
+click_fail_fast = click.option(
     "--fail-fast",
     is_flag=True,
     default=False,
@@ -179,7 +179,7 @@ def click_incremental(func):
 
 def click_run_options(func):
     func = click_debug(func)
-    func = click_interrupt(func)
+    func = click_fail_fast(func)
     func = click.option("--profile", "-p", help="Profile from settings to use")(func)
     func = click_incremental(func)
     func = click_filter(func)
@@ -204,7 +204,6 @@ def init(sayn_project_name):
 @click_run_options
 def compile(
     debug,
-    interrupt,
     tasks,
     exclude,
     upstream_prod,
@@ -212,6 +211,7 @@ def compile(
     full_load,
     start_dt,
     end_dt,
+    fail_fast,
 ):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
@@ -219,7 +219,6 @@ def compile(
     app = CliApp(
         Command.COMPILE,
         debug,
-        interrupt,
         tasks,
         exclude,
         upstream_prod,
@@ -227,6 +226,7 @@ def compile(
         full_load,
         start_dt,
         end_dt,
+        fail_fast,
     )
 
     app.compile()
@@ -240,7 +240,6 @@ def compile(
 @click_run_options
 def run(
     debug,
-    interrupt,
     tasks,
     exclude,
     upstream_prod,
@@ -248,6 +247,7 @@ def run(
     full_load,
     start_dt,
     end_dt,
+    fail_fast,
 ):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
@@ -255,7 +255,6 @@ def run(
     app = CliApp(
         Command.RUN,
         debug,
-        interrupt,
         tasks,
         exclude,
         upstream_prod,
@@ -263,6 +262,7 @@ def run(
         full_load,
         start_dt,
         end_dt,
+        fail_fast,
     )
 
     app.run()
@@ -276,7 +276,6 @@ def run(
 @click_run_options
 def test(
     debug,
-    interrupt,
     tasks,
     exclude,
     upstream_prod,
@@ -284,6 +283,7 @@ def test(
     full_load,
     start_dt,
     end_dt,
+    fail_fast,
 ):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
@@ -291,7 +291,6 @@ def test(
     app = CliApp(
         Command.TEST,
         debug,
-        interrupt,
         tasks,
         exclude,
         upstream_prod,
@@ -299,6 +298,7 @@ def test(
         full_load,
         start_dt,
         end_dt,
+        fail_fast,
     )
 
     app.test()

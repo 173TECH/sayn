@@ -88,7 +88,7 @@ class TaskWrapper:
         self.used_connections = set()
         self.tracker = tracker
         self.runner = None
-        self.is_interrupted = False
+        self.fail_fast = False
 
         self.name = name
         self.group = group
@@ -267,7 +267,7 @@ class TaskWrapper:
         self.compiler.update_globals(**task_parameters)
 
     def check_skip(self):
-        if self.is_interrupted:
+        if self.fail_fast:
             self.status = TaskStatus.SKIPPED
             return Err("task", "interrupted")
 
