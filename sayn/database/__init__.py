@@ -666,7 +666,6 @@ class Database:
             table_exists=table_exists,
             select=select,
             replace=True,
-            temporary=(self.feature("CAN CREATE TEMP TABLE") and temporary),
             can_replace_table=self.feature("CAN REPLACE TABLE"),
             needs_cascade=self.feature("NEEDS CASCADE"),
             cannot_specify_ddl_select=self.feature("CANNOT SPECIFY DDL IN SELECT"),

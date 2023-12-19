@@ -20,7 +20,7 @@ db_parameters = [
 
 class Snowflake(Database):
     def feature(self, feature):
-        return feature in ("TABLE RENAME CHANGES SCHEMA", "CAN CREATE TEMP TABLE")
+        return feature in ("TABLE RENAME CHANGES SCHEMA")
 
     def create_engine(self, settings):
         from snowflake.sqlalchemy import URL
@@ -80,3 +80,53 @@ class Snowflake(Database):
                     temp_file_name=fname,
                 )
             )
+
+    def create_table(
+        self,
+        table,
+        schema=None,
+        db=None,
+        select=None,
+        replace=False,
+        temporary=False,
+        **ddl,
+    ):
+        db_name = db or ""
+        schema_name = schema or ""
+        full_name = fully_qualify(table, schema, db)
+        if (
+            db_name in self._requested_objects
+            and schema_name in self._requested_objects[db_name]
+            and table in self._requested_objects[db_name][schema_name]
+        ):
+            db_info = self._requested_objects[db_name][schema_name][table]
+            object_type = db_info.get("type")
+            table_exists = bool(object_type == "table")
+            view_exists = bool(object_type == "view")
+        else:
+            db_info = dict()
+            table_exists = True
+            view_exists = True
+
+        template = self._jinja_env.get_template("snowflake_create_table.sql")
+
+        return template.render(
+            table_name=table,
+            full_name=full_name,
+            view_exists=view_exists,
+            table_exists=table_exists,
+            select=select,
+            replace=True,
+            temporary=temporary,
+            can_replace_table=self.feature("CAN REPLACE TABLE"),
+            needs_cascade=self.feature("NEEDS CASCADE"),
+            cannot_specify_ddl_select=self.feature("CANNOT SPECIFY DDL IN SELECT"),
+            all_columns_have_type=len(
+                [c for c in ddl.get("columns", dict()) if c.get("type") is not None]
+            ),
+            **ddl,
+        )
+
+
+def fully_qualify(name, schema=None, db=None):
+    return f"{db+'.' if db is not None else ''}{schema+'.' if schema is not None else ''}{name}"
