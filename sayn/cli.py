@@ -122,11 +122,10 @@ click_debug = click.option(
 )
 
 click_interrupt = click.option(
-    "--interrupt",
-    "-i",
+    "--fail-fast",
     is_flag=True,
     default=False,
-    help="Interrupt execution on first failure.",
+    help="Interrupt remaining task execution on first failure.",
 )
 
 
