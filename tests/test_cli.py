@@ -15,6 +15,7 @@ def cli():
 
 
 @cli.command()
+@tcli.click_include_tests
 @tcli.click_run_options
 def run(
     debug,
@@ -53,7 +54,6 @@ def run(
 @tcli.click_run_options
 def compile(
     debug,
-    run_tests,
     tasks,
     exclude,
     upstream_prod,
@@ -74,7 +74,6 @@ def compile(
     return {
         "command": "compile",
         "debug": debug,
-        "run_tests": run_tests,
         "include": tasks,
         "exclude": exclude,
         "profile": profile,
@@ -113,7 +112,6 @@ def test_simple_compile():
     assert output == {
         "command": "compile",
         "debug": False,
-        "run_tests": False,
         "include": [],
         "exclude": [],
         "profile": None,
@@ -177,7 +175,6 @@ def test_compile_one_task():
     assert output == {
         "command": "compile",
         "debug": False,
-        "run_tests": False,
         "include": ["something"],
         "exclude": [],
         "profile": None,
@@ -193,7 +190,6 @@ def test_compile_two_tasks_old():
     assert output == {
         "command": "compile",
         "debug": False,
-        "run_tests": False,
         "include": ["something", "somethingelse"],
         "exclude": [],
         "profile": None,
@@ -209,7 +205,6 @@ def test_compile_two_tasks_new():
     assert output == {
         "command": "compile",
         "debug": False,
-        "run_tests": False,
         "include": ["something", "somethingelse"],
         "exclude": [],
         "profile": None,
@@ -241,7 +236,6 @@ def test_compile_debug():
     assert output == {
         "command": "compile",
         "debug": True,
-        "run_tests": False,
         "include": ["something"],
         "exclude": [],
         "profile": None,
@@ -273,7 +267,6 @@ def test_compile_debug_multitasks():
     assert output == {
         "command": "compile",
         "debug": True,
-        "run_tests": False,
         "include": ["something", "somethingelse", "somesomeelse"],
         "exclude": [],
         "profile": None,
@@ -305,7 +298,6 @@ def test_compile_full():
     assert output == {
         "command": "compile",
         "debug": False,
-        "run_tests": False,
         "include": ["something"],
         "exclude": [],
         "profile": None,
@@ -337,7 +329,6 @@ def test_compile_exclude():
     assert output == {
         "command": "compile",
         "debug": False,
-        "run_tests": False,
         "include": [],
         "exclude": ["something"],
         "profile": None,
@@ -369,7 +360,6 @@ def test_compile_include_exclude():
     assert output == {
         "command": "compile",
         "debug": False,
-        "run_tests": False,
         "include": ["somethingelse"],
         "exclude": ["something"],
         "profile": None,
