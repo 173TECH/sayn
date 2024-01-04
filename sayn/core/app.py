@@ -1,6 +1,8 @@
 from datetime import datetime, date, timedelta
 from enum import Enum
 from itertools import groupby
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 from pathlib import Path
 import shutil
 from uuid import UUID, uuid4
@@ -8,7 +10,7 @@ import sys
 from typing import Optional, Set
 
 from ..tasks.task_wrapper import TaskWrapper
-from ..utils.dag import query as dag_query, topological_sort
+from ..utils.dag import query as dag_query, topological_sort, topological_sort_step
 from .settings import get_connections, get_settings
 from .errors import Err, Exc, Ok, Result, SaynError
 from ..logging import EventTracker
@@ -68,6 +70,7 @@ class RunArguments:
     command: Command = Command.UNDEFINED
     upstream_prod: bool = False
     is_prod: bool = False
+    n_threads: int = 1
 
     include: Set[str]
     exclude: Set[str]
@@ -610,29 +613,53 @@ class App:
             self.run_arguments.command.value, tasks=list(tasks_in_query.keys())
         )
 
-        for task in self.tasks.values():
-            if not task.in_query:
-                continue
+        print("=========================")
+        print(f"Verify number of threads: {self.run_arguments.n_threads}.")
 
-            # We force the run/compile so that the skipped status can be calculated,
-            # but we only report if the task is in the query
-            # if task.in_query:
-            task.tracker._report_event("start_stage")
-            start_ts = datetime.now()
+        executor = ThreadPoolExecutor(max_workers=self.run_arguments.n_threads)
+        for task_list in topological_sort_step(self.dag):
+            tts = ", ".join(task_list)
+            print("=========================")
+            print(f"Task to run: {tts}")
+            print("=========================")
+            # define dict to store the task futures
+            task_futures = dict()
+            for task in task_list:
+                if task not in tasks_in_query.keys():
+                    continue
 
-            if self.run_arguments.command == Command.RUN:
-                result = task.run()
-            elif self.run_arguments.command == Command.COMPILE:
-                result = task.compile()
-            elif self.run_arguments.command == Command.TEST:
-                result = task.test()
-            else:
-                self.finish_app(error=Err("cli", "wrong_command"))
+                # this message is missleading and breaks the terminal logging
+                # trying to fix it (by moving it into the task_wrapper)
+                # opens a different can of worms
+                tasks_in_query[task].tracker._report_event("start_stage")
+                start_ts = datetime.now()
 
-            if task.in_query:
-                task.tracker._report_event(
-                    "finish_stage", duration=datetime.now() - start_ts, result=result
-                )
+                # submit tasks to be executed
+                if self.run_arguments.command == Command.RUN:
+                    task_futures.update(
+                        {executor.submit(tasks_in_query[task].run): task}
+                    )
+                elif self.run_arguments.command == Command.COMPILE:
+                    task_futures.update(
+                        {executor.submit(tasks_in_query[task].compile): task}
+                    )
+                elif self.run_arguments.command == Command.TEST:
+                    task_futures.update(
+                        {executor.submit(tasks_in_query[task].test): task}
+                    )
+                else:
+                    self.finish_app(error=Err("cli", "wrong_command"))
+
+            # iterate over finished tasks
+            for future in as_completed(task_futures):
+                result = future.result()
+
+                if task in tasks_in_query.keys():
+                    tasks_in_query[task].tracker._report_event(
+                        "finish_stage",
+                        duration=datetime.now() - start_ts,
+                        result=result,
+                    )
 
         self.tracker.finish_current_stage(
             tasks={k: v.status for k, v in tasks_in_query.items()},

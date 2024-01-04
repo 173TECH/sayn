@@ -1,5 +1,6 @@
 from copy import deepcopy
 from typing import Any, Dict, Optional, Set
+import threading
 
 from ..database.unknown import UnknownDb
 
@@ -57,6 +58,8 @@ class TaskWrapper:
     in_query: bool = False
     runner: Optional[Task]
     status: TaskStatus = TaskStatus.UNKNOWN
+    # lock for thread-safety
+    _lock = threading.Lock()
 
     def __init__(
         self,
@@ -374,6 +377,9 @@ class TaskWrapper:
         elif self.status not in (TaskStatus.SETTING_UP, TaskStatus.READY):
             return Err("execution", "setup_error", status=self.status)
         else:
+            # # this makes it sequential :(
+            # # without it's not thread-safe
+            # with self._lock:
             try:
                 if command == "run":
                     result = self.runner.run()
@@ -392,8 +398,7 @@ class TaskWrapper:
             except Exception as e:
                 self.status = TaskStatus.FAILED
                 result = Exc(e)
-
-            return result
+        return result
 
     def set_parents(self, all_tasks, output_to_task):
         for parent_name in self.parent_names:

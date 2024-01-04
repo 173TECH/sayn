@@ -16,7 +16,17 @@ def cli():
 
 @cli.command()
 @tcli.click_run_options
-def run(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_dt):
+def run(
+    debug,
+    tasks,
+    exclude,
+    upstream_prod,
+    profile,
+    full_load,
+    start_dt,
+    end_dt,
+    n_threads,
+):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
@@ -35,12 +45,23 @@ def run(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_
         "full_load": full_load,
         "start_dt": start_dt,
         "end_dt": end_dt,
+        "n_threads": n_threads,
     }
 
 
 @cli.command()
 @tcli.click_run_options
-def compile(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_dt):
+def compile(
+    debug,
+    tasks,
+    exclude,
+    upstream_prod,
+    profile,
+    full_load,
+    start_dt,
+    end_dt,
+    n_threads,
+):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
@@ -59,6 +80,7 @@ def compile(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, 
         "full_load": full_load,
         "start_dt": start_dt,
         "end_dt": end_dt,
+        "n_threads": n_threads,
     }
 
 
@@ -81,6 +103,7 @@ def test_simple_run():
         "full_load": False,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -96,6 +119,7 @@ def test_simple_compile():
         "full_load": False,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -111,6 +135,7 @@ def test_run_one_task():
         "full_load": False,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -126,6 +151,7 @@ def test_run_two_tasks_old():
         "full_load": False,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -141,6 +167,7 @@ def test_run_two_tasks_new():
         "full_load": False,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -156,6 +183,7 @@ def test_compile_one_task():
         "full_load": False,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -171,6 +199,7 @@ def test_compile_two_tasks_old():
         "full_load": False,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -186,6 +215,7 @@ def test_compile_two_tasks_new():
         "full_load": False,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -201,6 +231,7 @@ def test_run_debug():
         "full_load": False,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -216,6 +247,7 @@ def test_compile_debug():
         "full_load": False,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -231,6 +263,7 @@ def test_run_debug_multitasks():
         "full_load": False,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -246,6 +279,7 @@ def test_compile_debug_multitasks():
         "full_load": False,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -261,6 +295,7 @@ def test_run_full():
         "full_load": True,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -276,6 +311,7 @@ def test_compile_full():
         "full_load": True,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -291,6 +327,7 @@ def test_run_exclude():
         "full_load": False,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -306,6 +343,7 @@ def test_compile_exclude():
         "full_load": False,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -321,6 +359,7 @@ def test_run_include_exclude():
         "full_load": False,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
 
 
@@ -336,4 +375,5 @@ def test_compile_include_exclude():
         "full_load": False,
         "start_dt": None,
         "end_dt": None,
+        "n_threads": 1,
     }
