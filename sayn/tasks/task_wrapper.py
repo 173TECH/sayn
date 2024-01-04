@@ -381,6 +381,7 @@ class TaskWrapper:
             # # this makes it sequential :(
             # # without it's not thread-safe
             # with self._lock:
+
             # sleep to ensure tasks take sometime to run
             time.sleep(10)
             try:
@@ -401,7 +402,7 @@ class TaskWrapper:
             except Exception as e:
                 self.status = TaskStatus.FAILED
                 result = Exc(e)
-        return result
+            return result
 
     def set_parents(self, all_tasks, output_to_task):
         for parent_name in self.parent_names:
