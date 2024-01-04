@@ -1,6 +1,7 @@
 from copy import deepcopy
 from typing import Any, Dict, Optional, Set
 import threading
+import time
 
 from ..database.unknown import UnknownDb
 
@@ -380,6 +381,8 @@ class TaskWrapper:
             # # this makes it sequential :(
             # # without it's not thread-safe
             # with self._lock:
+            # sleep to ensure tasks take sometime to run
+            time.sleep(10)
             try:
                 if command == "run":
                     result = self.runner.run()
