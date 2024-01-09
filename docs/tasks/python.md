@@ -12,7 +12,7 @@ There are two models for specifying python tasks in SAYN: a simple way through u
 You can define `python` tasks in SAYN very simply by using decorators. This will let you write a Python function and turn that function into a task. First, you need to add a group in `project.yaml` pointing to the `.py` file where the task code lives:
 
 !!! example "project.yaml"
-    ```
+    ```yaml
     groups:
       decorator_tasks:
         type: python
@@ -24,7 +24,7 @@ You can define `python` tasks in SAYN very simply by using decorators. This will
 Now all tasks defined in `python/decorator_tasks.py` will be added to the DAG. The `module` property expects a python path from the `python` folder in a similar way as you would import a module in python. For example, if our task definition exists in `python/example_mod/decorator_tasks.py` the value in `module` would be `example_mod.decorator_tasks`.
 
 !!! example "python/decorator_tasks.py"
-    ```
+    ```python
     from sayn import task
 
     @task(outputs='logs.api_table', sources='logs.another_table')
@@ -34,6 +34,11 @@ Now all tasks defined in `python/decorator_tasks.py` will be added to the DAG. T
         warehouse.execute(f'CREATE OR REPLACE TABLE {out_table} AS SELECT * from {src_table}')
     ```
 
+!!! info "Python decorators"
+    Decorators in python are used to modify the behaviour of a function. It can be a bit daunting to understand when we first encounter them but for the purpose of SAYN all you need to know is that `@task` turns a standard python
+    function into a SAYN task which can assess useful properties via arguments. There are many resources online describing how decorators work,
+    [for example this](https://realpython.com/primer-on-python-decorators/).
+
 The above example showcases the key elements to a python task:
 
   * `task`: we import SAYN's `task` decorator which is used to turn functions into SAYN tasks added to the DAG.
@@ -42,12 +47,7 @@ The above example showcases the key elements to a python task:
   * function parameters: arguments to the function have special meaning and so the names need to be respected:
     * `context`: is an object granting access to some functionality like project parameters, connections and other functions as seen further down.
     * `warehouse`: connection names (`required_credentials` in `project.yaml`) will automatically provide the object of that connection. You can specify any number of connections here.
-    * param1: the rest of the function arguments are matched against task parameters, these are values defined in the `parameter` property in the group.
-
-!!! info "Python decorators"
-    Decorators in python are used to modify the behaviour of a function. It can be a bit daunting to understand when we first encounter them but for the purpose of SAYN all you need to know is that `@task` turns a standard python
-    function into a SAYN task which can assess useful properties via arguments. There are many resources online describing how decorators work,
-    [for example this](https://realpython.com/primer-on-python-decorators/).
+    * `param1`: the rest of the function arguments are matched against task parameters, these are values defined in the `parameter` property in the group.
 
 Given the code above, this task will:
 
@@ -97,10 +97,10 @@ Where `class` is a python path to the Python class implementing the task. This c
 
 In this example:
 
-* We create a new class inheriting from SAYN's PythonTask.
+* We create a new class inheriting from SAYN's `PythonTask`.
 * We set some dependencies by calling `self.src` and `self.out`.
 * We define a setup method to do some sanity checks. This method can be skipped, but it's
-  useful to check the validity of project parameters or so some initial setup.
+  useful to check the validity of project parameters or initial setup.
 * We define the actual process to execute during `sayn run` with the `run` method.
 * Both `setup` and `run` return the task status as successful `return self.success()`, however we can indicate a task failure to sayn with `return self.fail()`. Failing a python task forces child tasks to be skipped.
 

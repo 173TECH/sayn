@@ -149,6 +149,7 @@ specific column types in the final table:
     ```
 
 In this example we define 2 columns for `task_copy`: `id` and `updated_at`. This will make SAYN:
+
 1. Copy only those 2 columns, disregarding any other columns present at source
 2. Infer the type of `id` based on the type of that column at source
 3. Enforce the destination table type for `updated_at` to be `TIMESTAMP`

@@ -40,10 +40,10 @@ SAYN aims to empower data engineers and analysts through its  three core design 
 SAYN supports Python 3.7 to 3.10.
 
 ```bash
-$ pip install sayn
-$ sayn init test_sayn
-$ cd test_sayn
-$ sayn run
+pip install sayn
+sayn init test_sayn
+cd test_sayn
+sayn run
 ```
 
 This is it! You completed your first SAYN run on the example project. Continue with the [Tutorial: Part 1](https://173tech.github.io/sayn/tutorials/tutorial_part1/) which will give you a good overview of SAYN's true power!
