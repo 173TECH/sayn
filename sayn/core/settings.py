@@ -12,7 +12,7 @@ from ..database.creator import create as create_db, create_dummy
 from .errors import Err, Exc, Ok
 
 RE_ENV_VAR_NAME = re.compile(
-    r"SAYN_((?P<stringify>(SCHEMA|TABLE)_(PREFIX|SUFFIX|STRINGIFY))"
+    r"SAYN_((?P<stringify>(DATABASE|SCHEMA|TABLE)_(PREFIX|SUFFIX|OVERRIDE))"
     r"|(?P<from_prod>FROM_PROD)$"
     r"|(?P<default_run>DEFAULT_RUN)$"
     r"|(?P<type>PARAMETER|CREDENTIAL)_(?P<name>.+))$"
@@ -55,7 +55,7 @@ class Environment(BaseModel):
     class Stringify(BaseModel):
         database_prefix: Optional[str]
         database_suffix: Optional[str]
-        database_stringify: Optional[str]
+        database_override: Optional[str]
         schema_prefix: Optional[str]
         schema_suffix: Optional[str]
         schema_override: Optional[str]
@@ -109,7 +109,7 @@ class SettingsYaml(BaseModel):
 
         database_prefix: Optional[str]
         database_suffix: Optional[str]
-        database_stringify: Optional[str]
+        database_override: Optional[str]
         schema_prefix: Optional[str]
         schema_suffix: Optional[str]
         schema_override: Optional[str]
@@ -221,7 +221,7 @@ class SettingsYaml(BaseModel):
                     f"{obj_type}_{str_type}": profile_info.dict()[
                         f"{obj_type}_{str_type}"
                     ]
-                    for obj_type in ("schema", "table")
+                    for obj_type in ("database", "schema", "table")
                     for str_type in ("prefix", "suffix", "override")
                 }.items()
                 if v is not None
