@@ -139,9 +139,9 @@ class Task:
         """(Deprecated: use `success` instead) Returned on successful execution."""
         return Ok()
 
-    def success(self):
+    def success(self, value=None):
         """Returned on successful execution."""
-        return Ok()
+        return Ok(value=value)
 
     def fail(self, msg=None):
         """Returned on failure in any stage."""
@@ -250,15 +250,12 @@ class Task:
         skipped = [brk for brk in breakdown if brk[0] == "SKIPPED"]
         executed = [brk for brk in breakdown if brk[0] == "EXECUTED"]
 
+        message = str()
         if skipped:
-            self.info(
-                f"{Fore.GREEN}{len(skipped)} Column test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
-            )
-        self.info(
-            f"{Fore.GREEN}{len(executed)} Column test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}, {len(executed)} succeeded."
-        )
+            message += f"{Fore.GREEN}{len(skipped)} Column test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
+        message += f"{Fore.GREEN}{len(executed)} Column test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}, {len(executed)} succeeded."
 
-        return self.success()
+        return self.success(message)
 
     def test_failure(self, breakdown: list, result: dict, run_argument: str) -> tuple:
         """CLI outputs on failed test execution.
@@ -282,8 +279,12 @@ class Task:
             else:
                 failed.append(brk)
         if run_argument:
+            fl_info = f"{Fore.RED}FAILED: "
 
-            fl_info = [f"{Fore.RED}FAILED: "]
+            if skipped:
+                fl_info += f"{Fore.RED}{len(skipped)} Column test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}\n"
+            fl_info += f"{Fore.RED}{len(executed)+len(failed)} Column test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}, {len(executed)} succeeded.\n"
+
             for info in failed:
                 count = sum(
                     [
@@ -292,22 +293,9 @@ class Task:
                         if (item["type"] == info[1] and item["col"] == info[2])
                     ]
                 )
-                fl_info.append(
-                    f"{Fore.RED}{Style.BRIGHT}{info[1]} test{Style.NORMAL} on {Style.BRIGHT}{info[2]} FAILED{Style.NORMAL}. {count} offending records."
-                )
-            if skipped:
-                self.info(
-                    f"{Fore.GREEN}{len(skipped)} Column test(s) {Style.BRIGHT}SKIPPED{Style.NORMAL}"
-                )
-            self.info(
-                f"{Fore.GREEN}{len(executed)+len(failed)} Column test(s) {Style.BRIGHT}EXECUTED{Style.NORMAL}, {len(executed)} succeeded."
-            )
-            for err in fl_info:
-                self.info(err)
+                fl_info += f"\t{Fore.RED}{Style.BRIGHT}{info[1]} test{Style.NORMAL} on {Style.BRIGHT}{info[2]} FAILED{Style.NORMAL}. {count} offending records.\n"
 
-            errinfo = f"Test Failed. You can find the compiled test query at compile/{self.group}/{self.name}_test.sql. You can find queries to retrieve the problematic values at compile/{self.group}/{self.name}_test_problematic_values.sql"
-
-            return (self.fail(errinfo), failed)
+            return (self.fail(fl_info), failed)
         else:
             summary = f"{len(executed)+len(failed)} Column tests were ran, {len(executed)} succeeded, "
             if skipped:
