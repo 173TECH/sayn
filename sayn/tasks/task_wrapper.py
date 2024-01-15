@@ -377,11 +377,11 @@ class TaskWrapper:
             try:
                 if command == "run":
                     result = self.runner.run()
-                    if self.run_arguments["run_tests"]:
+                    if self.run_arguments["run_tests"] and self.has_tests():
                         result = self.runner.test()
                 elif command == "compile":
                     result = self.runner.compile()
-                    if self.run_arguments["run_tests"]:
+                    if self.run_arguments["run_tests"] and self.has_tests():
                         result = self.runner.test()
                 else:
                     result = self.runner.test()
