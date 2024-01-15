@@ -225,6 +225,7 @@ def compile(
         full_load,
         start_dt,
         end_dt,
+        run_tests,
     )
 
     app.compile()
