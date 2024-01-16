@@ -479,25 +479,27 @@ class SqlTask(Task):
                     failed, self.table, self.schema
                 )
 
+                problematic_report = "\n"
+
                 for query in problematic_values_query.split(";"):
                     if query.strip():
                         header = re.search(r"--.*?--", query).group(0)
-                        self.info("")
-                        self.info(header)
-                        self.info(
-                            "===================================================================="
-                        )
-                        self.info(
+
+                        problematic_report += header
+                        problematic_report += "\n====================================================================\n"
+                        problematic_report += (
                             re.sub(r"--.*?--", "", query).replace("\n", " ").strip()
                             + ";"
                         )
-                        self.info(
-                            "===================================================================="
-                        )
-                        self.info("")
+                        problematic_report += "\n====================================================================\n"
 
                 self.write_compilation_output(
                     problematic_values_query, "test_problematic_values"
+                )
+
+                errout.error.details["message"] += (
+                    problematic_report
+                    + f"\n\tTest Failed. You can find the compiled test query at compile/{self.group}/{self.name}_test.sql. You can find queries to retrieve the problematic values at compile/{self.group}/{self.name}_test_problematic_values.sql"
                 )
 
                 return errout

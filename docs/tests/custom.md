@@ -12,7 +12,7 @@ Custom tests are defined in their own task group `tests`. In the test definition
 Defining `custom` tests is quite straight-forward. You only need to provide a `folder_name/file_name`:
 
 !!! example "tests.yaml"
-    ```
+    ```yaml
     tests:
       test_1:
         file_name: *folder_in_sql*/test.sql
@@ -25,7 +25,7 @@ Defining `custom` tests is quite straight-forward. You only need to provide a `f
 Custom tests can also be defined as groups (just like with `sql` tasks). The syntax is the same as in the `sql` tasks, like so:
 
 !!! example "project.yaml"
-    ```
+    ```yaml
     groups:
       tests:
         type: test
@@ -38,7 +38,7 @@ Custom tests can also be defined as groups (just like with `sql` tasks). The syn
 SAYN considers a test to be successful (meaning it passed) when the executing query returns empty (with no results). Thus, when writing `custom` test queries, the test needs to be expressed as a lack of results to show. As an example, we can look at how `unique` and `not_null` tests can be implemented with `custom` tests:
 
 !!! example "SQL test query - unique"
-    ```
+    ```sql
     SELECT t.column
          , COUNT(*)
       FROM table t
@@ -47,7 +47,7 @@ SAYN considers a test to be successful (meaning it passed) when the executing qu
     ```
 
 !!! example "SQL test query - nullity"
-    ```
+    ```sql
     SELECT t.column
          , COUNT(*)
       FROM table t

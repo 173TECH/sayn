@@ -49,9 +49,11 @@ not produced by the currently filtered tasks. Head over to [database objects](da
 Both task filtering and upstream prod arguments can be set using `default_run` in `settings.yaml`. Example:
 
 !!! example "settings.yaml"
+    ```yaml
     profiles:
       dev:
         default_run: -x group:extract
+    ```
 
 This example will make it so that running `sayn run` will already exclude the tasks in the group called `extract`.
 

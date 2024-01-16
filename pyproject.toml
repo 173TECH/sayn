@@ -66,6 +66,7 @@ snowflake = ["snowflake-sqlalchemy"]
 bigquery = ["sqlalchemy-bigquery", "google-cloud-bigquery-storage"]
 graphviz = ["graphviz"]
 
+
 [tool.poetry.scripts]
 sayn = "sayn.cli:cli"
 
@@ -76,7 +77,7 @@ black = "22.12.0"
 flake8 = "^6.0.0"
 mkdocs = "^1.4.2"
 mkdocs-material = "^8.5.11"
-mkdocstrings = "^0.19.1"
+mkdocstrings = {version="^0.19.1", extras=["python-legacy"]}
 livereload = "^2.6.3"
 
 [build-system]
