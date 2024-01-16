@@ -5,6 +5,7 @@ In the [first part of the tutorial](tutorial_part1.md), we executed our first SA
 ## SQL Tasks With SAYN
 
 SAYN can execute two main types of SQL tasks:
+
 * `autosql`: these tasks take a `SELECT` statement and create a table or view using it. All the processes are automated by SAYN in the background.
 * `sql`: these tasks take your SQL statement as is and execute it. These are not covered in this tutorial.
 
@@ -39,7 +40,7 @@ This group effectively does the following:
 
 As explained in the previous section, each file with a `.sql` extension in the `sql/models` folder will be turned into an `autosql` task following our `models` group definition.
 
-For example, the `dim_arenas.sql` file in the `sql/models` folder will be turned into a `dim_arenas` task. This is the SQL code of this file:
+For example, the `dim_arenas.sql` file in the `sql/models` folder will be turned into a `dim_arenas` task. This is the SQL code of this file (note the lack of a semicolon `;` in the end of the SQL file):
 
 !!! example "sql/dim_arenas.sql"
     ```sql
@@ -48,7 +49,7 @@ For example, the `dim_arenas.sql` file in the `sql/models` folder will be turned
       FROM logs_arenas l
     ```
 
-When executed, this task will create a table called `dim_arenas` using this SQL code. This is the `dim_arenas` you can find in the `dev.db` SQLite database at the root level of the project folder. You can execute this task only by running the command `sayn run -t dim_arenas`, where `dim_arenas` is our `task` name.
+When executed, this task will create a table called `dim_arenas` using this SQL code. This is the `dim_arenas` you can find in the `dev.db` SQLite database at the root level of the project folder. You can execute this task only by running the [SAYN run](../cli.md#sayn-run) command `sayn run -t dim_arenas`, where `dim_arenas` is our `task` name.
 
 ### A Model With Dependency
 

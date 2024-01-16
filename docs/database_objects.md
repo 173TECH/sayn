@@ -14,7 +14,7 @@ default schema. SAYN uses the same format to refer to database tables and views,
 ## Compilation of object names
 
 In a real world scenario we want to write our code in a way that dynamically changes depending on the profile we're running
-on (eg: test vs production). This allows for multiple people to collaborate on the same project, wihtout someone's actions
+on (eg: test vs production). This allows for multiple people to collaborate on the same project, without someone's actions
 affecting the work of others in the team. Let's consider this example task:
 
 !!! example "tasks/core.yaml"
@@ -37,7 +37,7 @@ A way to solve this problem could be to have different databases for each person
 database setups, potential data governance issues and increased database costs, as you might need a copy of the data per person
 working with it.
 
-In SAYN there's another solution: we express database object names like `schema.table` but the code that's execution in the database
+In SAYN there's another solution: we express database object names like `schema.table` but the code that is executed in the database
 is transformed according to personal settings. For example, we could have a schema called `analytics_models` where our production lives
 and another called `test_models` where we store data produced during development, with table names like `USER_PREFIX_table` rather
 than `table` so there's no collision and we minimise data redundancy.
@@ -61,7 +61,7 @@ The modifications described above are setup with prefixes, suffixes and override
 
 The above will make every `schema.table` specification to be compiled to `test_schema.up_table`.
 
-Following the example in the previous section, if we want the to call the production schema `analytics_models` we can do so by
+Following the example in the previous section, if we want to call the production schema `analytics_models` we can do so by
 adding the prefix in the `project.yaml` file:
 
 !!! example "project.yaml"
@@ -167,7 +167,7 @@ model. `context.out` and `self.out` are also available in python tasks and their
 Note that calling `src` and `out` in the `run` method of a python task class or in the function code when using a decorator doesn't
 affect task dependencies, it simply outputs the translated database object name. The task dependency behaviour in python tasks is done
 by either calling `self.src` or `self.out` in the `config` method of the class or by passing these references to the `task` decorator
-in the `sources` and `outputs` arguments as seen in this example. For more details head to [the python task section](tasks/python).
+in the `sources` and `outputs` arguments as seen in this example. For more details head to [the python task section](tasks/python.md).
 
 ## Altering the behaviour of `src`
 
@@ -221,7 +221,7 @@ actually be:
 
 As you can see, we just need to specify a list of tables in `from_prod` to always read from the production configuration, that is, the
 settings shared by all team members as specified in `project.yaml`. To make it easier to use, wildcards (`*`) are accepted, so that we
-can specify a whole schema like in the example, but we can also specify a list of tables explicitely instead.
+can specify a whole schema like in the example, but we can also specify a list of tables explicitly instead.
 
 `from_prod` can also be specified using environment variables with `export SAYN_FROM_PROD="logs.*"` where the value is a comma
 separated list of tables.
@@ -297,9 +297,9 @@ but the code executed for `another_example_model` will be:
       FROM test_models.up_example_model
     ```
 
-Because `example_task` is part of this exeuction and produces the table `models.example_model` reference by `another_example_task`
+Because `example_task` is part of this execution and produces the table `models.example_model` referenced by `another_example_task`,
 `models.example_model` is translated using the testing settings into `test_models.up_example_model` unlike `logs.raw_table` which
-as no task producing it is present in this execution, will be translated into the production name.
+(as no task present in this execution is producting it) will be translated into the production name.
 
 With upstream prod it becomes a lot easier to work with your modelling layer without having to duplicate all your upstream tables
 for every person in the team or being forced to work with sampled data.
