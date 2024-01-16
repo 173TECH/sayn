@@ -779,6 +779,8 @@ class Database:
                 table,
                 src_schema=tmp_schema or schema,
                 dst_schema=schema,
+                src_db=tmp_db or db,
+                dst_db=db,
                 **ddl,
             )
 

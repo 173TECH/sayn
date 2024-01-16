@@ -18,7 +18,7 @@ Standard tests are defined in a list format using the `tests` subfield for each 
 
 An example of standard tests being defined for a task is:
 !!! example "tasks.yaml"
-    ```
+    ```yaml
     task:
       type: autosql
       file_name: "task.sql"
@@ -42,9 +42,15 @@ An example of standard tests being defined for a task is:
 We can also define the tests inside `task.sql` by call `config` from a Jinja tag:
 
 !!! example "tasks.sql"
-    ```
-    {{ config(columns=[ {'name': 'id', 'tests':['unique', {'name':'not_null', 'execute':True}]},
-                        {'name':'alias', 'tests':[{'name':'allowed_values':['first','second','third'], execute: False }]}]) }}
+    ```sql
+    {{ config(columns=[ {'name': 'id', 
+                        'tests':['unique', {'name':'not_null', 'execute':True}]},
+
+                        {'name':'alias', 
+                        'tests':[{'name':'allowed_values':['first','second','third'], execute: False }]}
+                      ]
+        ) 
+    }}
 
     SELECT ...
     ```

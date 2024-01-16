@@ -125,12 +125,16 @@ with modelling tasks) it's useful to automatically filter the tasks that will be
 `settings.yaml` or through the environment variable `SAYN_DEFAULT_RUN`:
 
 !!! example "settings.yaml"
+    ```yaml
     profile:
       dev:
         default_run: -x group:extract
+    ```
 
 !!! example ".env.sh"
+    ```bash
     export SAYN_DEFAULT_RUN="-x group:extract"
+    ```
  
 So we just add the arguments we would give after `sayn run` or `sayn compile`. Only task selection and
 upstream prod are allowed (`-t/--tasks`, `-x/--exclude` and `-u/--upstream-prod`).

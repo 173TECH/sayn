@@ -28,7 +28,7 @@ Tests are defined in a list format using the `tests` subfield for each entry in 
 For example, we can define tests to verify uniqueness and nullity for the `id` field and allowed values for the `alias` field for the following task in the `core` group:
 
 !!! example "tasks.yaml"
-    ```
+    ```yaml
       task:
         type: autosql
         file_name: "task.sql"
@@ -50,7 +50,7 @@ For example, we can define tests to verify uniqueness and nullity for the `id` f
 We can also define the tests inside `task.sql` by call `config` from a Jinja tag:
 
 !!! example "tasks.sql"
-    ```
+    ```sql
     {{ config(columns=[ {'name': 'id', 'tests':['unique', 'not_null']},
                         {'name':'alias', 'tests':['allowed_values':['first','second','third']}]) }}
 
@@ -60,7 +60,7 @@ We can also define the tests inside `task.sql` by call `config` from a Jinja tag
 Custom tests can be defined as groups (just like with `sql` tasks). The syntax is the same as in the `sql` tasks, like so:
 
 !!! example "project.yaml"
-    ```
+    ```yaml
     groups:
       tests:
         type: test
@@ -72,17 +72,17 @@ We can also define custom tests in their own task group called `tests` (defining
 For example, we can define a custom tests that executes the test query presented bellow:
 
 !!! example "tests.yaml"
-    ```
+    ```yaml
     tests:
       file_name: *folder_in_sql*/test.sql
     ```
 
 !!! example "SQL test query"
-    ```
+    ```sql
     SELECT l.arena_id
-    FROM dim_arenas as l
-    WHERE l.arena_id IS NULL
-    GROUP BY l.arena_id
+      FROM dim_arenas as l
+     WHERE l.arena_id IS NULL
+     GROUP BY l.arena_id
     HAVING COUNT(*) > 0
     ```
 
