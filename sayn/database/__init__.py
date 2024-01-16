@@ -637,6 +637,7 @@ class Database:
         db=None,
         select=None,
         replace=False,
+        temporary=False,
         **ddl,
     ):
         db_name = db or ""
@@ -823,7 +824,12 @@ class Database:
         tmp_db = db
 
         create_or_replace = self.create_table(
-            tmp_table, tmp_schema, tmp_db, select=select, replace=True
+            tmp_table,
+            tmp_schema,
+            tmp_db,
+            select=select,
+            replace=True,
+            temporary=True,
         )
 
         merge = self.merge_tables(
