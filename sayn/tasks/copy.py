@@ -272,7 +272,9 @@ class CopyTask(SqlTask):
         else:
             return result
 
-        if self.run_arguments["command"] == "test" and len(self.columns["columns"]) > 0:
+        if (
+            self.run_arguments["command"] == "test" or self.run_arguments["run_tests"]
+        ) and len(self.columns["columns"]) > 0:
             result = self.target_db._construct_tests(
                 self.columns["columns"], self.table, self.schema
             )
@@ -483,7 +485,6 @@ class CopyTask(SqlTask):
 
                 def read_iter(iter):
                     if self.mode == "append":
-
                         load_time = datetime.utcnow()
                         for record in iter:
                             yield dict(record, _sayn_load_ts=load_time)

@@ -68,6 +68,7 @@ class RunArguments:
     command: Command = Command.UNDEFINED
     upstream_prod: bool = False
     is_prod: bool = False
+    run_tests: bool = False
     fail_fast: bool = False
 
     include: Set[str]

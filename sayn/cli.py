@@ -24,6 +24,7 @@ class CliApp(App):
         full_load=False,
         start_dt=None,
         end_dt=None,
+        run_tests=False,
         fail_fast=False,
     ):
         super().__init__()
@@ -68,6 +69,9 @@ class CliApp(App):
 
         if upstream_prod is not None:
             self.run_arguments.upstream_prod = upstream_prod
+
+        if run_tests is not None:
+            self.run_arguments.run_tests = run_tests
 
         if fail_fast is not None:
             self.run_arguments.fail_fast = fail_fast
@@ -119,6 +123,13 @@ class ChainOption(click.Option):
 
 click_debug = click.option(
     "--debug", "-d", is_flag=True, default=False, help="Include debug messages"
+)
+
+click_include_tests = click.option(
+    "--run-tests",
+    is_flag=True,
+    default=False,
+    help="Include Tests in task execution - after task run.",
 )
 
 click_fail_fast = click.option(
@@ -211,6 +222,7 @@ def compile(
     full_load,
     start_dt,
     end_dt,
+    run_tests,
     fail_fast,
 ):
 
@@ -226,6 +238,7 @@ def compile(
         full_load,
         start_dt,
         end_dt,
+        run_tests,
         fail_fast,
     )
 
@@ -237,6 +250,7 @@ def compile(
 
 
 @cli.command(help="Run SAYN tasks.")
+@click_include_tests
 @click_run_options
 def run(
     debug,
@@ -247,6 +261,7 @@ def run(
     full_load,
     start_dt,
     end_dt,
+    run_tests,
     fail_fast,
 ):
 
@@ -262,6 +277,7 @@ def run(
         full_load,
         start_dt,
         end_dt,
+        run_tests,
         fail_fast,
     )
 
