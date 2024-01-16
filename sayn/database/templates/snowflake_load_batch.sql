@@ -1,7 +1,7 @@
 {% set file_format = full_table_name + '_csv_format' %}
 {% set stage = full_table_name + '_csv_stage' %}
 
-CREATE OR REPLACE FILE FORMAT {{ file_format }}
+CREATE OR REPLACE TEMP FILE FORMAT {{ file_format }}
   TYPE = 'CSV'
   FIELD_DELIMITER = '\t'
   SKIP_HEADER = 1
@@ -11,7 +11,7 @@ CREATE OR REPLACE FILE FORMAT {{ file_format }}
   ESCAPE_UNENCLOSED_FIELD = '\\'
   ;
 
-CREATE OR REPLACE stage {{ stage }}
+CREATE OR REPLACE TEMP stage {{ stage }}
   file_format = {{ file_format }};
 
 PUT file://{{ temp_file_directory }}/{{ temp_file_name }} @{{ stage }} auto_compress=true;
