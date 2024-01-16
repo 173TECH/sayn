@@ -76,7 +76,6 @@ class CliApp(App):
         if fail_fast is not None:
             self.run_arguments.fail_fast = fail_fast
 
-
         self.start_app()
 
 
@@ -125,7 +124,6 @@ class ChainOption(click.Option):
 click_debug = click.option(
     "--debug", "-d", is_flag=True, default=False, help="Include debug messages"
 )
-
 
 click_include_tests = click.option(
     "--run-tests",
