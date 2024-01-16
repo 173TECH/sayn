@@ -24,6 +24,7 @@ class CliApp(App):
         full_load=False,
         start_dt=None,
         end_dt=None,
+        fail_fast=False,
     ):
         super().__init__()
 
@@ -67,6 +68,9 @@ class CliApp(App):
 
         if upstream_prod is not None:
             self.run_arguments.upstream_prod = upstream_prod
+
+        if fail_fast is not None:
+            self.run_arguments.fail_fast = fail_fast
 
         self.start_app()
 
@@ -115,6 +119,13 @@ class ChainOption(click.Option):
 
 click_debug = click.option(
     "--debug", "-d", is_flag=True, default=False, help="Include debug messages"
+)
+
+click_fail_fast = click.option(
+    "--fail-fast",
+    is_flag=True,
+    default=False,
+    help="Interrupt remaining task execution on first failure.",
 )
 
 
@@ -168,6 +179,7 @@ def click_incremental(func):
 
 def click_run_options(func):
     func = click_debug(func)
+    func = click_fail_fast(func)
     func = click.option("--profile", "-p", help="Profile from settings to use")(func)
     func = click_incremental(func)
     func = click_filter(func)
@@ -190,7 +202,17 @@ def init(sayn_project_name):
 
 @cli.command(help="Compile sql tasks.")
 @click_run_options
-def compile(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_dt):
+def compile(
+    debug,
+    tasks,
+    exclude,
+    upstream_prod,
+    profile,
+    full_load,
+    start_dt,
+    end_dt,
+    fail_fast,
+):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
@@ -204,6 +226,7 @@ def compile(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, 
         full_load,
         start_dt,
         end_dt,
+        fail_fast,
     )
 
     app.compile()
@@ -215,7 +238,17 @@ def compile(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, 
 
 @cli.command(help="Run SAYN tasks.")
 @click_run_options
-def run(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_dt):
+def run(
+    debug,
+    tasks,
+    exclude,
+    upstream_prod,
+    profile,
+    full_load,
+    start_dt,
+    end_dt,
+    fail_fast,
+):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
@@ -229,6 +262,7 @@ def run(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_
         full_load,
         start_dt,
         end_dt,
+        fail_fast,
     )
 
     app.run()
@@ -240,7 +274,17 @@ def run(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_
 
 @cli.command(help="Test SAYN tasks.")
 @click_run_options
-def test(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_dt):
+def test(
+    debug,
+    tasks,
+    exclude,
+    upstream_prod,
+    profile,
+    full_load,
+    start_dt,
+    end_dt,
+    fail_fast,
+):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
@@ -254,6 +298,7 @@ def test(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end
         full_load,
         start_dt,
         end_dt,
+        fail_fast,
     )
 
     app.test()

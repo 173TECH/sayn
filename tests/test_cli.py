@@ -16,7 +16,17 @@ def cli():
 
 @cli.command()
 @tcli.click_run_options
-def run(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_dt):
+def run(
+    debug,
+    fail_fast,
+    tasks,
+    exclude,
+    upstream_prod,
+    profile,
+    full_load,
+    start_dt,
+    end_dt,
+):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
@@ -35,12 +45,23 @@ def run(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_
         "full_load": full_load,
         "start_dt": start_dt,
         "end_dt": end_dt,
+        "fail_fast": fail_fast,
     }
 
 
 @cli.command()
 @tcli.click_run_options
-def compile(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, end_dt):
+def compile(
+    debug,
+    fail_fast,
+    tasks,
+    exclude,
+    upstream_prod,
+    profile,
+    full_load,
+    start_dt,
+    end_dt,
+):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
     exclude = [i for t in exclude for i in t.strip().split(" ")]
@@ -53,6 +74,7 @@ def compile(debug, tasks, exclude, upstream_prod, profile, full_load, start_dt, 
     return {
         "command": "compile",
         "debug": debug,
+        "fail_fast": fail_fast,
         "include": tasks,
         "exclude": exclude,
         "profile": profile,
@@ -75,6 +97,7 @@ def test_simple_run():
     assert output == {
         "command": "run",
         "debug": False,
+        "fail_fast": False,
         "include": [],
         "exclude": [],
         "profile": None,
@@ -90,6 +113,7 @@ def test_simple_compile():
     assert output == {
         "command": "compile",
         "debug": False,
+        "fail_fast": False,
         "include": [],
         "exclude": [],
         "profile": None,
@@ -105,6 +129,7 @@ def test_run_one_task():
     assert output == {
         "command": "run",
         "debug": False,
+        "fail_fast": False,
         "include": ["something"],
         "exclude": [],
         "profile": None,
@@ -120,6 +145,7 @@ def test_run_two_tasks_old():
     assert output == {
         "command": "run",
         "debug": False,
+        "fail_fast": False,
         "include": ["something", "somethingelse"],
         "exclude": [],
         "profile": None,
@@ -135,6 +161,7 @@ def test_run_two_tasks_new():
     assert output == {
         "command": "run",
         "debug": False,
+        "fail_fast": False,
         "include": ["something", "somethingelse"],
         "exclude": [],
         "profile": None,
@@ -150,6 +177,7 @@ def test_compile_one_task():
     assert output == {
         "command": "compile",
         "debug": False,
+        "fail_fast": False,
         "include": ["something"],
         "exclude": [],
         "profile": None,
@@ -165,6 +193,7 @@ def test_compile_two_tasks_old():
     assert output == {
         "command": "compile",
         "debug": False,
+        "fail_fast": False,
         "include": ["something", "somethingelse"],
         "exclude": [],
         "profile": None,
@@ -180,6 +209,7 @@ def test_compile_two_tasks_new():
     assert output == {
         "command": "compile",
         "debug": False,
+        "fail_fast": False,
         "include": ["something", "somethingelse"],
         "exclude": [],
         "profile": None,
@@ -195,6 +225,7 @@ def test_run_debug():
     assert output == {
         "command": "run",
         "debug": True,
+        "fail_fast": False,
         "include": ["something"],
         "exclude": [],
         "profile": None,
@@ -210,6 +241,7 @@ def test_compile_debug():
     assert output == {
         "command": "compile",
         "debug": True,
+        "fail_fast": False,
         "include": ["something"],
         "exclude": [],
         "profile": None,
@@ -225,6 +257,7 @@ def test_run_debug_multitasks():
     assert output == {
         "command": "run",
         "debug": True,
+        "fail_fast": False,
         "include": ["something", "somethingelse", "somesomeelse"],
         "exclude": [],
         "profile": None,
@@ -240,6 +273,71 @@ def test_compile_debug_multitasks():
     assert output == {
         "command": "compile",
         "debug": True,
+        "fail_fast": False,
+        "include": ["something", "somethingelse", "somesomeelse"],
+        "exclude": [],
+        "profile": None,
+        "full_load": False,
+        "start_dt": None,
+        "end_dt": None,
+    }
+
+
+def test_run_fail_fast():
+    output = get_output("run -t something --fail-fast")
+
+    assert output == {
+        "command": "run",
+        "debug": False,
+        "fail_fast": True,
+        "include": ["something"],
+        "exclude": [],
+        "profile": None,
+        "full_load": False,
+        "start_dt": None,
+        "end_dt": None,
+    }
+
+
+def test_compile_fail_fast():
+    output = get_output("compile -t something --fail-fast")
+
+    assert output == {
+        "command": "compile",
+        "debug": False,
+        "fail_fast": True,
+        "include": ["something"],
+        "exclude": [],
+        "profile": None,
+        "full_load": False,
+        "start_dt": None,
+        "end_dt": None,
+    }
+
+
+def test_run_fail_fast_debug():
+    output = get_output("compile -t something --fail-fast -d")
+
+    assert output == {
+        "command": "compile",
+        "debug": True,
+        "fail_fast": True,
+        "include": ["something"],
+        "exclude": [],
+        "profile": None,
+        "full_load": False,
+        "start_dt": None,
+        "end_dt": None,
+    }
+
+
+def test_run_fail_fast_multitasks():
+    output = get_output("run -t something --fail-fast -t somethingelse somesomeelse")
+
+    assert output == {
+        "command": "run",
+        "debug": False,
+        "fail_fast": True,
         "include": ["something", "somethingelse", "somesomeelse"],
         "exclude": [],
         "profile": None,
@@ -255,6 +353,7 @@ def test_run_full():
     assert output == {
         "command": "run",
         "debug": False,
+        "fail_fast": False,
         "include": ["something"],
         "exclude": [],
         "profile": None,
@@ -270,6 +369,7 @@ def test_compile_full():
     assert output == {
         "command": "compile",
         "debug": False,
+        "fail_fast": False,
         "include": ["something"],
         "exclude": [],
         "profile": None,
@@ -285,6 +385,7 @@ def test_run_exclude():
     assert output == {
         "command": "run",
         "debug": False,
+        "fail_fast": False,
         "include": [],
         "exclude": ["something"],
         "profile": None,
@@ -300,6 +401,7 @@ def test_compile_exclude():
     assert output == {
         "command": "compile",
         "debug": False,
+        "fail_fast": False,
         "include": [],
         "exclude": ["something"],
         "profile": None,
@@ -315,6 +417,7 @@ def test_run_include_exclude():
     assert output == {
         "command": "run",
         "debug": False,
+        "fail_fast": False,
         "include": ["somethingelse"],
         "exclude": ["something"],
         "profile": None,
@@ -330,6 +433,7 @@ def test_compile_include_exclude():
     assert output == {
         "command": "compile",
         "debug": False,
+        "fail_fast": False,
         "include": ["somethingelse"],
         "exclude": ["something"],
         "profile": None,
