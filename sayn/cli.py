@@ -25,6 +25,7 @@ class CliApp(App):
         start_dt=None,
         end_dt=None,
         run_tests=False,
+        fail_fast=False,
     ):
         super().__init__()
 
@@ -71,6 +72,10 @@ class CliApp(App):
 
         if run_tests is not None:
             self.run_arguments.run_tests = run_tests
+
+        if fail_fast is not None:
+            self.run_arguments.fail_fast = fail_fast
+
 
         self.start_app()
 
@@ -121,11 +126,19 @@ click_debug = click.option(
     "--debug", "-d", is_flag=True, default=False, help="Include debug messages"
 )
 
+
 click_include_tests = click.option(
     "--run-tests",
     is_flag=True,
     default=False,
     help="Include Tests in task execution - after task run.",
+)
+
+click_fail_fast = click.option(
+    "--fail-fast",
+    is_flag=True,
+    default=False,
+    help="Interrupt remaining task execution on first failure.",
 )
 
 
@@ -179,6 +192,7 @@ def click_incremental(func):
 
 def click_run_options(func):
     func = click_debug(func)
+    func = click_fail_fast(func)
     func = click.option("--profile", "-p", help="Profile from settings to use")(func)
     func = click_incremental(func)
     func = click_filter(func)
@@ -211,6 +225,7 @@ def compile(
     start_dt,
     end_dt,
     run_tests,
+    fail_fast,
 ):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
@@ -226,6 +241,7 @@ def compile(
         start_dt,
         end_dt,
         run_tests,
+        fail_fast,
     )
 
     app.compile()
@@ -248,6 +264,7 @@ def run(
     start_dt,
     end_dt,
     run_tests,
+    fail_fast,
 ):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
@@ -263,6 +280,7 @@ def run(
         start_dt,
         end_dt,
         run_tests,
+        fail_fast,
     )
 
     app.run()
@@ -283,6 +301,7 @@ def test(
     full_load,
     start_dt,
     end_dt,
+    fail_fast,
 ):
 
     tasks = [i for t in tasks for i in t.strip().split(" ")]
@@ -297,6 +316,7 @@ def test(
         full_load,
         start_dt,
         end_dt,
+        fail_fast,
     )
 
     app.test()

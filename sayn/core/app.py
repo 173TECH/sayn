@@ -69,6 +69,7 @@ class RunArguments:
     upstream_prod: bool = False
     is_prod: bool = False
     run_tests: bool = False
+    fail_fast: bool = False
 
     include: Set[str]
     exclude: Set[str]
@@ -610,10 +611,14 @@ class App:
         self.tracker.start_stage(
             self.run_arguments.command.value, tasks=list(tasks_in_query.keys())
         )
+        interrupt_flag = False
 
         for task in self.tasks.values():
             if not task.in_query:
                 continue
+
+            if interrupt_flag:
+                task.fail_fast = True
 
             # We force the run/compile so that the skipped status can be calculated,
             # but we only report if the task is in the query
@@ -635,6 +640,9 @@ class App:
                     "finish_stage", duration=datetime.now() - start_ts, result=result
                 )
 
+            if self.run_arguments.fail_fast and result.is_err:
+                interrupt_flag = True
+
         self.tracker.finish_current_stage(
             tasks={k: v.status for k, v in tasks_in_query.items()},
             test=True if self.run_arguments.command == Command.TEST else False,
@@ -644,7 +652,19 @@ class App:
 
     def finish_app(self, error=None):
         duration = datetime.now() - self.app_start_ts
-        if error is not None:
+        if self.run_arguments.fail_fast and error is not None:
+            self.tracker.report_event(
+                event="finish_stage",
+                duration=duration,
+                tasks={
+                    k: v.status
+                    if v.status in (TaskStatus.SUCCEEDED, TaskStatus.FAILED)
+                    else TaskStatus.SKIPPED
+                    for k, v in self.tasks.items()
+                },
+            )
+            sys.exit(-1)
+        elif error is not None:
             self.tracker.report_event(
                 event="finish_app",
                 duration=duration,

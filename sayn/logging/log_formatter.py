@@ -286,6 +286,10 @@ class LogFormatter:
                 f"Skipping due to ancestors errors: {parents} ({duration})"
             )
 
+        elif error.code == "interrupted":
+            level = "warning"
+            message = self.warn(f"Skipping due to Interrupt signal ({duration})")
+
         elif error.code == "setup_error":
             if error.details["status"].value == "skipped":
                 level = "warning"
