@@ -52,7 +52,7 @@ class FancyLogger(Logger):
             if result.error.code == "parent_errors":
                 self.spinner.text_color = "yellow"
                 self.spinner.warn()
-            if result.error.code == "interrupted":
+            elif result.error.code == "interrupted":
                 self.spinner.text_color = "yellow"
                 self.spinner.warn()
             elif (
