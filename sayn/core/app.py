@@ -68,7 +68,7 @@ class RunArguments:
     command: Command = Command.UNDEFINED
     upstream_prod: bool = False
     is_prod: bool = False
-    run_tests: bool = False
+    with_tests: bool = False
     fail_fast: bool = False
 
     include: Set[str]
@@ -177,7 +177,10 @@ class App:
 
         # Set the tasks for the project and call their config method
 
-        if self.run_arguments.command != Command.TEST:
+        if (
+            self.run_arguments.command != Command.TEST
+            and not self.run_arguments.with_tests
+        ):
             tasks_dict = {k: v for k, v in tasks_dict.items() if v["type"] != "test"}
 
         self.check_abort(self.set_tasks(tasks_dict))

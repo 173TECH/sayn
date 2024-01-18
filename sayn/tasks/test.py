@@ -139,6 +139,9 @@ class TestTask(Task):
             self.test_query += " LIMIT 5\n"
         return Ok()
 
+    def run(self):
+        return self.test()
+
     def test(self):
         step_queries = {
             "Write Test Query": self.test_query,
