@@ -441,6 +441,8 @@ class SqlTask(Task):
         return Ok()
 
     def compile(self):
+        if self.run_arguments["with_tests"] and self._has_tests:
+            self.write_compilation_output(self.test_query, "test")
         return self.execute(False, self.run_arguments["debug"])
 
     def run(self):
