@@ -135,7 +135,7 @@ class TestTask(Task):
 
     def compile(self):
         with self.step("Write Test Query"):
-             self.write_compilation_output(self.test_query, "test")
+            self.write_compilation_output(self.test_query, "test")
 
     def setup(self):
         if self.needs_recompile:
