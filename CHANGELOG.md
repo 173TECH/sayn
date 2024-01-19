@@ -1,5 +1,16 @@
 # Change Log
 
+## [0.6.12] - 2024-01-19
+
+### Changed
+
+- Snowflake: temporary objects are created as `temp` where possible
+  (ie: stages, incremental tables,...)
+- Added flag to run command (--with-tests) that combines the execution of
+  both tests and tasks
+- Added new flag to run and test commands (--fail-fast) that terminates the
+  execution upon an error on any task or test
+
 ## [0.6.11] - 2023-08-30
 
 ### Fixed
