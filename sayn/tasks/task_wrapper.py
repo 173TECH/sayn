@@ -386,8 +386,6 @@ class TaskWrapper:
                         result = self.runner.test()
                 elif command == "compile":
                     result = self.runner.compile()
-                    if self.run_arguments["with_tests"] and self.has_tests():
-                        result = self.runner.test()
                 else:
                     result = self.runner.test()
 

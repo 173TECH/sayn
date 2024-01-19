@@ -133,6 +133,10 @@ class TestTask(Task):
         # Returns an empty string to avoid productin incorrect sql
         return ""
 
+    def compile(self):
+        with self.step("Write Test Query"):
+            self.write_compilation_output(self.test_query, "test")
+
     def setup(self):
         if self.needs_recompile:
             self.test_query = self.compiler.compile(self.task_config.file_name)
