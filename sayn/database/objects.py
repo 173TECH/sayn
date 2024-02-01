@@ -54,7 +54,6 @@ class DbObject:
 
 
 class DbObjectCompiler:
-
     regex_obj = re.compile(
         r"^\s*((?P<connection>[^:]+):)?((?P<c1>[^.]+)\.)?((?P<c2>[^.]+)\.)?(?P<c3>[^.]+)(?P<dots>\.{0,2})\s*$"
     )
@@ -227,21 +226,32 @@ class DbObjectCompiler:
             groups["c2"] = groups["c1"]
             groups["c1"] = None
 
+        period_count = groups["dots"].count(".")
         if self.reference_level[level] == 0:
-            period_count = groups["dots"].count(".")
-
             if period_count > 2:
                 raise ValueError(
-                    f'Invalid number of periods (".") in database object {obj}'
+                    f'Invalid number of trailing periods (".") in database object `{obj}`'
                 )
 
             provided_level = -1 * period_count
         else:
             provided_level = self.reference_level[level]
+            # Ensure concistency between period and level formats
+            # level takes precedence from period format
+            if period_count > -1 * provided_level:
+                raise ValueError(
+                    f'Reference level `{level}` and trailing periods (".") format missmatch in database object `{obj}`'
+                )
 
         component_elements = deque(
             [v for k, v in groups.items() if k != "connection" and k != "dots"]
         )
+
+        # Catch overflow cases
+        if component_elements.count(None) < -1 * provided_level:
+            raise ValueError(
+                f"Database Object string `{obj}` does not match Reference Level `{level or 'table'}`"
+            )
 
         component_elements.rotate(provided_level)
 
