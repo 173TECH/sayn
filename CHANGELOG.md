@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.6.12] - 2024-02-02
+
+### Fixed
+
+- Avoid double execution of tests on run command
+- Don't execute tests when task failed
+
 ## [0.6.12] - 2024-01-19
 
 ### Changed
