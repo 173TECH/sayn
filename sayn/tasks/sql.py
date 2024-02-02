@@ -432,6 +432,7 @@ class SqlTask(Task):
             with self.step(step):
                 if debug and query:
                     self.write_compilation_output(query, step.replace(" ", "_").lower())
+
                 if execute and query:
                     try:
                         self.target_db.execute(query)
