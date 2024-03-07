@@ -83,6 +83,32 @@ def topological_sort(dag):
     return Ok(topo_sorted)
 
 
+def topological_sort_step(dag):
+    if len(dag) == 0:
+        return Ok(list())
+    result = dag_is_valid(dag)
+
+    if result.is_err:
+        return result
+    tmp_dag = dag.copy()
+
+    degree_zero = []
+    while True:
+        tmp_dag = {k: list(set(v) - set(degree_zero)) for k, v in tmp_dag.items()}
+        pending = list(tmp_dag.keys())
+        degree_zero = []
+        for node in pending:
+            if len(tmp_dag[node]) == 0:
+                degree_zero.append(node)
+                tmp_dag.pop(node)
+
+        if len(degree_zero) > 0:
+            yield degree_zero
+
+        if len(pending) == 0:
+            return Ok()
+
+
 # DAG querying
 def downstream(dag, node):
     return upstream(reverse_dict_inclusive(dag), node)
