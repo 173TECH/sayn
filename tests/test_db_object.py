@@ -236,6 +236,9 @@ def test_object_from_string_reference_level_database():
     compiled_object = compiler.from_string("db", level="db")
     assert base_object == compiled_object
 
+    compiled_object = compiler.from_string("db.", level="db")
+    assert base_object == compiled_object
+
     compiled_object = compiler.from_string("db..")
     assert base_object == compiled_object
 
@@ -253,3 +256,15 @@ def test_object_from_string_level_error():
 
     with pytest.raises(ValueError):
         compiler.from_string("test....")
+
+    with pytest.raises(ValueError):
+        compiler.from_string("test..", level="schema")
+
+    with pytest.raises(ValueError):
+        compiler.from_string("test.this..", level="schema")
+
+    with pytest.raises(ValueError):
+        compiler.from_string("test.this.that", level="schema")
+
+    with pytest.raises(ValueError):
+        compiler.from_string("test.this.that", level="db")
