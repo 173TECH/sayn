@@ -434,15 +434,12 @@ class CopyTask(SqlTask):
             load_schema = self.tmp_schema
             if is_full_load or self.mode == "full":
                 steps.append("Move Table")
-                is_temporary = False
             else:
                 steps.append("Merge Tables")
-                is_temporary = True
         else:
             load_db = self.database
             load_table = self.table
             load_schema = self.schema
-            is_temporary = False
 
         self.set_run_steps(steps)
 
@@ -467,7 +464,6 @@ class CopyTask(SqlTask):
                 schema=load_schema,
                 db=load_db,
                 replace=True,
-                temporary=is_temporary,
                 **create_ddl,
             )
             if debug:

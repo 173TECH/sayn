@@ -20,7 +20,10 @@ db_parameters = [
 
 class Snowflake(Database):
     def feature(self, feature):
-        return feature in ("TABLE RENAME CHANGES SCHEMA")
+        return feature in (
+            "TABLE RENAME CHANGES SCHEMA",
+            "CAN REPLACE TABLE",
+        )
 
     def create_engine(self, settings):
         from snowflake.sqlalchemy import URL
@@ -81,6 +84,28 @@ class Snowflake(Database):
                 )
             )
 
+    def move_table(
+        self,
+        src_table,
+        dst_table,
+        src_schema=None,
+        dst_schema=None,
+        src_db=None,
+        dst_db=None,
+        **ddl,
+    ):
+        full_src_table = (
+            f"{src_db + '.' if src_db is not None else ''}"
+            f"{src_schema + '.' if src_schema is not None else ''}"
+            f"{src_table}"
+        )
+        select = f"SELECT * FROM {full_src_table}"
+        create_or_replace = self.create_table(
+            dst_table, dst_schema, dst_db, select=select, replace=True, **ddl
+        )
+
+        return "\n\n".join((create_or_replace, f"DROP TABLE {full_src_table}"))
+
     def create_table(
         self,
         table,
@@ -88,7 +113,6 @@ class Snowflake(Database):
         db=None,
         select=None,
         replace=False,
-        temporary=False,
         **ddl,
     ):
         db_name = db or ""
@@ -108,7 +132,7 @@ class Snowflake(Database):
             table_exists = True
             view_exists = True
 
-        template = self._jinja_env.get_template("snowflake_create_table.sql")
+        template = self._jinja_env.get_template("create_table.sql")
 
         return template.render(
             table_name=table,
@@ -117,7 +141,6 @@ class Snowflake(Database):
             table_exists=table_exists,
             select=select,
             replace=True,
-            temporary=temporary,
             can_replace_table=self.feature("CAN REPLACE TABLE"),
             needs_cascade=self.feature("NEEDS CASCADE"),
             cannot_specify_ddl_select=self.feature("CANNOT SPECIFY DDL IN SELECT"),
