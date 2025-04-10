@@ -1,5 +1,5 @@
 {%- if temporary %}
-CREATE TEMP TABLE {{ full_name }}
+CREATE TRANSIENT TABLE {{ full_name }}
 {%- elif not replace %}
 CREATE TABLE IF NOT EXISTS {{ full_name }}
 {%- elif replace and can_replace_table %}
