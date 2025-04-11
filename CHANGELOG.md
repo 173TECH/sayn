@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.6.14] - 2025-04-11
+
+### Fixed
+
+- On Snowflake switch to using transient tables instead of temporary tables to avoid the
+  situation when SQL commands for an incremental model executed on multiple sessions
+
 ## [0.6.13] - 2024-02-02
 
 ### Fixed
