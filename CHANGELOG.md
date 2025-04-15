@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.6.15] - 2025-04-15
+
+### Fixed
+
+- On Snowflake add replace to temporary table creation
+
 ## [0.6.14] - 2025-04-11
 
 ### Fixed
