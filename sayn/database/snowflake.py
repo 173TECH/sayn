@@ -8,13 +8,14 @@ from . import Database
 
 db_parameters = [
     "account",
-    "region",
-    "user",
-    "password",
     "database",
-    "warehouse",
+    "password",
+    "private_key_file",
+    "region",
     "role",
     "schema",
+    "user",
+    "warehouse",
 ]
 
 
@@ -26,6 +27,7 @@ class Snowflake(Database):
         from snowflake.sqlalchemy import URL
 
         url_params = dict()
+
         for param in db_parameters:
             if param in settings:
                 url_params[param] = settings.pop(param)
@@ -129,4 +131,4 @@ class Snowflake(Database):
 
 
 def fully_qualify(name, schema=None, db=None):
-    return f"{db+'.' if db is not None else ''}{schema+'.' if schema is not None else ''}{name}"
+    return f"{db + '.' if db is not None else ''}{schema + '.' if schema is not None else ''}{name}"

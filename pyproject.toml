@@ -21,8 +21,8 @@ SQLAlchemy = ">=1.4.25,<2.0.0"
 
 pydantic = ">=1.9.0,<1.10.0"
 
-"ruamel.yaml" = "0.18.5"
-"ruamel.yaml.clib" = "0.2.8"
+"ruamel.yaml" = ">=0.18.5"
+"ruamel.yaml.clib" = ">=0.2.8"
 orjson = ">=3.9.10"
 
 # Force dependency versions to avoid security issues
