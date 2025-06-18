@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.6.16] - 2025-06-18
+
+### Changed
+
+- Add support for Snowflake key-pair authentication
+
 ## [0.6.15] - 2025-04-15
 
 ### Fixed
