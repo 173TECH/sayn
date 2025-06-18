@@ -5,7 +5,7 @@
 # except:
 #     pass
 
-__version__ = "0.6.15"
+__version__ = "0.6.16"
 
 
 from .tasks.python import PythonTask, task
