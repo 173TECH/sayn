@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.6.17] - 2025-09-16
+
+### Changed
+
+- Relax BigQuery dependency verions to support python >= 3.13
+
 ## [0.6.16] - 2025-06-18
 
 ### Changed
